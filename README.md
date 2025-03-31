@@ -2,7 +2,35 @@
 
 Welcome to your new `nftropoly` project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+## NFTropoly - Multichain NFT Marketplace
+
+NFTropoly is a modern NFT marketplace running on the Internet Computer blockchain. The platform features:
+
+- **Responsive Design**: Distinct experiences optimized for mobile, tablet, and desktop devices
+- **OpenSea-Inspired Desktop UI**: Clean, modern desktop interface with expandable sidebar
+- **Dark/Light Themes**: User-selectable color themes with system preference detection
+- **Internet Identity Integration**: Secure authentication using Internet Computer's identity system
+- **Multi-chain Support**: Browse NFTs from multiple blockchains in one unified interface
+- **Animated UI**: Smooth animations and transitions for an engaging user experience
+
+### Responsive Design
+
+The platform is built with a responsive design approach that creates optimized experiences for different device types:
+
+- **Mobile Design** (< 640px): Streamlined interface with touch-optimized controls and a hamburger menu
+- **Tablet Design** (640px-1024px): Hybrid approach with sidebar navigation and simplified layouts
+- **Desktop Design** (> 1024px): Modern, clean interface inspired by OpenSea with a collapsible sidebar navigation
+
+### Desktop Layout
+
+The desktop experience features a modern, space-efficient layout:
+
+- **Collapsible Sidebar**: Shows only icons by default, expands on hover to reveal labels
+- **Minimal Header**: Clean header with centered search bar and wallet connection
+- **Maximized Content Area**: Focused viewing experience with maximum screen real estate for content
+- **Compact Footer**: Minimalist footer with key metrics and essential links
+
+## Getting Started
 
 To learn more before you start working with `nftropoly`, see the following documentation available online:
 
@@ -41,13 +69,30 @@ npm run generate
 
 at any time. This is recommended before starting the frontend development server, and will be run automatically any time you run `dfx deploy`.
 
-If you are making frontend changes, you can start a development server with
+## Frontend Development
+
+For frontend development, use the following commands:
 
 ```bash
-npm start
+# Navigate to the frontend directory
+cd src/nftropoly_frontend/
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
 ```
 
-Which will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
+This will start a server at `http://localhost:8080`, proxying API requests to the replica at port 4943.
+
+### Testing Responsive Design
+
+To test the responsive design during development:
+
+1. Use your browser's developer tools to toggle device emulation
+2. Preview the site on real mobile and tablet devices
+3. Resize your browser window to see different breakpoints
 
 ### Note on frontend environment variables
 

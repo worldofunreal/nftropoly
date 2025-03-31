@@ -3,10 +3,14 @@
   import { onMount } from 'svelte';
   import { theme, initTheme } from '$lib/stores/theme.store';
   import { authStore } from '$lib/stores/auth.store';
+  import { page } from '$app/stores';
   import Navigation from '$lib/components/Navigation.svelte';
+  import SidebarDesktop from '$lib/components/SidebarDesktop.svelte';
+  import HeaderDesktop from '$lib/components/HeaderDesktop.svelte';
+  import FooterMinimal from '$lib/components/FooterMinimal.svelte';
   import Toasts from '$lib/components/Toasts.svelte';
+  import { deviceType, initViewport, isDesktop, isMobile, isMobileOrTablet } from '$lib/utils/device';
   
-  let isMobile = false;
   let sidebarOpen = false;
   
   onMount(() => {
@@ -16,91 +20,98 @@
     // Initialize auth store
     authStore.sync();
     
-    // Check if mobile on mount
-    checkMobile();
-    
-    // Listen for window resize
-    window.addEventListener('resize', checkMobile);
+    // Initialize viewport detection
+    const cleanup = initViewport();
     
     return () => {
-      window.removeEventListener('resize', checkMobile);
+      if (cleanup) cleanup();
     };
   });
-  
-  function checkMobile() {
-    isMobile = window.innerWidth < 768;
-    if (!isMobile) {
-      sidebarOpen = false;
-    }
-  }
   
   function toggleSidebar() {
     sidebarOpen = !sidebarOpen;
   }
+
+  // Get current page path for active menu highlighting
+  $: currentPage = $page?.url?.pathname || '/';
 </script>
 
-<div class="app-container {$theme}" class:sidebar-open={sidebarOpen}>
-  <Navigation 
-    isMobile={isMobile} 
-    sidebarOpen={sidebarOpen} 
-    on:toggleSidebar={toggleSidebar} 
-  />
-  
-  <main>
-    <slot></slot>
-  </main>
-  
-  <footer>
-    <div class="footer-content">
-      <div class="footer-brand">
-        <svg class="logo-svg" width="50" height="50" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path class="logo-path" d="M151.772 219.818L121.479 235.396L122.883 83.5168L256 24.3169L255.979 66.9016L228.367 77.3628L228.388 182.805L204.45 193.5V86.0492L153.155 109.251V134.981L187.057 117.7V150.083L153.133 168.944L151.772 219.818Z" />
-          <path class="logo-path" d="M0 186.45V33.5312L39.3061 47.7996L84.6969 143V64L116.954 78.9228L115.54 235.476L87.0936 219.79L37.2689 125.333C34.7524 125.333 34.992 199.046 34.992 199.046L0 186.45Z" />
-        </svg>
-        <p class="tagline">The premier NFT marketplace on the Internet Computer</p>
+<div class="app-container {$theme} {$deviceType}" class:sidebar-open={sidebarOpen}>
+  {#if $isDesktop}
+    <!-- Desktop Layout -->
+    <SidebarDesktop currentPage={currentPage} />
+    <HeaderDesktop />
+    
+    <main class="main-desktop">
+      <slot></slot>
+    </main>
+    
+    <FooterMinimal />
+  {:else}
+    <!-- Mobile/Tablet Layout -->
+    <Navigation 
+      isMobile={$isMobile} 
+      isTablet={!$isDesktop && !$isMobile}
+      isDesktop={false}
+      sidebarOpen={sidebarOpen} 
+      on:toggleSidebar={toggleSidebar} 
+    />
+    
+    <main>
+      <slot></slot>
+    </main>
+    
+    <footer class:mobile-footer={$isMobileOrTablet}>
+      <div class="footer-content">
+        <div class="footer-brand">
+          <svg class="logo-svg" width="50" height="50" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path class="logo-path" d="M151.772 219.818L121.479 235.396L122.883 83.5168L256 24.3169L255.979 66.9016L228.367 77.3628L228.388 182.805L204.45 193.5V86.0492L153.155 109.251V134.981L187.057 117.7V150.083L153.133 168.944L151.772 219.818Z" />
+            <path class="logo-path" d="M0 186.45V33.5312L39.3061 47.7996L84.6969 143V64L116.954 78.9228L115.54 235.476L87.0936 219.79L37.2689 125.333C34.7524 125.333 34.992 199.046 34.992 199.046L0 186.45Z" />
+          </svg>
+          <p class="tagline">The premier NFT marketplace on the Internet Computer</p>
+        </div>
+        
+        <div class="footer-links">
+          <div class="footer-section">
+            <h3>Marketplace</h3>
+            <a href="/">Browse</a>
+            <a href="/collections">Collections</a>
+            <a href="/create">Create</a>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Resources</h3>
+            <a href="/api">API Docs</a>
+            <a href="/faq">FAQ</a>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Company</h3>
+            <a href="/about">About</a>
+            <a href="/careers">Careers</a>
+            <a href="/blog">Blog</a>
+          </div>
+          
+          <div class="footer-section">
+            <h3>Legal</h3>
+            <a href="/terms">Terms</a>
+            <a href="/privacy">Privacy</a>
+          </div>
+        </div>
       </div>
       
-      <div class="footer-links">
-        <div class="footer-section">
-          <h3>Marketplace</h3>
-          <a href="/">Browse</a>
-          <a href="/collections">Collections</a>
-          <a href="/create">Create</a>
-        </div>
-        
-        <div class="footer-section">
-          <h3>Resources</h3>
-          <a href="/integration">Integration</a>
-          <a href="/api">API Docs</a>
-          <a href="/faq">FAQ</a>
-        </div>
-        
-        <div class="footer-section">
-          <h3>Company</h3>
-          <a href="/about">About</a>
-          <a href="/careers">Careers</a>
-          <a href="/blog">Blog</a>
-        </div>
-        
-        <div class="footer-section">
-          <h3>Legal</h3>
-          <a href="/terms">Terms</a>
-          <a href="/privacy">Privacy</a>
+      <div class="footer-bottom">
+        <p>&copy; {new Date().getFullYear()} NFTropoly. All rights reserved.</p>
+        <div class="social-links">
+          <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
+          <a href="https://discord.com" target="_blank" rel="noopener noreferrer">Discord</a>
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
-    </div>
-    
-    <div class="footer-bottom">
-      <p>&copy; {new Date().getFullYear()} NFTropoly. All rights reserved.</p>
-      <div class="social-links">
-        <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">Twitter</a>
-        <a href="https://discord.com" target="_blank" rel="noopener noreferrer">Discord</a>
-        <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub</a>
-      </div>
-    </div>
-  </footer>
+    </footer>
+  {/if}
   
-  <!-- We keep Toasts globally but remove Wallet since its functionality is now in the Navigation component -->
+  <!-- Toast notifications (global) -->
   <Toasts />
 </div>
 
@@ -195,20 +206,51 @@
     min-height: 100vh;
   }
   
+  /* Desktop layout specific styles */
+  .main-desktop {
+    flex: 1;
+    margin-left: 70px; /* Matches collapsed sidebar width (COLLAPSED_WIDTH) */
+    margin-top: 72px; /* Matches header height */
+    margin-bottom: 64px; /* Matches footer height */
+    padding: 24px;
+    transition: margin-left 0.25s ease;
+  }
+  
+  /* Apply specific styles based on device type for mobile/tablet */
+  :global(.mobile) main, :global(.tablet) main {
+    padding: 0 1rem;
+  }
+  
   main {
     flex: 1;
-    padding: 0 1rem;
     max-width: 1440px;
     width: 100%;
     margin: 0 auto;
   }
   
+  /* Styles for mobile/tablet footer */
   footer {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
     padding: 3rem 1rem 1rem;
     margin-top: 3rem;
     border-top: 1px solid var(--border-color);
+  }
+  
+  /* Mobile footer has simplified layout */
+  .mobile-footer .footer-content {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .mobile-footer .footer-links {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+  }
+  
+  .mobile-footer .footer-bottom {
+    flex-direction: column;
+    gap: 1rem;
   }
   
   .footer-content {
@@ -252,9 +294,9 @@
   }
   
   .footer-section h3 {
-    font-size: 1.1rem;
+    font-size: 1rem;
     margin-bottom: 1rem;
-    color: var(--text-primary);
+    font-weight: 600;
   }
   
   .footer-section a {
@@ -262,6 +304,7 @@
     color: var(--text-secondary);
     text-decoration: none;
     margin-bottom: 0.5rem;
+    font-size: 0.9rem;
     transition: color 0.2s ease;
   }
   
@@ -277,8 +320,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-size: 0.85rem;
     color: var(--text-tertiary);
-    font-size: 0.9rem;
   }
   
   .social-links {
@@ -296,6 +339,11 @@
     color: var(--color-accent);
   }
   
+  /* Sidebar handling for mobile */
+  .sidebar-open {
+    overflow: hidden;
+  }
+  
   @media (max-width: 768px) {
     .footer-content {
       grid-template-columns: 1fr;
@@ -304,12 +352,12 @@
     
     .footer-links {
       grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
     }
     
     .footer-bottom {
       flex-direction: column;
       gap: 1rem;
-      text-align: center;
     }
   }
 </style> 
