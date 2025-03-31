@@ -1,0 +1,26 @@
+{
+  "canisters": {
+    "nftropoly_backend": {
+      "declarations": {
+        "node_compatibility": true
+      },
+      "main": "src/nftropoly_backend/main.mo",
+      "type": "motoko"
+    },
+    "test_icrc1": {
+      "declarations": {
+        "node_compatibility": true
+      },
+      "main": "src/nftropoly_backend/test_icrc1.mo",
+      "type": "motoko"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

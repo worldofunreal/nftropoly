@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<link rel="icon" href="%sveltekit.assets%/favicon.ico" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+	<meta name="theme-color" content="#0f0f1a" media="(prefers-color-scheme: dark)" />
+	<meta name="theme-color" content="#f8f9fc" media="(prefers-color-scheme: light)" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+	<title>NFTropoly - NFT Marketplace</title>
+	<!-- Preload the theme to avoid flashing -->
+	<script>
+		(function() {
+			// Check for theme preference in localStorage
+			const savedTheme = localStorage.getItem('nftropoly-theme');
+			
+			// If no saved theme, check system preference
+			let theme = savedTheme;
+			if (!theme) {
+				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+				theme = prefersDark ? 'dark' : 'light';
+			}
+			
+			// Apply theme to document
+			document.documentElement.classList.add(theme);
+			
+			// Set color-scheme for system UI elements
+			document.documentElement.style.colorScheme = theme;
+			
+			// Update theme-color meta tag for browser UI
+			const themeColorMeta = document.querySelector('meta[name="theme-color"]:not([media])');
+			if (themeColorMeta) {
+				themeColorMeta.content = theme === 'dark' ? '#0f0f1a' : '#f8f9fc';
+			}
+		})();
+	</script>
+	%sveltekit.head%
+</head>
+
+<body data-sveltekit-preload-data="hover">
+	<div class="browser-warning">
+		⚠️ If this page appears broken, try reloading. If the problem persists, try switching browsers; Chrome or
+		Firefox are recommended.
+	</div>
+	<div style="display: contents">%sveltekit.body%</div>
+</body>
+
+</html>
