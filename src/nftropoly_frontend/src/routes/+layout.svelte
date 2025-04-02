@@ -12,19 +12,25 @@
   import { deviceType, initViewport, isDesktop, isMobile, isMobileOrTablet } from '$lib/utils/device';
   
   let sidebarOpen = false;
+  let mounted = false;
   
   onMount(() => {
-    // Initialize theme
-    initTheme();
+    // Add mounted flag to avoid client/server mismatches
+    mounted = true;
+    
+    // Initialize theme with cleanup function
+    const themeCleanup = initTheme();
     
     // Initialize auth store
     authStore.sync();
     
     // Initialize viewport detection
-    const cleanup = initViewport();
+    const viewportCleanup = initViewport();
     
+    // Clean up all listeners on unmount
     return () => {
-      if (cleanup) cleanup();
+      if (themeCleanup) themeCleanup();
+      if (viewportCleanup) viewportCleanup();
     };
   });
   
@@ -34,11 +40,25 @@
 
   // Get current page path for active menu highlighting
   $: currentPage = $page?.url?.pathname || '/';
+  
+  // Add theme and device classes
+  $: appClasses = [
+    'app-container',
+    mounted ? $theme : 'initial-theme',
+    mounted ? $deviceType : '',
+    sidebarOpen ? 'sidebar-open' : ''
+  ].filter(Boolean).join(' ');
 </script>
 
-<div class="app-container {$theme} {$deviceType}" class:sidebar-open={sidebarOpen}>
-  {#if $isDesktop}
-    <!-- Desktop Layout -->
+<!-- Add theme color meta for mobile devices -->
+<svelte:head>
+  <meta name="theme-color" content={$theme === 'dark' ? '#0a0a0a' : '#ffffff'} />
+  <meta name="color-scheme" content={$theme === 'dark' ? 'dark' : 'light'} />
+</svelte:head>
+
+<div class={appClasses}>
+  {#if mounted && $isDesktop}
+    <!-- Desktop Layout with Fixed Header, Sidebar, Footer -->
     <SidebarDesktop currentPage={currentPage} />
     <HeaderDesktop />
     
@@ -47,8 +67,8 @@
     </main>
     
     <FooterMinimal />
-  {:else}
-    <!-- Mobile/Tablet Layout -->
+  {:else if mounted}
+    <!-- Mobile/Tablet Layout (Footer might need adjustment here too) -->
     <Navigation 
       isMobile={$isMobile} 
       isTablet={!$isDesktop && !$isMobile}
@@ -57,11 +77,12 @@
       on:toggleSidebar={toggleSidebar} 
     />
     
-    <main>
+    <main class="main-mobile-tablet">
       <slot></slot>
     </main>
     
-    <footer class:mobile-footer={$isMobileOrTablet}>
+    <!-- Standard Footer for mobile/tablet -->
+    <footer class="standard-footer" class:mobile-footer={$isMobileOrTablet}>
       <div class="footer-content">
         <div class="footer-brand">
           <svg class="logo-svg" width="50" height="50" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -133,25 +154,59 @@
     --light-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     
     /* Dark theme variables */
-    --dark-bg-primary: #0f0f1a;
-    --dark-bg-secondary: #151525;
-    --dark-bg-tertiary: #1e1e35;
-    --dark-text-primary: #f1f5f9;
-    --dark-text-secondary: #cbd5e1;
-    --dark-text-tertiary: #94a3b8;
-    --dark-border-color: #2c2c44;
-    --dark-color-accent: #8b5cf6;
-    --dark-color-accent-light: rgba(139, 92, 246, 0.2);
+    --dark-bg-primary: #0a0a0a;
+    --dark-bg-secondary: #111111;
+    --dark-bg-tertiary: #1a1a1a;
+    --dark-text-primary: #f8f9fa;
+    --dark-text-secondary: #e2e2e2;
+    --dark-text-tertiary: #a0a0a0;
+    --dark-border-color: rgba(255, 255, 255, 0.1);
+    --dark-color-accent: #303030;
+    --dark-color-accent-light: rgba(48, 48, 48, 0.2);
     --dark-color-hover: rgba(255, 255, 255, 0.05);
-    --dark-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-    --dark-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-    --dark-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --dark-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --dark-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --dark-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+    
+    /* Dark theme gradient variables */
+    --dark-gradient-primary: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+    --dark-gradient-secondary: linear-gradient(145deg, #111111, #222222);
+    --dark-gradient-accent: linear-gradient(145deg, #202020, #303030);
     
     /* Shared variables */
     --radius-sm: 4px;
     --radius-md: 8px;
     --radius-lg: 16px;
     --radius-full: 9999px;
+
+    /* Define fixed element heights */
+    --header-height: 72px;
+    --footer-height: 64px; /* Adjust if FooterMinimal height changes */
+    --sidebar-width: 70px; /* Collapsed width */
+  }
+  
+  /* Initialize both theme values immediately to prevent FOUC */
+  :global(.initial-theme) {
+    --bg-primary: var(--dark-bg-primary);
+    --bg-secondary: var(--dark-bg-secondary);
+    --bg-tertiary: var(--dark-bg-tertiary);
+    --text-primary: var(--dark-text-primary);
+    --text-secondary: var(--dark-text-secondary);
+    --text-tertiary: var(--dark-text-tertiary);
+    --border-color: var(--dark-border-color);
+    --color-accent: var(--dark-color-accent);
+    --color-accent-light: var(--dark-color-accent-light);
+    --color-hover: var(--dark-color-hover);
+    --shadow-sm: var(--dark-shadow-sm);
+    --shadow-md: var(--dark-shadow-md);
+    --shadow-lg: var(--dark-shadow-lg);
+    --table-hover: var(--dark-table-hover);
+    --tab-active-border: var(--dark-tab-active-border);
+    --favorite-color: var(--dark-favorite-color);
+    --verified-badge: var(--dark-verified-badge);
+    --gradient-primary: var(--dark-gradient-primary);
+    --gradient-secondary: var(--dark-gradient-secondary);
+    --gradient-accent: var(--dark-gradient-accent);
   }
   
   :global(.light) {
@@ -184,16 +239,28 @@
     --shadow-sm: var(--dark-shadow-sm);
     --shadow-md: var(--dark-shadow-md);
     --shadow-lg: var(--dark-shadow-lg);
+    --table-hover: var(--dark-table-hover);
+    --tab-active-border: var(--dark-tab-active-border);
+    --favorite-color: var(--dark-favorite-color);
+    --verified-badge: var(--dark-verified-badge);
+    --gradient-primary: var(--dark-gradient-primary);
+    --gradient-secondary: var(--dark-gradient-secondary);
+    --gradient-accent: var(--dark-gradient-accent);
   }
   
   /* Global styles */
+  :global(html) {
+    height: 100%;
+  }
+
   :global(body) {
     margin: 0;
     padding: 0;
     background-color: var(--bg-primary);
     color: var(--text-primary);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    overflow: hidden; /* Prevent body scroll */
+    height: 100%;
   }
   
   :global(*, *::before, *::after) {
@@ -202,39 +269,54 @@
   
   .app-container {
     display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    height: 100vh; /* Full viewport height */
+    overflow: hidden; /* Prevent scrolling on the container */
+    contain: content; 
+    position: relative; 
   }
   
   /* Desktop layout specific styles */
   .main-desktop {
-    flex: 1;
-    margin-left: 70px; /* Matches collapsed sidebar width (COLLAPSED_WIDTH) */
-    margin-top: 72px; /* Matches header height */
-    margin-bottom: 64px; /* Matches footer height */
-    padding: 24px;
-    transition: margin-left 0.25s ease;
+    flex: 1; /* Allow main content to grow */
+    padding-left: var(--sidebar-width); /* Space for fixed sidebar */
+    padding-top: var(--header-height); /* Space for fixed header */
+    padding-bottom: var(--footer-height); /* Space for fixed footer */
+    height: 100vh; /* Full viewport height */
+    overflow-y: auto; /* Make ONLY this element scrollable */
+    transition: padding-left 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Match sidebar transition */
+    
+    /* Content padding */
+    box-sizing: border-box; /* Ensure padding is included in height/width */
+    padding: var(--header-height) 24px var(--footer-height) calc(var(--sidebar-width) + 24px);
+
+    /* Improve rendering performance */
+    contain: layout style paint;
+    position: relative; 
+    z-index: 1; 
   }
   
-  /* Apply specific styles based on device type for mobile/tablet */
-  :global(.mobile) main, :global(.tablet) main {
-    padding: 0 1rem;
+  /* When sidebar expands, adjust padding */
+  .app-container.sidebar-expanded .main-desktop {
+      padding-left: calc(240px + 24px); /* Expanded width + padding */
   }
-  
-  main {
-    flex: 1;
-    max-width: 1440px;
-    width: 100%;
-    margin: 0 auto;
+
+  /* Mobile/Tablet layout styles */
+  .main-mobile-tablet {
+     flex: 1;
+     padding: 1rem;
+     overflow-y: auto; /* Allow scrolling */
+     padding-top: 70px; /* Assuming mobile header height */
+     padding-bottom: 70px; /* Assuming mobile footer height/space */
   }
-  
-  /* Styles for mobile/tablet footer */
-  footer {
+
+  /* Styles for mobile/tablet standard footer */
+  .standard-footer {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
     padding: 3rem 1rem 1rem;
-    margin-top: 3rem;
+    margin-top: auto; /* Push to bottom if content is short */
     border-top: 1px solid var(--border-color);
+    flex-shrink: 0; /* Prevent shrinking */
   }
   
   /* Mobile footer has simplified layout */
@@ -273,12 +355,7 @@
   }
   
   .logo-path {
-    fill: white;
-  }
-  
-  /* In light theme, make the logo black */
-  :global(.light) .logo-path {
-    fill: #000000;
+    fill: var(--text-primary); /* Use theme variable */
   }
   
   .footer-brand .tagline {
@@ -345,17 +422,18 @@
   }
   
   @media (max-width: 768px) {
-    .footer-content {
+    /* Adjust standard footer for smaller screens */
+    .standard-footer .footer-content {
       grid-template-columns: 1fr;
       gap: 2rem;
     }
     
-    .footer-links {
+    .standard-footer .footer-links {
       grid-template-columns: repeat(2, 1fr);
       gap: 1.5rem;
     }
     
-    .footer-bottom {
+    .standard-footer .footer-bottom {
       flex-direction: column;
       gap: 1rem;
     }

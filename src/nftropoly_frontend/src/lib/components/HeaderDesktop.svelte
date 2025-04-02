@@ -69,10 +69,15 @@
     border-bottom: 1px solid var(--border-color);
     position: fixed;
     top: 0;
-    left: 64px; /* Matches the collapsed sidebar width */
+    left: 70px; /* Matches the collapsed sidebar width */
     right: 0;
-    z-index: 30;
+    z-index: 100; /* Higher z-index to ensure it stays on top */
     transition: left 0.25s ease;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+    width: calc(100% - 70px); /* Take full width minus sidebar */
+    /* Hardware acceleration for smoother fixed positioning */
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
   
   .search-container {

@@ -309,16 +309,20 @@
 <style>
   /* Sidebar base styles */
   .sidebar {
+    background-color: var(--bg-secondary);
+    height: 100vh;
     position: fixed;
     top: 0;
     left: 0;
-    bottom: 0;
-    height: 100vh;
-    overflow: hidden;
-    z-index: 50;
+    z-index: 999; /* Higher z-index to ensure it's on top */
     display: flex;
     flex-direction: column;
-    will-change: width;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid var(--border-color);
+    box-shadow: 1px 0 5px rgba(0, 0, 0, 0.05);
+    transform: translateZ(0); /* Force hardware acceleration */
+    backface-visibility: hidden; /* Improve rendering performance */
+    contain: layout style; /* Improve rendering performance */
   }
   
   /* Different transitions for expanding and collapsing */

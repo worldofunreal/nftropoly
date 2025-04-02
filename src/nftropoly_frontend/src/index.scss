@@ -74,32 +74,37 @@
   --light-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
   
   /* Dark theme variables */
-  --dark-bg-primary: #0f0f1a;
-  --dark-bg-secondary: #151525;
-  --dark-bg-tertiary: #1e1e35;
-  --dark-text-primary: #f1f5f9;
-  --dark-text-secondary: #cbd5e1;
-  --dark-text-tertiary: #94a3b8;
-  --dark-border-color: #2c2c44;
-  --dark-color-accent: #8b5cf6;
-  --dark-color-accent-light: rgba(139, 92, 246, 0.2);
+  --dark-bg-primary: #0a0a0a;
+  --dark-bg-secondary: #111111;
+  --dark-bg-tertiary: #1a1a1a;
+  --dark-text-primary: #f8f9fa;
+  --dark-text-secondary: #e2e2e2;
+  --dark-text-tertiary: #a0a0a0;
+  --dark-border-color: rgba(255, 255, 255, 0.1);
+  --dark-color-accent: #303030;
+  --dark-color-accent-light: rgba(48, 48, 48, 0.2);
   --dark-color-success: #10b981;
   --dark-color-warning: #f59e0b;
   --dark-color-error: #ef4444;
   --dark-color-hover: rgba(255, 255, 255, 0.05);
-  --dark-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
-  --dark-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
-  --dark-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --dark-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --dark-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --dark-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
   
   /* Stats page specific variables */
   --light-table-hover: rgba(243, 244, 246, 0.7);
-  --dark-table-hover: rgba(30, 41, 59, 0.5);
+  --dark-table-hover: rgba(20, 20, 20, 0.5);
   --light-tab-active-border: #8b5cf6;
-  --dark-tab-active-border: #a78bfa;
+  --dark-tab-active-border: #303030;
   --light-favorite-color: #f59e0b;
-  --dark-favorite-color: #fbbf24;
+  --dark-favorite-color: #f59e0b;
   --light-verified-badge: #3b82f6;
-  --dark-verified-badge: #60a5fa;
+  --dark-verified-badge: #3b82f6;
+  
+  /* Gradient variables */
+  --dark-gradient-primary: linear-gradient(145deg, #0a0a0a, #1a1a1a);
+  --dark-gradient-secondary: linear-gradient(145deg, #111111, #222222);
+  --dark-gradient-accent: linear-gradient(145deg, #202020, #303030);
 }
 
 /* Theme variable application */
@@ -147,20 +152,105 @@
   --tab-active-border: var(--dark-tab-active-border);
   --favorite-color: var(--dark-favorite-color);
   --verified-badge: var(--dark-verified-badge);
+  --gradient-primary: var(--dark-gradient-primary);
+  --gradient-secondary: var(--dark-gradient-secondary);
+  --gradient-accent: var(--dark-gradient-accent);
 }
 
+/* Add subtle border to elements in dark mode */
+.dark .card,
+.dark .button,
+.dark .input,
+.dark .modal,
+.dark .dropdown,
+.dark .sidebar {
+  border: 1px solid var(--dark-border-color);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Add thin outlines to special components in dark mode */
+.dark .nft-card,
+.dark .premium-feature,
+.dark .special-button,
+.dark .game-component {
+  outline: 1px solid rgba(255, 255, 255, 0.1);
+  outline-offset: -1px;
+}
+
+/* Gradient background for some elements in dark mode */
+.dark .card,
+.dark .sidebar,
+.dark .navbar,
+.dark .dropdown-menu {
+  background: var(--gradient-primary);
+}
+
+.dark .button-primary,
+.dark .tab-active,
+.dark .highlight-box {
+  background: var(--gradient-accent);
+}
+
+/* Dark mode element hover effects with subtle gradients */
+.dark .button:hover,
+.dark .card:hover,
+.dark .interactive-element:hover {
+  background: linear-gradient(145deg, #131313, #202020);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Optimize theme transitions */
+html {
+  /* Use hardware acceleration for transitions */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  
+  /* Optimize transitions by only animating opacity and specific properties */
+  transition: background-color 0.15s ease;
+}
+
+/* During the initial load, don't show any transitions */
+.theme-initializing {
+  transition: none !important;
+}
+
+.theme-initializing * {
+  transition: none !important;
+}
+
+/* Optimize elements that change with theme */
+body, 
+.card, 
+.button,
+.hero,
+.nft-card,
+.sidebar,
+.navbar,
+input, 
+select, 
+textarea {
+  /* Shorter transition time for better performance */
+  transition: 
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+/* Avoid transitioning expensive properties */
 html, body {
   height: 100%;
   width: 100%;
   overflow-x: hidden;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Only animate these specific properties for theme changes */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  will-change: background-color, color; /* Hint to browser to optimize */
 }
 
 /* App-like styling */
@@ -476,4 +566,51 @@ a:hover {
   text-align: center;
   padding: 0.5rem;
   font-weight: 500;
+}
+
+/* Make sure marketplace elements properly use dark theme */
+.dark .hero,
+.dark .featured-banner,
+.dark .collection-card,
+.dark .nft-card,
+.dark .filters,
+.dark .search-bar,
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder,
+.dark select::placeholder {
+  color: var(--text-tertiary);
+}
+
+/* Ensure backgrounds are properly dark in dark mode */
+.dark body,
+.dark .app-container,
+.dark main,
+.dark .bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.dark .bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.dark .bg-tertiary {
+  background-color: var(--bg-tertiary);
+}
+
+/* Add subtle outlines to containers in dark mode */
+.dark .marketplace-section,
+.dark .search-container,
+.dark .stats-container,
+.dark .featured-section {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
 }

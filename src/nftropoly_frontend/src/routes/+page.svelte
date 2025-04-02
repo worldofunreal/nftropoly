@@ -488,15 +488,26 @@
   }
   
   .hero {
-    background: linear-gradient(45deg, #ff2a6d, #d300c5, #652ec7, #33135c);
-    background-size: 400% 400%;
-    animation: gradient 15s ease infinite;
+    background: var(--bg-secondary);
     border-radius: var(--radius-lg);
     margin-bottom: 2rem;
     padding: 3rem 2rem;
     position: relative;
     overflow: hidden;
     box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+  }
+  
+  .light .hero {
+    background: linear-gradient(45deg, #ff2a6d, #d300c5, #652ec7, #33135c);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+    border: none;
+  }
+  
+  .dark .hero {
+    background: linear-gradient(145deg, #111111, #1a1a1a);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
   
   @keyframes gradient {
@@ -801,6 +812,13 @@
     background: linear-gradient(90deg, #ff2a6d, #d300c5);
     color: white;
     border-color: transparent;
+  }
+  
+  .dark .category-tag.active {
+    background: linear-gradient(145deg, #202020, #303030);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1);
   }
   
   .marketplace-content {

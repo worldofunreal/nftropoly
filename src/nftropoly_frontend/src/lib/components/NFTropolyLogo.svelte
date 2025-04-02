@@ -1,9 +1,7 @@
 <script lang="ts">
   import { onMount, createEventDispatcher } from 'svelte';
-  import { fly, fade, draw, scale, crossfade } from 'svelte/transition';
-  import { cubicOut, elasticOut, bounceOut } from 'svelte/easing';
-  import { theme } from '$lib/stores/theme.store';
-  import { tweened } from 'svelte/motion';
+  import { fly, fade } from 'svelte/transition';
+  import { cubicOut } from 'svelte/easing';
   import { spring } from 'svelte/motion';
 
   // Props
@@ -17,6 +15,9 @@
   let clicked = false;
   let logoSize = spring(size, { stiffness: 0.3, damping: 0.7 });
   let rotation = spring(0, { stiffness: 0.2, damping: 0.8 });
+  
+  // Get path to the logo SVG
+  const logoPath = '/logo.svg';
   
   const dispatch = createEventDispatcher();
 
@@ -79,41 +80,7 @@
     on:keydown={handleKeyDown}
     aria-label="NFTropoly Logo"
   >
-    <svg 
-      class="logo {clicked ? 'clicked' : ''}" 
-      width={$logoSize} 
-      height={$logoSize} 
-      viewBox="0 0 256 256" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
-      style="transform: rotate({$rotation}deg)"
-    >
-      <g class="logo-paths">
-        {#if mounted && animated}
-          <!-- N part of the logo -->
-          <path 
-            class="logo-path-n {hovered ? 'animate-pulse' : ''} {clicked ? 'animate-highlight' : ''}"
-            d="M151.231 217.294L121.628 232.517L123 84.0944L253.087 26.2417L253.066 67.8573L226.083 78.0804L226.104 181.123L202.731 189.03L202.71 86.5692L152.582 109.243V134.387L185.713 117.5V149.146L152.561 167.578L151.231 217.294Z"
-            in:draw={{ duration: 1200, delay: 200, easing: cubicOut }}
-          />
-          <!-- FT part of the logo -->
-          <path 
-            class="logo-path-ft {hovered ? 'animate-pulse' : ''} {clicked ? 'animate-highlight' : ''}"
-            d="M2.91293 184.684V35.246L41.3246 49.1897L88.0245 174.915L85.6824 23L117.205 37.5832L115.824 232.595L88.0245 217.266L39.3337 124.959C36.8744 124.959 37.1086 196.994 37.1086 196.994L2.91293 184.684Z"
-            in:draw={{ duration: 1200, delay: 800, easing: cubicOut }}
-          />
-        {:else}
-          <path 
-            class="logo-path-n {hovered ? 'animate-pulse' : ''} {clicked ? 'animate-highlight' : ''}" 
-            d="M151.231 217.294L121.628 232.517L123 84.0944L253.087 26.2417L253.066 67.8573L226.083 78.0804L226.104 181.123L202.731 189.03L202.71 86.5692L152.582 109.243V134.387L185.713 117.5V149.146L152.561 167.578L151.231 217.294Z" 
-          />
-          <path 
-            class="logo-path-ft {hovered ? 'animate-pulse' : ''} {clicked ? 'animate-highlight' : ''}" 
-            d="M2.91293 184.684V35.246L41.3246 49.1897L88.0245 174.915L85.6824 23L117.205 37.5832L115.824 232.595L88.0245 217.266L39.3337 124.959C36.8744 124.959 37.1086 196.994 37.1086 196.994L2.91293 184.684Z" 
-          />
-        {/if}
-      </g>
-    </svg>
+    <img src={logoPath} alt="NFTropoly Logo" class="logo-svg" width="252" height="207" />
     {#if expanded}
       <span 
         class="logo-text {clicked ? 'text-animate' : ''}" 
@@ -134,32 +101,23 @@
     on:keydown={handleKeyDown}
     aria-label="NFTropoly Logo"
   >
-    <svg 
+    <img 
+      src={logoPath} 
+      alt="NFTropoly Logo"
       class="logo {clicked ? 'clicked' : ''}" 
       width={$logoSize} 
       height={$logoSize} 
-      viewBox="0 0 256 256" 
-      fill="none" 
-      xmlns="http://www.w3.org/2000/svg"
       style="transform: rotate({$rotation}deg)"
-    >
-      <g class="logo-paths">
-        <!-- N part of the logo -->
-        <path 
-          class="logo-path-n {hovered ? 'animate-pulse' : ''} {clicked ? 'animate-highlight' : ''}"
-          d="M151.231 217.294L121.628 232.517L123 84.0944L253.087 26.2417L253.066 67.8573L226.083 78.0804L226.104 181.123L202.731 189.03L202.71 86.5692L152.582 109.243V134.387L185.713 117.5V149.146L152.561 167.578L151.231 217.294Z"
-        />
-        <!-- FT part of the logo -->
-        <path 
-          class="logo-path-ft {hovered ? 'animate-pulse' : ''} {clicked ? 'animate-highlight' : ''}"
-          d="M2.91293 184.684V35.246L41.3246 49.1897L88.0245 174.915L85.6824 23L117.205 37.5832L115.824 232.595L88.0245 217.266L39.3337 124.959C36.8744 124.959 37.1086 196.994 37.1086 196.994L2.91293 184.684Z"
-        />
-      </g>
-    </svg>
+    />
   </div>
 {/if}
 
 <style>
+  .logo-full, .logo-icon {
+    position: relative;
+    z-index: 101; /* Ensure logo appears above fixed footer */
+  }
+  
   .logo-full {
     display: flex;
     align-items: center;
@@ -175,39 +133,13 @@
     transform: translateY(1px);
   }
   
-  .logo {
+  .logo, .logo-svg {
     display: block;
     transition: transform 0.3s ease;
   }
   
   .logo.clicked {
     filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.6));
-  }
-  
-  /* Logo path styling */
-  .logo-path-n, .logo-path-ft {
-    transition: fill 0.3s ease, stroke 0.3s ease, stroke-width 0.3s ease;
-    stroke-width: 1;
-  }
-  
-  :global(.light-sidebar) .logo-path-n {
-    fill: #14ff0c;
-    stroke: rgb(255, 136, 0);
-  }
-  
-  :global(.light-sidebar) .logo-path-ft {
-    fill: #8b5cf6;
-    stroke: #8b5cf6;
-  }
-  
-  :global(.dark-sidebar) .logo-path-n {
-    fill: #818cf8;
-    stroke: #818cf8;
-  }
-  
-  :global(.dark-sidebar) .logo-path-ft {
-    fill: #a78bfa;
-    stroke: #a78bfa;
   }
   
   /* Pulsing animation for logo hover */
@@ -223,28 +155,17 @@
     }
   }
   
-  .animate-pulse {
-    animation: pulse 1.5s infinite ease-in-out;
-  }
-  
   /* Highlight animation for click/tap */
   @keyframes highlight {
     0% {
       filter: brightness(1);
-      stroke-width: 1;
     }
     50% {
       filter: brightness(1.5);
-      stroke-width: 2;
     }
     100% {
       filter: brightness(1);
-      stroke-width: 1;
     }
-  }
-  
-  .animate-highlight {
-    animation: highlight 0.8s ease-in-out;
   }
   
   /* Text animation for click */
@@ -271,12 +192,20 @@
     font-weight: 600;
     font-size: 18px;
     white-space: nowrap;
-    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    background: linear-gradient(90deg, #303030, #505050);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     text-fill-color: transparent;
     transition: transform 0.2s ease;
+  }
+  
+  :global(.light) .logo-text {
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
   }
   
   .logo-text.text-animate {

@@ -1118,119 +1118,95 @@
   
   .activity-table {
     width: 100%;
-    border-collapse: separate;
     border-spacing: 0;
+    border-collapse: separate;
+    table-layout: fixed; /* Fixed layout for better control */
+  }
+  
+  .activity-table th,
+  .activity-table td {
+    padding: 12px 8px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   
   .activity-table th {
-    position: sticky;
-    top: 0;
-    background-color: var(--bg-secondary);
-    padding: 16px 12px;
-    text-align: left;
-    font-weight: 600;
+    color: var(--text-tertiary);
     font-size: 12px;
-    color: var(--text-secondary);
+    font-weight: 600;
+    text-transform: uppercase;
     border-bottom: 1px solid var(--border-color);
-    z-index: 10;
-    white-space: nowrap;
   }
   
-  .th-content {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
+  /* Column widths */
+  .activity-table th:nth-child(1), .activity-table td:nth-child(1) { width: 60px; } /* Event */
+  .activity-table th:nth-child(2), .activity-table td:nth-child(2) { width: 200px; } /* Item */
+  .activity-table th:nth-child(3), .activity-table td:nth-child(3) { width: 100px; } /* Price */
+  .activity-table th:nth-child(4), .activity-table td:nth-child(4) { width: 80px; } /* Rarity */
+  .activity-table th:nth-child(5), .activity-table td:nth-child(5) { width: 50px; } /* Qty */
+  .activity-table th:nth-child(6), .activity-table td:nth-child(6) { width: 120px; } /* From */
+  .activity-table th:nth-child(7), .activity-table td:nth-child(7) { width: 120px; } /* To */
+  .activity-table th:nth-child(8), .activity-table td:nth-child(8) { width: 80px; } /* Time */
   
-  .activity-table td {
-    padding: 16px 12px;
-    font-size: 14px;
+  .activity-table tr {
     border-bottom: 1px solid var(--border-color);
-    color: var(--text-primary);
-    white-space: nowrap;
   }
   
-  .activity-table tbody tr {
-    transition: background-color 0.2s ease;
+  .activity-table tr:last-child {
+    border-bottom: none;
   }
   
-  .activity-table tbody tr:hover:not(.loading-row) {
-    background-color: var(--table-hover);
-  }
-  
-  .event-cell {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  
-  .event-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 4px;
+  .activity-table tr:hover {
     background-color: var(--bg-tertiary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
   
-  .event-icon svg {
-    width: 18px;
-    height: 18px;
+  /* Fix vertical alignment */
+  .activity-table td {
+    vertical-align: middle;
   }
   
-  .event-label {
-    font-weight: 500;
-  }
-  
+  /* Item styling */
   .item-cell {
     display: flex;
     align-items: center;
     gap: 12px;
-    width: 250px;
+    max-width: 100%;
   }
   
   .item-image {
     width: 40px;
     height: 40px;
-    border-radius: 4px;
-    overflow: hidden;
-    background-color: var(--bg-tertiary);
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-    flex-shrink: 0;
-  }
-  
-  .item-image img {
-    width: 100%;
-    height: 100%;
+    border-radius: 8px;
     object-fit: cover;
+    overflow: hidden;
+    flex-shrink: 0;
   }
   
   .item-details {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    overflow: hidden;
+    min-width: 0; /* Enable text truncation */
   }
   
   .item-name {
-    font-weight: 500;
+    font-weight: 600;
     color: var(--text-primary);
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
-  .collection-name {
+  .item-collection {
     font-size: 12px;
-    color: var(--text-secondary);
+    color: var(--text-tertiary);
     display: flex;
     align-items: center;
     gap: 4px;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
   }
   
   .verified-badge {
@@ -1250,27 +1226,61 @@
     height: 12px;
   }
   
+  /* Price cell styling */
   .price-cell {
-    font-family: 'Courier New', monospace;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    font-family: monospace;
+  }
+  
+  .currency-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+  }
+  
+  /* User address styling */
+  .user-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .user-address {
+    background-color: var(--bg-tertiary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 12px;
+    color: var(--text-primary);
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Event styling */
+  .event-cell {
     font-weight: 500;
+    text-transform: capitalize;
   }
   
-  .price-value, .rarity-value, .quantity-value, .address-value, .time-value {
-    font-size: 14px;
-  }
-  
-  .address-value {
-    font-family: 'Courier New', monospace;
-  }
-  
-  .time-value {
+  /* Time styling */
+  .time-cell {
     display: flex;
     align-items: center;
     gap: 4px;
+    color: var(--text-tertiary);
+    font-size: 12px;
   }
   
-  .time-value svg {
-    color: var(--text-secondary);
+  .time-icon {
+    width: 12px;
+    height: 12px;
   }
   
   .loading-row td {
