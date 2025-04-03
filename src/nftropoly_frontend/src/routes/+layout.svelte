@@ -267,6 +267,7 @@
     box-sizing: border-box;
   }
   
+  /* Layout Styles */
   .app-container {
     display: flex;
     height: 100vh; /* Full viewport height */
@@ -284,26 +285,25 @@
     height: 100vh; /* Full viewport height */
     overflow-y: auto; /* Make ONLY this element scrollable */
     transition: padding-left 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Match sidebar transition */
+    z-index: 1;
     
     /* Content padding */
     box-sizing: border-box; /* Ensure padding is included in height/width */
-    padding: var(--header-height) 24px var(--footer-height) calc(var(--sidebar-width) + 24px);
+    padding: var(--header-height) 0 var(--footer-height) var(--sidebar-width);
 
     /* Improve rendering performance */
-    contain: layout style paint;
-    position: relative; 
-    z-index: 1; 
+    contain: paint;
+    will-change: transform; /* Performance hint */
   }
   
   /* When sidebar expands, adjust padding */
   .app-container.sidebar-expanded .main-desktop {
-      padding-left: calc(240px + 24px); /* Expanded width + padding */
+      padding-left: 240px; /* Expanded width + padding */
   }
 
   /* Mobile/Tablet layout styles */
   .main-mobile-tablet {
      flex: 1;
-     padding: 1rem;
      overflow-y: auto; /* Allow scrolling */
      padding-top: 70px; /* Assuming mobile header height */
      padding-bottom: 70px; /* Assuming mobile footer height/space */
