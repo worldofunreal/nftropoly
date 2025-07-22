@@ -1,0 +1,4 @@
+# robots.txt for nftropoly.com
+User-Agent: *
+Disallow:
+Sitemap: https://nftropoly.com/sitemap.xml
