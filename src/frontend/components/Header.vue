@@ -32,29 +32,44 @@
             size="md"
             class="w-64"
             icon="ri:search-line"
-            :ui="{ icon: { trailing: false } }"
           />
         </div>
       </div>
       <!-- Right: Actions -->
       <div class="flex items-center gap-4">
         <!-- Connect Wallet Button -->
-        <UButton color="primary" icon="solar:wallet-bold" class="hidden md:flex" @click="connectWallet" v-if="!walletConnected">
+        <UButton color="primary" icon="solar:wallet-bold" class="hidden md:flex" @click="openLoginPanel" v-if="!authStore.authenticated">
           Connect Wallet
         </UButton>
         <!-- Profile Avatar -->
-        <div v-if="walletConnected">
+        <div v-if="authStore.authenticated" class="flex items-center gap-3">
           <UAvatar
             :src="userAvatar"
             size="md"
             class="cursor-pointer"
             @click="openUserMenu"
-            :alt="'User profile'"
+            :alt="authStore.player?.username || 'User profile'"
           >
             <template #fallback>
-              <UIcon name="ix:user-profile-filled" class="w-6 h-6 text-gray-400" />
+              <div class="w-full h-full rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold text-sm">
+                {{ authStore.player?.avatarId || 'U' }}
+              </div>
             </template>
           </UAvatar>
+          <div class="hidden md:block">
+            <div class="text-sm font-medium">{{ authStore.player?.username || 'User' }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">{{ authStore.player?.ethAddress?.slice(0, 6) }}...{{ authStore.player?.ethAddress?.slice(-4) }}</div>
+          </div>
+          <UButton
+            size="sm"
+            color="neutral"
+            variant="soft"
+            icon="solar:logout-2-bold"
+            @click="logout"
+            class="hidden md:flex"
+          >
+            Logout
+          </UButton>
         </div>
         <!-- Theme Toggle Button - Client Only -->
         <ClientOnly>
@@ -82,16 +97,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch, inject } from 'vue'
 import { useColorMode } from '#imports'
+import { useAuthStore } from '@/stores/auth'
 
 const colorMode = useColorMode()
 const route = useRoute()
+const authStore = useAuthStore()
 
 const scrolled = ref(false)
 const search = ref('')
 const walletConnected = ref(false) // Stub: replace with real wallet logic
 const userAvatar = ref('') // Stub: replace with real avatar URL
+
+// Inject the login panel ref from the app
+const loginPanelRef = inject('loginPanelRef') as any
 
 const onScroll = () => {
   scrolled.value = window.scrollY > 10
@@ -132,13 +152,18 @@ function handleHomeClick(e: MouseEvent) {
   }
 }
 
-function connectWallet() {
-  // Stub: implement wallet connect logic
-  walletConnected.value = true
+function openLoginPanel() {
+  console.log('openLoginPanel called');
+  console.log('loginPanelRef:', loginPanelRef);
+  loginPanelRef.value?.open()
 }
 
 function openUserMenu() {
   // Stub: implement user menu logic
   alert('Open user menu (stub)')
+}
+
+function logout() {
+  authStore.logout()
 }
 </script>

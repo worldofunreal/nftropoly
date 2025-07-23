@@ -11,12 +11,20 @@
       <AppFooter />
     </div>
   </div>
+  <LoginPanel ref="loginPanelRef" />
 </template>
 
 <script setup lang="ts">
+import { ref, provide } from 'vue';
 import SidebarNav from "./components/SidebarNav.vue";
 import Header from "./components/Header.vue";
 import AppFooter from "./components/AppFooter.vue";
+import LoginPanel from "./components/LoginPanel.vue";
+
+const loginPanelRef = ref<any>(null);
+
+// Provide the login panel ref so other components can access it
+provide('loginPanelRef', loginPanelRef);
 </script>
 
 <style>
