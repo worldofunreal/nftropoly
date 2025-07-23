@@ -15,11 +15,11 @@
         <CollectionTopControls />
       </div>
       <!-- NFT Grid/List -->
-      <div class="flex-1 px-4">
+      <div class="flex-1 px-4 mb-14">
         <CollectionNFTGrid />
       </div>
       <!-- Buy Area (Bottom Bar) -->
-      <div class="sticky bottom-0 left-0 w-full z-20">
+      <div class="sticky bottom-11 left-0 w-full z-20">
         <CollectionBuyBar />
       </div>
     </div>
