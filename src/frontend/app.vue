@@ -14,9 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import SidebarNav from './components/SidebarNav.vue'
-import Header from './components/Header.vue'
-import AppFooter from './components/AppFooter.vue'
+import SidebarNav from "./components/SidebarNav.vue";
+import Header from "./components/Header.vue";
+import AppFooter from "./components/AppFooter.vue";
 </script>
 
 <style>
