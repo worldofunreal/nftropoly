@@ -12,7 +12,8 @@ export default defineNuxtConfig({
       '@nuxt/scripts',
       '@nuxt/test-utils',
       '@nuxt/ui',
-      '@vueuse/motion/nuxt'
+      '@vueuse/motion/nuxt',
+      '@pinia/nuxt'
     ],
     fonts: {
       families: [
