@@ -28,7 +28,7 @@ import SidebarItem from './SidebarItem.vue'
 const collapsed = ref(true)
 
 const menuItems = [
-  { label: 'Discover', icon: 'iconamoon:discover-fill', to: '/home' },
+  { label: 'Discover', icon: 'iconamoon:discover-fill', to: '/' },
   { label: 'NFTs', icon: 'ri:nft-fill', to: '/nfts' },
   { label: 'Tokens', icon: 'ic:baseline-generating-tokens', to: '/tokens' },
   { label: 'Activity', icon: 'fa-solid:list', to: '/activity' },
