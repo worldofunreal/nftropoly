@@ -1,0 +1,127 @@
+<template>
+  <div class="overflow-x-auto rounded-xl shadow bg-white dark:bg-gray-900">
+    <table class="min-w-full text-sm">
+      <thead>
+        <tr class="border-b border-gray-200 dark:border-gray-800">
+          <th v-for="col in columns" :key="col.key" @click="sort(col.key)" class="px-4 py-3 font-bold text-left cursor-pointer select-none">
+            <span>{{ col.label }}</span>
+            <UIcon v-if="sortColumn === col.key" :name="sortOrder === 'asc' ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline ml-1 text-xs" />
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="token in sortedTokens" :key="token.symbol" class="border-b border-gray-100 dark:border-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
+          <!-- TOKEN -->
+          <td class="px-4 py-2 flex items-center gap-2">
+            <img :src="token.logo" alt="logo" class="w-7 h-7 rounded-full border" />
+            <div class="min-w-0">
+              <NuxtLink :to="`/tokens/${token.symbol}`" class="font-bold text-primary-600 hover:underline">{{ token.symbol }}</NuxtLink>
+              <div class="text-xs text-gray-500 truncate">{{ token.name }}</div>
+            </div>
+          </td>
+          <!-- PRICE -->
+          <td class="px-4 py-2 font-mono">{{ token.price }}</td>
+          <!-- 1H CHANGE -->
+          <td class="px-4 py-2 font-mono" :class="token.change1h >= 0 ? 'text-green-600' : 'text-red-600'">
+            <UIcon :name="token.change1h >= 0 ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline text-xs" />
+            {{ token.change1h }}%
+          </td>
+          <!-- 24H CHANGE -->
+          <td class="px-4 py-2 font-mono" :class="token.change24h >= 0 ? 'text-green-600' : 'text-red-600'">
+            <UIcon :name="token.change24h >= 0 ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline text-xs" />
+            {{ token.change24h }}%
+          </td>
+          <!-- 7D CHANGE -->
+          <td class="px-4 py-2 font-mono" :class="token.change7d >= 0 ? 'text-green-600' : 'text-red-600'">
+            <UIcon :name="token.change7d >= 0 ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline text-xs" />
+            {{ token.change7d }}%
+          </td>
+          <!-- 1D VOL -->
+          <td class="px-4 py-2 font-mono">{{ token.vol1d }}</td>
+          <!-- MARKET CAP -->
+          <td class="px-4 py-2 font-mono">{{ token.marketCap }}</td>
+          <!-- SUPPLY -->
+          <td class="px-4 py-2 font-mono">{{ token.supply }}</td>
+          <!-- FDV -->
+          <td class="px-4 py-2 font-mono">{{ token.fdv }}</td>
+          <!-- LAST 7D (Sparkline) -->
+          <td class="px-4 py-2"><div class="h-6 w-24 bg-gradient-to-r from-primary-100 to-primary-300 dark:from-primary-900 dark:to-primary-700 rounded flex items-center justify-center text-xs text-primary-700 dark:text-primary-200">[sparkline]</div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
+<script setup lang="ts">
+import { ref, computed } from 'vue'
+
+interface TokenRow extends Record<string, any> {
+  logo: string;
+  symbol: string;
+  name: string;
+  price: string;
+  change1h: number;
+  change24h: number;
+  change7d: number;
+  vol1d: string;
+  marketCap: string;
+  supply: string;
+  fdv: string;
+  sparkline: any[];
+}
+
+const columns = [
+  { key: 'token', label: 'TOKEN' },
+  { key: 'price', label: 'PRICE' },
+  { key: 'change1h', label: '1H CHANGE' },
+  { key: 'change24h', label: '24H CHANGE' },
+  { key: 'change7d', label: '7D CHANGE' },
+  { key: 'vol1d', label: '1D VOL' },
+  { key: 'marketCap', label: 'MARKET CAP' },
+  { key: 'supply', label: 'SUPPLY' },
+  { key: 'fdv', label: 'FDV' },
+  { key: 'sparkline', label: 'LAST 7D' }
+]
+const sortColumn = ref<string>('marketCap')
+const sortOrder = ref<'asc' | 'desc'>('desc')
+const tokens = ref<TokenRow[]>([
+  {
+    logo: 'https://cryptologos.cc/logos/internet-computer-icp-logo.png', symbol: 'ICP', name: 'Internet Computer', price: '$12.34', change1h: 0.2, change24h: 4.2, change7d: 8.1, vol1d: '$12.3M', marketCap: '$5.1B', supply: '450M', fdv: '$6.2B', sparkline: []
+  },
+  {
+    logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', symbol: 'ETH', name: 'Ethereum', price: '$3,200', change1h: -0.1, change24h: 2.1, change7d: 5.7, vol1d: '$23.1B', marketCap: '$380B', supply: '120M', fdv: '$380B', sparkline: []
+  },
+  {
+    logo: 'https://cryptologos.cc/logos/solana-sol-logo.png', symbol: 'SOL', name: 'Solana', price: '$145', change1h: 0.5, change24h: -1.1, change7d: 2.7, vol1d: '$2.3B', marketCap: '$65B', supply: '440M', fdv: '$65B', sparkline: []
+  },
+  {
+    logo: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png', symbol: 'BTC', name: 'Bitcoin', price: '$67,000', change1h: 0.1, change24h: 0.5, change7d: 1.2, vol1d: '$34.2B', marketCap: '$1.3T', supply: '19.7M', fdv: '$1.3T', sparkline: []
+  },
+  {
+    logo: 'https://cryptologos.cc/logos/chainlink-link-logo.png', symbol: 'LINK', name: 'Chainlink', price: '$18.20', change1h: 0.3, change24h: 6.3, change7d: 10.2, vol1d: '$0.8B', marketCap: '$10.2B', supply: '587M', fdv: '$18.2B', sparkline: []
+  }
+])
+function sort(key: string) {
+  if (sortColumn.value === key) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortColumn.value = key
+    sortOrder.value = 'desc'
+  }
+}
+const sortedTokens = computed(() => {
+  const col = sortColumn.value
+  const order = sortOrder.value
+  return [...tokens.value].sort((a, b) => {
+    if (typeof a[col] === 'string' && a[col][0] === '$') {
+      // Remove $ and commas for numeric sort
+      const numA = parseFloat(a[col].replace(/[$,MBT]/g, ''))
+      const numB = parseFloat(b[col].replace(/[$,MBT]/g, ''))
+      return order === 'asc' ? numA - numB : numB - numA
+    }
+    if (typeof a[col] === 'number') {
+      return order === 'asc' ? a[col] - b[col] : b[col] - a[col]
+    }
+    return 0
+  })
+})
+</script> 
