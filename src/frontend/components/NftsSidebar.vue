@@ -62,7 +62,7 @@ const chains = [
   { label: 'Arbitrum', icon: 'logos:arbitrum' },
   { label: 'Avalanche', icon: 'logos:avalanche' },
   { label: 'Base', icon: 'logos:base' },
-  { label: 'Polygon', icon: 'logos:polygon' },
+  { label: 'Polygon', icon: 'token-branded:polygon' },
   { label: 'Ronin', icon: 'logos:ronin' },
   { label: 'Zora', icon: 'logos:zora' }
 ]

@@ -26,6 +26,24 @@ export default defineNuxtConfig({
     css: [
       '~/assets/css/main.css'
     ],
+    vite: {
+      define: {
+        global: 'globalThis',
+      },
+      resolve: {
+        alias: {
+          buffer: 'buffer',
+        },
+      },
+      optimizeDeps: {
+        include: ['buffer'],
+      },
+    },
+    nitro: {
+      experimental: {
+        wasm: true,
+      },
+    },
     app: {
       head: {
         title: 'Nftropoly - The Multichain, Gasless NFT Marketplace',
