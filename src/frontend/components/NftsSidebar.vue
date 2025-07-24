@@ -1,104 +1,78 @@
 <template>
   <div class="flex flex-col gap-6">
-    <!-- Category -->
-    <div>
-      <div class="font-bold mb-2 text-white">Category</div>
-      <div class="flex flex-wrap gap-2">
+    <SidebarSection
+      title="Category"
+      :open="openSections.category"
+      @toggle="openSections.category = !openSections.category"
+    >
+      <div class="flex flex-wrap gap-2 mt-2">
         <button
           v-for="cat in categories"
           :key="cat"
           class="px-3 py-1 rounded-full border text-xs font-semibold"
-          :class="
-            selectedCategory === cat
-              ? 'bg-primary-600 text-white border-primary-600'
-              : 'bg-gray-800 text-gray-200 border-gray-700'
-          "
+          :class="selectedCategory === cat ? 'bg-primary-600 text-white border-primary-600' : 'bg-gray-800 text-gray-200 border-gray-700'"
           @click="selectedCategory = cat"
         >
           {{ cat }}
         </button>
       </div>
-    </div>
-    <!-- Chains -->
-    <div>
-      <div class="font-bold mb-2 text-white">Chains</div>
+    </SidebarSection>
+    <SidebarSection
+      title="Chains"
+      :open="openSections.chains"
+      @toggle="openSections.chains = !openSections.chains"
+    >
       <input
         type="text"
         placeholder="Search for chains"
-        class="w-full px-3 py-2 rounded border border-gray-700 bg-gray-800 text-gray-200 mb-2"
+        class="w-full px-3 py-2 rounded border border-gray-700 bg-gray-800 text-gray-200 mb-2 mt-2"
       />
       <div class="flex flex-wrap gap-2">
         <button
           v-for="chain in chains"
           :key="chain.label"
           class="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border"
-          :class="
-            selectedChain === chain.label
-              ? 'bg-primary-600 text-white border-primary-600'
-              : 'bg-gray-800 text-gray-200 border-gray-700'
-          "
+          :class="selectedChain === chain.label ? 'bg-primary-600 text-white border-primary-600' : 'bg-gray-800 text-gray-200 border-gray-700'"
           @click="selectedChain = chain.label"
         >
           <UIcon :name="chain.icon" class="text-base" /> {{ chain.label }}
         </button>
       </div>
-    </div>
-    <!-- Floor Price -->
-    <div>
-      <div class="font-bold mb-2 text-white">Floor Price</div>
-      <div class="flex gap-2 flex-col items-center mb-2">
-        <select
-          class="px-2 py-1 rounded border border-gray-700 bg-gray-800 text-gray-200 w-full"
-        >
+    </SidebarSection>
+    <SidebarSection
+      title="Floor Price"
+      :open="openSections.floorPrice"
+      @toggle="openSections.floorPrice = !openSections.floorPrice"
+    >
+      <div class="flex flex-col gap-2 items-center mb-2 mt-2">
+        <select class="px-2 py-1 rounded border border-gray-700 bg-gray-800 text-gray-200 w-full">
           <option>ETH</option>
         </select>
         <div class="flex gap-2 items-center w-full">
-          <input
-            type="number"
-            placeholder="Min"
-            class="w-16 px-2 py-1 flex-1 rounded border border-gray-700 bg-gray-800 text-gray-200"
-          />
+          <input type="number" placeholder="Min" class="w-16 px-2 py-1 flex-1 rounded border border-gray-700 bg-gray-800 text-gray-200" />
           <span class="text-gray-400">to</span>
-          <input
-            type="number"
-            placeholder="Max"
-            class="w-16 px-2 py-1 flex-1 rounded border border-gray-700 bg-gray-800 text-gray-200"
-          />
+          <input type="number" placeholder="Max" class="w-16 px-2 py-1 flex-1 rounded border border-gray-700 bg-gray-800 text-gray-200" />
         </div>
-        <button
-          class="px-3 py-1 rounded bg-primary-600 text-white w-full"
-        >
-          Apply
-        </button>
+        <button class="px-3 py-1 rounded bg-primary-600 text-white w-full">Apply</button>
       </div>
-    </div>
-    <!-- Top Offer -->
-    <div>
-      <div class="font-bold mb-2 text-white">Top Offer</div>
-      <div class="flex gap-2 flex-col items-center mb-2">
-        <select
-          class="px-2 py-1 flex-1 rounded border border-gray-700 bg-gray-800 text-gray-200 w-full"
-        >
+    </SidebarSection>
+    <SidebarSection
+      title="Top Offer"
+      :open="openSections.topOffer"
+      @toggle="openSections.topOffer = !openSections.topOffer"
+    >
+      <div class="flex flex-col gap-2 items-center mb-2 mt-2">
+        <select class="px-2 py-1 flex-1 rounded border border-gray-700 bg-gray-800 text-gray-200 w-full">
           <option>WETH</option>
         </select>
         <div class="flex gap-2 items-center w-full">
-          <input
-            type="number"
-            placeholder="Min"
-            class="w-16 px-2 py-1 flex-1 rounded border border-gray-700 bg-gray-800 text-gray-200"
-          />
+          <input type="number" placeholder="Min" class="w-16 px-2 py-1 flex-1 rounded border border-gray-700 bg-gray-800 text-gray-200" />
           <span class="text-gray-400">to</span>
-          <input
-            type="number"
-            placeholder="Max"
-            class="w-16 px-2 py-1 flex-1 rounded border border-gray-700 bg-gray-800 text-gray-200"
-          />
+          <input type="number" placeholder="Max" class="w-16 px-2 py-1 flex-1 rounded border border-gray-700 bg-gray-800 text-gray-200" />
         </div>
-        <button class="px-3 py-1 rounded bg-primary-600 text-white w-full">
-          Apply
-        </button>
+        <button class="px-3 py-1 rounded bg-primary-600 text-white w-full">Apply</button>
       </div>
-    </div>
+    </SidebarSection>
     <!-- Is Verified -->
     <div class="flex items-center gap-2 mt-4">
       <input
@@ -112,7 +86,9 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, reactive } from "vue";
+import SidebarSection from './profile/SidebarSection.vue'
+const openSections = reactive({ category: true, chains: false, floorPrice: false, topOffer: false })
 const categories = [
   "All",
   "Art",
