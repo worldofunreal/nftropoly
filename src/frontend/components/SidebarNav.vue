@@ -7,6 +7,14 @@
     @mouseenter="collapsed = false"
     @mouseleave="collapsed = true"
   >
+    <!-- Logo at the top -->
+    <div class="flex items-center justify-center py-6">
+      <img 
+        src="/logo.svg"
+        alt="Nftropoly - The Multichain, Gasless NFT Marketplace"
+        class="h-10 w-auto transition-all duration-100"
+      />
+    </div>
     <nav class="flex-1 flex flex-col gap-2 py-6 px-2">
       <SidebarItem
         v-for="item in menuItems"
