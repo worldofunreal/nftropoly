@@ -4,14 +4,14 @@
     <div>
       <div class="font-bold mb-2">Status</div>
       <div class="flex flex-wrap gap-2">
-        <button v-for="status in statuses" :key="status" class="px-3 py-1 rounded-full border text-xs font-semibold" :class="selectedStatuses.includes(status) ? 'bg-primary-600 text-white border-primary-600' : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'" @click="toggleStatus(status)">{{ status }}</button>
+        <button v-for="status in statuses" :key="status" class="px-3 py-1 rounded-full border text-xs font-semibold" :class="selectedStatuses.includes(status) ? 'bg-primary-600 text-white border-primary-600' : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'" @click="toggleStatus(status)">{{ status }}</button>
       </div>
     </div>
     <!-- Price Filter -->
     <div>
       <div class="font-bold mb-2">Price</div>
       <div class="flex gap-2 items-center mb-2">
-        <select class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs">
+        <select class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-xs">
           <option>USD</option>
           <option>ETH</option>
         </select>
@@ -31,7 +31,7 @@
     <!-- Chains -->
     <div>
       <div class="font-bold mb-2">Chains</div>
-      <input type="text" placeholder="Search chains..." class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-2" />
+      <input type="text" placeholder="Search chains..." class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 mb-2" />
       <div class="flex flex-wrap gap-2">
         <button v-for="chain in chains" :key="chain.label" class="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border" :class="chain.color">
           <UIcon :name="chain.icon" class="text-base" /> {{ chain.label }}
@@ -41,7 +41,7 @@
     <!-- Collections -->
     <div>
       <div class="font-bold mb-2">Collections</div>
-      <input type="text" placeholder="Search for collections" class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-2" />
+      <input type="text" placeholder="Search for collections" class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 mb-2" />
       <div class="flex flex-col gap-1 max-h-40 overflow-y-auto">
         <label v-for="col in collections" :key="col.name" class="flex items-center gap-1">
           <input type="checkbox" />

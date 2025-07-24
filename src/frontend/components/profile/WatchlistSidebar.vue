@@ -6,7 +6,7 @@
       @toggle="openSections.category = !openSections.category"
     >
       <div class="flex flex-wrap gap-2 mt-2">
-        <button v-for="cat in categories" :key="cat" class="px-3 py-1 rounded-full border text-xs font-semibold" :class="selectedCategory === cat ? 'bg-primary-600 text-white border-primary-600' : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'" @click="selectedCategory = cat">{{ cat }}</button>
+        <button v-for="cat in categories" :key="cat" class="px-3 py-1 rounded-full border text-xs font-semibold" :class="selectedCategory === cat ? 'bg-primary-600 text-white border-primary-600' : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'" @click="selectedCategory = cat">{{ cat }}</button>
       </div>
     </SidebarSection>
     <SidebarSection
@@ -14,7 +14,7 @@
       :open="openSections.chains"
       @toggle="openSections.chains = !openSections.chains"
     >
-      <input type="text" placeholder="Search for chains" class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-2 mt-2" />
+      <input type="text" placeholder="Search for chains" class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 mb-2 mt-2" />
       <div class="flex flex-wrap gap-2">
         <button v-for="chain in chains" :key="chain.label" class="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border" :class="chain.color">
           <UIcon :name="chain.icon" class="text-base" /> {{ chain.label }}
@@ -27,14 +27,14 @@
       @toggle="openSections.floorPrice = !openSections.floorPrice"
     >
       <div class="flex flex-col gap-2 mt-2">
-        <select v-model="floorCurrency" class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs w-full">
+        <select v-model="floorCurrency" class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-xs w-full">
           <option value="ETH">ETH</option>
           <option value="WETH">WETH</option>
         </select>
         <div class="flex items-center gap-2">
-          <input type="number" v-model="floorMin" placeholder="Min" class="w-14 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs" />
+          <input type="number" v-model="floorMin" placeholder="Min" class="w-14 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-xs" />
           <span>to</span>
-          <input type="number" v-model="floorMax" placeholder="Max" class="w-14 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs" />
+          <input type="number" v-model="floorMax" placeholder="Max" class="w-14 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-xs" />
         </div>
         <button class="w-full px-2 py-1 rounded bg-primary-600 text-white text-xs">Apply</button>
       </div>
@@ -45,14 +45,14 @@
       @toggle="openSections.topOffer = !openSections.topOffer"
     >
       <div class="flex flex-col gap-2 mt-2">
-        <select v-model="offerCurrency" class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs w-full">
+        <select v-model="offerCurrency" class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-xs w-full">
           <option value="WETH">WETH</option>
           <option value="ETH">ETH</option>
         </select>
         <div class="flex items-center gap-2">
-          <input type="number" v-model="offerMin" placeholder="Min" class="w-14 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs" />
+          <input type="number" v-model="offerMin" placeholder="Min" class="w-14 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-xs" />
           <span>to</span>
-          <input type="number" v-model="offerMax" placeholder="Max" class="w-14 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-xs" />
+          <input type="number" v-model="offerMax" placeholder="Max" class="w-14 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-xs" />
         </div>
         <button class="w-full px-2 py-1 rounded bg-primary-600 text-white text-xs">Apply</button>
       </div>

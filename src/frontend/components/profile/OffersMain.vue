@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full w-full p-4">
     <div class="flex items-center gap-4 mb-4">
-      <select class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+      <select class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950">
         <option>Most recent</option>
         <option>Price: Low to High</option>
         <option>Price: High to Low</option>
@@ -16,7 +16,7 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-gray-100 dark:bg-gray-900">
+          <tr class="bg-gray-100 dark:bg-gray-950">
             <th class="p-2"><input type="checkbox" /></th>
             <th class="p-2 text-left">Offer</th>
             <th class="p-2 text-left">Status</th>

@@ -18,7 +18,7 @@
       </div>
     </div>
   </div>
-  <RegistrationModal ref="registrationModalRef" />
+  <RegistrationModal v-if="showRegistrationModal" ref="registrationModalRef" />
 </template>
 
 <script setup lang="ts">
@@ -49,6 +49,7 @@ const loading = ref(false);
 const error = ref('');
 const loginMethod = ref('');
 
+const showRegistrationModal = ref(false);
 const registrationModalRef = ref<any>(null);
 const toast = useToast();
 
@@ -65,6 +66,8 @@ defineExpose({
   }, 
   close: () => { 
     show.value = false; 
+    error.value = '';
+    showRegistrationModal.value = false;
   } 
 });
 
@@ -133,6 +136,7 @@ async function loginWithMetaMask() {
     // Close login modal and show registration
     console.log('Opening registration modal...');
     show.value = false;
+    showRegistrationModal.value = true;
     registrationModalRef.value?.open(ethAddress, icpPrincipal);
     console.log('Registration modal opened');
     
@@ -224,6 +228,7 @@ async function loginWithPhantom() {
     // Close login modal and show registration
     console.log('Opening registration modal...');
     show.value = false;
+    showRegistrationModal.value = true;
     registrationModalRef.value?.open(phantomAddress, icpPrincipal);
     console.log('Registration modal opened');
     
@@ -316,6 +321,7 @@ async function loginWithPlug() {
     // Close login modal and show registration
     console.log('Opening registration modal...');
     show.value = false;
+    showRegistrationModal.value = true;
     registrationModalRef.value?.open(plugAddress, icpPrincipal);
     console.log('Registration modal opened');
     
@@ -398,6 +404,7 @@ async function loginWithGoogle() {
     // Close login modal and show registration
     console.log('Opening registration modal...');
     show.value = false;
+    showRegistrationModal.value = true;
     registrationModalRef.value?.open(googleAddress, icpPrincipal);
     console.log('Registration modal opened');
     

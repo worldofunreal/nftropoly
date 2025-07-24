@@ -9,7 +9,7 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-gray-100 dark:bg-gray-900">
+          <tr class="bg-gray-100 dark:bg-gray-950">
             <th class="p-2 text-left">Collection</th>
             <th class="p-2 text-right">Floor Price</th>
             <th class="p-2 text-right">Top Offer</th>

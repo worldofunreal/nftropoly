@@ -9,7 +9,7 @@
       <button class="px-4 py-2 rounded bg-primary-600 text-white font-semibold">Create a gallery</button>
     </div>
     <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-6 w-full p-4">
-      <div v-for="gallery in galleries" :key="gallery.id" class="bg-white dark:bg-gray-900 rounded-lg shadow p-4 flex flex-col">
+      <div v-for="gallery in galleries" :key="gallery.id" class="bg-white dark:bg-gray-950 rounded-lg shadow p-4 flex flex-col">
         <div class="flex gap-2 mb-2">
           <img v-for="img in gallery.images" :key="img" :src="img" alt="Preview" class="w-12 h-12 rounded object-cover border" />
         </div>

@@ -7,7 +7,7 @@
       <div
         v-for="token in tokens"
         :key="token.symbol"
-        class="min-w-[180px] max-w-xs bg-white dark:bg-gray-900 rounded-xl shadow p-3 flex flex-col gap-2 cursor-pointer hover:scale-105 transition-transform"
+        class="min-w-[180px] max-w-xs bg-white dark:bg-gray-950 rounded-xl shadow p-3 flex flex-col gap-2 cursor-pointer hover:scale-105 transition-transform"
         style="scroll-snap-align: start;"
       >
         <div class="flex items-center gap-2 mb-1">

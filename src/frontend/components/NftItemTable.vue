@@ -2,8 +2,8 @@
   <div>
     <!-- Search & Sorting -->
     <div class="flex flex-wrap gap-2 items-center mb-4">
-      <input type="text" placeholder="Search items..." class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm w-48" />
-      <select class="px-2 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm">
+      <input type="text" placeholder="Search items..." class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm w-48" />
+      <select class="px-2 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm">
         <option>Recently received</option>
         <option>Recently listed</option>
         <option>Price low to high</option>
@@ -16,7 +16,7 @@
       </div>
     </div>
     <!-- Table Columns -->
-    <div v-if="items.length" class="overflow-x-auto rounded-xl shadow bg-white dark:bg-gray-900">
+    <div v-if="items.length" class="overflow-x-auto rounded-xl shadow bg-white dark:bg-gray-950">
       <table class="min-w-full text-sm">
         <thead>
           <tr class="border-b border-gray-200 dark:border-gray-800">

@@ -1,5 +1,5 @@
 <template>
-  <div class="overflow-x-auto rounded-xl shadow bg-white dark:bg-gray-900">
+  <div class="overflow-x-auto rounded-xl shadow bg-white dark:bg-gray-950">
     <table class="min-w-full text-sm">
       <thead>
         <tr class="border-b border-gray-200 dark:border-gray-800">
@@ -13,7 +13,7 @@
         <tr v-for="token in sortedTokens" :key="token.symbol" class="border-b border-gray-100 dark:border-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
           <!-- TOKEN -->
           <td class="px-4 py-2 flex items-center gap-2">
-            <UIcon :name="token.icon" class="w-7 h-7 text-2xl rounded-full border bg-white dark:bg-gray-900" />
+            <UIcon :name="token.icon" class="w-7 h-7 text-2xl rounded-full border bg-white dark:bg-gray-950" />
             <div class="min-w-0">
               <NuxtLink :to="`/tokens/${token.symbol}`" class="font-bold text-primary-600 hover:underline">{{ token.symbol }}</NuxtLink>
               <div class="text-xs text-gray-500 truncate">{{ token.name }}</div>
