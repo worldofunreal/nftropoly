@@ -2,7 +2,7 @@
   <UApp>
     <div class="flex min-h-screen bg-gray-50 dark:bg-gray-950">
       <!-- Sidebar -->
-      <SidebarNav />
+      
       <!-- Main Content Wrapper -->
       <div class="flex-1 flex flex-col min-h-screen">
         <Header />
@@ -11,6 +11,7 @@
         </main>
         <AppFooter />
       </div>
+      <SidebarNav />
     </div>
     <LoginPanel ref="loginPanelRef" />
   </UApp>

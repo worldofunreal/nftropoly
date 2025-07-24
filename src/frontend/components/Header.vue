@@ -11,7 +11,7 @@
   >
     <div class="flex justify-between items-center h-16 mx-4 md:mx-4">
       <!-- Left: Logo and Search Bar -->
-      <div class="flex items-center gap-2 flex-shrink-0">
+      <div class="flex items-center gap-2 ml-18 flex-shrink-0">
         <!-- Search Bar -->
         <div class="hidden md:flex items-center ml-2">
           <UInput

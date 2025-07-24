@@ -1,18 +1,21 @@
 <template>
   <aside
-    :class="[
-      'sticky top-0 left-0 h-screen z-40 flex flex-col bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 transition-all duration-300',
-      collapsed ? 'w-20' : 'w-64',
-    ]"
+    class="z-100 fixed top-0 left-0 h-screen z-40 flex flex-col bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 overflow-hidden group"
+    :style="{ width: collapsed ? '5rem' : '16rem', transition: 'width 0.25s cubic-bezier(0.4,0,0.2,1)' }"
     @mouseenter="collapsed = false"
     @mouseleave="collapsed = true"
   >
-    <!-- Logo at the top -->
-    <div class="flex items-center justify-center py-6">
-      <img 
-        src="/logo.svg"
-        alt="Nftropoly - The Multichain, Gasless NFT Marketplace"
+    <div class="flex items-center justify-center py-6 gap-2">
+      <img
+        :src="colorMode.value === 'light' ? '/logo-dark.svg' : '/logo.svg'"
+        alt="Nftropoly Logo"
         class="h-10 w-auto transition-all duration-100"
+      />
+      <img
+        v-show="!collapsed"
+        :src="colorMode.value === 'light' ? '/logo-text-dark.svg' : '/logo-text.svg'"
+        alt="Nftropoly Text Logo"
+        class="h-8 w-auto transition-all duration-100"
       />
     </div>
     <nav class="flex-1 flex flex-col gap-2 py-6 px-2">
@@ -32,6 +35,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import SidebarItem from './SidebarItem.vue'
+import { useColorMode } from '#imports'
+
+const colorMode = useColorMode()
 
 const collapsed = ref(true)
 
@@ -54,4 +60,5 @@ const menuItems = [
     display: none;
   }
 }
+/* No extra styles needed for mask/width animation, handled inline */
 </style> 
