@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-screen bg-gray-950">
     <!-- Sidebar (Left Panel) -->
-    <aside class="hidden lg:block w-80 p-4 border-r border-gray-800 bg-gray-900">
+    <aside class="hidden lg:block w-80 p-4 border-r border-gray-800">
       <NftsSidebar />
     </aside>
     <!-- Main Table (Right Panel) -->
