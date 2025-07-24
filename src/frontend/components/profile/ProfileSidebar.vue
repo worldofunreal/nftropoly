@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-6 w-[220px] max-w-[260px] p-4 bg-white dark:bg-gray-950 rounded-lg border border-gray-200 dark:border-gray-800">
     <!-- Status -->
     <div>
       <div class="font-bold mb-2">Status</div>
