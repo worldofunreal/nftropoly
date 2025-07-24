@@ -9,7 +9,7 @@
         class="flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-semibold transition"
         :class="selectedRanking === f.label
           ? 'bg-primary-600 text-white border-primary-600'
-          : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900'"
+          : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900'"
       >
         <UIcon :name="f.icon" class="text-base" />
         <span>{{ f.label }}</span>
@@ -24,7 +24,7 @@
         class="flex items-center gap-1 px-3 py-1 rounded-full border text-xs font-semibold transition"
         :class="selectedView === v.label
           ? 'bg-primary-600 text-white border-primary-600'
-          : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900'"
+          : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900'"
       >
         <UIcon :name="v.icon" class="text-base" />
         <span>{{ v.label }}</span>
@@ -39,7 +39,7 @@
         class="px-3 py-1 rounded-full border text-xs font-semibold transition"
         :class="selectedTime === t
           ? 'bg-primary-600 text-white border-primary-600'
-          : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900'"
+          : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900'"
       >
         {{ t }}
       </button>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-2 bg-white dark:bg-gray-900 rounded-xl shadow p-4 min-w-[200px]">
+  <div class="flex flex-col gap-2 bg-white dark:bg-gray-950 rounded-xl shadow p-4 min-w-[200px]">
     <div class="flex items-center gap-2">
       <span class="font-bold text-lg">0.00 ETH</span>
       <span class="text-gray-400">Portfolio</span>

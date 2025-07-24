@@ -5,7 +5,7 @@
       :open="openSections.chains"
       @toggle="openSections.chains = !openSections.chains"
     >
-      <input type="text" placeholder="Search for chains" class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-2 mt-2" />
+      <input type="text" placeholder="Search for chains" class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 mb-2 mt-2" />
       <div class="flex flex-wrap gap-2">
         <button v-for="chain in chains" :key="chain.label" class="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border" :class="chain.color">
           <UIcon :name="chain.icon" class="text-base" /> {{ chain.label }}
@@ -18,7 +18,7 @@
       @toggle="openSections.marketCap = !openSections.marketCap"
     >
       <div class="flex flex-wrap gap-2 mt-2">
-        <button v-for="cap in marketCaps" :key="cap" class="px-3 py-1 rounded-full border text-xs font-semibold bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700">{{ cap }}</button>
+        <button v-for="cap in marketCaps" :key="cap" class="px-3 py-1 rounded-full border text-xs font-semibold bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700">{{ cap }}</button>
       </div>
     </SidebarSection>
     <SidebarSection

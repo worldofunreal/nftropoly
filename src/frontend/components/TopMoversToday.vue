@@ -4,10 +4,10 @@
       <h2 class="text-lg font-bold">Top Movers Today</h2>
     </div>
     <div class="flex gap-2 mb-2">
-      <button @click="scrollLeft" class="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
+      <button @click="scrollLeft" class="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
         <UIcon name="i-heroicons-chevron-left-20-solid" class="text-base" />
       </button>
-      <button @click="scrollRight" class="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
+      <button @click="scrollRight" class="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
         <UIcon name="i-heroicons-chevron-right-20-solid" class="text-base" />
       </button>
     </div>
@@ -15,7 +15,7 @@
       <div
         v-for="col in movers"
         :key="col.id"
-        class="min-w-[220px] max-w-xs bg-white dark:bg-gray-900 rounded-xl shadow p-3 flex flex-col gap-2 cursor-pointer hover:scale-105 transition-transform relative"
+        class="min-w-[220px] max-w-xs bg-white dark:bg-gray-950 rounded-xl shadow p-3 flex flex-col gap-2 cursor-pointer hover:scale-105 transition-transform relative"
         style="scroll-snap-align: start;"
       >
         <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden mb-1 relative">

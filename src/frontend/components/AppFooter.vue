@@ -1,6 +1,6 @@
 <template>
   <footer class="w-full border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 fixed bottom-0 left-0 z-30">
-    <UContainer class="flex flex-col md:flex-row justify-between items-center py-2 px-2 md:px-6 gap-2 text-xs text-gray-500 dark:text-gray-400">
+    <div class="ml-12 flex justify-between items-center py-2 px-4 md:px-8 text-xs text-gray-500 dark:text-gray-400 w-full">
       <!-- Left Side -->
       <div class="flex items-center gap-3 flex-wrap">
         <!-- Live Indicator -->
@@ -10,14 +10,14 @@
         <span class="hidden md:inline">|</span>
         <!-- Networks -->
         <UPopover>
-          <UButton color="gray" variant="ghost" size="xs" class="flex items-center gap-1">
+          <UButton color="neutral" variant="ghost" size="xs" class="flex items-center gap-1">
             <UIcon name="icon-park-solid:blockchain" class="text-base" /> Networks
           </UButton>
           <template #panel>
             <div class="flex flex-col gap-2 p-2">
-              <span class="flex items-center gap-2"><UIcon name="logos:internet-computer-icon" /> ICP <UBadge color="primary" size="xs">Active</UBadge></span>
+              <span class="flex items-center gap-2"><UIcon name="token-branded:icp" /> ICP <UBadge color="primary" size="xs">Active</UBadge></span>
               <span class="flex items-center gap-2"><UIcon name="token-branded:solana" /> Solana</span>
-              <span class="flex items-center gap-2"><UIcon name="logos:ethereum" /> Ethereum</span>
+              <span class="flex items-center gap-2"><UIcon name="token-branded:ethereum" /> Ethereum</span>
             </div>
           </template>
         </UPopover>
@@ -36,10 +36,10 @@
         <a href="#" class="hover:text-primary"><UIcon name="line-md:twitter-x" class="text-lg" /></a>
       </div>
       <!-- Right Side -->
-      <div class="flex items-center gap-3 flex-wrap">
+      <div class="mr-12 flex items-center gap-3 flex-wrap">
         <!-- ICP Price -->
         <span class="flex items-center gap-1">
-          <UIcon name="logos:internet-computer-icon" class="text-base" /> $12.34
+          <UIcon name="token-branded:icp" class="text-base" /> $5.56
         </span>
         <span class="hidden md:inline">|</span>
         <!-- Support -->
@@ -49,17 +49,17 @@
         <span class="hidden md:inline">|</span>
         <!-- Theme Switcher -->
         <ClientOnly>
-          <button @click="toggleTheme" aria-label="Toggle theme" class="flex items-center gap-1 px-2 py-1 rounded transition-colors border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+          <button @click="toggleTheme" aria-label="Toggle theme" class="flex items-center gap-1 px-2 py-1 rounded transition-colors border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950">
             <UIcon :name="colorMode.value === 'dark' ? 'ix:sun-filled' : 'tabler:moon-filled'" class="text-lg" />
           </button>
         </ClientOnly>
         <span class="hidden md:inline">|</span>
         <!-- Fiat/Crypto Switch -->
-        <button @click="toggleFiat" class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+        <button @click="toggleFiat" class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950">
           {{ showFiat ? 'USD' : 'Crypto' }}
         </button>
       </div>
-    </UContainer>
+    </div>
   </footer>
 </template>
 

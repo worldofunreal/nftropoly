@@ -9,7 +9,7 @@
         v-for="article in articles"
         :key="article.slug"
         :to="`/learn/${article.slug}`"
-        class="min-w-[220px] max-w-xs bg-white dark:bg-gray-900 rounded-xl shadow p-4 flex flex-col gap-2 hover:scale-105 transition-transform cursor-pointer"
+        class="min-w-[220px] max-w-xs bg-white dark:bg-gray-950 rounded-xl shadow p-4 flex flex-col gap-2 hover:scale-105 transition-transform cursor-pointer"
         style="scroll-snap-align: start;"
       >
         <div class="font-bold text-base mb-1">{{ article.title }}</div>

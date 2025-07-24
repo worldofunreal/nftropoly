@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center py-16 px-4 pt-32">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center py-16 px-4 pt-32">
     <div class="w-full max-w-5xl mx-auto flex flex-col md:flex-row gap-10 items-stretch justify-center min-h-[70vh]">
       <!-- Info Section -->
       <div class="flex-1 flex flex-col justify-center mb-8 md:mb-0 md:pr-8 items-center md:items-start text-center md:text-left">

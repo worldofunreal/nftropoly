@@ -4,15 +4,8 @@
     <div>
       <div class="font-bold mb-2">Search for Chains</div>
       <div class="relative">
-        <input
-          type="text"
-          placeholder="Search chains..."
-          class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
-        />
-        <UIcon
-          name="ri:search-line"
-          class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-        />
+        <input type="text" placeholder="Search chains..." class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950" />
+        <UIcon name="ri:search-line" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
       </div>
     </div>
     <SidebarSection

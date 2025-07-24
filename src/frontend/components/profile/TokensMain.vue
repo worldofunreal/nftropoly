@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full w-full">
     <div class="flex flex-wrap items-center gap-4 p-4 border-b border-gray-200 dark:border-gray-800">
-      <input type="text" placeholder="Search for tokens" class="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900" />
+      <input type="text" placeholder="Search for tokens" class="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950" />
       <div class="flex gap-2">
         <button class="px-2 py-1 rounded bg-primary-600 text-white">List</button>
         <button class="px-2 py-1 rounded bg-gray-200 dark:bg-gray-800">Grid</button>
@@ -16,7 +16,7 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-gray-100 dark:bg-gray-900">
+          <tr class="bg-gray-100 dark:bg-gray-950">
             <th class="p-2 text-left">Token</th>
             <th class="p-2 text-left">Symbol</th>
             <th class="p-2 text-right">Price</th>

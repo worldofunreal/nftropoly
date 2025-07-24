@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
     <!-- Header -->
-    <section class="py-20 bg-white dark:bg-gray-900 pt-32">
+    <section class="py-20 bg-white dark:bg-gray-950 pt-32">
       <UContainer>
         <div class="text-center">
           <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">

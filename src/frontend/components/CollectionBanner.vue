@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col md:flex-row items-center md:items-start justify-between bg-white dark:bg-gray-900 rounded-2xl shadow p-6 gap-6">
+  <div class="flex flex-col md:flex-row items-center md:items-start justify-between bg-white dark:bg-gray-950 rounded-2xl shadow p-6 gap-6">
     <!-- Left: Avatar & Info -->
     <div class="flex items-center gap-4 flex-1 min-w-0">
       <img src="https://placehold.co/80x80" alt="Collection Avatar" class="w-20 h-20 rounded-xl object-cover border border-gray-200 dark:border-gray-800" />

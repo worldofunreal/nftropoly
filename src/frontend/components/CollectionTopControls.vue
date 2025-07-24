@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-wrap gap-2 items-center">
-    <input type="text" placeholder="Search item or trait" class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm w-48" />
-    <select class="px-2 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 text-sm">
+    <input type="text" placeholder="Search item or trait" class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm w-48" />
+    <select class="px-2 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm">
       <option>Price low to high</option>
       <option>Price high to low</option>
       <option>Recently listed</option>

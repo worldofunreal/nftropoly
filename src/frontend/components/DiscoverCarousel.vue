@@ -4,7 +4,7 @@
       <div
         v-for="col in collections"
         :key="col.id"
-        class="w-full flex-shrink-0 bg-white dark:bg-gray-900 rounded-2xl shadow p-4 flex flex-col gap-3"
+        class="w-full flex-shrink-0 bg-white dark:bg-gray-950 rounded-2xl shadow p-4 flex flex-col gap-3"
         style="scroll-snap-align: start; min-width: 100%; max-width: 100%;"
       >
         <!-- Media -->

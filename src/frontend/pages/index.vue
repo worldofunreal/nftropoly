@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen flex flex-row bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-gray-50 dark:bg-gray-950 grid grid-cols-1 md:grid-cols-3">
     <!-- Left Column (Main Content) -->
-    <div class="flex-1 md:w-2/3 max-w-4xl mx-auto py-8 px-2 md:px-6 overflow-y-auto">
+    <div class="col-span-1 md:col-span-2 py-8 px-2 md:px-6 overflow-y-auto">
       <FilterPills class="mb-6" />
       <DiscoverCarousel class="mb-8" />
       <FeaturedCollections class="mb-8" />
@@ -11,7 +11,7 @@
       <NFT101 class="mb-8" />
     </div>
     <!-- Right Column (Stats/Rankings) -->
-    <div class="hidden md:block w-1/3 max-w-sm h-[calc(100vh-64px-48px)] sticky top-16 right-0 overflow-y-auto scrollbar-hide px-2 py-8">
+    <div class="hidden md:block col-span-1 h-[calc(100vh-64px-48px)] sticky top-16 right-0 overflow-y-auto scrollbar-hide px-2 py-8">
       <RankingFilters class="mb-4" />
       <CollectionsList />
     </div>

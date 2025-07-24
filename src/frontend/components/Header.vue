@@ -5,40 +5,47 @@
       scrolled
         ? 'bg-white/70 dark:bg-gray-950/70 backdrop-blur-sm shadow-md'
         : 'bg-transparent',
-      'border-b border-transparent',
-      scrolled && 'border-gray-200/50 dark:border-gray-800/50'
+      'border-b border-gray-200 dark:border-gray-800'
     ]"
   >
-    <UContainer class="flex justify-between items-center h-16">
-      <!-- Left: Search Bar -->
-      <div class="flex items-center gap-4">
-        <NuxtLink 
-          to="/" 
-          class="flex items-center group"
-          aria-label="Home"
-          @click.prevent="handleHomeClick"
-        >
-          <img 
-            :src="logoSrc"
-            alt="Nftropoly - The Multichain, Gasless NFT Marketplace" 
-            class="h-8 md:h-8 transition-all duration-100 group-hover:scale-105" 
-          />
-        </NuxtLink>
+    <div class="flex justify-between items-center h-14 mx-4 md:mx-4">
+      <!-- Left: Logo and Search Bar -->
+      <div class="flex items-center gap-2 flex-shrink-0">
         <!-- Search Bar -->
-        <div class="hidden md:flex items-center ml-6">
+        <div class="hidden md:flex items-center ml-2">
           <UInput
             v-model="search"
             placeholder="Search Nftropoly"
-            size="md"
-            class="w-64"
+            size="lg"
+            class="w-96 h-12 text-lg"
             icon="ri:search-line"
           />
         </div>
       </div>
       <!-- Right: Actions -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-4 ml-auto">
+        <!-- Theme Toggle Button - Client Only -->
+        <ClientOnly>
+          <button
+            @click="toggleTheme"
+            aria-label="Toggle theme"
+            class="relative w-12.5 h-7.5 rounded-full transition-colors duration-300 focus:outline-none border border-gray-300 dark:border-gray-700 flex mr-2"
+            :class="colorMode.value === 'dark' ? 'bg-pink-500' : 'bg-stone-600'"
+          >
+            <span
+              class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-all duration-300 flex items-center justify-center"
+              :class="colorMode.value === 'dark' ? 'translate-x-5' : 'translate-x-0'"
+            >
+              <UIcon
+                :name="colorMode.value === 'dark' ? 'ix:sun-filled' : 'tabler:moon-filled'"
+                class="w-5 h-5 transition-colors duration-300"
+                :class="colorMode.value === 'dark' ? 'text-pink-500' : 'text-stone-600'"
+              />
+            </span>
+          </button>
+        </ClientOnly>
         <!-- Connect Wallet Button -->
-        <UButton color="primary" icon="solar:wallet-bold" class="hidden md:flex" @click="openLoginPanel" v-if="!authStore.authenticated">
+        <UButton color="primary"  icon="solar:wallet-bold" class="hidden md:flex" @click="openLoginPanel" v-if="!authStore.authenticated">
           Connect Wallet
         </UButton>
         <!-- Profile Avatar -->
@@ -71,28 +78,8 @@
             Logout
           </UButton>
         </div>
-        <!-- Theme Toggle Button - Client Only -->
-        <ClientOnly>
-          <button
-            @click="toggleTheme"
-            aria-label="Toggle theme"
-            class="relative w-12.5 h-7.5 rounded-full transition-colors duration-300 focus:outline-none border border-gray-300 dark:border-gray-700 flex"
-            :class="colorMode.value === 'dark' ? 'bg-amber-500' : 'bg-sky-600'"
-          >
-            <span
-              class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-all duration-300 flex items-center justify-center"
-              :class="colorMode.value === 'dark' ? 'translate-x-5' : 'translate-x-0'"
-            >
-              <UIcon
-                :name="colorMode.value === 'dark' ? 'ix:sun-filled' : 'tabler:moon-filled'"
-                class="w-5 h-5 transition-colors duration-300"
-                :class="colorMode.value === 'dark' ? 'text-amber-500' : 'text-sky-600'"
-              />
-            </span>
-          </button>
-        </ClientOnly>
       </div>
-    </UContainer>
+    </div>
   </header>
 </template>
 
