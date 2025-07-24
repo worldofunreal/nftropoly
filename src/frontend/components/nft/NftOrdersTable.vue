@@ -10,7 +10,7 @@
     <div class="overflow-x-auto">
       <table class="w-full">
         <!-- Table Header -->
-        <thead class="bg-gray-900">
+        <thead class="bg-gray-800">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">TYPE</th>
             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">PRICE</th>
@@ -20,6 +20,10 @@
             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">ACTION</th>
           </tr>
         </thead>
+        <!-- Header Separator -->
+        <tr class="border-b border-gray-700">
+          <td colspan="6" class="h-px"></td>
+        </tr>
 
         <!-- Table Body -->
         <tbody class="divide-y divide-gray-700">
