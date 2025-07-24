@@ -26,6 +26,34 @@ export default defineNuxtConfig({
     css: [
       '~/assets/css/main.css'
     ],
+    vite: {
+      define: {
+        global: 'globalThis',
+      },
+      resolve: {
+        alias: {
+          buffer: 'buffer',
+          process: 'process/browser',
+          util: 'util',
+        },
+      },
+      optimizeDeps: {
+        include: ['buffer', 'process', 'util'],
+      },
+      build: {
+        rollupOptions: {
+          external: [],
+        },
+      },
+    },
+    nitro: {
+      experimental: {
+        wasm: true,
+      },
+    },
+    ui: {
+      // Nuxt UI configuration
+    },
     app: {
       head: {
         title: 'Nftropoly - The Multichain, Gasless NFT Marketplace',
@@ -39,7 +67,7 @@ export default defineNuxtConfig({
           { property: 'og:title', content: 'Nftropoly - The Multichain, Gasless NFT Marketplace' },
           { property: 'og:description', content: 'Nftropoly - The Multichain, Gasless NFT Marketplace' },
           { property: 'og:type', content: 'website' },
-          { property: 'og:url', content: 'https://worldofunreal.com/' },
+          { property: 'og:url', content: 'https://nftropoly.com/' },
           { property: 'og:image', content: '/logo.svg' },
           { name: 'twitter:card', content: 'summary_large_image' },
           { name: 'twitter:title', content: 'Nftropoly - The Multichain, Gasless NFT Marketplace' },
@@ -47,13 +75,10 @@ export default defineNuxtConfig({
           { name: 'twitter:image', content: '/logo.svg' }
         ],
         link: [
-          { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
-          { rel: 'stylesheet', href: 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css', crossorigin: 'anonymous', referrerpolicy: 'no-referrer' }
-        ],
+          { rel: 'icon', type: 'image/x-icon', href: '/logo.svg' },        ],
         script: [
           {
             type: 'application/ld+json',
-            innerHTML: `\n            {\n              "@context": "https://schema.org/",\n              "@type": "WebSite",\n              "name": "Nftropoly - The Multichain, Gasless NFT Marketplace",\n              "url": "https://worldofunreal.com/",\n              "description": "Nftropoly - The Multichain, Gasless NFT Marketplace",\n              "keywords": "dApps, Games, CGI, Metaverse, World of Unreal, Unreal Studio, Game Development, CGI Animation, Decentralized Applications"\n            }\n          `
           }
         ]
       }

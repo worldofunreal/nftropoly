@@ -92,7 +92,7 @@ const tokens = [
   {
     name: 'Solana',
     symbol: 'SOL',
-    icon: 'logos:solana-icon',
+    icon: 'token-branded:solana',
     price: '$145',
     change: 2.7,
     chartData: {
@@ -124,7 +124,7 @@ const tokens = [
   {
     name: 'Chainlink',
     symbol: 'LINK',
-    icon: 'logos:chainlink-icon',
+    icon: 'simple-icons:chainlink',
     price: '$18.20',
     change: 6.3,
     chartData: {
@@ -140,7 +140,7 @@ const tokens = [
   {
     name: 'Polygon',
     symbol: 'MATIC',
-    icon: 'logos:polygon',
+    icon: 'token-branded:polygon',
     price: '$0.95',
     change: -3.8,
     chartData: {

@@ -16,7 +16,7 @@
           <template #panel>
             <div class="flex flex-col gap-2 p-2">
               <span class="flex items-center gap-2"><UIcon name="logos:internet-computer-icon" /> ICP <UBadge color="primary" size="xs">Active</UBadge></span>
-              <span class="flex items-center gap-2"><UIcon name="logos:solana-icon" /> Solana</span>
+              <span class="flex items-center gap-2"><UIcon name="token-branded:solana" /> Solana</span>
               <span class="flex items-center gap-2"><UIcon name="logos:ethereum" /> Ethereum</span>
             </div>
           </template>

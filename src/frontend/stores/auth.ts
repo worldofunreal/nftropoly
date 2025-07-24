@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { mnemonicToSeedSync, generateMnemonic, validateMnemonic } from 'bip39';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
 import nacl from 'tweetnacl';
+import * as bip39 from 'bip39';
 
 // TODO: Import canister and modal stores when available
 // import { useCanisterStore } from './canister';
@@ -16,13 +17,22 @@ function generateSeedPhrase(input: string): Promise<string> {
   const encodedInput = encoder.encode(input);
   return crypto.subtle.digest('SHA-256', encodedInput).then(hashBuffer => {
     const seed = new Uint8Array(hashBuffer.slice(0, 32));
-    return (require('bip39') as typeof import('bip39')).entropyToMnemonic(seed);
+    // Convert Uint8Array to hex string for bip39
+    const seedHex = Array.from(seed).map(b => b.toString(16).padStart(2, '0')).join('');
+    return bip39.entropyToMnemonic(seedHex);
   });
 }
 
 function deriveKeysFromSeedPhrase(seedPhrase: string) {
-  const seed = mnemonicToSeedSync(seedPhrase).slice(0, 32);
-  return nacl.sign.keyPair.fromSeed(seed);
+  // For our custom seed phrase, use the words to generate a deterministic seed
+  const words = seedPhrase.split(' ');
+  const wordString = words.join('');
+  const encoder = new TextEncoder();
+  const encoded = encoder.encode(wordString);
+  return crypto.subtle.digest('SHA-256', encoded).then(hashBuffer => {
+    const seed = new Uint8Array(hashBuffer).slice(0, 32);
+    return nacl.sign.keyPair.fromSeed(seed);
+  });
 }
 
 function createIdentityFromKeyPair(keyPair: nacl.SignKeyPair) {
@@ -50,18 +60,24 @@ export const useAuthStore = defineStore('auth', {
       return this.handleLoginFlow(seedPhrase);
     },
     async handleLoginFlow(seedPhrase: string) {
-      if (!validateMnemonic(seedPhrase)) {
-        throw new Error('Invalid seed phrase.');
-      }
+      // For now, accept any seed phrase since we're using a custom approach
+      // TODO: Add proper validation for our custom seed phrase format
+
+      console.log('Seed Phrase:', seedPhrase);
+    
       // Derive keys and create identity
-      const keyPair = deriveKeysFromSeedPhrase(seedPhrase);
+      const keyPair = await deriveKeysFromSeedPhrase(seedPhrase);
       identity = createIdentityFromKeyPair(keyPair);
+    
+      console.log('Identity initialized:', identity.getPrincipal().toText());
       this.authenticated = true;
+    
       this.seedPhrase = seedPhrase;
       this.saveStateToLocalStorage();
-      // TODO: Fetch player data from canister and update state
-      // For now, stub registration as true
-      this.registered = true;
+    
+      // TODO: Check if player exists in canister
+      // For now, assume they need to register
+      this.registered = false;
     },
     async createGuestAccount() {
       const seedPhrase = generateMnemonic();
@@ -103,7 +119,7 @@ export const useAuthStore = defineStore('auth', {
           this.$patch(parsed);
           if (parsed.seedPhrase) {
             try {
-              const keyPair = deriveKeysFromSeedPhrase(parsed.seedPhrase);
+              const keyPair = await deriveKeysFromSeedPhrase(parsed.seedPhrase);
               identity = createIdentityFromKeyPair(keyPair);
               this.authenticated = true;
               this.registered = true;

@@ -31,9 +31,9 @@ const selectedStatus = ref('All')
 const chains = [
   { label: 'All', icon: 'logos:ethereum', color: 'bg-gray-200 dark:bg-gray-800' },
   { label: 'Ethereum', icon: 'logos:ethereum', color: 'bg-blue-100 dark:bg-blue-900' },
-  { label: 'Solana', icon: 'logos:solana-icon', color: 'bg-green-100 dark:bg-green-900' },
-  { label: 'Arbitrum', icon: 'logos:arbitrum', color: 'bg-indigo-100 dark:bg-indigo-900' },
-  { label: 'Polygon', icon: 'logos:polygon', color: 'bg-purple-100 dark:bg-purple-900' },
+  { label: 'Solana', icon: 'token-branded:solana', color: 'bg-green-100 dark:bg-green-900' },
+  { label: 'Arbitrum', icon: 'token-branded:arbitrum-one', color: 'bg-indigo-100 dark:bg-indigo-900' },
+  { label: 'Polygon', icon: 'token-branded:polygon', color: 'bg-purple-100 dark:bg-purple-900' },
   { label: 'Base', icon: 'logos:base', color: 'bg-blue-200 dark:bg-blue-800' }
 ]
 </script> 

@@ -59,12 +59,11 @@ const chains = [
   { label: 'Ethereum', icon: 'logos:ethereum' },
   { label: 'Abstract', icon: 'logos:ethereum' },
   { label: 'ApeChain', icon: 'logos:ethereum' },
-  { label: 'Arbitrum', icon: 'logos:arbitrum' },
+  { label: 'Arbitrum', icon: 'token-branded:arbitrum-one' },
   { label: 'Avalanche', icon: 'logos:avalanche' },
   { label: 'Base', icon: 'logos:base' },
-  { label: 'Polygon', icon: 'logos:polygon' },
-  { label: 'Ronin', icon: 'logos:ronin' },
-  { label: 'Zora', icon: 'logos:zora' }
+  { label: 'Polygon', icon: 'token-branded:polygon' },
+  { label: 'Ronin', icon: 'logos:ronin' }
 ]
 const selectedChain = ref('All')
 const isVerified = ref(false)
