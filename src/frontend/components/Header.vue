@@ -30,7 +30,7 @@
             @click="toggleTheme"
             aria-label="Toggle theme"
             class="relative w-12.5 h-7.5 rounded-full transition-colors duration-300 focus:outline-none border border-gray-300 dark:border-gray-700 flex mr-2"
-            :class="colorMode.value === 'dark' ? 'bg-amber-500' : 'bg-sky-600'"
+            :class="colorMode.value === 'dark' ? 'bg-pink-500' : 'bg-stone-600'"
           >
             <span
               class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-all duration-300 flex items-center justify-center"
@@ -39,13 +39,13 @@
               <UIcon
                 :name="colorMode.value === 'dark' ? 'ix:sun-filled' : 'tabler:moon-filled'"
                 class="w-5 h-5 transition-colors duration-300"
-                :class="colorMode.value === 'dark' ? 'text-amber-500' : 'text-sky-600'"
+                :class="colorMode.value === 'dark' ? 'text-pink-500' : 'text-stone-600'"
               />
             </span>
           </button>
         </ClientOnly>
         <!-- Connect Wallet Button -->
-        <UButton color="primary" icon="solar:wallet-bold" class="hidden md:flex" @click="openLoginPanel" v-if="!authStore.authenticated">
+        <UButton color="primary"  icon="solar:wallet-bold" class="hidden md:flex" @click="openLoginPanel" v-if="!authStore.authenticated">
           Connect Wallet
         </UButton>
         <!-- Profile Avatar -->
