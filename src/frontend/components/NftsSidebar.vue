@@ -127,16 +127,16 @@ const categories = [
 ];
 const selectedCategory = ref("All");
 const chains = [
-  { label: "All", icon: "logos:ethereum" },
-  { label: "Ethereum", icon: "logos:ethereum" },
-  { label: "Abstract", icon: "logos:ethereum" },
-  { label: "ApeChain", icon: "logos:ethereum" },
-  { label: "Arbitrum", icon: "token-branded:arbitrum-one" },
-  { label: "Avalanche", icon: "logos:avalanche" },
-  { label: "Base", icon: "logos:base" },
-  { label: "Polygon", icon: "token-branded:polygon" },
-  { label: "Ronin", icon: "logos:ronin" },
-];
-const selectedChain = ref("All");
-const isVerified = ref(false);
-</script>
+  { label: 'All', icon: 'token-branded:ethereum' },
+  { label: 'Ethereum', icon: 'token-branded:ethereum' },
+  { label: 'Abstract', icon: 'token-branded:ethereum' },
+  { label: 'ApeChain', icon: 'token-branded:ethereum' },
+  { label: 'Arbitrum', icon: 'token-branded:arbitrum-one' },
+  { label: 'Avalanche', icon: 'token-branded:avalanche' },
+  { label: 'Base', icon: 'token-branded:base' },
+  { label: 'Polygon', icon: 'token-branded:polygon' },
+  { label: 'Ronin', icon: 'token-branded:ronin' }
+]
+const selectedChain = ref('All')
+const isVerified = ref(false)
+</script> 

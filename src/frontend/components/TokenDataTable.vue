@@ -13,7 +13,7 @@
         <tr v-for="token in sortedTokens" :key="token.symbol" class="border-b border-gray-100 dark:border-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
           <!-- TOKEN -->
           <td class="px-4 py-2 flex items-center gap-2">
-            <img :src="token.logo" alt="logo" class="w-7 h-7 rounded-full border" />
+            <UIcon :name="token.icon" class="w-7 h-7 text-2xl rounded-full border bg-white dark:bg-gray-900" />
             <div class="min-w-0">
               <NuxtLink :to="`/tokens/${token.symbol}`" class="font-bold text-primary-600 hover:underline">{{ token.symbol }}</NuxtLink>
               <div class="text-xs text-gray-500 truncate">{{ token.name }}</div>
@@ -55,7 +55,7 @@
 import { ref, computed } from 'vue'
 
 interface TokenRow extends Record<string, any> {
-  logo: string;
+  icon: string;
   symbol: string;
   name: string;
   price: string;
@@ -85,19 +85,16 @@ const sortColumn = ref<string>('marketCap')
 const sortOrder = ref<'asc' | 'desc'>('desc')
 const tokens = ref<TokenRow[]>([
   {
-    logo: 'https://cryptologos.cc/logos/internet-computer-icp-logo.png', symbol: 'ICP', name: 'Internet Computer', price: '$12.34', change1h: 0.2, change24h: 4.2, change7d: 8.1, vol1d: '$12.3M', marketCap: '$5.1B', supply: '450M', fdv: '$6.2B', sparkline: []
+    icon: 'token-branded:icp', symbol: 'ICP', name: 'Internet Computer', price: '$12.34', change1h: 0.2, change24h: 4.2, change7d: 8.1, vol1d: '$12.3M', marketCap: '$5.1B', supply: '450M', fdv: '$6.2B', sparkline: []
   },
   {
-    logo: 'https://cryptologos.cc/logos/ethereum-eth-logo.png', symbol: 'ETH', name: 'Ethereum', price: '$3,200', change1h: -0.1, change24h: 2.1, change7d: 5.7, vol1d: '$23.1B', marketCap: '$380B', supply: '120M', fdv: '$380B', sparkline: []
+    icon: 'token-branded:ethereum', symbol: 'ETH', name: 'Ethereum', price: '$3,200', change1h: -0.1, change24h: 2.1, change7d: 5.7, vol1d: '$23.1B', marketCap: '$380B', supply: '120M', fdv: '$380B', sparkline: []
   },
   {
-    logo: 'https://cryptologos.cc/logos/solana-sol-logo.png', symbol: 'SOL', name: 'Solana', price: '$145', change1h: 0.5, change24h: -1.1, change7d: 2.7, vol1d: '$2.3B', marketCap: '$65B', supply: '440M', fdv: '$65B', sparkline: []
+    icon: 'token-branded:solana', symbol: 'SOL', name: 'Solana', price: '$145', change1h: 0.5, change24h: -1.1, change7d: 2.7, vol1d: '$2.3B', marketCap: '$65B', supply: '440M', fdv: '$65B', sparkline: []
   },
   {
-    logo: 'https://cryptologos.cc/logos/bitcoin-btc-logo.png', symbol: 'BTC', name: 'Bitcoin', price: '$67,000', change1h: 0.1, change24h: 0.5, change7d: 1.2, vol1d: '$34.2B', marketCap: '$1.3T', supply: '19.7M', fdv: '$1.3T', sparkline: []
-  },
-  {
-    logo: 'https://cryptologos.cc/logos/chainlink-link-logo.png', symbol: 'LINK', name: 'Chainlink', price: '$18.20', change1h: 0.3, change24h: 6.3, change7d: 10.2, vol1d: '$0.8B', marketCap: '$10.2B', supply: '587M', fdv: '$18.2B', sparkline: []
+    icon: 'token-branded:bitcoin', symbol: 'BTC', name: 'Bitcoin', price: '$67,000', change1h: 0.1, change24h: 0.5, change7d: 1.2, vol1d: '$34.2B', marketCap: '$1.3T', supply: '19.7M', fdv: '$1.3T', sparkline: []
   }
 ])
 function sort(key: string) {
