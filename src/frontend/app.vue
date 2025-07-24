@@ -4,7 +4,7 @@
       <!-- Sidebar -->
       
       <!-- Main Content Wrapper -->
-      <div class="flex-1 flex flex-col min-h-screen" style="margin-left: 5rem;">
+      <div class="flex-1 flex flex-col min-h-screen" style="margin-left: 4rem;">
         <Header />
         <main class="flex-1 flex flex-col">
           <NuxtPage />

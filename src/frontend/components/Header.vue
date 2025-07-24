@@ -5,11 +5,10 @@
       scrolled
         ? 'bg-white/70 dark:bg-gray-950/70 backdrop-blur-sm shadow-md'
         : 'bg-transparent',
-      'border-b border-transparent',
-      scrolled && 'border-gray-200/50 dark:border-gray-800/50'
+      'border-b border-gray-200 dark:border-gray-800'
     ]"
   >
-    <div class="flex justify-between items-center h-16 mx-4 md:mx-4">
+    <div class="flex justify-between items-center h-14 mx-4 md:mx-4">
       <!-- Left: Logo and Search Bar -->
       <div class="flex items-center gap-2 flex-shrink-0">
         <!-- Search Bar -->

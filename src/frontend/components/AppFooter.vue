@@ -1,6 +1,6 @@
 <template>
   <footer class="w-full border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 fixed bottom-0 left-0 z-30">
-    <UContainer class="flex flex-col md:flex-row justify-between items-center py-2 px-2 md:px-6 gap-2 text-xs text-gray-500 dark:text-gray-400">
+    <div class="ml-12 flex justify-between items-center py-2 px-4 md:px-8 text-xs text-gray-500 dark:text-gray-400 w-full">
       <!-- Left Side -->
       <div class="flex items-center gap-3 flex-wrap">
         <!-- Live Indicator -->
@@ -10,7 +10,7 @@
         <span class="hidden md:inline">|</span>
         <!-- Networks -->
         <UPopover>
-          <UButton color="gray" variant="ghost" size="xs" class="flex items-center gap-1">
+          <UButton color="neutral" variant="ghost" size="xs" class="flex items-center gap-1">
             <UIcon name="icon-park-solid:blockchain" class="text-base" /> Networks
           </UButton>
           <template #panel>
@@ -36,7 +36,7 @@
         <a href="#" class="hover:text-primary"><UIcon name="line-md:twitter-x" class="text-lg" /></a>
       </div>
       <!-- Right Side -->
-      <div class="flex items-center gap-3 flex-wrap">
+      <div class="mr-12 flex items-center gap-3 flex-wrap">
         <!-- ICP Price -->
         <span class="flex items-center gap-1">
           <UIcon name="logos:internet-computer-icon" class="text-base" /> $12.34
@@ -59,7 +59,7 @@
           {{ showFiat ? 'USD' : 'Crypto' }}
         </button>
       </div>
-    </UContainer>
+    </div>
   </footer>
 </template>
 
