@@ -63,8 +63,7 @@ const chains = [
   { label: 'Avalanche', icon: 'logos:avalanche' },
   { label: 'Base', icon: 'logos:base' },
   { label: 'Polygon', icon: 'token-branded:polygon' },
-  { label: 'Ronin', icon: 'logos:ronin' },
-  { label: 'Zora', icon: 'logos:zora' }
+  { label: 'Ronin', icon: 'logos:ronin' }
 ]
 const selectedChain = ref('All')
 const isVerified = ref(false)

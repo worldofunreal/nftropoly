@@ -33,16 +33,26 @@ export default defineNuxtConfig({
       resolve: {
         alias: {
           buffer: 'buffer',
+          process: 'process/browser',
+          util: 'util',
         },
       },
       optimizeDeps: {
-        include: ['buffer'],
+        include: ['buffer', 'process', 'util'],
+      },
+      build: {
+        rollupOptions: {
+          external: [],
+        },
       },
     },
     nitro: {
       experimental: {
         wasm: true,
       },
+    },
+    ui: {
+      // Nuxt UI configuration
     },
     app: {
       head: {

@@ -50,6 +50,7 @@ const error = ref('');
 const loginMethod = ref('');
 
 const registrationModalRef = ref<any>(null);
+const toast = useToast();
 
 // Watch for changes to show value
 watch(show, (newVal) => {
@@ -135,9 +136,23 @@ async function loginWithMetaMask() {
     registrationModalRef.value?.open(ethAddress, icpPrincipal);
     console.log('Registration modal opened');
     
+    // Show success toast
+    toast.add({
+      title: 'MetaMask Connected',
+      description: 'Successfully connected with MetaMask wallet',
+      color: 'success'
+    });
+    
   } catch (err: any) {
     console.error('MetaMask login error:', err);
     error.value = err?.message || 'MetaMask login failed.';
+    
+    // Show error toast
+    toast.add({
+      title: 'Login Failed',
+      description: err?.message || 'MetaMask login failed',
+      color: 'error'
+    });
   } finally {
     loading.value = false;
     loginMethod.value = '';
