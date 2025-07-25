@@ -21,7 +21,7 @@
         >
           <div class="font-bold text-base mb-1">{{ article.title }}</div>
           <div class="text-xs text-gray-500 mb-2">{{ article.subtitle }}</div>
-          <div class="mt-auto text-primary-600 text-xs font-semibold flex items-center gap-1">
+          <div class="mb-12 mt-auto text-primary-600 text-xs font-semibold flex items-center gap-1">
             Learn More <UIcon name="i-heroicons-arrow-right-20-solid" class="text-xs" />
           </div>
         </NuxtLink>

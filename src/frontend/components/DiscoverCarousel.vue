@@ -29,7 +29,8 @@
               <UIcon v-if="col.verified" name="material-symbols:verified" class="text-sky-500 text-2xl" />
             </div>
             <div class="text-xs font-normal text-gray-500 mb-2">By {{ col.creator }}</div>
-            <div class="grid grid-cols-4 gap-2 text-xs">
+            <!-- Established Collection Stats (Floor, Items, Volume, Listed) -->
+            <div v-if="col.mintStatus === 'Closed'" class="grid grid-cols-4 gap-2 text-xs">
                 <div class="bg-black/60 rounded-md p-2 flex flex-col items-center">
                 <span class="font-bold text-lg text-white">{{ col.floorPrice }}</span>
                   <span class="text-gray-500 text-xs">Floor</span>
@@ -47,17 +48,18 @@
                   <span class="text-gray-500 text-xs">Listed</span>
               </div>
             </div>
-            <div class="grid grid-cols-3 gap-2 text-xs mt-2">
+            <!-- Minting Stats (Status, Mint, Total) -->
+            <div v-else class="grid grid-cols-3 gap-2 text-xs">
                 <div class="bg-primary rounded p-2 flex flex-col items-center">
-                <span class="font-semibold text-white">{{ col.mintStatus }}</span>
+                <span class="font-bold text-lg  text-white">{{ col.mintStatus }}</span>
                   <span class="text-gray-500 text-xs">Status</span>
               </div>
-              <div class="bg-primary-900 bg-opacity-60 rounded p-2 flex flex-col items-center">
-                <span class="font-semibold text-white">{{ col.mintPrice }}</span>
+              <div class="bg-primary bg-opacity-60 rounded p-2 flex flex-col items-center">
+                <span class="font-bold text-lg text-white">{{ col.mintPrice }}</span>
                   <span class="text-gray-500 text-xs">Mint</span>
               </div>
-              <div class="bg-primary-900 bg-opacity-60 rounded p-2 flex flex-col items-center">
-                <span class="font-semibold text-white">{{ col.mintTotal }}</span>
+              <div class="bg-primary bg-opacity-60 rounded p-2 flex flex-col items-center">
+                <span class="font-bold text-lg text-white">{{ col.mintTotal }}</span>
                   <span class="text-gray-500 text-xs">Total</span>
                 </div>
               </div>
