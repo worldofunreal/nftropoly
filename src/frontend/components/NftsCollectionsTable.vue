@@ -18,8 +18,8 @@
             <div class="min-w-0">
               <div class="flex items-center gap-1 font-semibold text-gray-900 dark:text-white truncate">
                 {{ row.name }}
-                <UIcon v-if="row.verified" name="material-symbols:verified" class="text-primary-500 text-xs" />
-                <span v-if="row.isNew" class="ml-1 bg-green-600 text-white text-2xs font-semibold px-2 py-0.5 rounded-full">NEW</span>
+                <UIcon v-if="row.verified" name="material-symbols:verified" class="text-sky-500 text-xl" />
+                <span v-if="row.isNew" class="ml-1 bg-green-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">NEW</span>
               </div>
             </div>
           </td>
@@ -55,7 +55,7 @@ const columns = [
 const rows = [
   {
     id: 1,
-    avatar: 'https://placehold.co/40x40',
+    avatar: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=80&q=80',
     name: 'Pudgy Penguins',
     verified: true,
     isNew: true,
@@ -68,7 +68,7 @@ const rows = [
   },
   {
     id: 2,
-    avatar: 'https://placehold.co/40x40',
+    avatar: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=80&q=80',
     name: 'CryptoPunks',
     verified: true,
     isNew: false,
@@ -81,7 +81,7 @@ const rows = [
   },
   {
     id: 3,
-    avatar: 'https://placehold.co/40x40',
+    avatar: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=80&q=80',
     name: 'Fidenza by Tyler Hobbs',
     verified: false,
     isNew: false,
@@ -94,7 +94,7 @@ const rows = [
   },
   {
     id: 4,
-    avatar: 'https://placehold.co/40x40',
+    avatar: 'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?auto=format&fit=crop&w=80&q=80',
     name: 'Doodles',
     verified: false,
     isNew: true,

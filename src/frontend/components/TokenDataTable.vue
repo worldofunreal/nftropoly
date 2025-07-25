@@ -3,9 +3,9 @@
     <table class="min-w-full text-sm">
       <thead>
         <tr class="bg-neutral-100 dark:bg-neutral-800">
-          <th v-for="col in columns" :key="col.key" @click="sort(col.key)" class="p-4 text-left font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap cursor-pointer select-none">
+          <th v-for="col in columns" :key="col.key" @click="sort(col.key)" class="p-3 text-left text-sm font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap cursor-pointer select-none">
             <span>{{ col.label }}</span>
-            <UIcon v-if="sortColumn === col.key" :name="sortOrder === 'asc' ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline ml-1 text-xs" />
+            <UIcon v-if="sortColumn === col.key" :name="sortOrder === 'asc' ? 'bxs:up-arrow' : 'bxs:down-arrow'" class="inline ml-1 text-xs" />
           </th>
         </tr>
       </thead>
@@ -14,27 +14,27 @@
         <tr v-for="token in sortedTokens" :key="token.symbol" class="border-b border-gray-200 dark:border-gray-800 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
           <!-- TOKEN -->
           <td class="p-4 flex items-center gap-2">
-            <UIcon :name="token.icon" class="w-7 h-7 text-2xl rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-950" />
+            <UIcon :name="token.icon" class="w-7 h-7 text-3xl" />
             <div class="min-w-0">
-              <NuxtLink :to="`/tokens/${token.symbol}`" class="font-semibold text-gray-900 dark:text-white hover:underline">{{ token.symbol }}</NuxtLink>
-              <div class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ token.name }}</div>
+              <NuxtLink :to="`/tokens/${token.symbol}`" class="font-bold text-gray-900 dark:text-white hover:underline">{{ token.symbol }}</NuxtLink>
+              <div class="text-xs text-gray-600 dark:text-gray-500 truncate">{{ token.name }}</div>
             </div>
           </td>
           <!-- PRICE -->
           <td class="p-4 font-mono text-gray-900 dark:text-white">{{ token.price }}</td>
           <!-- 1H CHANGE -->
           <td class="p-4 font-mono" :class="token.change1h >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
-            <UIcon :name="token.change1h >= 0 ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline text-xs" />
+            <UIcon :name="token.change1h >= 0 ? 'bxs:up-arrow' : 'bxs:down-arrow'" class="inline text-xs" />
             {{ token.change1h }}%
           </td>
           <!-- 24H CHANGE -->
           <td class="p-4 font-mono" :class="token.change24h >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
-            <UIcon :name="token.change24h >= 0 ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline text-xs" />
+            <UIcon :name="token.change24h >= 0 ? 'bxs:up-arrow' : 'bxs:down-arrow'" class="inline text-xs" />
             {{ token.change24h }}%
           </td>
           <!-- 7D CHANGE -->
           <td class="p-4 font-mono" :class="token.change7d >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'">
-            <UIcon :name="token.change7d >= 0 ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline text-xs" />
+            <UIcon :name="token.change7d >= 0 ? 'bxs:up-arrow' : 'bxs:down-arrow'" class="inline text-xs" />
             {{ token.change7d }}%
           </td>
           <!-- 1D VOL -->

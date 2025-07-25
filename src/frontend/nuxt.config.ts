@@ -18,7 +18,7 @@ export default defineNuxtConfig({
     fonts: {
       families: [
         {
-          name: 'Inter',
+          name: 'Montserrat',
           provider: 'google',
         }
       ]

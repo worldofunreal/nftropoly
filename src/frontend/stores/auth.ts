@@ -45,6 +45,9 @@ export const useAuthStore = defineStore('auth', {
     registered: false,
     player: null as any,
     seedPhrase: '',
+    walletAddress: '',
+    walletType: '',
+    icpPrincipal: '',
   }),
   actions: {
     getIdentity() {
@@ -59,7 +62,7 @@ export const useAuthStore = defineStore('auth', {
     async recoverAccount(seedPhrase: string) {
       return this.handleLoginFlow(seedPhrase);
     },
-    async handleLoginFlow(seedPhrase: string) {
+    async handleLoginFlow(seedPhrase: string, walletAddress?: string, walletType?: string) {
       // For now, accept any seed phrase since we're using a custom approach
       // TODO: Add proper validation for our custom seed phrase format
 
@@ -73,6 +76,9 @@ export const useAuthStore = defineStore('auth', {
       this.authenticated = true;
     
       this.seedPhrase = seedPhrase;
+      this.walletAddress = walletAddress || '';
+      this.walletType = walletType || '';
+      this.icpPrincipal = identity.getPrincipal().toText();
       this.saveStateToLocalStorage();
     
       // TODO: Check if player exists in canister

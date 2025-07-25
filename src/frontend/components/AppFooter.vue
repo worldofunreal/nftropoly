@@ -24,11 +24,11 @@
         <span class="hidden md:inline">|</span>
         <!-- Terms/Privacy -->
         <NuxtLink to="/terms" class="flex items-center gap-1 hover:text-primary transition-colors">
-          <UIcon name="ri:contract-fill" /> Terms
+          <UIcon name="material-symbols:contract-rounded" class="text-lg" /> Terms
         </NuxtLink>
         <span class="hidden md:inline">|</span>
         <NuxtLink to="/privacy" class="flex items-center gap-1 hover:text-primary transition-colors">
-          <UIcon name="material-symbols:privacy-tip-rounded" /> Privacy
+          <UIcon name="material-symbols:privacy-tip-rounded" class="text-lg" /> Privacy
         </NuxtLink>
         <span class="hidden md:inline">|</span>
         <!-- Socials -->

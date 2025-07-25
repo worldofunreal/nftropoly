@@ -2,19 +2,110 @@
   <!-- Simple Modal Overlay -->
   <div v-if="show" class="fixed inset-0 z-[9999] flex items-center justify-center">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-neutral bg-opacity-50" @click="show = false"></div>
+    <div class="absolute inset-0 bg-white/80 dark:bg-black/90" @click="show = false"></div>
     <!-- Modal Content -->
-    <div class="relative bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full mx-4">
-      <div class="p-6">
-        <h2 class="text-xl font-bold mb-4">Sign in to Nftropoly</h2>
-        <UButton block class="mb-2" icon="token-branded:metamask" @click="loginWithMetaMask" :loading="loading && loginMethod === 'metamask'">Sign in with MetaMask</UButton>
-        <UButton block class="mb-2" icon="mdi:phantom" @click="loginWithPhantom" :loading="loading && loginMethod === 'phantom'">Sign in with Phantom</UButton>
-        <UButton block class="mb-2" icon="ic:baseline-account-balance-wallet" @click="loginWithPlug" :loading="loading && loginMethod === 'plug'">Sign in with Plug</UButton>
-        <UButton block class="mb-2" icon="logos:google-icon" @click="loginWithGoogle" :loading="loading && loginMethod === 'google'">Sign in with Google</UButton>
-        <UButton block class="mb-2" icon="ic:baseline-account-circle" @click="loginWithInternetIdentity">Sign in with Internet Identity</UButton>
-        <hr class="my-4 border-gray-200 dark:border-gray-700" />
-        <UButton block color="neutral" variant="soft" @click="show = false">Cancel</UButton>
-        <div v-if="error" class="mt-4 text-red-500 text-sm">{{ error }}</div>
+    <div class="relative bg-white dark:bg-neutral-900 rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div class="p-8">
+        <!-- Logo Section -->
+        <div class="flex flex-col items-center mb-8">
+          <img src="/logo.svg" alt="NFTropoly Logo" class="w-12 h-12 mb-2" />
+          <img src="/logo-text.svg" alt="NFTropoly" class="h-6 light:invert" />
+        </div>
+        
+        <h2 class="text-2xl font-bold mb-6 text-center ">Sign in to Nftropoly</h2>
+        <div class="space-y-4 ">
+          <UButton 
+            block 
+            size="xl"
+            color="neutral" 
+            variant="soft"
+            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
+            @click="loginWithInternetIdentity"
+          >
+            <div class="flex items-center gap-3">
+              <UIcon name="token-branded:icp" class="text-2xl" />
+              <span>Sign in with Internet Identity</span>
+            </div>
+          </UButton>
+          
+          <UButton 
+            block 
+            size="xl"
+            color="neutral" 
+            variant="soft"
+            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
+            @click="loginWithMetaMask" 
+            :loading="loading && loginMethod === 'metamask'"
+          >
+            <div class="flex items-center gap-3">
+              <UIcon name="token-branded:metamask" class="text-2xl" />
+              <span>Sign in with MetaMask</span>
+            </div>
+          </UButton>
+          <UButton 
+            block 
+            size="xl"
+            color="neutral" 
+            variant="soft"
+            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
+            @click="loginWithPhantom" 
+            :loading="loading && loginMethod === 'phantom'"
+          >
+            <div class="flex items-center gap-3">
+              <UIcon name="token-branded:phantom" class="text-2xl" />
+              <span>Sign in with Phantom</span>
+            </div>
+          </UButton>
+          <UButton 
+            block 
+            size="xl"
+            color="neutral" 
+            variant="soft"
+            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
+            @click="loginWithPlug" 
+            :loading="loading && loginMethod === 'plug'"
+          >
+            <div class="flex items-center gap-3">
+              <UIcon name="fa6-solid:plug" class="text-2xl" />
+              <span>Sign in with Plug</span>
+            </div>
+          </UButton>
+          <UButton 
+            block 
+            size="xl"
+            color="neutral" 
+            variant="soft"
+            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
+            @click="loginWithGoogle" 
+            :loading="loading && loginMethod === 'google'"
+          >
+            <div class="flex items-center gap-3">
+              <UIcon name="logos:google-icon" class="text-2xl" />
+              <span>Sign in with Google</span>
+            </div>
+          </UButton>
+
+        </div>
+        <hr class="my-6 border-gray-200 dark:border-gray-700" />
+        <UButton 
+          block 
+          color="neutral" 
+          variant="soft" 
+          size="lg"
+          class="h-12 text-base"
+          @click="show = false"
+        >
+          Cancel
+        </UButton>
+        <div v-if="error" class="mt-4 text-red-500 text-sm text-center">{{ error }}</div>
+        
+        <!-- Terms and Privacy Policy -->
+        <div class="mt-6 text-xs text-gray-500 dark:text-gray-400 text-center leading-relaxed">
+          By signing in and using Nftropoly, you agree to our 
+          <NuxtLink to="/terms" class="text-primary hover:underline">Terms of Service</NuxtLink> 
+          and 
+          <NuxtLink to="/privacy" class="text-primary hover:underline">Privacy Policy</NuxtLink>
+        </div>
       </div>
     </div>
   </div>
@@ -125,7 +216,7 @@ async function loginWithMetaMask() {
     
     // Handle login flow (this creates the identity)
     console.log('Calling handleLoginFlow...');
-    await auth.handleLoginFlow(finalSeedPhrase);
+    await auth.handleLoginFlow(finalSeedPhrase, ethAddress, 'metamask');
     console.log('handleLoginFlow completed');
     
     // Get the ICP principal from the identity
@@ -212,11 +303,6 @@ async function loginWithPhantom() {
     const finalSeedPhrase = seedPhrase.join(' ');
     console.log('Generated seed phrase:', finalSeedPhrase);
     
-    // Handle login flow (this creates the identity)
-    console.log('Calling handleLoginFlow...');
-    await auth.handleLoginFlow(finalSeedPhrase);
-    console.log('handleLoginFlow completed');
-    
     // Get the ICP principal from the identity
     const identity = auth.getIdentity();
     const icpPrincipal = identity?.getPrincipal().toText() || '';
@@ -224,6 +310,11 @@ async function loginWithPhantom() {
     
     // For Phantom, we'll use a placeholder address since we don't have it directly
     const phantomAddress = 'Phantom Wallet Connected';
+    
+    // Handle login flow (this creates the identity)
+    console.log('Calling handleLoginFlow...');
+    await auth.handleLoginFlow(finalSeedPhrase, phantomAddress, 'phantom');
+    console.log('handleLoginFlow completed');
     
     // Close login modal and show registration
     console.log('Opening registration modal...');
@@ -307,7 +398,7 @@ async function loginWithPlug() {
     
     // Handle login flow (this creates the identity)
     console.log('Calling handleLoginFlow...');
-    await auth.handleLoginFlow(finalSeedPhrase);
+    await auth.handleLoginFlow(finalSeedPhrase, principalId.toText(), 'plug');
     console.log('handleLoginFlow completed');
     
     // Get the ICP principal from the identity (should match the Plug principal)
@@ -390,7 +481,7 @@ async function loginWithGoogle() {
     
     // Handle login flow (this creates the identity)
     console.log('Calling handleLoginFlow...');
-    await auth.handleLoginFlow(finalSeedPhrase);
+    await auth.handleLoginFlow(finalSeedPhrase, mockUserId, 'google');
     console.log('handleLoginFlow completed');
     
     // Get the ICP principal from the identity
