@@ -5,7 +5,7 @@
       v-motion
       :initial="{ opacity: 0 }"
       :enter="{ opacity: 1, transition: { duration: 250 } }"
-      class="absolute inset-0 bg-black/40 backdrop-blur-lg"
+      class="absolute inset-0 bg-neutral/40 backdrop-blur-lg"
     >
       <div class="absolute inset-0 bg-gradient-radial from-cyan-500/10 via-fuchsia-700/10 to-transparent opacity-80 pointer-events-none"></div>
     </div>
@@ -20,7 +20,7 @@
         <button
           @click="toggleTheme"
           aria-label="Toggle theme"
-          class="relative w-14 h-10 rounded-full border border-cyan-400 bg-black/60 flex items-center justify-start transition-colors duration-300 focus:outline-none shadow-md overflow-hidden"
+          class="relative w-14 h-10 rounded-full border border-cyan-400 bg-neutral/60 flex items-center justify-start transition-colors duration-300 focus:outline-none shadow-md overflow-hidden"
         >
           <span
             class="absolute top-1.2 left-0.5 w-8 h-8  transition-all duration-500 flex items-center justify-center"

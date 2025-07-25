@@ -59,7 +59,7 @@
   <div
     v-if="isOpen"
     @click="closeSidebar"
-    class="fixed inset-0 bg-black/50 z-30 md:hidden"
+    class="fixed inset-0 bg-neutral/50 z-30 md:hidden"
   ></div>
 </template>
 

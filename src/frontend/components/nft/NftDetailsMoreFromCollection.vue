@@ -29,8 +29,8 @@
                   <div class="absolute top-2 left-2 w-6 h-6 bg-yellow-600 rounded-full"></div>
                   <div class="absolute top-3 left-3 w-3 h-3 bg-green-500 rounded-full"></div>
                   <div class="absolute top-3 right-3 w-3 h-3 bg-green-500 rounded-full"></div>
-                  <div class="absolute top-6 left-6 w-2 h-2 bg-black rounded-full"></div>
-                  <div class="absolute top-8 left-5 w-3 h-1 bg-black rounded"></div>
+                  <div class="absolute top-6 left-6 w-2 h-2 bg-neutral rounded-full"></div>
+                  <div class="absolute top-8 left-5 w-3 h-1 bg-neutral rounded"></div>
                 </div>
               </div>
             </div>

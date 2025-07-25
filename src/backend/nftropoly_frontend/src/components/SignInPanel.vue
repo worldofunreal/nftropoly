@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed inset-0 z-[1000] flex items-center justify-center min-h-screen bg-black/70 backdrop-blur-sm">
+  <div class="fixed inset-0 z-[1000] flex items-center justify-center min-h-screen bg-neutral/70 backdrop-blur-sm">
     <div class="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-md mx-4 p-8 relative animate-fade-in border-2 border-blue-500 max-h-[90vh] overflow-auto flex flex-col justify-center">
       <button class="absolute top-4 right-4 text-blue-500 hover:text-blue-700 dark:hover:text-blue-300 bg-white dark:bg-slate-800 rounded-full p-2 shadow-lg border border-blue-200 dark:border-blue-700" @click="$emit('close')">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
