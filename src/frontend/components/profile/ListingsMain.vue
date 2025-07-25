@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full w-full p-4">
     <div class="flex items-center gap-4 mb-4">
-      <select class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950">
+      <select class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950">
         <option>Most recent</option>
         <option>Price: Low to High</option>
         <option>Price: High to Low</option>
@@ -16,34 +16,60 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-gray-100 dark:bg-gray-950">
-            <th class="p-2"><input type="checkbox" /></th>
-            <th class="p-2 text-left">Listing</th>
-            <th class="p-2 text-left">Status</th>
-            <th class="p-2 text-right">Price</th>
-            <th class="p-2 text-right">Top Offer</th>
-            <th class="p-2 text-right">Floor</th>
-            <th class="p-2 text-right">Qty</th>
-            <th class="p-2 text-right">Total</th>
-            <th class="p-2 text-right">Exp</th>
-            <th class="p-2 text-right">Time</th>
+          <tr class="bg-gray-800">
+            <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Listing</th>
+            <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Status</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Price</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Top Offer</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Floor</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Qty</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Total</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Exp</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Time</th>
           </tr>
         </thead>
+        <tr class="border-b border-gray-700 h-px"></tr>
         <tbody>
-          <tr v-for="listing in listings" :key="listing.id" class="border-b border-gray-100 dark:border-gray-800">
-            <td class="p-2"><input type="checkbox" /></td>
-            <td class="p-2 flex items-center gap-2">
-              <img :src="listing.image" alt="NFT" class="w-10 h-10 rounded border" />
-              <span class="font-semibold">{{ listing.name }}</span>
+          <tr v-for="listing in listings" :key="listing.id" class="border-b border-gray-800 hover:bg-gray-900/50 transition-colors">
+            <td class="p-4">
+              <div class="flex items-center gap-3">
+                <img :src="listing.image" alt="NFT" class="w-12 h-12 rounded-lg border border-gray-700 flex-shrink-0" />
+                <div class="flex flex-col">
+                  <span class="font-semibold text-white">{{ listing.name }}</span>
+                  <span class="text-sm text-gray-400">#{{ listing.id }}</span>
+                </div>
+              </div>
             </td>
-            <td class="p-2 text-left">{{ listing.status }}</td>
-            <td class="p-2 text-right">{{ listing.price }}</td>
-            <td class="p-2 text-right">{{ listing.topOffer }}</td>
-            <td class="p-2 text-right">{{ listing.floor }}</td>
-            <td class="p-2 text-right">{{ listing.qty }}</td>
-            <td class="p-2 text-right">{{ listing.total }}</td>
-            <td class="p-2 text-right">{{ listing.exp }}</td>
-            <td class="p-2 text-right">{{ listing.time }}</td>
+            <td class="p-4 text-left whitespace-nowrap">
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" 
+                    :class="{
+                      'bg-green-900/20 text-green-400': listing.status === 'Active',
+                      'bg-gray-900/20 text-gray-400': listing.status === 'Inactive'
+                    }">
+                {{ listing.status }}
+              </span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="font-medium text-white">{{ listing.price }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-green-400">{{ listing.topOffer }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-300">{{ listing.floor }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-300">{{ listing.qty }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="font-medium text-white">{{ listing.total }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-400 text-sm">{{ listing.exp }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-400 text-sm">{{ listing.time }}</span>
+            </td>
           </tr>
         </tbody>
       </table>

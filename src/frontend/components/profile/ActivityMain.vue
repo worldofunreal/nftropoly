@@ -9,30 +9,64 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-gray-100 dark:bg-gray-950">
-            <th class="p-2 text-left">Event</th>
-            <th class="p-2 text-left">Item</th>
-            <th class="p-2 text-right">Price</th>
-            <th class="p-2 text-right">Rarity</th>
-            <th class="p-2 text-right">Qty</th>
-            <th class="p-2 text-right">From</th>
-            <th class="p-2 text-right">To</th>
-            <th class="p-2 text-right">Time</th>
+          <tr class="bg-gray-800">
+            <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Event</th>
+            <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Item</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Price</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Rarity</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Qty</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">From</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">To</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Time</th>
           </tr>
         </thead>
+        <tr class="border-b border-gray-700 h-px"></tr>
         <tbody>
-          <tr v-for="act in activities" :key="act.id" class="border-b border-gray-100 dark:border-gray-800">
-            <td class="p-2 text-left">{{ act.event }}</td>
-            <td class="p-2 flex items-center gap-2">
-              <img :src="act.image" alt="NFT" class="w-10 h-10 rounded border" />
-              <span class="font-semibold">{{ act.name }}</span>
+          <tr v-for="act in activities" :key="act.id" class="border-b border-gray-800 hover:bg-gray-900/50 transition-colors">
+            <td class="p-4 text-left whitespace-nowrap">
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" 
+                    :class="{
+                      'bg-green-900/20 text-green-400': act.event === 'Sale',
+                      'bg-blue-900/20 text-blue-400': act.event === 'Mint',
+                      'bg-purple-900/20 text-purple-400': act.event === 'Transfer'
+                    }">
+                {{ act.event }}
+              </span>
             </td>
-            <td class="p-2 text-right">{{ act.price }}</td>
-            <td class="p-2 text-right">{{ act.rarity }}</td>
-            <td class="p-2 text-right">{{ act.qty }}</td>
-            <td class="p-2 text-right">{{ act.from }}</td>
-            <td class="p-2 text-right">{{ act.to }}</td>
-            <td class="p-2 text-right">{{ act.time }}</td>
+            <td class="p-4">
+              <div class="flex items-center gap-3">
+                <img :src="act.image" alt="NFT" class="w-12 h-12 rounded-lg border border-gray-700 flex-shrink-0" />
+                <div class="flex flex-col">
+                  <span class="font-semibold text-white">{{ act.name }}</span>
+                  <span class="text-sm text-gray-400">#{{ act.id }}</span>
+                </div>
+              </div>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="font-medium text-white">{{ act.price }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" 
+                    :class="{
+                      'bg-green-900/20 text-green-400': act.rarity === 'Rare',
+                      'bg-purple-900/20 text-purple-400': act.rarity === 'Epic',
+                      'bg-blue-900/20 text-blue-400': act.rarity === 'Common'
+                    }">
+                {{ act.rarity }}
+              </span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-300">{{ act.qty }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-400 text-sm">{{ act.from }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-400 text-sm">{{ act.to }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-400 text-sm">{{ act.time }}</span>
+            </td>
           </tr>
         </tbody>
       </table>

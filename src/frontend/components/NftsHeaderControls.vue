@@ -2,11 +2,11 @@
   <div class="flex flex-wrap gap-2 items-center mb-4">
     <!-- Tabs -->
     <div class="flex gap-1">
-      <button v-for="tab in tabs" :key="tab" @click="selectedTab = tab" :class="selectedTab === tab ? 'bg-primary-600 text-white' : 'bg-gray-800 text-gray-200'" class="px-4 py-2 rounded font-bold">{{ tab }}</button>
+      <button v-for="tab in tabs" :key="tab" @click="selectedTab = tab" :class="selectedTab === tab ? 'bg-primary-600 text-white' : 'bg-gray-800 text-gray-200'" class="px-3 py-2 rounded font-bold">{{ tab }}</button>
     </div>
     <!-- Time Range Filters -->
-    <div class="flex gap-1 ml-4">
-      <button v-for="t in times" :key="t" @click="selectedTime = t" :class="selectedTime === t ? 'bg-primary-600 text-white' : 'bg-gray-800 text-gray-200'" class="px-3 py-1 rounded font-bold text-xs">{{ t }}</button>
+    <div class="flex gap-1 ml-2">
+      <button v-for="t in times" :key="t" @click="selectedTime = t" :class="selectedTime === t ? 'bg-primary-600 text-white' : 'bg-gray-800 text-gray-200'" class="px-3 py-2 rounded font-bold text-sm">{{ t }}</button>
     </div>
     <!-- View Toggle -->
     <div class="flex gap-1 ml-auto">

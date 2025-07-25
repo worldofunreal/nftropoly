@@ -1,41 +1,42 @@
 <template>
-  <div class="overflow-x-auto rounded-xl shadow bg-white dark:bg-gray-950">
+  <div class="overflow-x-auto flex-1">
     <table class="min-w-full text-sm">
       <thead>
-        <tr class="border-b border-gray-200 dark:border-gray-800">
+        <tr class="bg-gray-800">
           <th
             v-for="col in columns"
             :key="col.key"
-            class="px-4 py-3 font-bold text-left select-none"
+            class="p-4 text-left font-medium text-gray-300 whitespace-nowrap"
           >
             {{ col.label }}
           </th>
         </tr>
       </thead>
+      <tr class="border-b border-gray-700 h-px"></tr>
       <tbody>
         <tr
           v-for="row in rows"
           :key="row.id"
-          class="border-b border-gray-100 dark:border-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900 transition"
+          class="border-b border-gray-800 hover:bg-gray-900/50 transition-colors"
         >
           <!-- Event -->
-          <td class="px-4 py-2">
+          <td class="p-4">
             <div class="flex items-center gap-2">
               <UIcon :name="row.eventIcon" class="text-lg" />
-              <span>{{ row.eventType }}</span>
+              <span class="text-white">{{ row.eventType }}</span>
             </div>
           </td>
           <!-- Item -->
-          <td class="px-4 py-2 min-w-[180px]">
+          <td class="p-4 min-w-[180px]">
             <div class="flex items-center gap-2">
               <img
                 :src="row.itemAvatar"
                 alt="avatar"
-                class="w-8 h-8 rounded border"
+                class="w-8 h-8 rounded border border-gray-700 flex-shrink-0"
               />
               <div class="min-w-0">
-                <div class="font-bold truncate">{{ row.itemName }}</div>
-                <div class="flex items-center gap-1 text-xs text-gray-500">
+                <div class="font-semibold text-white truncate">{{ row.itemName }}</div>
+                <div class="flex items-center gap-1 text-sm text-gray-400">
                   {{ row.collectionName }}
                   <UIcon
                     v-if="row.verified"
@@ -47,23 +48,23 @@
             </div>
           </td>
           <!-- Price -->
-          <td class="px-4 py-2 font-mono">{{ row.price }}</td>
+          <td class="p-4 font-mono text-white">{{ row.price }}</td>
           <!-- Rarity -->
-          <td class="px-4 py-2">{{ row.rarity }}</td>
+          <td class="p-4 text-gray-300">{{ row.rarity }}</td>
           <!-- Qty -->
-          <td class="px-4 py-2">{{ row.qty }}</td>
+          <td class="p-4 text-gray-300">{{ row.qty }}</td>
           <!-- From -->
-          <td class="px-4 py-2 font-mono">{{ row.from }}</td>
+          <td class="p-4 font-mono text-gray-300">{{ row.from }}</td>
           <!-- To -->
-          <td class="px-4 py-2 font-mono">{{ row.to }}</td>
+          <td class="p-4 font-mono text-gray-300">{{ row.to }}</td>
           <!-- Time -->
-          <td class="px-4 py-2">
+          <td class="p-4">
             <div class="flex items-center gap-1">
-              <span>{{ row.time }}</span>
+              <span class="text-gray-300">{{ row.time }}</span>
               <a href="#" target="_blank">
                 <UIcon
                   name="i-heroicons-arrow-top-right-on-square-20-solid"
-                  class="text-xs"
+                  class="text-xs text-gray-400"
                 />
               </a>
             </div>

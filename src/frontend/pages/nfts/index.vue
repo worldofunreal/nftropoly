@@ -5,13 +5,13 @@
       <NftsSidebar />
     </aside>
     <!-- Main Table (Right Panel) -->
-    <div class="flex-1 flex flex-col min-h-screen">
+    <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
       <!-- Header Controls -->
-      <div class="px-4 pt-6 pb-2">
+      <div class="px-4 pt-6 pb-2 flex-shrink-0">
         <NftsHeaderControls />
       </div>
       <!-- NFT Collections Table -->
-      <div class="flex-1 px-4 pb-8">
+      <div class="flex-1 px-4 pb-8 overflow-auto">
         <NftsCollectionsTable />
       </div>
     </div>

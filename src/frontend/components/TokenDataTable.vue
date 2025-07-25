@@ -1,51 +1,52 @@
 <template>
-  <div class="overflow-x-auto rounded-xl shadow bg-white dark:bg-gray-950">
+  <div class="overflow-x-auto flex-1">
     <table class="min-w-full text-sm">
       <thead>
-        <tr class="border-b border-gray-200 dark:border-gray-800">
-          <th v-for="col in columns" :key="col.key" @click="sort(col.key)" class="px-4 py-3 font-bold text-left cursor-pointer select-none">
+        <tr class="bg-gray-800">
+          <th v-for="col in columns" :key="col.key" @click="sort(col.key)" class="p-4 text-left font-medium text-gray-300 whitespace-nowrap cursor-pointer select-none">
             <span>{{ col.label }}</span>
             <UIcon v-if="sortColumn === col.key" :name="sortOrder === 'asc' ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline ml-1 text-xs" />
           </th>
         </tr>
       </thead>
+      <tr class="border-b border-gray-700 h-px"></tr>
       <tbody>
-        <tr v-for="token in sortedTokens" :key="token.symbol" class="border-b border-gray-100 dark:border-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
+        <tr v-for="token in sortedTokens" :key="token.symbol" class="border-b border-gray-800 hover:bg-gray-900/50 transition-colors">
           <!-- TOKEN -->
-          <td class="px-4 py-2 flex items-center gap-2">
-            <UIcon :name="token.icon" class="w-7 h-7 text-2xl rounded-full border bg-white dark:bg-gray-950" />
+          <td class="p-4 flex items-center gap-2">
+            <UIcon :name="token.icon" class="w-7 h-7 text-2xl rounded-full border border-gray-700 bg-white dark:bg-gray-950" />
             <div class="min-w-0">
-              <NuxtLink :to="`/tokens/${token.symbol}`" class="font-bold text-primary-600 hover:underline">{{ token.symbol }}</NuxtLink>
-              <div class="text-xs text-gray-500 truncate">{{ token.name }}</div>
+              <NuxtLink :to="`/tokens/${token.symbol}`" class="font-semibold text-white hover:underline">{{ token.symbol }}</NuxtLink>
+              <div class="text-sm text-gray-400 truncate">{{ token.name }}</div>
             </div>
           </td>
           <!-- PRICE -->
-          <td class="px-4 py-2 font-mono">{{ token.price }}</td>
+          <td class="p-4 font-mono text-white">{{ token.price }}</td>
           <!-- 1H CHANGE -->
-          <td class="px-4 py-2 font-mono" :class="token.change1h >= 0 ? 'text-green-600' : 'text-red-600'">
+          <td class="p-4 font-mono" :class="token.change1h >= 0 ? 'text-green-400' : 'text-red-400'">
             <UIcon :name="token.change1h >= 0 ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline text-xs" />
             {{ token.change1h }}%
           </td>
           <!-- 24H CHANGE -->
-          <td class="px-4 py-2 font-mono" :class="token.change24h >= 0 ? 'text-green-600' : 'text-red-600'">
+          <td class="p-4 font-mono" :class="token.change24h >= 0 ? 'text-green-400' : 'text-red-400'">
             <UIcon :name="token.change24h >= 0 ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline text-xs" />
             {{ token.change24h }}%
           </td>
           <!-- 7D CHANGE -->
-          <td class="px-4 py-2 font-mono" :class="token.change7d >= 0 ? 'text-green-600' : 'text-red-600'">
+          <td class="p-4 font-mono" :class="token.change7d >= 0 ? 'text-green-400' : 'text-red-400'">
             <UIcon :name="token.change7d >= 0 ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline text-xs" />
             {{ token.change7d }}%
           </td>
           <!-- 1D VOL -->
-          <td class="px-4 py-2 font-mono">{{ token.vol1d }}</td>
+          <td class="p-4 font-mono text-gray-300">{{ token.vol1d }}</td>
           <!-- MARKET CAP -->
-          <td class="px-4 py-2 font-mono">{{ token.marketCap }}</td>
+          <td class="p-4 font-mono text-gray-300">{{ token.marketCap }}</td>
           <!-- SUPPLY -->
-          <td class="px-4 py-2 font-mono">{{ token.supply }}</td>
+          <td class="p-4 font-mono text-gray-300">{{ token.supply }}</td>
           <!-- FDV -->
-          <td class="px-4 py-2 font-mono">{{ token.fdv }}</td>
+          <td class="p-4 font-mono text-gray-300">{{ token.fdv }}</td>
           <!-- LAST 7D (Sparkline) -->
-          <td class="px-4 py-2"><div class="h-6 w-24 bg-gradient-to-r from-primary-100 to-primary-300 dark:from-primary-900 dark:to-primary-700 rounded flex items-center justify-center text-xs text-primary-700 dark:text-primary-200">[sparkline]</div></td>
+          <td class="p-4"><div class="h-6 w-24 bg-gradient-to-r from-primary-100 to-primary-300 dark:from-primary-900 dark:to-primary-700 rounded flex items-center justify-center text-xs text-primary-700 dark:text-primary-200">[sparkline]</div></td>
         </tr>
       </tbody>
     </table>
@@ -66,7 +67,7 @@ interface TokenRow extends Record<string, any> {
   marketCap: string;
   supply: string;
   fdv: string;
-  sparkline: any[];
+  sparkline: number[];
 }
 
 const columns = [

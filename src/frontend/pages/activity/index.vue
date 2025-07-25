@@ -5,13 +5,13 @@
       <ActivityFilterPanel />
     </aside>
     <!-- Main Display Area -->
-    <div class="flex-1 flex flex-col min-h-screen">
+    <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
       <!-- Top Filter Bar (Pills) -->
-      <div class="px-4 pt-6 pb-2">
+      <div class="px-4 pt-6 pb-2 flex-shrink-0">
         <ActivityTopFilterBar />
       </div>
       <!-- Activity Table -->
-      <div class="flex-1 px-4 pb-8">
+      <div class="flex-1 px-4 pb-8 overflow-auto">
         <ActivityTable />
       </div>
     </div>

@@ -9,36 +9,60 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-gray-100 dark:bg-gray-950">
-            <th class="p-2">★</th>
-            <th class="p-2 text-left">Collection</th>
-            <th class="p-2 text-right">Held</th>
-            <th class="p-2 text-right">Value</th>
-            <th class="p-2 text-right">Top Offer</th>
-            <th class="p-2 text-right">Floor Price</th>
-            <th class="p-2 text-right">Vol</th>
-            <th class="p-2 text-right">Sales</th>
-            <th class="p-2 text-right">Owners</th>
-            <th class="p-2 text-right">Supply</th>
-            <th class="p-2 text-right">Last 7D</th>
+          <tr class="bg-gray-800">
+            <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Collection</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Held</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Value</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Top Offer</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Floor Price</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Vol</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Sales</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Owners</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Supply</th>
+            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Last 7D</th>
           </tr>
         </thead>
+        <tr class="border-b border-gray-700 h-px"></tr>
         <tbody>
-          <tr v-for="col in collections" :key="col.id" class="border-b border-gray-100 dark:border-gray-800">
-            <td class="p-2 text-center"><input type="checkbox" /></td>
-            <td class="p-2 flex items-center gap-2">
-              <img :src="col.logo" alt="Collection" class="w-8 h-8 rounded-full border" />
-              <span class="font-semibold">{{ col.name }}</span>
+          <tr v-for="col in collections" :key="col.id" class="border-b border-gray-800 hover:bg-gray-900/50 transition-colors">
+            <td class="p-4">
+              <div class="flex items-center gap-3">
+                <img :src="col.logo" alt="Collection" class="w-12 h-12 rounded-full border border-gray-700 flex-shrink-0" />
+                <div class="flex flex-col">
+                  <span class="font-semibold text-white">{{ col.name }}</span>
+                  <span class="text-sm text-gray-400">#{{ col.id }}</span>
+                </div>
+              </div>
             </td>
-            <td class="p-2 text-right">{{ col.held }}</td>
-            <td class="p-2 text-right">{{ col.value }}</td>
-            <td class="p-2 text-right">{{ col.topOffer }}</td>
-            <td class="p-2 text-right">{{ col.floorPrice }}</td>
-            <td class="p-2 text-right">{{ col.vol }}</td>
-            <td class="p-2 text-right">{{ col.sales }}</td>
-            <td class="p-2 text-right">{{ col.owners }}</td>
-            <td class="p-2 text-right">{{ col.supply }}</td>
-            <td class="p-2 text-right">{{ col.last7d }}</td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="font-medium text-white">{{ col.held }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="font-medium text-white">{{ col.value }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-green-400">{{ col.topOffer }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-300">{{ col.floorPrice }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-300">{{ col.vol }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-300">{{ col.sales.toLocaleString() }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-300">{{ col.owners.toLocaleString() }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span class="text-gray-300">{{ col.supply.toLocaleString() }}</span>
+            </td>
+            <td class="p-4 text-right whitespace-nowrap">
+              <span :class="col.last7d.startsWith('+') ? 'text-green-400' : 'text-red-400'">
+                {{ col.last7d }}
+              </span>
+            </td>
           </tr>
         </tbody>
       </table>
