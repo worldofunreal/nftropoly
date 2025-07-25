@@ -68,7 +68,7 @@ const movers = [
     id: 4,
     name: 'Photo Movers',
     verified: false,
-    image: 'https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80',
+    image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80',
     floorPrice: '3.0 ICP',
     change: -80
   }

@@ -11,53 +11,53 @@
     <!-- Carousel -->
     <div ref="scrollRef" class="relative w-full overflow-x-auto scrollbar-hide" style="scroll-snap-type: x mandatory; scroll-behavior: smooth;">
       <div class="flex mt-1 gap-6 min-w-full">
-        <div
-          v-for="col in collections"
-          :key="col.id"
+      <div
+        v-for="col in collections"
+        :key="col.id"
           class="w-full flex-shrink-0 bg-white dark:bg-neutral-950 rounded-2xl shadow flex flex-col"
-          style="scroll-snap-align: start; min-width: 100%; max-width: 100%;"
-        >
-          <!-- Media with overlay and info inside -->
+        style="scroll-snap-align: start; min-width: 100%; max-width: 100%;"
+      >
+        <!-- Media with overlay and info inside -->
           <div class="w-full rounded-xl overflow-hidden relative" style="height: 360px;">
-            <img :src="col.image" :alt="col.name" class="object-cover w-full h-full" />
-            <!-- Gradient overlay -->
-            <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.2) 90%, transparent 100%);"></div>
-            <!-- Info content inside image -->
-            <div class="absolute bottom-0 left-0 z-10 m-4 p-4 bg-neutral/40 rounded-xl inline-flex flex-col gap-2 w-1/2">
-              <div class="flex items-center gap-2 text-2xl font-black text-white">
-                <span>{{ col.name }}</span>
-                <UIcon v-if="col.verified" name="material-symbols:verified" class="text-sky-500 text-2xl" />
-              </div>
-              <div class="text-xs font-normal text-gray-500 mb-2">By {{ col.creator }}</div>
-              <div class="grid grid-cols-4 gap-2 text-xs">
+          <img :src="col.image" :alt="col.name" class="object-cover w-full h-full" />
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.2) 90%, transparent 100%);"></div>
+          <!-- Info content inside image -->
+          <div class="absolute bottom-0 left-0 z-10 m-4 p-4 bg-neutral/40 rounded-xl inline-flex flex-col gap-2 w-1/2">
+            <div class="flex items-center gap-2 text-2xl font-black text-white">
+              <span>{{ col.name }}</span>
+              <UIcon v-if="col.verified" name="material-symbols:verified" class="text-sky-500 text-2xl" />
+            </div>
+            <div class="text-xs font-normal text-gray-500 mb-2">By {{ col.creator }}</div>
+            <div class="grid grid-cols-4 gap-2 text-xs">
                 <div class="bg-black/60 rounded-md p-2 flex flex-col items-center">
-                  <span class="font-bold text-lg text-white">{{ col.floorPrice }}</span>
+                <span class="font-bold text-lg text-white">{{ col.floorPrice }}</span>
                   <span class="text-gray-500 text-xs">Floor</span>
                 </div>
                 <div class="bg-black/60 rounded-md p-2 flex flex-col items-center">
                   <span class="font-bold text-lg text-white">{{ col.items }}</span>
                   <span class="text-gray-500 text-xs">Items</span>
-                </div>
+              </div>
                 <div class="bg-black/60 rounded-md p-2 flex flex-col items-center">
                   <span class="font-bold text-lg text-white">{{ col.volume }}</span>
                   <span class="text-gray-500 text-xs">Volume</span>
-                </div>
+              </div>
                 <div class="bg-black/60 rounded-md p-2 flex flex-col items-center">
                   <span class="font-bold text-lg text-white">{{ col.listedPct }}%</span>
                   <span class="text-gray-500 text-xs">Listed</span>
-                </div>
               </div>
-              <div class="grid grid-cols-3 gap-2 text-xs mt-2">
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-xs mt-2">
                 <div class="bg-primary rounded p-2 flex flex-col items-center">
-                  <span class="font-semibold text-white">{{ col.mintStatus }}</span>
+                <span class="font-semibold text-white">{{ col.mintStatus }}</span>
                   <span class="text-gray-500 text-xs">Status</span>
-                </div>
-                <div class="bg-primary-900 bg-opacity-60 rounded p-2 flex flex-col items-center">
-                  <span class="font-semibold text-white">{{ col.mintPrice }}</span>
+              </div>
+              <div class="bg-primary-900 bg-opacity-60 rounded p-2 flex flex-col items-center">
+                <span class="font-semibold text-white">{{ col.mintPrice }}</span>
                   <span class="text-gray-500 text-xs">Mint</span>
-                </div>
-                <div class="bg-primary-900 bg-opacity-60 rounded p-2 flex flex-col items-center">
-                  <span class="font-semibold text-white">{{ col.mintTotal }}</span>
+              </div>
+              <div class="bg-primary-900 bg-opacity-60 rounded p-2 flex flex-col items-center">
+                <span class="font-semibold text-white">{{ col.mintTotal }}</span>
                   <span class="text-gray-500 text-xs">Total</span>
                 </div>
               </div>

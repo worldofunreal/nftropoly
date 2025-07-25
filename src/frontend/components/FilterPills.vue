@@ -14,19 +14,21 @@
         <span>{{ cat.label }}</span>
       </button>
     </div>
-    <!-- Stats Icon Button -->
-    <UTooltip 
-      :text="sidebarStore.isStatsPanelVisible ? 'Hide stats panel' : 'Show stats panel'"
-      position="bottom"
-    >
-      <button 
-        @click="sidebarStore.toggleStatsPanel()"
-        class="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 hover:bg-primary-50 dark:hover:bg-primary-500 transition"
-        :class="sidebarStore.isStatsPanelVisible ? 'text-primary-600' : 'text-gray-400'"
+    <div class="flex items-center gap-1">
+      <!-- Stats Icon Button -->
+      <UTooltip 
+        :text="sidebarStore.isStatsPanelVisible ? 'Hide stats panel' : 'Show stats panel'"
+        position="bottom"
       >
-        <UIcon name="tabler:activity" class="text-xl" />
-      </button>
-    </UTooltip>
+        <button 
+          @click="sidebarStore.toggleStatsPanel()"
+          class="flex items-center justify-center w-8 h-8 rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 hover:bg-primary-50 dark:hover:bg-primary-500 transition"
+          :class="sidebarStore.isStatsPanelVisible ? 'text-primary-600' : 'text-gray-400'"
+        >
+          <UIcon name="tabler:activity" class="text-xl" />
+        </button>
+      </UTooltip>
+    </div>
   </div>
 </template>
 

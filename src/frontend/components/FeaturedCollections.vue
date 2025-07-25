@@ -67,7 +67,7 @@ const collections = [
     id: 4,
     name: 'Photo Masters',
     verified: true,
-    image: 'https://images.unsplash.com/photo-1465101178521-c1a9136a3b99?auto=format&fit=crop&w=400&q=80',
+    image: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=400&q=80',
     floorPrice: '2.1 ICP',
     change: 2.3
   },

@@ -15,7 +15,7 @@
     </div>
     <!-- Right Column (Stats/Rankings) -->
     <div 
-      class="hidden md:block col-span-1 h-[calc(100vh-64px-48px)] sticky top-16 right-0 overflow-y-auto scrollbar-hide px-2 py-8 transition-all duration-300 ease-in-out"
+      class="hidden md:block col-span-1 h-[calc(100vh-64px-48px)] sticky right-0 overflow-y-auto scrollbar-hide px-2 py-2.5 transition-all duration-300 ease-in-out"
       :class="sidebarStore.isStatsPanelVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full pointer-events-none'"
     >
       <RankingFilters class="mb-2" />
