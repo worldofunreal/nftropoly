@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <!-- Page Header -->
       <div class="mb-8">
@@ -8,7 +8,7 @@
       </div>
 
       <!-- Settings Tabs -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg shadow">
         <div class="border-b border-gray-200 dark:border-gray-700">
           <nav class="-mb-px flex space-x-8 px-6">
             <button
@@ -51,19 +51,19 @@
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">First Name</label>
-                <input type="text" v-model="profile.firstName" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                <input type="text" v-model="profile.firstName" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
-                <input type="text" v-model="profile.lastName" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                <input type="text" v-model="profile.lastName" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
               </div>
               <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
-                <input type="email" v-model="profile.email" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                <input type="email" v-model="profile.email" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
               </div>
               <div class="sm:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Bio</label>
-                <textarea v-model="profile.bio" rows="3" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                <textarea v-model="profile.bio" rows="3" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
               </div>
             </div>
           </div>
@@ -76,7 +76,7 @@
             </div>
 
             <div class="space-y-4">
-              <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
                 <div>
                   <h4 class="text-sm font-medium text-gray-900 dark:text-white">Two-Factor Authentication</h4>
                   <p class="text-sm text-gray-500 dark:text-gray-400">Add an extra layer of security to your account</p>
@@ -86,7 +86,7 @@
                 </button>
               </div>
 
-              <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
                 <div>
                   <h4 class="text-sm font-medium text-gray-900 dark:text-white">Login Notifications</h4>
                   <p class="text-sm text-gray-500 dark:text-gray-400">Get notified when someone logs into your account</p>
@@ -102,15 +102,15 @@
               <div class="space-y-4">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Current Password</label>
-                  <input type="password" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                  <input type="password" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">New Password</label>
-                  <input type="password" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                  <input type="password" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
                 </div>
                 <div>
                   <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm New Password</label>
-                  <input type="password" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                  <input type="password" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
                 </div>
               </div>
             </div>
@@ -124,7 +124,7 @@
             </div>
 
             <div class="space-y-4">
-              <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
                 <div>
                   <h4 class="text-sm font-medium text-gray-900 dark:text-white">Email Notifications</h4>
                   <p class="text-sm text-gray-500 dark:text-gray-400">Receive updates via email</p>
@@ -134,7 +134,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
                 <div>
                   <h4 class="text-sm font-medium text-gray-900 dark:text-white">Push Notifications</h4>
                   <p class="text-sm text-gray-500 dark:text-gray-400">Receive push notifications in your browser</p>
@@ -144,7 +144,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
                 <div>
                   <h4 class="text-sm font-medium text-gray-900 dark:text-white">NFT Sales</h4>
                   <p class="text-sm text-gray-500 dark:text-gray-400">Get notified when your NFTs are sold</p>
@@ -154,7 +154,7 @@
                 </div>
               </div>
 
-              <div class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+              <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
                 <div>
                   <h4 class="text-sm font-medium text-gray-900 dark:text-white">Price Alerts</h4>
                   <p class="text-sm text-gray-500 dark:text-gray-400">Get notified about price changes for your watchlist</p>
@@ -168,7 +168,7 @@
         </div>
 
         <!-- Save Button -->
-        <div class="px-6 py-4 bg-gray-50 dark:bg-gray-700 rounded-b-lg">
+        <div class="px-6 py-4 bg-neutral-50 dark:bg-neutral-700 rounded-b-lg">
           <div class="flex justify-end">
             <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md text-sm font-medium">
               Save Changes

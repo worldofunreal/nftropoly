@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <UContainer>
 
       <div class="py-8 pt-32">
@@ -13,7 +13,7 @@
 
       <!-- Top Filter Row (always at top, full width) -->
       <div class="w-full flex flex-col md:flex-row gap-4 mb-8">
-        <select v-model="selectedTag" class="w-full md:w-40 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary-500">
+        <select v-model="selectedTag" class="w-full md:w-40 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary-500">
           <option value="All">All</option>
           <option v-for="tag in uniqueTags" :key="tag" :value="tag">{{ tag }}</option>
         </select>
@@ -21,7 +21,7 @@
           v-model="searchQuery"
           type="text"
           placeholder="Search projects..."
-          class="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary-500"
+          class="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-800 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-primary-500"
         />
       </div>
       <div class="py-8">
@@ -30,7 +30,7 @@
             <UCard 
               v-for="project in filteredProjects"
               :key="project.id"
-              class="group hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden bg-white dark:bg-gray-950"
+              class="group hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden bg-white dark:bg-neutral-950"
             >
               <!-- Project Image -->
               <div class="relative h-48 overflow-hidden">

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-900 text-white p-6">
+  <div class="min-h-screen bg-neutral-900 text-white p-6">
     <div class="w-full">
       <div class="flex gap-8">
         <!-- Left Panel - NFT Artwork -->
@@ -14,7 +14,7 @@
           </div>
 
           <!-- Outer Frame -->
-          <div class="p-4 bg-gray-800 rounded-lg flex flex-1 flex-col min-h-0">
+          <div class="p-4 bg-neutral-800 rounded-lg flex flex-1 flex-col min-h-0">
             <!-- Inner Frame -->
             <img
               src="https://placehold.co/600x600/3B82F6/FFFFFF?text=CryptoPunk+%238150"
@@ -52,22 +52,22 @@
                 </div>
               </div>
               <div class="flex gap-2">
-                <button class="p-2 rounded hover:bg-gray-800">
+                <button class="p-2 rounded hover:bg-neutral-800">
                   <UIcon name="i-heroicons-globe-alt-20-solid" />
                 </button>
-                <button class="p-2 rounded hover:bg-gray-800">
+                <button class="p-2 rounded hover:bg-neutral-800">
                   <UIcon name="i-simple-icons-discord" />
                 </button>
-                <button class="p-2 rounded hover:bg-gray-800">
+                <button class="p-2 rounded hover:bg-neutral-800">
                   <UIcon name="i-simple-icons-x" />
                 </button>
-                <button class="p-2 rounded hover:bg-gray-800">
+                <button class="p-2 rounded hover:bg-neutral-800">
                   <UIcon name="i-heroicons-clipboard-document-20-solid" />
                 </button>
-                <button class="p-2 rounded hover:bg-gray-800">
+                <button class="p-2 rounded hover:bg-neutral-800">
                   <UIcon name="i-heroicons-heart-20-solid" />
                 </button>
-                <button class="p-2 rounded hover:bg-gray-800">
+                <button class="p-2 rounded hover:bg-neutral-800">
                   <UIcon name="i-heroicons-ellipsis-vertical-20-solid" />
                 </button>
               </div>
@@ -75,19 +75,19 @@
 
             <!-- Navigation Tags -->
             <div class="flex flex-wrap gap-2 mb-6">
-              <span class="px-3 py-1 bg-gray-800 rounded-full text-sm"
+              <span class="px-3 py-1 bg-neutral-800 rounded-full text-sm"
                 >CRYPTOPUNKS</span
               >
-              <span class="px-3 py-1 bg-gray-800 rounded-full text-sm"
+              <span class="px-3 py-1 bg-neutral-800 rounded-full text-sm"
                 >ETHEREUM</span
               >
-              <span class="px-3 py-1 bg-gray-800 rounded-full text-sm"
+              <span class="px-3 py-1 bg-neutral-800 rounded-full text-sm"
                 >TOKEN #8150</span
               >
             </div>
 
             <!-- Key Metrics Bar -->
-            <div class="grid grid-cols-4 gap-4 p-4 bg-gray-800 rounded-lg">
+            <div class="grid grid-cols-4 gap-4 p-4 bg-neutral-800 rounded-lg">
               <div>
                 <div class="text-gray-400 text-sm">Top Offer</div>
                 <div class="font-bold">-</div>

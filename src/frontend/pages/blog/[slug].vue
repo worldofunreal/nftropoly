@@ -91,7 +91,7 @@ useHead({
           {{ post.description }}
         </p>
         <!-- Placeholder for blog content - you can expand this later -->
-        <div class="bg-gray-50 dark:bg-gray-800 p-6 rounded-lg">
+        <div class="bg-neutral-50 dark:bg-neutral-800 p-6 rounded-lg">
           <p class="text-gray-600 dark:text-gray-400">
             This is a placeholder for the full blog post content. The actual content would be rendered here.
           </p>

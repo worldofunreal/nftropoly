@@ -4,7 +4,7 @@
     <!-- Backdrop -->
     <div class="absolute inset-0 bg-black bg-opacity-50" @click="show = false"></div>
     <!-- Modal Content -->
-    <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="relative bg-white dark:bg-neutral-800 rounded-lg shadow-xl max-w-md w-full mx-4">
       <div class="p-6">
         <h2 class="text-xl font-bold mb-4">Sign in to Nftropoly</h2>
         <UButton block class="mb-2" icon="token-branded:metamask" @click="loginWithMetaMask" :loading="loading && loginMethod === 'metamask'">Sign in with MetaMask</UButton>

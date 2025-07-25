@@ -16,7 +16,7 @@
       <div
         v-for="token in trendingTokens"
         :key="token.name"
-        class="bg-gray-900 rounded-lg p-4 hover:bg-gray-800 transition-colors cursor-pointer"
+        class="bg-neutral-900 rounded-lg p-4 hover:bg-neutral-800 transition-colors cursor-pointer"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3">

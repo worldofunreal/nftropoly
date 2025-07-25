@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-800 rounded-lg">
+  <div class="bg-neutral-800 rounded-lg">
     <!-- Header -->
     <div class="p-4 border-b border-gray-700">
       <h3 class="text-lg font-bold">Collection Offers</h3>
@@ -10,7 +10,7 @@
     <div class="overflow-x-auto">
       <table class="w-full">
         <!-- Table Header -->
-        <thead class="bg-gray-800">
+        <thead class="bg-neutral-800">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">TYPE</th>
             <th class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider">PRICE</th>
@@ -30,7 +30,7 @@
           <tr 
             v-for="offer in offers" 
             :key="offer.id"
-            class="hover:bg-gray-700 transition-colors"
+            class="hover:bg-neutral-700 transition-colors"
           >
             <!-- Type -->
             <td class="px-4 py-3">
@@ -162,7 +162,7 @@ const getTypeColor = (type: string) => {
     case 'offer':
       return 'bg-blue-500'
     default:
-      return 'bg-gray-500'
+      return 'bg-neutral-500'
   }
 }
 </script> 

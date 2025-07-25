@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <!-- Page Header -->
       <div class="mb-8">
@@ -55,7 +55,7 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-8">
           <!-- What are NFT Marketplaces -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">What are NFT Marketplaces?</h3>
             <p class="text-gray-600 dark:text-gray-400 mb-6">
               NFT marketplaces are online platforms that facilitate the buying, selling, and trading of non-fungible tokens. 
@@ -63,7 +63,7 @@
             </p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              <div class="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
                 <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Core Functions</h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   <li>• NFT discovery and browsing</li>
@@ -73,7 +73,7 @@
                   <li>• Community features</li>
                 </ul>
               </div>
-              <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              <div class="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
                 <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Key Features</h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   <li>• Multi-chain support</li>
@@ -87,7 +87,7 @@
           </section>
 
           <!-- Popular Marketplaces -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Popular NFT Marketplaces</h3>
             <div class="space-y-6">
               <!-- OpenSea -->
@@ -223,7 +223,7 @@
           </section>
 
           <!-- How to Choose -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">How to Choose the Right Marketplace</h3>
             <p class="text-gray-600 dark:text-gray-400 mb-6">
               With so many NFT marketplaces available, it's important to choose one that fits your needs and preferences. 
@@ -300,7 +300,7 @@
           </section>
 
           <!-- Getting Started -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Getting Started on NFT Marketplaces</h3>
             <div class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -358,7 +358,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
           <!-- Quick Navigation -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Learn More</h3>
             <nav class="space-y-2">
               <NuxtLink to="/learn/what-is-an-nft" class="block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
@@ -377,7 +377,7 @@
           </div>
 
           <!-- Market Stats -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Market Statistics</h3>
             <div class="space-y-4">
               <div class="flex justify-between items-center">

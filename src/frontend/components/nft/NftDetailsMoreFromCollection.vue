@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-800 rounded-lg">
+  <div class="bg-neutral-800 rounded-lg">
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-gray-700">
       <div class="flex items-center gap-2">
@@ -19,7 +19,7 @@
           <div 
             v-for="nft in moreNfts" 
             :key="nft.id"
-            class="flex-shrink-0 w-48 bg-gray-900 rounded-lg overflow-hidden hover:bg-gray-700 transition-colors cursor-pointer"
+            class="flex-shrink-0 w-48 bg-neutral-900 rounded-lg overflow-hidden hover:bg-neutral-700 transition-colors cursor-pointer"
           >
             <!-- NFT Image -->
             <div class="w-full h-32 bg-gradient-to-br from-blue-400 to-purple-500 relative">
@@ -53,10 +53,10 @@
         </div>
 
         <!-- Scroll Indicators -->
-        <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center opacity-50">
+        <div class="absolute left-0 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-neutral-900 rounded-full flex items-center justify-center opacity-50">
           <UIcon name="i-heroicons-chevron-left-20-solid" class="w-4 h-4" />
         </div>
-        <div class="absolute right-0 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-gray-900 rounded-full flex items-center justify-center opacity-50">
+        <div class="absolute right-0 top-1/2 transform -translate-y-1/2 w-8 h-8 bg-neutral-900 rounded-full flex items-center justify-center opacity-50">
           <UIcon name="i-heroicons-chevron-right-20-solid" class="w-4 h-4" />
         </div>
       </div>

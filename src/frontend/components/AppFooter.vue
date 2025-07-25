@@ -1,5 +1,5 @@
 <template>
-  <footer class="w-full border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 fixed bottom-0 left-0 z-30">
+  <footer class="w-full border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-950 fixed bottom-0 left-0 z-30">
     <div class="ml-12 flex justify-between items-center py-2 px-4 md:px-8 text-xs text-gray-500 dark:text-gray-400 w-full">
       <!-- Left Side -->
       <div class="flex items-center gap-3 flex-wrap">
@@ -32,8 +32,9 @@
         </NuxtLink>
         <span class="hidden md:inline">|</span>
         <!-- Socials -->
-        <a href="#" class="hover:text-primary"><UIcon name="ic:baseline-discord" class="text-lg" /></a>
-        <a href="#" class="hover:text-primary"><UIcon name="line-md:twitter-x" class="text-lg" /></a>
+        <a href="https://discord.gg/SyGqDwCM" target="_blank" rel="noopener noreferrer" class="hover:text-primary"><UIcon name="ic:baseline-discord" class="text-lg" /></a>
+        <a href="https://x.com/nftropoly" target="_blank" rel="noopener noreferrer" class="hover:text-primary"><UIcon name="line-md:twitter-x" class="text-lg" /></a>
+        <a href="https://github.com/worldofunreal/nftropoly" target="_blank" rel="noopener noreferrer" class="hover:text-primary"><UIcon name="mdi:github" class="text-lg" /></a>
       </div>
       <!-- Right Side -->
       <div class="mr-12 flex items-center gap-3 flex-wrap">
@@ -49,13 +50,13 @@
         <span class="hidden md:inline">|</span>
         <!-- Theme Switcher -->
         <ClientOnly>
-          <button @click="toggleTheme" aria-label="Toggle theme" class="flex items-center gap-1 px-2 py-1 rounded transition-colors border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950">
+          <button @click="toggleTheme" aria-label="Toggle theme" class="flex items-center gap-1 px-2 py-1 rounded transition-colors border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950">
             <UIcon :name="colorMode.value === 'dark' ? 'ix:sun-filled' : 'tabler:moon-filled'" class="text-lg" />
           </button>
         </ClientOnly>
         <span class="hidden md:inline">|</span>
         <!-- Fiat/Crypto Switch -->
-        <button @click="toggleFiat" class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950">
+        <button @click="toggleFiat" class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950">
           {{ showFiat ? 'USD' : 'Crypto' }}
         </button>
       </div>

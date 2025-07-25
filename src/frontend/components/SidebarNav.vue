@@ -1,6 +1,6 @@
 <template>
   <aside
-    class="z-100 fixed top-0 left-0 h-screen z-40 flex flex-col bg-white dark:bg-gray-950 border-r border-gray-200 dark:border-gray-800 overflow-hidden group"
+    class="z-100 fixed top-0 left-0 h-screen z-40 flex flex-col bg-white dark:bg-neutral-950 border-r border-gray-200 dark:border-gray-800 overflow-hidden group"
     :style="{ width: collapsed ? '4rem' : '13rem', transition: 'width 0.2s cubic-bezier(0.4,0,0.2,1)' }"
     @mouseenter="collapsed = false"
     @mouseleave="collapsed = true"

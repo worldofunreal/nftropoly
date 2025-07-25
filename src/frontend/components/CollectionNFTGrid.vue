@@ -3,7 +3,7 @@
     <div
       v-for="nft in nfts"
       :key="nft.id"
-      class="bg-white dark:bg-gray-950 rounded-xl shadow p-3 flex flex-col gap-2 hover:scale-105 transition-transform cursor-pointer"
+      class="bg-white dark:bg-neutral-950 rounded-xl shadow p-3 flex flex-col gap-2 hover:scale-105 transition-transform cursor-pointer"
     >
       <div class="aspect-w-1 aspect-h-1 rounded-lg overflow-hidden mb-1">
         <img :src="nft.image" :alt="nft.name" class="object-cover w-full h-full" />

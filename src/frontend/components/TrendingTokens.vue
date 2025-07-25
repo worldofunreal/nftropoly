@@ -4,17 +4,17 @@
       <h2 class="text-lg font-bold">Trending Tokens</h2>
     </div>
     <div class="relative">
-      <button @click="scrollLeft" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 p-0 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition" style="transform: translateY(-50%);">
+      <button @click="scrollLeft" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 p-0 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 hover:bg-primary-50 dark:hover:bg-primary-500 transition" style="transform: translateY(-50%);">
         <UIcon name="i-heroicons-chevron-left-20-solid" class="text-base" />
       </button>
-      <button @click="scrollRight" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 p-0 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition" style="transform: translateY(-50%);">
+      <button @click="scrollRight" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 p-0 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 hover:bg-primary-50 dark:hover:bg-primary-500 transition" style="transform: translateY(-50%);">
         <UIcon name="i-heroicons-chevron-right-20-solid" class="text-base" />
       </button>
       <div ref="scrollRef" class="flex gap-4 overflow-x-auto scrollbar-hide pb-2" style="scroll-snap-type: x mandatory;">
       <div
         v-for="token in tokens"
         :key="token.symbol"
-        class="min-w-[180px] max-w-xs bg-white dark:bg-gray-950 rounded-xl shadow p-3 flex flex-col gap-2 cursor-pointer hover:scale-105 transition-transform"
+        class="min-w-[180px] max-w-xs bg-white dark:bg-neutral-950 rounded-xl shadow p-3 flex flex-col gap-2 cursor-pointer hover:scale-105 transition-transform"
         style="scroll-snap-align: start;"
       >
         <div class="flex items-center gap-2 mb-1">

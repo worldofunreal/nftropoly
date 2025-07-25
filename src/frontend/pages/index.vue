@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950 grid grid-cols-1 md:grid-cols-4">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950 grid grid-cols-1 md:grid-cols-4">
     <!-- Left Column (Main Content) -->
     <div class="col-span-1 md:col-span-3 py-2 px-2 md:px-6 overflow-y-auto">
       <FilterPills class="mb-2" />

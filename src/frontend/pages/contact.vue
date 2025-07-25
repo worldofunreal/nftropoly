@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center py-16 px-4 pt-32">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex items-center justify-center py-16 px-4 pt-32">
     <div class="w-full max-w-5xl mx-auto flex flex-col md:flex-row gap-10 items-stretch justify-center min-h-[70vh]">
       <!-- Info Section -->
       <div class="flex-1 flex flex-col justify-center mb-8 md:mb-0 md:pr-8 items-center md:items-start text-center md:text-left">
@@ -33,7 +33,7 @@
       </div>
       <!-- Form Section -->
       <div class="flex-1 flex items-center justify-center">
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 md:p-12 flex flex-col gap-8 border border-gray-200 dark:border-gray-700 w-full max-w-lg mx-auto">
+        <div class="bg-white dark:bg-neutral-800 rounded-2xl shadow-xl p-8 md:p-12 flex flex-col gap-8 border border-gray-200 dark:border-gray-700 w-full max-w-lg mx-auto">
           <div class="text-center md:text-left">
             <h2 class="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white mb-2">Get in touch</h2>
             <p class="text-gray-600 dark:text-gray-300">We'd love to hear from you!</p>
@@ -45,7 +45,7 @@
                   v-model="state.name" 
                   placeholder="Your name" 
                   size="lg" 
-                  class="w-full dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-primary-500" 
+                  class="w-full dark:bg-neutral-700 dark:text-white dark:border-gray-600 dark:focus:border-primary-500" 
                 />
               </UFormField>
               <UFormField label="Email" name="email">
@@ -54,7 +54,7 @@
                   type="email" 
                   placeholder="your@email.com" 
                   size="lg" 
-                  class="w-full dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-primary-500" 
+                  class="w-full dark:bg-neutral-700 dark:text-white dark:border-gray-600 dark:focus:border-primary-500" 
                 />
               </UFormField>
               <UFormField label="Company" name="company">
@@ -62,7 +62,7 @@
                   v-model="state.company" 
                   placeholder="Your company" 
                   size="lg" 
-                  class="w-full dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-primary-500" 
+                  class="w-full dark:bg-neutral-700 dark:text-white dark:border-gray-600 dark:focus:border-primary-500" 
                 />
               </UFormField>
               <UFormField label="Message" name="message">
@@ -71,7 +71,7 @@
                   placeholder="Tell us about your inquiry..." 
                   :rows="4" 
                   size="lg" 
-                  class="w-full dark:bg-gray-700 dark:text-white dark:border-gray-600 dark:focus:border-primary-500" 
+                  class="w-full dark:bg-neutral-700 dark:text-white dark:border-gray-600 dark:focus:border-primary-500" 
                 />
               </UFormField>
             </div>

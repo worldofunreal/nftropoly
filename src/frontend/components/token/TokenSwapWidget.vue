@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-900 rounded-lg p-6 space-y-6">
+  <div class="bg-neutral-900 rounded-lg p-6 space-y-6">
     <!-- Header Tabs -->
     <div class="flex items-center justify-between">
       <div class="flex space-x-6">
@@ -55,7 +55,7 @@
 
     <!-- Swap Direction Icon -->
     <div class="flex justify-center">
-      <div class="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center">
+      <div class="w-10 h-10 bg-neutral-800 rounded-full flex items-center justify-center">
         <UIcon name="i-heroicons-arrow-down" class="w-5 h-5 text-gray-400" />
       </div>
     </div>

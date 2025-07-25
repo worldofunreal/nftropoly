@@ -4,7 +4,7 @@
       <h2 class="text-xl font-bold mb-4">Create Your Account</h2>
       
       <!-- Wallet Info -->
-      <div class="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+      <div class="mb-6 p-4 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
         <h3 class="font-semibold mb-2">Connected Wallet</h3>
         <div class="space-y-2 text-sm">
           <div>

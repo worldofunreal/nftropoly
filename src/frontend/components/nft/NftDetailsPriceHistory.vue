@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-800 rounded-lg">
+  <div class="bg-neutral-800 rounded-lg">
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-gray-700">
       <div class="flex items-center gap-2">
@@ -14,7 +14,7 @@
     <!-- Content -->
     <div v-if="isExpanded" class="p-4">
       <!-- Chart Container -->
-      <div class="relative h-64 bg-gray-900 rounded-lg p-4">
+      <div class="relative h-64 bg-neutral-900 rounded-lg p-4">
         <!-- Y-axis labels -->
         <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-400">
           <span>25 ETH</span>

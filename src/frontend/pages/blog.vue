@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <!-- Header -->
-    <section class="py-20 bg-white dark:bg-gray-950 pt-32">
+    <section class="py-20 bg-white dark:bg-neutral-950 pt-32">
       <UContainer>
         <div class="text-center">
           <h1 class="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
@@ -21,7 +21,7 @@
           <UCard 
             v-for="post in blogPosts" 
             :key="post._path" 
-            class="group hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden bg-white dark:bg-gray-950"
+            class="group hover:scale-105 transition-all duration-300 cursor-pointer overflow-hidden bg-white dark:bg-neutral-950"
             @click="navigateTo(post._path)"
           >
             <!-- Post Image -->

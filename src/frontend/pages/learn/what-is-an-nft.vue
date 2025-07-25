@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <!-- Page Header -->
       <div class="mb-8">
@@ -55,7 +55,7 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-8">
           <!-- What Makes NFTs Special -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">What Makes NFTs Special?</h3>
             <div class="space-y-4">
               <div class="flex items-start space-x-4">
@@ -97,29 +97,29 @@
           </section>
 
           <!-- How NFTs Work -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">How Do NFTs Work?</h3>
             <div class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div class="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
                   <h4 class="font-semibold text-gray-900 dark:text-white mb-2">1. Creation (Minting)</h4>
                   <p class="text-gray-600 dark:text-gray-400 text-sm">
                     An artist or creator uploads their digital asset to the blockchain, creating a unique token with metadata.
                   </p>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div class="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
                   <h4 class="font-semibold text-gray-900 dark:text-white mb-2">2. Storage</h4>
                   <p class="text-gray-600 dark:text-gray-400 text-sm">
                     The NFT is stored on the blockchain with a unique identifier and ownership information.
                   </p>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div class="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
                   <h4 class="font-semibold text-gray-900 dark:text-white mb-2">3. Trading</h4>
                   <p class="text-gray-600 dark:text-gray-400 text-sm">
                     NFTs can be bought, sold, or traded on marketplaces using cryptocurrency.
                   </p>
                 </div>
-                <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                <div class="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
                   <h4 class="font-semibold text-gray-900 dark:text-white mb-2">4. Ownership</h4>
                   <p class="text-gray-600 dark:text-gray-400 text-sm">
                     Ownership is transferred through blockchain transactions, recorded permanently.
@@ -130,7 +130,7 @@
           </section>
 
           <!-- Common Use Cases -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Common NFT Use Cases</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div class="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
@@ -184,7 +184,7 @@
           </section>
 
           <!-- Benefits -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Benefits of NFTs</h3>
             <div class="space-y-4">
               <div class="flex items-start space-x-3">
@@ -233,7 +233,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
           <!-- Quick Navigation -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Learn More</h3>
             <nav class="space-y-2">
               <NuxtLink to="/learn/how-to-mint-nft" class="block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
@@ -252,7 +252,7 @@
           </div>
 
           <!-- Key Terms -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Key Terms</h3>
             <div class="space-y-3">
               <div>

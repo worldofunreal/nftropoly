@@ -1,6 +1,6 @@
 <template>
   <UApp>
-    <div class="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-950">
       <!-- Sidebar -->
       
       <!-- Main Content Wrapper -->
@@ -14,6 +14,7 @@
       <SidebarNav />
     </div>
     <LoginPanel ref="loginPanelRef" />
+    <DisclaimerModal />
   </UApp>
 </template>
 
@@ -23,6 +24,7 @@ import SidebarNav from "./components/SidebarNav.vue";
 import Header from "./components/Header.vue";
 import AppFooter from "./components/AppFooter.vue";
 import LoginPanel from "./components/LoginPanel.vue";
+import DisclaimerModal from "./components/DisclaimerModal.vue";
 
 const loginPanelRef = ref<any>(null);
 

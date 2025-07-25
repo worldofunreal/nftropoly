@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-800 rounded-lg">
+  <div class="bg-neutral-800 rounded-lg">
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-gray-700">
       <div class="flex items-center gap-2">
@@ -18,7 +18,7 @@
         <h3 class="text-lg font-bold">About CryptoPunks</h3>
         
         <!-- Origin -->
-        <div class="flex items-center gap-3 p-3 bg-gray-900 rounded-lg">
+        <div class="flex items-center gap-3 p-3 bg-neutral-900 rounded-lg">
           <div class="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
             <div class="w-4 h-4 bg-white rounded-sm"></div>
           </div>

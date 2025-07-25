@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <!-- Page Header -->
       <div class="mb-8">
@@ -59,7 +59,7 @@
       <!-- Step-by-Step Guide -->
       <div class="space-y-8">
         <!-- Step 1 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+        <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
               <span class="text-blue-600 dark:text-blue-400 font-bold text-lg">1</span>
@@ -70,7 +70,7 @@
                 Before minting, ensure your digital asset meets the platform's requirements and is ready for upload.
               </p>
               
-              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+              <div class="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-4 mb-4">
                 <h4 class="font-medium text-gray-900 dark:text-white mb-2">File Requirements:</h4>
                 <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                   <li>• Supported formats: JPG, PNG, GIF, MP4, MP3, GLB</li>
@@ -96,7 +96,7 @@
         </div>
 
         <!-- Step 2 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+        <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
               <span class="text-blue-600 dark:text-blue-400 font-bold text-lg">2</span>
@@ -144,7 +144,7 @@
         </div>
 
         <!-- Step 3 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+        <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
               <span class="text-blue-600 dark:text-blue-400 font-bold text-lg">3</span>
@@ -155,7 +155,7 @@
                 Upload your digital file to the marketplace. This will be stored on IPFS or similar decentralized storage.
               </p>
               
-              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+              <div class="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-4 mb-4">
                 <h4 class="font-medium text-gray-900 dark:text-white mb-2">Upload Process:</h4>
                 <ol class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   <li>1. Click "Create" or "Mint NFT" button</li>
@@ -181,7 +181,7 @@
         </div>
 
         <!-- Step 4 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+        <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
               <span class="text-blue-600 dark:text-blue-400 font-bold text-lg">4</span>
@@ -196,17 +196,17 @@
                 <div class="space-y-3">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Name</label>
-                    <input type="text" placeholder="My Awesome NFT" class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                    <input type="text" placeholder="My Awesome NFT" class="w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                    <textarea rows="3" placeholder="Describe your NFT..." class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                    <textarea rows="3" placeholder="Describe your NFT..." class="w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
                   </div>
                 </div>
                 <div class="space-y-3">
                   <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Collection</label>
-                    <select class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                    <select class="w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                       <option>Create New Collection</option>
                       <option>My Art Collection</option>
                       <option>Photography</option>
@@ -214,7 +214,7 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Royalties (%)</label>
-                    <input type="number" min="0" max="50" placeholder="10" class="w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
+                    <input type="number" min="0" max="50" placeholder="10" class="w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" />
                   </div>
                 </div>
               </div>
@@ -235,7 +235,7 @@
         </div>
 
         <!-- Step 5 -->
-        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+        <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
           <div class="flex items-start space-x-4">
             <div class="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center flex-shrink-0">
               <span class="text-blue-600 dark:text-blue-400 font-bold text-lg">5</span>
@@ -246,7 +246,7 @@
                 Confirm the transaction and pay the gas fees to mint your NFT on the blockchain.
               </p>
               
-              <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-4">
+              <div class="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-4 mb-4">
                 <h4 class="font-medium text-gray-900 dark:text-white mb-2">Before Minting:</h4>
                 <ul class="space-y-1 text-sm text-gray-600 dark:text-gray-400">
                   <li>• Review all details carefully</li>
@@ -273,7 +273,7 @@
       </div>
 
       <!-- Best Practices -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow mt-8">
+      <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow mt-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Best Practices</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div class="space-y-4">

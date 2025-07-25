@@ -2,21 +2,21 @@
   <div>
     <!-- Search & Sorting -->
     <div class="flex flex-wrap gap-2 items-center mb-4">
-      <input type="text" placeholder="Search items..." class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm w-48" />
-      <select class="px-2 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-sm">
+      <input type="text" placeholder="Search items..." class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 text-sm w-48" />
+      <select class="px-2 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 text-sm">
         <option>Recently received</option>
         <option>Recently listed</option>
         <option>Price low to high</option>
         <option>Price high to low</option>
       </select>
       <div class="flex gap-1 ml-2">
-        <button @click="view = 'grid'" :class="view === 'grid' ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'" class="px-3 py-2 rounded-l font-bold">Grid</button>
-        <button @click="view = 'table'" :class="view === 'table' ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'" class="px-3 py-2 font-bold">Table</button>
-        <button @click="view = 'compact'" :class="view === 'compact' ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'" class="px-3 py-2 rounded-r font-bold">Compact</button>
+        <button @click="view = 'grid'" :class="view === 'grid' ? 'bg-primary-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-gray-500'" class="px-3 py-2 rounded-l font-bold">Grid</button>
+        <button @click="view = 'table'" :class="view === 'table' ? 'bg-primary-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-gray-500'" class="px-3 py-2 font-bold">Table</button>
+        <button @click="view = 'compact'" :class="view === 'compact' ? 'bg-primary-600 text-white' : 'bg-neutral-100 dark:bg-neutral-800 text-gray-500'" class="px-3 py-2 rounded-r font-bold">Compact</button>
       </div>
     </div>
     <!-- Table Columns -->
-    <div v-if="items.length" class="overflow-x-auto rounded-xl shadow bg-white dark:bg-gray-950">
+    <div v-if="items.length" class="overflow-x-auto rounded-xl shadow bg-white dark:bg-neutral-950">
       <table class="min-w-full text-sm">
         <thead>
           <tr class="border-b border-gray-200 dark:border-gray-800">
@@ -26,7 +26,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in items" :key="item.id" class="border-b border-gray-100 dark:border-gray-800 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
+          <tr v-for="item in items" :key="item.id" class="border-b border-gray-100 dark:border-gray-800 hover:bg-primary-50 dark:hover:bg-primary-500 transition">
             <td class="px-4 py-2">{{ item.listingPrice }}</td>
             <td class="px-4 py-2">{{ item.rarity }}</td>
             <td class="px-4 py-2">{{ item.floorPrice }}</td>

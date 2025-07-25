@@ -5,13 +5,13 @@
       <div
         v-for="col in collections"
         :key="col.id"
-        class="flex items-center gap-3 p-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900 transition cursor-pointer"
+        class="flex items-center gap-3 p-2 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-500 transition cursor-pointer"
       >
         <UIcon :name="col.icon" class="text-2xl" />
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-1 font-semibold truncate">
             <span class="truncate">{{ col.name }}</span>
-            <UIcon v-if="col.verified" name="material-symbols:verified" class="text-primary-500 text-xs" />
+            <UIcon v-if="col.verified" name="material-symbols:verified" class="text-sky-500 text-xl" />
           </div>
         </div>
         <div class="flex flex-col items-end min-w-[70px]">

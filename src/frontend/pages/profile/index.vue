@@ -1,5 +1,5 @@
 <template>
-  <div class="flex min-h-screen bg-gray-50 dark:bg-gray-950 flex-col">
+  <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-950 flex-col">
     <!-- Top User Info Header -->
     <UserProfileHeader />
     <div class="absolute right-8 top-8 z-10 hidden lg:block">

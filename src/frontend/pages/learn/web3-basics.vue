@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <!-- Page Header -->
       <div class="mb-8">
@@ -55,7 +55,7 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-8">
           <!-- What is Web3 -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">What is Web3?</h3>
             <p class="text-gray-600 dark:text-gray-400 mb-6">
               Web3 is the third generation of the internet, characterized by decentralization, blockchain technology, 
@@ -64,7 +64,7 @@
             </p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              <div class="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
                 <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Key Characteristics</h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   <li>• Decentralized infrastructure</li>
@@ -74,7 +74,7 @@
                   <li>• Censorship resistance</li>
                 </ul>
               </div>
-              <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              <div class="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
                 <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Core Technologies</h4>
                 <ul class="space-y-2 text-sm text-gray-600 dark:text-gray-400">
                   <li>• Blockchain networks</li>
@@ -88,7 +88,7 @@
           </section>
 
           <!-- Web Evolution -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">The Evolution of the Web</h3>
             <div class="space-y-6">
               <div class="border-l-4 border-gray-300 dark:border-gray-600 pl-6">
@@ -136,7 +136,7 @@
           </section>
 
           <!-- Blockchain Technology -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Blockchain Technology</h3>
             <p class="text-gray-600 dark:text-gray-400 mb-6">
               Blockchain is the foundational technology that powers Web3. It's a distributed ledger that records transactions 
@@ -231,16 +231,16 @@
           </section>
 
           <!-- Smart Contracts -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Smart Contracts</h3>
             <p class="text-gray-600 dark:text-gray-400 mb-6">
               Smart contracts are self-executing programs that run on the blockchain. They automatically execute when 
               predetermined conditions are met, enabling trustless and automated transactions.
             </p>
             
-            <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6">
+            <div class="bg-neutral-50 dark:bg-neutral-700 rounded-lg p-4 mb-6">
               <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Example: NFT Marketplace Smart Contract</h4>
-              <div class="bg-gray-900 text-green-400 p-4 rounded text-sm font-mono overflow-x-auto">
+              <div class="bg-neutral-900 text-green-400 p-4 rounded text-sm font-mono overflow-x-auto">
                 <pre><code>contract NFTMarketplace {
     function listNFT(uint256 tokenId, uint256 price) public {
         require(ownerOf(tokenId) == msg.sender, "Not owner");
@@ -295,7 +295,7 @@
           </section>
 
           <!-- Web3 Applications -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Web3 Applications</h3>
             <p class="text-gray-600 dark:text-gray-400 mb-6">
               Web3 applications (dApps) are decentralized applications that run on blockchain networks. 
@@ -377,7 +377,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
           <!-- Quick Navigation -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Learn More</h3>
             <nav class="space-y-2">
               <NuxtLink to="/learn/what-is-an-nft" class="block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
@@ -396,7 +396,7 @@
           </div>
 
           <!-- Key Terms -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Key Terms</h3>
             <div class="space-y-3">
               <div>

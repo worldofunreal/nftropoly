@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-900 rounded-lg p-6">
+  <div class="bg-neutral-900 rounded-lg p-6">
     <div class="h-64 relative">
       <!-- Chart Container -->
       <div class="w-full h-full flex items-end justify-between px-4 pb-8">
@@ -16,7 +16,7 @@
           ></div>
           
           <!-- Price Label (hidden by default, shown on hover) -->
-          <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
             ${{ dataPoint.price }}
           </div>
           

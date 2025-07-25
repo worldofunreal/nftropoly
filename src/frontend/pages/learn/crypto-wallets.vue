@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <!-- Page Header -->
       <div class="mb-8">
@@ -55,7 +55,7 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-8">
           <!-- What is a Crypto Wallet -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">What is a Crypto Wallet?</h3>
             <p class="text-gray-600 dark:text-gray-400 mb-6">
               A cryptocurrency wallet is a software program or hardware device that stores your private keys and allows you to 
@@ -64,21 +64,21 @@
             </p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              <div class="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
                 <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Private Key</h4>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   A secret code that proves ownership of your cryptocurrencies and allows you to sign transactions.
                 </p>
-                <div class="bg-gray-900 text-green-400 p-3 rounded text-xs font-mono">
+                <div class="bg-neutral-900 text-green-400 p-3 rounded text-xs font-mono">
                   0x1234567890abcdef1234567890abcdef12345678
                 </div>
               </div>
-              <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+              <div class="bg-neutral-50 dark:bg-neutral-700 p-4 rounded-lg">
                 <h4 class="font-semibold text-gray-900 dark:text-white mb-2">Public Address</h4>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
                   A public identifier that others can use to send you cryptocurrencies.
                 </p>
-                <div class="bg-gray-900 text-blue-400 p-3 rounded text-xs font-mono">
+                <div class="bg-neutral-900 text-blue-400 p-3 rounded text-xs font-mono">
                   0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6
                 </div>
               </div>
@@ -86,7 +86,7 @@
           </section>
 
           <!-- Types of Wallets -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Types of Crypto Wallets</h3>
             <div class="space-y-6">
               <!-- Hot Wallets -->
@@ -178,7 +178,7 @@
           </section>
 
           <!-- Popular Wallets -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Popular Crypto Wallets</h3>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- MetaMask -->
@@ -316,7 +316,7 @@
           </section>
 
           <!-- Security Best Practices -->
-          <section class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <section class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Security Best Practices</h3>
             <div class="space-y-6">
               <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -405,7 +405,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
           <!-- Quick Navigation -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Learn More</h3>
             <nav class="space-y-2">
               <NuxtLink to="/learn/what-is-an-nft" class="block text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300">
@@ -424,7 +424,7 @@
           </div>
 
           <!-- Wallet Comparison -->
-          <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
+          <div class="bg-white dark:bg-neutral-800 rounded-lg p-6 shadow">
             <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Wallet Comparison</h3>
             <div class="space-y-4">
               <div class="flex justify-between items-center">

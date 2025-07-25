@@ -7,13 +7,13 @@
       class="flex items-center gap-1 px-2 py-1 rounded-md border transition font-normal text-sm whitespace-nowrap"
       :class="selected === cat.label
         ? 'bg-primary-600 text-white border-primary-600'
-        : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary'"
+        : 'bg-white dark:bg-neutral-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary'"
     >
       <UIcon v-if="cat.icon" :name="cat.icon" class="text-lg" />
       <span>{{ cat.label }}</span>
     </button>
     <!-- Stats Icon Button -->
-    <button class="ml-2 flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
+    <button class="ml-2 flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 hover:bg-primary-50 dark:hover:bg-primary-500 transition">
       <UIcon name="ion:stats-chart" class="text-xl text-primary-600" />
     </button>
   </div>

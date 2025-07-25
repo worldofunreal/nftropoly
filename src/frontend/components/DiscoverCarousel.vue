@@ -4,52 +4,53 @@
       <div
         v-for="col in collections"
         :key="col.id"
-        class="w-full flex-shrink-0 bg-white dark:bg-gray-950 rounded-2xl shadow p-4 flex flex-col gap-3"
+        class="w-full flex-shrink-0 bg-white dark:bg-neutral-950 rounded-2xl shadow p-4 flex flex-col gap-3"
         style="scroll-snap-align: start; min-width: 100%; max-width: 100%;"
       >
-        <!-- Media -->
-        <div class="w-full rounded-xl overflow-hidden mb-2" style="height: 360px;">
+        <!-- Media with overlay and info inside -->
+        <div class="w-full rounded-xl overflow-hidden mb-2 relative" style="height: 360px;">
           <img :src="col.image" :alt="col.name" class="object-cover w-full h-full" />
-        </div>
-        <!-- Collection Name + Verified -->
-        <div class="flex items-center gap-2 text-lg font-bold">
-          <span>{{ col.name }}</span>
-          <UIcon v-if="col.verified" name="material-symbols:verified" class="text-primary-500 text-base" />
-        </div>
-        <!-- Creator Name -->
-        <div class="text-xs text-gray-500 mb-2">By {{ col.creator }}</div>
-        <!-- Info Table -->
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <div class="bg-gray-50 dark:bg-gray-800 rounded p-2 flex flex-col items-center">
-            <span class="font-semibold">{{ col.floorPrice }}</span>
-            <span class="text-gray-400">Floor</span>
-          </div>
-          <div class="bg-gray-50 dark:bg-gray-800 rounded p-2 flex flex-col items-center">
-            <span class="font-semibold">{{ col.items }}</span>
-            <span class="text-gray-400">Items</span>
-          </div>
-          <div class="bg-gray-50 dark:bg-gray-800 rounded p-2 flex flex-col items-center">
-            <span class="font-semibold">{{ col.volume }}</span>
-            <span class="text-gray-400">Volume</span>
-          </div>
-          <div class="bg-gray-50 dark:bg-gray-800 rounded p-2 flex flex-col items-center">
-            <span class="font-semibold">{{ col.listedPct }}%</span>
-            <span class="text-gray-400">Listed</span>
-          </div>
-        </div>
-        <!-- Minting Info Table -->
-        <div class="grid grid-cols-3 gap-2 text-xs mt-2">
-          <div class="bg-primary-50 dark:bg-primary-950 rounded p-2 flex flex-col items-center">
-            <span class="font-semibold">{{ col.mintStatus }}</span>
-            <span class="text-gray-400">Status</span>
-          </div>
-          <div class="bg-primary-50 dark:bg-primary-950 rounded p-2 flex flex-col items-center">
-            <span class="font-semibold">{{ col.mintPrice }}</span>
-            <span class="text-gray-400">Mint</span>
-          </div>
-          <div class="bg-primary-50 dark:bg-primary-950 rounded p-2 flex flex-col items-center">
-            <span class="font-semibold">{{ col.mintTotal }}</span>
-            <span class="text-gray-400">Total</span>
+          <!-- Gradient overlay -->
+          <div class="absolute inset-0" style="background: linear-gradient(to top, rgba(0,0,0,0.7) 60%, rgba(0,0,0,0.2) 90%, transparent 100%);"></div>
+          <!-- Info content inside image -->
+          <div class="absolute bottom-0 left-0 z-10 m-4 p-4 bg-black/40 rounded-xl inline-flex flex-col gap-2 w-1/2">
+            <div class="flex items-center gap-2 text-2xl font-black text-white">
+              <span>{{ col.name }}</span>
+              <UIcon v-if="col.verified" name="material-symbols:verified" class="text-sky-500 text-2xl" />
+            </div>
+            <div class="text-xs font-normal text-gray-500 mb-2">By {{ col.creator }}</div>
+            <div class="grid grid-cols-4 gap-2 text-xs">
+              <div class="bg-black bg-opacity-40 rounded p-2 flex flex-col items-center">
+                <span class="font-bold text-lg text-white">{{ col.floorPrice }}</span>
+                <span class="text-gray-500 text-sm">Floor</span>
+              </div>
+              <div class="bg-black bg-opacity-40 rounded p-2 flex flex-col items-center">
+                <span class="font-semibold text-white">{{ col.items }}</span>
+                <span class="text-gray-300">Items</span>
+              </div>
+              <div class="bg-black bg-opacity-40 rounded p-2 flex flex-col items-center">
+                <span class="font-semibold text-white">{{ col.volume }}</span>
+                <span class="text-gray-300">Volume</span>
+              </div>
+              <div class="bg-black bg-opacity-40 rounded p-2 flex flex-col items-center">
+                <span class="font-semibold text-white">{{ col.listedPct }}%</span>
+                <span class="text-gray-300">Listed</span>
+              </div>
+            </div>
+            <div class="grid grid-cols-3 gap-2 text-xs mt-2">
+              <div class="bg-primary-900 bg-opacity-60 rounded p-2 flex flex-col items-center">
+                <span class="font-semibold text-white">{{ col.mintStatus }}</span>
+                <span class="text-gray-300">Status</span>
+              </div>
+              <div class="bg-primary-900 bg-opacity-60 rounded p-2 flex flex-col items-center">
+                <span class="font-semibold text-white">{{ col.mintPrice }}</span>
+                <span class="text-gray-300">Mint</span>
+              </div>
+              <div class="bg-primary-900 bg-opacity-60 rounded p-2 flex flex-col items-center">
+                <span class="font-semibold text-white">{{ col.mintTotal }}</span>
+                <span class="text-gray-300">Total</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
