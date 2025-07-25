@@ -1,37 +1,35 @@
 <template>
   <div>
-    <div class="flex items-center justify-between mb-2">
-      <div>
-        <h2 class="text-lg font-bold">Featured Collections</h2>
-        <div class="text-xs text-gray-500">This Week's curated collections</div>
-      </div>
-      <div class="flex gap-2">
-        <button @click="scrollLeft" class="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
-          <UIcon name="i-heroicons-chevron-left-20-solid" class="text-base" />
-        </button>
-        <button @click="scrollRight" class="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition">
-          <UIcon name="i-heroicons-chevron-right-20-solid" class="text-base" />
-        </button>
-      </div>
+    <div class="mb-2">
+      <h2 class="text-lg font-bold">Featured Collections</h2>
+      <div class="text-xs text-gray-500">This Week's curated collections</div>
     </div>
-    <div ref="scrollRef" class="flex gap-4 overflow-x-auto scrollbar-hide pb-2" style="scroll-snap-type: x mandatory;">
-      <div
-        v-for="col in collections"
-        :key="col.id"
-        class="min-w-[220px] max-w-xs bg-white dark:bg-gray-950 rounded-xl shadow p-3 flex flex-col gap-2 cursor-pointer hover:scale-105 transition-transform"
-        style="scroll-snap-align: start;"
-      >
-        <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden mb-1">
-          <img :src="col.image" :alt="col.name" class="object-cover w-full h-full" />
-        </div>
-        <div class="flex items-center gap-1 font-semibold">
-          <span>{{ col.name }}</span>
-          <UIcon v-if="col.verified" name="material-symbols:verified" class="text-primary-500 text-xs" />
-        </div>
-        <div class="flex items-center gap-2 text-xs">
-          <span class="text-gray-500">Floor:</span>
-          <span class="font-bold">{{ col.floorPrice }}</span>
-          <span :class="col.change >= 0 ? 'text-green-600' : 'text-red-600'">{{ col.change >= 0 ? '+' : '' }}{{ col.change }}%</span>
+    <div class="relative">
+      <button @click="scrollLeft" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 p-0 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition" style="transform: translateY(-50%);">
+        <UIcon name="i-heroicons-chevron-left-20-solid" class="text-base" />
+      </button>
+      <button @click="scrollRight" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 p-0 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition" style="transform: translateY(-50%);">
+        <UIcon name="i-heroicons-chevron-right-20-solid" class="text-base" />
+      </button>
+      <div ref="scrollRef" class="flex gap-4 overflow-x-auto scrollbar-hide pb-2" style="scroll-snap-type: x mandatory;">
+        <div
+          v-for="col in collections"
+          :key="col.id"
+          class="min-w-[220px] max-w-xs bg-white dark:bg-gray-950 rounded-xl shadow p-3 flex flex-col gap-2 cursor-pointer hover:scale-105 transition-transform"
+          style="scroll-snap-align: start;"
+        >
+          <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden mb-1">
+            <img :src="col.image" :alt="col.name" class="object-cover w-full h-full" />
+          </div>
+          <div class="flex items-center gap-1 font-semibold">
+            <span>{{ col.name }}</span>
+            <UIcon v-if="col.verified" name="material-symbols:verified" class="text-primary-500 text-xs" />
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <span class="text-gray-500">Floor:</span>
+            <span class="font-bold">{{ col.floorPrice }}</span>
+            <span :class="col.change >= 0 ? 'text-green-600' : 'text-red-600'">{{ col.change >= 0 ? '+' : '' }}{{ col.change }}%</span>
+          </div>
         </div>
       </div>
     </div>

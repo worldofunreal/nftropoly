@@ -8,7 +8,7 @@
         style="scroll-snap-align: start; min-width: 100%; max-width: 100%;"
       >
         <!-- Media -->
-        <div class="aspect-w-16 aspect-h-9 rounded-xl overflow-hidden mb-2">
+        <div class="w-full rounded-xl overflow-hidden mb-2" style="height: 360px;">
           <img :src="col.image" :alt="col.name" class="object-cover w-full h-full" />
         </div>
         <!-- Collection Name + Verified -->

@@ -4,10 +4,10 @@
       v-for="cat in categories"
       :key="cat.label"
       @click="selected = cat.label"
-      class="flex items-center gap-1 px-4 py-2 rounded-full border transition font-semibold whitespace-nowrap"
+      class="flex items-center gap-1 px-2 py-1 rounded-md border transition font-normal text-sm whitespace-nowrap"
       :class="selected === cat.label
         ? 'bg-primary-600 text-white border-primary-600'
-        : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-900'"
+        : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary'"
     >
       <UIcon v-if="cat.icon" :name="cat.icon" class="text-lg" />
       <span>{{ cat.label }}</span>
