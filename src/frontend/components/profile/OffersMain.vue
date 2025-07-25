@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full w-full p-4">
     <div class="flex items-center gap-4 mb-4">
-      <select class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950">
+      <select class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950">
         <option>Most recent</option>
         <option>Price: Low to High</option>
         <option>Price: High to Low</option>
@@ -16,7 +16,7 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-gray-800">
+          <tr class="bg-neutral-800">
             <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Offer</th>
             <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Status</th>
             <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Price</th>
@@ -30,7 +30,7 @@
         </thead>
         <tr class="border-b border-gray-700 h-px"></tr>
         <tbody>
-          <tr v-for="offer in offers" :key="offer.id" class="border-b border-gray-800 hover:bg-gray-900/50 transition-colors">
+          <tr v-for="offer in offers" :key="offer.id" class="border-b border-gray-800 hover:bg-neutral-900/50 transition-colors">
             <td class="p-4">
               <div class="flex flex-col">
                 <span class="font-semibold text-white">{{ offer.name }}</span>

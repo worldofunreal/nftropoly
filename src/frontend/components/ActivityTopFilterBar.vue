@@ -4,7 +4,7 @@
       {{ filter }}
       <button class="ml-1" @click="removeFilter(filter)"><UIcon name="i-heroicons-x-mark-20-solid" class="text-xs" /></button>
     </div>
-    <button v-if="activeFilters.length" class="ml-2 px-3 py-2 rounded bg-gray-800 text-gray-200 text-sm font-bold" @click="clearFilters">Clear</button>
+    <button v-if="activeFilters.length" class="ml-2 px-3 py-2 rounded bg-neutral-800 text-gray-200 text-sm font-bold" @click="clearFilters">Clear</button>
   </div>
 </template>
 <script setup lang="ts">

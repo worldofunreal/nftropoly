@@ -1,12 +1,12 @@
 <template>
-  <div class="w-[220px] max-w-[260px] p-4 bg-white dark:bg-gray-950 rounded-lg border border-gray-200 dark:border-gray-800">
+  <div class="w-[220px] max-w-[260px] p-4 bg-white dark:bg-neutral-950 rounded-lg border border-gray-200 dark:border-gray-800">
     <SidebarSection
       title="View"
       :open="openSections.view"
       @toggle="openSections.view = !openSections.view"
     >
       <div class="flex flex-wrap gap-2 mt-2">
-        <button v-for="view in views" :key="view" class="px-3 py-1 rounded-full border text-xs font-semibold" :class="selectedView === view ? 'bg-primary-600 text-white border-primary-600' : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'" @click="selectedView = view">{{ view }}</button>
+        <button v-for="view in views" :key="view" class="px-3 py-1 rounded-full border text-xs font-semibold" :class="selectedView === view ? 'bg-primary-600 text-white border-primary-600' : 'bg-white dark:bg-neutral-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'" @click="selectedView = view">{{ view }}</button>
       </div>
     </SidebarSection>
     <SidebarSection
@@ -15,7 +15,7 @@
       @toggle="openSections.status = !openSections.status"
     >
       <div class="flex flex-wrap gap-2 mt-2">
-        <button v-for="status in statuses" :key="status" class="px-3 py-1 rounded-full border text-xs font-semibold" :class="selectedStatus === status ? 'bg-primary-600 text-white border-primary-600' : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'" @click="selectedStatus = status">{{ status }}</button>
+        <button v-for="status in statuses" :key="status" class="px-3 py-1 rounded-full border text-xs font-semibold" :class="selectedStatus === status ? 'bg-primary-600 text-white border-primary-600' : 'bg-white dark:bg-neutral-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'" @click="selectedStatus = status">{{ status }}</button>
       </div>
     </SidebarSection>
     <SidebarSection
@@ -24,7 +24,7 @@
       @toggle="openSections.offerType = !openSections.offerType"
     >
       <div class="flex flex-wrap gap-2 mt-2">
-        <button v-for="type in offerTypes" :key="type" class="px-3 py-1 rounded-full border text-xs font-semibold" :class="selectedOfferType === type ? 'bg-primary-600 text-white border-primary-600' : 'bg-white dark:bg-gray-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'" @click="selectedOfferType = type">{{ type }}</button>
+        <button v-for="type in offerTypes" :key="type" class="px-3 py-1 rounded-full border text-xs font-semibold" :class="selectedOfferType === type ? 'bg-primary-600 text-white border-primary-600' : 'bg-white dark:bg-neutral-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'" @click="selectedOfferType = type">{{ type }}</button>
       </div>
     </SidebarSection>
     <SidebarSection
@@ -32,7 +32,7 @@
       :open="openSections.chains"
       @toggle="openSections.chains = !openSections.chains"
     >
-      <input type="text" placeholder="Search for chains" class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 mb-2 mt-2" />
+      <input type="text" placeholder="Search for chains" class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-2 mt-2" />
       <div class="text-gray-400 text-xs">[Chain filter pills here]</div>
     </SidebarSection>
     <SidebarSection
@@ -40,7 +40,7 @@
       :open="openSections.collections"
       @toggle="openSections.collections = !openSections.collections"
     >
-      <input type="text" placeholder="Search for collections" class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 mb-2 mt-2" />
+      <input type="text" placeholder="Search for collections" class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-2 mt-2" />
       <div class="text-gray-400 text-xs">[Collection filter pills here]</div>
     </SidebarSection>
   </div>

@@ -1,7 +1,7 @@
 <template>
-  <div class="min-h-screen bg-gray-950 text-white">
+  <div class="min-h-screen bg-neutral-950 text-white">
     <!-- Top Navigation Bar -->
-    <div class="top-0 z-10 bg-gray-900 border-b border-gray-800">
+    <div class="top-0 z-10 bg-neutral-900 border-b border-gray-800">
       <div class="max-w-7xl mx-auto px-4 py-4">
         <div class="flex items-center justify-between">
           <!-- Left Section - Token Identity -->
@@ -38,7 +38,7 @@
             </div>
 
             <!-- Chart Type Toggle -->
-            <div class="flex bg-gray-800 rounded-lg p-1">
+            <div class="flex bg-neutral-800 rounded-lg p-1">
               <UButton
                 variant="solid"
                 color="primary"

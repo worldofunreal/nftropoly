@@ -9,7 +9,7 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-gray-800">
+          <tr class="bg-neutral-800">
             <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Event</th>
             <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Item</th>
             <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Price</th>
@@ -22,7 +22,7 @@
         </thead>
         <tr class="border-b border-gray-700 h-px"></tr>
         <tbody>
-          <tr v-for="act in activities" :key="act.id" class="border-b border-gray-800 hover:bg-gray-900/50 transition-colors">
+          <tr v-for="act in activities" :key="act.id" class="border-b border-gray-800 hover:bg-neutral-900/50 transition-colors">
             <td class="p-4 text-left whitespace-nowrap">
               <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" 
                     :class="{

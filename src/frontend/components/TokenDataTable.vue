@@ -2,7 +2,7 @@
   <div class="overflow-x-auto flex-1">
     <table class="min-w-full text-sm">
       <thead>
-        <tr class="bg-gray-100 dark:bg-gray-800">
+        <tr class="bg-neutral-100 dark:bg-neutral-800">
           <th v-for="col in columns" :key="col.key" @click="sort(col.key)" class="p-4 text-left font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap cursor-pointer select-none">
             <span>{{ col.label }}</span>
             <UIcon v-if="sortColumn === col.key" :name="sortOrder === 'asc' ? 'i-heroicons-arrow-up-20-solid' : 'i-heroicons-arrow-down-20-solid'" class="inline ml-1 text-xs" />
@@ -11,10 +11,10 @@
       </thead>
       <tr class="border-b border-gray-200 dark:border-gray-700 h-px"></tr>
       <tbody>
-        <tr v-for="token in sortedTokens" :key="token.symbol" class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+        <tr v-for="token in sortedTokens" :key="token.symbol" class="border-b border-gray-200 dark:border-gray-800 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
           <!-- TOKEN -->
           <td class="p-4 flex items-center gap-2">
-            <UIcon :name="token.icon" class="w-7 h-7 text-2xl rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-950" />
+            <UIcon :name="token.icon" class="w-7 h-7 text-2xl rounded-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-neutral-950" />
             <div class="min-w-0">
               <NuxtLink :to="`/tokens/${token.symbol}`" class="font-semibold text-gray-900 dark:text-white hover:underline">{{ token.symbol }}</NuxtLink>
               <div class="text-sm text-gray-600 dark:text-gray-400 truncate">{{ token.name }}</div>

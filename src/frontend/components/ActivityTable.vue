@@ -2,7 +2,7 @@
   <div class="overflow-x-auto flex-1">
     <table class="min-w-full text-sm">
       <thead>
-        <tr class="bg-gray-100 dark:bg-gray-800">
+        <tr class="bg-neutral-100 dark:bg-neutral-800">
           <th
             v-for="col in columns"
             :key="col.key"
@@ -17,7 +17,7 @@
         <tr
           v-for="row in rows"
           :key="row.id"
-          class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors"
+          class="border-b border-gray-200 dark:border-gray-800 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors"
         >
           <!-- Event -->
           <td class="p-4">

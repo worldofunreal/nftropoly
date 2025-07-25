@@ -13,7 +13,7 @@
           :class="
             selectedStatuses.includes(status)
               ? 'bg-primary-600 text-white border-primary-600'
-              : 'bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
+              : 'bg-white dark:bg-neutral-900 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
           "
           @click="toggleStatus(status)"
         >
@@ -28,7 +28,7 @@
     >
       <div class="flex flex-col gap-2 items-center mb-2 mt-2">
         <select
-          class="px-2 py-1 flex-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 w-full text-center"
+          class="px-2 py-1 flex-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-900 w-full text-center"
         >
           <option>USD</option>
           <option>ETH</option>
@@ -70,7 +70,7 @@
       <input
         type="text"
         placeholder="Search chains..."
-        class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-2 mt-2"
+        class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-900 mb-2 mt-2"
       />
       <div class="flex flex-wrap gap-2">
         <button
@@ -91,7 +91,7 @@
       <input
         type="text"
         placeholder="Search for collections"
-        class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 mb-2 mt-2"
+        class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-900 mb-2 mt-2"
       />
       <div class="flex flex-col gap-1 max-h-40 overflow-y-auto">
         <label
@@ -144,7 +144,7 @@ const chains = [
   {
     label: "All",
     icon: "logos:ethereum",
-    color: "bg-gray-200 dark:bg-gray-800",
+    color: "bg-neutral-200 dark:bg-neutral-800",
   },
   {
     label: "Ethereum",

@@ -15,7 +15,7 @@
       <div
         v-for="gallery in galleries"
         :key="gallery.id"
-        class="bg-white dark:bg-gray-950 rounded-xl shadow-lg p-5 flex flex-col transition-transform transform hover:scale-105 hover:shadow-2xl border border-gray-100 dark:border-gray-800 relative group"
+        class="bg-white dark:bg-neutral-950 rounded-xl shadow-lg p-5 flex flex-col transition-transform transform hover:scale-105 hover:shadow-2xl border border-gray-100 dark:border-gray-800 relative group"
       >
         <div class="relative mb-3">
           <img
@@ -23,7 +23,7 @@
             alt="Gallery Cover"
             class="w-full h-40 object-cover rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm"
           />
-          <span class="absolute top-2 right-2 bg-white/80 dark:bg-gray-900/80 text-xs px-2 py-1 rounded shadow group-hover:bg-primary-600 group-hover:text-white transition">
+          <span class="absolute top-2 right-2 bg-white/80 dark:bg-neutral-900/80 text-xs px-2 py-1 rounded shadow group-hover:bg-primary-600 group-hover:text-white transition">
             {{ gallery.nfts.length }} NFT{{ gallery.nfts.length !== 1 ? 's' : '' }}
           </span>
         </div>
@@ -35,8 +35,8 @@
         <div class="text-xs text-gray-400 mb-3">Created: {{ gallery.createdAt }}</div>
         <div class="flex gap-2 mt-auto">
           <button class="px-3 py-1 rounded bg-primary-600 hover:bg-primary-700 text-white text-xs transition">View</button>
-          <button class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 text-xs transition">Edit</button>
-          <button class="px-3 py-1 rounded bg-gray-100 dark:bg-gray-900 hover:bg-blue-100 dark:hover:bg-blue-900 text-xs transition" @click="shareGallery(gallery)">Share</button>
+          <button class="px-3 py-1 rounded bg-neutral-200 dark:bg-neutral-800 hover:bg-neutral-300 dark:hover:bg-neutral-700 text-xs transition">Edit</button>
+          <button class="px-3 py-1 rounded bg-neutral-100 dark:bg-neutral-900 hover:bg-blue-100 dark:hover:bg-blue-900 text-xs transition" @click="shareGallery(gallery)">Share</button>
           <button class="px-3 py-1 rounded bg-red-100 dark:bg-red-900 hover:bg-red-200 dark:hover:bg-red-800 text-red-600 dark:text-red-300 text-xs transition" @click="deleteGallery(gallery)">Delete</button>
         </div>
       </div>

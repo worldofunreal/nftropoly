@@ -1,13 +1,13 @@
 <template>
-  <div class="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+  <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <!-- Left Sidebar: Filters -->
-    <aside class="hidden lg:block w-80 p-4 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
+    <aside class="hidden lg:block w-80 p-4 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-950">
       <TokenFilterSection />
     </aside>
     <!-- Main Display Area -->
     <div class="flex-1 flex flex-col min-h-screen overflow-hidden">
       <!-- Top Controls -->
-      <div class="px-4 pt-6 pb-2 flex-shrink-0 bg-white dark:bg-gray-950 border-b border-gray-100 dark:border-gray-800">
+      <div class="px-4 pt-6 pb-2 flex-shrink-0 bg-white dark:bg-neutral-950 border-b border-gray-100 dark:border-gray-800">
         <TokenListHeaderControls />
       </div>
       <!-- Token Data Table -->

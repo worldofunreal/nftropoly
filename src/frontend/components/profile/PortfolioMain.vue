@@ -9,7 +9,7 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-gray-800">
+          <tr class="bg-neutral-800">
             <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Collection</th>
             <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Held</th>
             <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Value</th>
@@ -24,7 +24,7 @@
         </thead>
         <tr class="border-b border-gray-700 h-px"></tr>
         <tbody>
-          <tr v-for="col in collections" :key="col.id" class="border-b border-gray-800 hover:bg-gray-900/50 transition-colors">
+          <tr v-for="col in collections" :key="col.id" class="border-b border-gray-800 hover:bg-neutral-900/50 transition-colors">
             <td class="p-4">
               <div class="flex items-center gap-3">
                 <img :src="col.logo" alt="Collection" class="w-12 h-12 rounded-full border border-gray-700 flex-shrink-0" />

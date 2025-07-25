@@ -4,7 +4,7 @@
     <div>
       <div class="font-bold mb-2">Search for Chains</div>
       <div class="relative">
-        <input type="text" placeholder="Search chains..." class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950" />
+        <input type="text" placeholder="Search chains..." class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950" />
         <UIcon name="ri:search-line" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
       </div>
     </div>
@@ -21,7 +21,7 @@
           :class="
             selectedChains.includes(chain)
               ? 'bg-primary-600 text-white border-primary-600'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
+              : 'bg-neutral-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
           "
           @click="toggleChain(chain)"
         >
@@ -42,7 +42,7 @@
           :class="
             selectedMarketCaps.includes(cap)
               ? 'bg-primary-600 text-white border-primary-600'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
+              : 'bg-neutral-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
           "
           @click="toggleMarketCap(cap)"
         >
@@ -63,7 +63,7 @@
           :class="
             selectedCategoryOptions[cat.label]?.includes(cat.label)
               ? 'bg-primary-600 text-white border-primary-600'
-              : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
+              : 'bg-neutral-100 dark:bg-neutral-800 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700'
           "
           @click="toggleCategoryOption(cat.label, cat.label)"
         >

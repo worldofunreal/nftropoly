@@ -2,7 +2,7 @@
   <div class="overflow-x-auto flex-1">
     <table class="min-w-full text-sm">
       <thead>
-        <tr class="bg-gray-100 dark:bg-gray-800">
+        <tr class="bg-neutral-100 dark:bg-neutral-800">
           <th v-for="col in columns" :key="col.key" class="p-4 text-left font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap select-none">
             {{ col.label }}
           </th>
@@ -10,7 +10,7 @@
       </thead>
       <tr class="border-b border-gray-200 dark:border-gray-700 h-px"></tr>
       <tbody>
-        <tr v-for="row in rows" :key="row.id" class="border-b border-gray-200 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+        <tr v-for="row in rows" :key="row.id" class="border-b border-gray-200 dark:border-gray-800 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
           <!-- Collection -->
           <td class="p-4 flex items-center gap-2 min-w-[200px]">
             <button class="text-yellow-500 dark:text-yellow-400"><UIcon name="i-heroicons-star-20-solid" /></button>

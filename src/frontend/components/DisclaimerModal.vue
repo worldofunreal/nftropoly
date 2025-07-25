@@ -16,7 +16,7 @@
         <div class="text-center mb-6">
           <h2 class="text-lg font-bold mb-1">Disclaimer</h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-4">
-            WCHL 2025 participant, application is under construction using mock data for demonstration purposes.          </p>
+            WCHL 2025 participant, application is under construction using mock data for demonstration purposes.</p>
         </div>
 
         <!-- Accept Button -->
