@@ -56,7 +56,7 @@ export default defineNuxtConfig({
     },
     app: {
       head: {
-        title: 'Nftropoly - The Multichain, Gasless NFT Marketplace',
+        title: 'Nftropoly',
         meta: [
           { charset: 'utf-8' },
           { name: 'viewport', content: 'width=device-width, initial-scale=1' },
