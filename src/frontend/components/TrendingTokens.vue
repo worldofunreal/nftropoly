@@ -3,7 +3,14 @@
     <div class="flex items-center justify-between mb-2">
       <h2 class="text-lg font-bold">Trending Tokens</h2>
     </div>
-    <div class="flex gap-4 overflow-x-auto scrollbar-hide pb-2" style="scroll-snap-type: x mandatory;">
+    <div class="relative">
+      <button @click="scrollLeft" class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 p-0 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition" style="transform: translateY(-50%);">
+        <UIcon name="i-heroicons-chevron-left-20-solid" class="text-base" />
+      </button>
+      <button @click="scrollRight" class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 p-0 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 hover:bg-primary-50 dark:hover:bg-primary-900 transition" style="transform: translateY(-50%);">
+        <UIcon name="i-heroicons-chevron-right-20-solid" class="text-base" />
+      </button>
+      <div ref="scrollRef" class="flex gap-4 overflow-x-auto scrollbar-hide pb-2" style="scroll-snap-type: x mandatory;">
       <div
         v-for="token in tokens"
         :key="token.symbol"
@@ -26,6 +33,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -42,6 +50,8 @@ import {
   LinearScale
 } from 'chart.js'
 
+import { ref } from 'vue'
+
 ChartJS.register(Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale)
 
 const chartOptions = {
@@ -54,6 +64,14 @@ const chartOptions = {
     y: { display: false }
   },
   layout: { padding: 0 },
+}
+
+const scrollRef = ref(null)
+function scrollLeft() {
+  if (scrollRef.value) (scrollRef.value as HTMLElement).scrollBy({ left: -250, behavior: 'smooth' })
+}
+function scrollRight() {
+  if (scrollRef.value) (scrollRef.value as HTMLElement).scrollBy({ left: 250, behavior: 'smooth' })
 }
 
 const tokens = [

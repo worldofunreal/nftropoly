@@ -43,11 +43,11 @@ const colorMode = useColorMode()
 const collapsed = ref(true)
 
 const menuItems = [
-  { label: 'Discover', icon: 'iconamoon:discover-fill', to: '/' },
-  { label: 'NFTs', icon: 'ri:nft-fill', to: '/nfts' },
-  { label: 'Tokens', icon: 'ic:baseline-generating-tokens', to: '/tokens' },
-  { label: 'Activity', icon: 'fa-solid:list', to: '/activity' },
-  { label: 'Profile', icon: 'ix:user-profile-filled', to: '/profile' },
+  { label: 'Discover', icon: 'eos-icons:compass', to: '/' },
+  { label: 'NFTs', icon: 'icon-park-solid:game-ps', to: '/nfts' },
+  { label: 'Tokens', icon: 'subway:coin', to: '/tokens' },
+  { label: 'Activity', icon: 'tabler:activity', to: '/activity' },
+  { label: 'Profile', icon: 'iconamoon:profile-fill', to: '/profile' },
   { hr: true },
   { label: 'Settings', icon: 'iconamoon:settings-fill', to: '/settings' },
   { label: 'Support', icon: 'ix:support', to: '/support' },
