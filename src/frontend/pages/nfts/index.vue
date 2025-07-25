@@ -7,7 +7,7 @@
     <!-- Main Table (Right Panel) -->
     <div class="flex-1 flex flex-col min-h-screen overflow-hidden bg-white dark:bg-neutral-950">
       <!-- Header Controls -->
-      <div class="px-4 pt-6 pb-2 flex-shrink-0 bg-white dark:bg-neutral-950 border-b border-gray-100 dark:border-gray-800">
+      <div class="p-4 flex-shrink-0 bg-white dark:bg-neutral-950">
         <NftsHeaderControls />
       </div>
       <!-- NFT Collections Table -->

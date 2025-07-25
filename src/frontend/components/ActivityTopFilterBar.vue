@@ -1,5 +1,5 @@
 <template>
-  <div class="flex gap-2 items-center mb-4">
+  <div class="flex gap-2 items-center">
     <div v-for="filter in activeFilters" :key="filter" class="flex items-center gap-1 bg-primary-600 text-white px-3 py-2 rounded font-bold text-sm">
       {{ filter }}
       <button class="ml-1" @click="removeFilter(filter)"><UIcon name="i-heroicons-x-mark-20-solid" class="text-xs" /></button>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-wrap gap-2 items-center mb-4">
+  <div class="flex flex-wrap gap-2 items-center">
     <!-- Token Type Toggle -->
     <div class="flex gap-1">
       <button @click="type = 'NFTs'" class="px-3 py-2 rounded-l font-bold" :class="type === 'NFTs' ? 'bg-primary-600 text-white' : 'bg-neutral-800 text-gray-200'">NFTs</button>

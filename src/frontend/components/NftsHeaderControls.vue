@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-wrap gap-2 items-center mb-4">
+  <div class="flex flex-wrap gap-2 items-center">
     <!-- Tabs -->
     <div class="flex gap-1">
       <button v-for="tab in tabs" :key="tab" @click="selectedTab = tab" :class="selectedTab === tab ? 'bg-primary-600 text-white' : 'bg-neutral-800 text-gray-200'" class="px-3 py-2 rounded font-bold">{{ tab }}</button>
