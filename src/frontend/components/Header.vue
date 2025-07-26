@@ -9,8 +9,19 @@
     ]"
   >
     <div class="flex justify-between items-center h-14 mx-4 md:mx-4">
-      <!-- Left: Logo and Search Bar -->
+      <!-- Left: Mobile Menu Button and Search Bar -->
       <div class="flex items-center gap-2 flex-shrink-0">
+        <!-- Mobile Menu Button -->
+        <button
+          @click="toggleMobileSidebar"
+          class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+          aria-label="Toggle mobile menu"
+        >
+          <UIcon
+            name="i-heroicons-bars-3-20-solid"
+            class="w-6 h-6 text-gray-700 dark:text-gray-300"
+          />
+        </button>
         <!-- Search Bar -->
         <div class="hidden md:flex items-center ml-2">
           <UInput
@@ -171,17 +182,15 @@ import { useColorMode } from '#imports'
 import { useAuthStore } from '@/stores/auth'
 
 const colorMode = useColorMode()
-const route = useRoute()
 const authStore = useAuthStore()
 
 const scrolled = ref(false)
 const search = ref('')
-const walletConnected = ref(false) // Stub: replace with real wallet logic
 const userAvatar = ref('') // Stub: replace with real avatar URL
 const showUserMenu = ref(false)
 
 // Inject the login panel ref from the app
-const loginPanelRef = inject('loginPanelRef') as any
+const loginPanelRef = inject('loginPanelRef') as Ref<{ open: () => void }> | null
 
 const onScroll = () => {
   scrolled.value = window.scrollY > 10
@@ -190,6 +199,16 @@ const onScroll = () => {
 function toggleTheme() {
   colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
 }
+
+function toggleMobileSidebar() {
+  // Emit event to parent component to control mobile sidebar visibility
+  emit('toggle-mobile-sidebar')
+}
+
+// Define emits
+const emit = defineEmits<{
+  'toggle-mobile-sidebar': []
+}>()
 
 // --- LOGO LOGIC ---
 const logoSrc = ref('/logo.svg')
@@ -217,19 +236,10 @@ onUnmounted(() => {
   document.removeEventListener('click', handleClickOutside)
 })
 
-function handleHomeClick(e: MouseEvent) {
-  if (route.path === '/') {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  } else {
-    // Let Nuxt handle navigation
-    return true
-  }
-}
-
 function openLoginPanel() {
   console.log('openLoginPanel called');
   console.log('loginPanelRef:', loginPanelRef);
-  loginPanelRef.value?.open()
+  loginPanelRef?.value?.open()
 }
 
 function toggleUserMenu() {

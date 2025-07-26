@@ -3,13 +3,12 @@
     <table class="min-w-full text-sm">
       <thead>
         <tr class="bg-neutral-100 dark:bg-neutral-800">
-          <th v-for="col in columns" :key="col.key" @click="sort(col.key)" class="p-3 text-left text-sm font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap cursor-pointer select-none">
+          <th v-for="col in columns" :key="col.key" class="p-3 text-left text-sm font-bold text-gray-700 dark:text-gray-300 whitespace-nowrap cursor-pointer select-none" @click="sort(col.key)">
             <span>{{ col.label }}</span>
             <UIcon v-if="sortColumn === col.key" :name="sortOrder === 'asc' ? 'bxs:up-arrow' : 'bxs:down-arrow'" class="inline ml-1 text-xs" />
           </th>
         </tr>
       </thead>
-      <tr class="border-b border-gray-200 dark:border-gray-700 h-px"></tr>
       <tbody>
         <tr v-for="token in sortedTokens" :key="token.symbol" class="border-b border-gray-200 dark:border-gray-800 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
           <!-- TOKEN -->
