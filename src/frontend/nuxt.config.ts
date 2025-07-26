@@ -4,7 +4,6 @@ export default defineNuxtConfig({
     devtools: { enabled: true },
   
     modules: [
-      '@nuxt/content',
       '@nuxt/eslint',
       '@nuxt/fonts',
       '@nuxt/icon',
@@ -26,33 +25,8 @@ export default defineNuxtConfig({
     css: [
       '~/assets/css/main.css'
     ],
-    vite: {
-      define: {
-        global: 'globalThis',
-      },
-      resolve: {
-        alias: {
-          buffer: 'buffer',
-          process: 'process/browser',
-          util: 'util',
-        },
-      },
-      optimizeDeps: {
-        include: ['buffer', 'process', 'util'],
-      },
-      build: {
-        rollupOptions: {
-          external: [],
-        },
-      },
-    },
-    nitro: {
-      experimental: {
-        wasm: true,
-      },
-    },
-    ui: {
-      // Nuxt UI configuration
+    build: {
+      transpile: ['@solana/web3.js'],
     },
     app: {
       head: {
