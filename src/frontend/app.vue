@@ -11,9 +11,9 @@
       />
       
       <!-- Main Content Wrapper -->
-      <div class="flex-1 flex flex-col min-h-screen md:ml-16">
+      <div class="w-0 flex-1 flex flex-col min-h-screen md:ml-16">
         <Header @toggle-mobile-sidebar="mobileSidebarOpen = !mobileSidebarOpen" />
-        <main class="flex-1 flex flex-col">
+        <main class="flex-1">
           <NuxtPage />
         </main>
         <AppFooter />
