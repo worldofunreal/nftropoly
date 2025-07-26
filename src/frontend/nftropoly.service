@@ -1,0 +1,16 @@
+[Unit]
+Description=NFTropoly Node.js Server
+After=network.target
+
+[Service]
+User=bizkit
+WorkingDirectory=/var/www/nftropoly.com
+ExecStart=/usr/bin/node /var/www/nftropoly.com/server/index.mjs
+Environment=NITRO_PORT=3001
+Environment=NODE_ENV=production
+Environment=HF_TOKEN=your_hugging_face_token_here
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
