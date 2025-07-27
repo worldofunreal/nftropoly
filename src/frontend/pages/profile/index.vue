@@ -2,9 +2,9 @@
   <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-950 flex-col">
     <!-- Top User Info Header -->
     <UserProfileHeader />
-    <div class="absolute right-8 top-8 z-10 hidden md:block">
+    <!-- <div class="absolute right-8 top-8 z-10 hidden md:block">
       <ProfileStats />
-    </div>
+    </div> -->
     <!-- Navigation Tabs -->
     <div class="px-4 mt-4">
       <ProfileTabs v-model="activeTab" />
