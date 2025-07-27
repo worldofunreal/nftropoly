@@ -27,14 +27,14 @@
         <ActivityTable />
       </div>
     </div>
-  </div>
 
-  <!-- Mobile Filter Drawer -->
-  <ActivityFilterDrawer
-    :is-open="showFilterDrawer"
-    @close="showFilterDrawer = false"
-    @apply-filters="handleApplyFilters"
-  />
+    <!-- Mobile Filter Drawer -->
+    <ActivityFilterDrawer
+      :is-open="showFilterDrawer"
+      @close="showFilterDrawer = false"
+      @apply-filters="handleApplyFilters"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">

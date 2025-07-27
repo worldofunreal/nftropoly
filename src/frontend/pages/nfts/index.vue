@@ -31,14 +31,14 @@
         <NftsCollectionsTable />
       </div>
     </div>
-  </div>
 
-  <!-- Mobile Filter Drawer -->
-  <NftsFilterDrawer
-    :is-open="showFilterDrawer"
-    @close="showFilterDrawer = false"
-    @apply-filters="handleApplyFilters"
-  />
+    <!-- Mobile Filter Drawer -->
+    <NftsFilterDrawer
+      :is-open="showFilterDrawer"
+      @close="showFilterDrawer = false"
+      @apply-filters="handleApplyFilters"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">

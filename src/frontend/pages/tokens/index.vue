@@ -27,14 +27,14 @@
         <TokenDataTable />
       </div>
     </div>
-  </div>
 
-  <!-- Mobile Filter Drawer -->
-  <TokensFilterDrawer
-    :is-open="showFilterDrawer"
-    @close="showFilterDrawer = false"
-    @apply-filters="handleApplyFilters"
-  />
+    <!-- Mobile Filter Drawer -->
+    <TokensFilterDrawer
+      :is-open="showFilterDrawer"
+      @close="showFilterDrawer = false"
+      @apply-filters="handleApplyFilters"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
