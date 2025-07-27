@@ -4,8 +4,8 @@
     <div class="md:hidden flex items-center justify-between mb-4">
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Offers</h2>
       <button 
-        @click="isDrawerOpen = true"
         class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        @click="isDrawerOpen = true"
       >
         <UIcon name="heroicons:funnel" class="w-4 h-4" />
         <span class="text-sm font-medium">Filters</span>
@@ -13,7 +13,7 @@
     </div>
     
     <!-- Desktop Controls - Hidden on mobile -->
-    <div class="hidden md:flex items-center gap-4 mb-4">
+    <div class="hidden md:flex items-center gap-4">
       <select class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950">
         <option>Most recent</option>
         <option>Price: Low to High</option>
@@ -102,7 +102,7 @@
       >
         <!-- Drawer Handle -->
         <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
-          <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+          <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
         </div>
         
         <!-- Drawer Header -->
@@ -113,8 +113,8 @@
             Filters
           </h3>
           <button
-            @click="isDrawerOpen = false"
             class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            @click="isDrawerOpen = false"
           >
             <UIcon
               name="heroicons:x-mark"
@@ -152,7 +152,7 @@
               type="text"
               placeholder="Search chains..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-3"
-            />
+            >
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="chain in chains"
@@ -175,7 +175,7 @@
               type="text"
               placeholder="Search collections..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-            />
+            >
           </div>
           
           <!-- Sort Options -->
@@ -237,14 +237,14 @@
         <div class="p-6 border-t border-gray-200 dark:border-gray-800 flex-shrink-0">
           <div class="flex gap-3">
             <button
-              @click="clearFilters"
               class="flex-1 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              @click="clearFilters"
             >
               Clear All
             </button>
             <button
-              @click="applyFilters"
               class="flex-1 px-4 py-3 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 transition-colors"
+              @click="applyFilters"
             >
               Apply Filters
             </button>
