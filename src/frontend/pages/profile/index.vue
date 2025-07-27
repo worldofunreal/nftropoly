@@ -2,7 +2,7 @@
   <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-950 flex-col">
     <!-- Top User Info Header -->
     <UserProfileHeader />
-    <div class="absolute right-8 top-8 z-10 hidden lg:block">
+    <div class="absolute right-8 top-8 z-10 hidden md:block">
       <ProfileStats />
     </div>
     <!-- Navigation Tabs -->
@@ -11,8 +11,8 @@
     </div>
     <!-- Bottom Section: Tabbed Content -->
     <div class="flex-1 flex w-full min-h-0">
-      <!-- Sidebar (except Galleries tab) -->
-      <component v-if="activeTab !== 'Galleries'" :is="sidebarComponent" :tab="activeTab" />
+      <!-- Sidebar (except Galleries tab) - Hidden on mobile -->
+      <component v-if="activeTab !== 'Galleries'" :is="sidebarComponent" :tab="activeTab" class="hidden md:block" />
       <!-- Main Content Area -->
       <div class="w-0 flex-1 min-h-0">
         <component :is="tabComponent" />
