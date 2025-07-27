@@ -59,66 +59,66 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-full text-sm">
         <thead>
-          <tr class="bg-neutral-800">
+          <tr class="bg-neutral-100 dark:bg-neutral-800">
             <th
-              class="p-4 text-left font-medium text-gray-300 whitespace-nowrap"
+              class="p-4 text-left font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
             >
               Item
             </th>
             <th
-              class="p-4 text-right font-medium text-gray-300 whitespace-nowrap"
+              class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
             >
               Listing Price
             </th>
             <th
-              class="p-4 text-right font-medium text-gray-300 whitespace-nowrap"
+              class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
             >
               Rarity
             </th>
             <th
-              class="p-4 text-right font-medium text-gray-300 whitespace-nowrap"
+              class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
             >
               Floor Price
             </th>
             <th
-              class="p-4 text-right font-medium text-gray-300 whitespace-nowrap"
+              class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
             >
               Top Offer
             </th>
             <th
-              class="p-4 text-right font-medium text-gray-300 whitespace-nowrap"
+              class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
             >
               Cost
             </th>
             <th
-              class="p-4 text-right font-medium text-gray-300 whitespace-nowrap"
+              class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap"
             >
               Received
             </th>
           </tr>
         </thead>
-        <tr class="border-b border-gray-700 h-px" />
+        <tr class="border-b border-gray-200 dark:border-gray-700 h-px" />
         <tbody>
           <tr
             v-for="nft in nfts"
             :key="nft.id"
-            class="border-b border-gray-800 hover:bg-neutral-900/50 transition-colors"
+            class="border-b border-gray-200 dark:border-gray-800 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors"
           >
             <td class="p-4">
               <div class="flex items-center gap-3">
                 <img
                   :src="nft.image"
                   alt="NFT"
-                  class="w-12 h-12 rounded-lg border border-gray-700 flex-shrink-0"
+                  class="w-12 h-12 rounded-lg border border-gray-300 dark:border-gray-700 flex-shrink-0"
                 >
                 <div class="flex flex-col">
-                  <span class="font-semibold text-white">{{ nft.name }}</span>
-                  <span class="text-sm text-gray-400">#{{ nft.id }}</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">{{ nft.name }}</span>
+                  <span class="text-sm text-gray-600 dark:text-gray-400">#{{ nft.id }}</span>
                 </div>
               </div>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="font-medium text-white">{{ nft.listingPrice }}</span>
+              <span class="font-medium text-gray-900 dark:text-white">{{ nft.listingPrice }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
               <span
@@ -133,16 +133,16 @@
               </span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-300">{{ nft.floorPrice }}</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ nft.floorPrice }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-green-400">{{ nft.topOffer }}</span>
+              <span class="text-green-600 dark:text-green-400">{{ nft.topOffer }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-300">{{ nft.cost }}</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ nft.cost }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-400 text-sm">{{ nft.received }}</span>
+              <span class="text-gray-600 dark:text-gray-400 text-sm">{{ nft.received }}</span>
             </td>
           </tr>
         </tbody>

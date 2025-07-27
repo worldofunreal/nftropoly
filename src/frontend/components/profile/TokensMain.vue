@@ -29,40 +29,40 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-5xl w-full text-sm">
         <thead>
-          <tr class="bg-neutral-800">
-            <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Token</th>
-            <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Symbol</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Price</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Market Cap</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">24h Change</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Volume</th>
+          <tr class="bg-neutral-100 dark:bg-neutral-800">
+            <th class="p-4 text-left font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Token</th>
+            <th class="p-4 text-left font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Symbol</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Price</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Market Cap</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">24h Change</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Volume</th>
           </tr>
         </thead>
-        <tr class="border-b border-gray-700 h-px"></tr>
+        <tr class="border-b border-gray-200 dark:border-gray-700 h-px"></tr>
         <tbody>
-          <tr v-for="token in tokens" :key="token.id" class="border-b border-gray-800 hover:bg-neutral-900/50 transition-colors">
+          <tr v-for="token in tokens" :key="token.id" class="border-b border-gray-200 dark:border-gray-800 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
             <td class="p-4">
               <div class="flex items-center gap-3">
-                <img :src="token.logo" alt="Token" class="w-10 h-10 rounded-full border border-gray-700 flex-shrink-0" />
-                <span class="font-semibold text-white">{{ token.name }}</span>
+                <img :src="token.logo" alt="Token" class="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-700 flex-shrink-0" />
+                <span class="font-semibold text-gray-900 dark:text-white">{{ token.name }}</span>
               </div>
             </td>
             <td class="p-4 text-left whitespace-nowrap">
-              <span class="text-gray-300">{{ token.symbol }}</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ token.symbol }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="font-medium text-white">{{ token.price }}</span>
+              <span class="font-medium text-gray-900 dark:text-white">{{ token.price }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-300">{{ token.marketCap }}</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ token.marketCap }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span :class="token.change.startsWith('+') ? 'text-green-400' : token.change.startsWith('-') ? 'text-red-400' : 'text-gray-300'">
+              <span :class="token.change.startsWith('+') ? 'text-green-600 dark:text-green-400' : token.change.startsWith('-') ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-300'">
                 {{ token.change }}
               </span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-300">{{ token.volume }}</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ token.volume }}</span>
             </td>
           </tr>
         </tbody>

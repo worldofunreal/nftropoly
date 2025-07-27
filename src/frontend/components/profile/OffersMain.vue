@@ -29,56 +29,56 @@
     <div v-else class="overflow-x-auto flex-1">
       <table class="min-w-5xl w-full text-sm">
         <thead>
-          <tr class="bg-neutral-800">
-            <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Offer</th>
-            <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Status</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Price</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Top Offer</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Floor</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Qty</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Total</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Exp</th>
-            <th class="p-4 text-right font-medium text-gray-300 whitespace-nowrap">Time</th>
+          <tr class="bg-neutral-100 dark:bg-neutral-800">
+            <th class="p-4 text-left font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Offer</th>
+            <th class="p-4 text-left font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Status</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Price</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Top Offer</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Floor</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Qty</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Total</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Exp</th>
+            <th class="p-4 text-right font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">Time</th>
           </tr>
         </thead>
-        <tr class="border-b border-gray-700 h-px"></tr>
+        <tr class="border-b border-gray-200 dark:border-gray-700 h-px"></tr>
         <tbody>
-          <tr v-for="offer in offers" :key="offer.id" class="border-b border-gray-800 hover:bg-neutral-900/50 transition-colors">
+          <tr v-for="offer in offers" :key="offer.id" class="border-b border-gray-200 dark:border-gray-800 hover:bg-neutral-50 dark:hover:bg-neutral-900/50 transition-colors">
             <td class="p-4">
               <div class="flex flex-col">
-                <span class="font-semibold text-white">{{ offer.name }}</span>
-                <span class="text-sm text-gray-400">#{{ offer.id }}</span>
+                <span class="font-semibold text-gray-900 dark:text-white">{{ offer.name }}</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400">#{{ offer.id }}</span>
               </div>
             </td>
             <td class="p-4 text-left whitespace-nowrap">
               <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium" 
                     :class="{
-                      'bg-green-900/20 text-green-400': offer.status === 'Active',
-                      'bg-yellow-900/20 text-yellow-400': offer.status === 'Unfunded'
+                      'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400': offer.status === 'Active',
+                      'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400': offer.status === 'Unfunded'
                     }">
                 {{ offer.status }}
               </span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="font-medium text-white">{{ offer.price }}</span>
+              <span class="font-medium text-gray-900 dark:text-white">{{ offer.price }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-green-400">{{ offer.topOffer }}</span>
+              <span class="text-green-600 dark:text-green-400">{{ offer.topOffer }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-300">{{ offer.floor }}</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ offer.floor }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-300">{{ offer.qty }}</span>
+              <span class="text-gray-600 dark:text-gray-300">{{ offer.qty }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="font-medium text-white">{{ offer.total }}</span>
+              <span class="font-medium text-gray-900 dark:text-white">{{ offer.total }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-400 text-sm">{{ offer.exp }}</span>
+              <span class="text-gray-600 dark:text-gray-400 text-sm">{{ offer.exp }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-400 text-sm">{{ offer.time }}</span>
+              <span class="text-gray-600 dark:text-gray-400 text-sm">{{ offer.time }}</span>
             </td>
           </tr>
         </tbody>
