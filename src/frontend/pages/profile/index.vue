@@ -14,7 +14,7 @@
       <!-- Sidebar (except Galleries tab) -->
       <component v-if="activeTab !== 'Galleries'" :is="sidebarComponent" :tab="activeTab" />
       <!-- Main Content Area -->
-      <div class="flex-1 min-h-0">
+      <div class="w-0 flex-1 min-h-0">
         <component :is="tabComponent" />
       </div>
     </div>
