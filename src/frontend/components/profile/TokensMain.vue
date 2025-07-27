@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-4 p-4 h-full w-full">
+  <div class="flex flex-col gap-4 p-4 w-full">
     <div class="flex flex-wrap items-center gap-4 border-gray-200 dark:border-gray-800">
       <input type="text" placeholder="Search for tokens" class="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950" />
       <div class="flex gap-2">
@@ -14,7 +14,7 @@
       <button class="px-4 py-2 rounded bg-primary-600 text-white font-semibold">Go to Discover</button>
     </div>
     <div v-else class="overflow-x-auto flex-1">
-      <table class="min-w-full text-sm">
+      <table class="min-w-5xl w-full text-sm">
         <thead>
           <tr class="bg-neutral-800">
             <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Token</th>

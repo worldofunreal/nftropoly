@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full w-full p-4">
+  <div class="flex flex-col w-full p-4">
     <div class="flex items-center gap-4 mb-4">
       <select class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950">
         <option>Most recent</option>
@@ -14,7 +14,7 @@
       <button class="px-4 py-2 rounded bg-primary-600 text-white font-semibold">View Trending Collections</button>
     </div>
     <div v-else class="overflow-x-auto flex-1">
-      <table class="min-w-full text-sm">
+      <table class="min-w-5xl w-full text-sm">
         <thead>
           <tr class="bg-neutral-800">
             <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Offer</th>

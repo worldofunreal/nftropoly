@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col gap-4 p-4 h-full w-full">
+  <div class="flex flex-col gap-4 p-4 w-full">
     <div class="flex flex-wrap items-center gap-4 border-gray-200 dark:border-gray-800">
       <input type="text" placeholder="Search for items" class="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950" />
       <select class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950">
