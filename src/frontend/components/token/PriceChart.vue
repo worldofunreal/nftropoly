@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-neutral-900 rounded-lg p-6">
+  <div class="bg-white dark:bg-neutral-900 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-800">
     <div class="h-64 relative">
       <!-- Chart Container -->
       <div class="w-full h-full flex items-end justify-between px-4 pb-8">
@@ -11,24 +11,24 @@
         >
           <!-- Price Bar -->
           <div
-            class="bg-gradient-to-t from-blue-600 to-blue-400 rounded-t"
+            class="bg-gradient-to-t from-blue-600 to-blue-400 rounded-t shadow-sm hover:shadow-md transition-shadow"
             :style="{ height: `${dataPoint.height}%` }"
           ></div>
           
           <!-- Price Label (hidden by default, shown on hover) -->
-          <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-neutral-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+          <div class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-800 dark:bg-neutral-800 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-gray-700 dark:border-gray-600">
             ${{ dataPoint.price }}
           </div>
           
           <!-- Time Label -->
-          <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-400 whitespace-nowrap">
+          <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 text-xs text-gray-600 dark:text-gray-400 whitespace-nowrap font-medium">
             {{ dataPoint.time }}
           </div>
         </div>
       </div>
       
       <!-- Y-Axis Labels -->
-      <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-400 px-2">
+      <div class="absolute left-0 top-0 h-full flex flex-col justify-between text-xs text-gray-600 dark:text-gray-400 px-2 font-medium">
         <span>$0.06</span>
         <span>$0.05</span>
         <span>$0.04</span>
@@ -40,7 +40,7 @@
       <!-- Grid Lines -->
       <div class="absolute inset-0 pointer-events-none">
         <div class="h-full flex flex-col justify-between">
-          <div v-for="i in 5" :key="i" class="border-t border-gray-800"></div>
+          <div v-for="i in 5" :key="i" class="border-t border-gray-200 dark:border-gray-700"></div>
         </div>
       </div>
     </div>
