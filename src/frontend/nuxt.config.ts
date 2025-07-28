@@ -25,9 +25,6 @@ export default defineNuxtConfig({
     css: [
       '~/assets/css/main.css'
     ],
-    build: {
-      transpile: ['@solana/web3.js'],
-    },
     app: {
       head: {
         title: 'Nftropoly',
