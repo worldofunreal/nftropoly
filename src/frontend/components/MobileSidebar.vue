@@ -13,17 +13,17 @@
           :src="colorMode.value === 'light' ? '/logo-dark.svg' : '/logo.svg'"
           alt="Nftropoly Logo"
           class="h-8 w-8"
-        >
+        />
         <img
           :src="colorMode.value === 'light' ? '/logo-text-dark.svg' : '/logo-text.svg'"
           alt="Nftropoly Text Logo"
           class="h-6 w-auto"
-        >
+        />
       </div>
       <button
-        aria-label="Close sidebar"
-        class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         @click="closeSidebar"
+        class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+        aria-label="Close sidebar"
       >
         <UIcon name="i-heroicons-x-mark-20-solid" class="w-6 h-6 text-gray-600 dark:text-gray-300" />
       </button>
