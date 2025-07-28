@@ -241,16 +241,20 @@ const brandedToken = ref(false)
 
 // Prevent body scrolling when drawer is open
 watchEffect(() => {
-  if (props.isOpen) {
-    document.body.style.overflow = 'hidden'
-  } else {
-    document.body.style.overflow = ''
+  if (typeof document !== 'undefined' && document.body) {
+    if (props.isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
   }
 })
 
 // Clean up on component unmount
 onUnmounted(() => {
-  document.body.style.overflow = ''
+  if (typeof document !== 'undefined' && document.body) {
+    document.body.style.overflow = ''
+  }
 })
 
 function closeDrawer() {

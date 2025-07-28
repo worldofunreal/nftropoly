@@ -1,6 +1,6 @@
 <template>
   <div class="overflow-x-auto flex-1">
-    <table class="min-w-full text-sm">
+    <table class="min-w-5xl w-full text-sm">
       <thead>
         <tr class="bg-neutral-100 dark:bg-neutral-800">
           <th v-for="col in columns" :key="col.key" class="p-4 text-left font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap select-none">

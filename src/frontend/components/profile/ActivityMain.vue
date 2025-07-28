@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col h-full w-full p-4">
+  <div class="flex flex-col w-full p-4">
     <div v-if="activities.length === 0" class="flex flex-col items-center justify-center flex-1 py-16">
       <img src="https://placehold.co/96x96?text=NFT" alt="NFT" class="w-24 h-24 rounded-lg shadow mb-4" />
       <div class="text-xl font-bold mb-2">No results found</div>
@@ -7,7 +7,7 @@
       <button class="px-4 py-2 rounded bg-primary-600 text-white font-semibold">Clear filters</button>
     </div>
     <div v-else class="overflow-x-auto flex-1">
-      <table class="min-w-full text-sm">
+      <table class="min-w-5xl w-full text-sm">
         <thead>
           <tr class="bg-neutral-800">
             <th class="p-4 text-left font-medium text-gray-300 whitespace-nowrap">Event</th>
@@ -86,6 +86,222 @@ const activities = [
     from: '0x123...abcd',
     to: '0x456...efgh',
     time: '2024-06-01 12:00'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
+  },
+  {
+    id: 2,
+    event: 'Mint',
+    name: 'Bored Ape #5678',
+    image: 'https://placehold.co/40x40?text=NFT',
+    price: '0 ETH',
+    rarity: 'Epic',
+    qty: 1,
+    from: '0x000...0000',
+    to: '0x456...efgh',
+    time: '2024-05-20 09:30'
   },
   {
     id: 2,

@@ -1,5 +1,5 @@
 <template>
-  <div class="w-[220px] max-w-[260px] p-4 bg-white dark:bg-neutral-950 rounded-lg border border-gray-200 dark:border-gray-800">
+  <div class="w-80 p-4 bg-white dark:bg-neutral-950 rounded-lg border border-gray-200 dark:border-gray-800">
     <SidebarSection
       title="Chains"
       :open="openSections.chains"

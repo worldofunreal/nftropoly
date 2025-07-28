@@ -4,9 +4,9 @@
     <div class="flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <UIcon name="i-heroicons-fire" class="w-6 h-6 text-orange-500" />
-        <h2 class="text-2xl font-bold">Trending Tokens</h2>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Trending Tokens</h2>
       </div>
-      <UButton variant="outline" color="neutral" size="sm">
+      <UButton variant="outline" color="neutral" size="sm" class="shadow-sm">
         View All
       </UButton>
     </div>
@@ -16,21 +16,21 @@
       <div
         v-for="token in trendingTokens"
         :key="token.name"
-        class="bg-neutral-900 rounded-lg p-4 hover:bg-neutral-800 transition-colors cursor-pointer"
+        class="bg-white dark:bg-neutral-900 rounded-xl p-4 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-all duration-200 cursor-pointer shadow-md hover:shadow-lg border border-gray-200 dark:border-gray-800"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-sm">
               {{ token.symbol }}
             </div>
             <div>
-              <div class="font-semibold">{{ token.name }}</div>
-              <div class="text-sm text-gray-400">{{ token.symbol }}</div>
+              <div class="font-semibold text-gray-900 dark:text-white">{{ token.name }}</div>
+              <div class="text-sm text-gray-600 dark:text-gray-400">{{ token.symbol }}</div>
             </div>
           </div>
           <div class="text-right">
-            <div class="font-semibold">${{ token.price }}</div>
-            <div class="text-sm text-green-400 flex items-center space-x-1">
+            <div class="font-semibold text-gray-900 dark:text-white">${{ token.price }}</div>
+            <div class="text-sm text-green-600 dark:text-green-400 flex items-center space-x-1">
               <UIcon name="i-heroicons-arrow-trending-up" class="w-4 h-4" />
               <span>{{ token.change }}</span>
             </div>
