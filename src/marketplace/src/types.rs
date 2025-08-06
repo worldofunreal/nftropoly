@@ -587,7 +587,7 @@ impl ICRC37TokenSpecDetail {
 }
 
 /// Token specification result for transaction outcomes
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct TokenSpecResult {
     pub canister: Principal,
     pub symbol: String,
@@ -603,7 +603,7 @@ pub struct TokenSpecResult {
 // ============================================================================
 
 /// Escrow record for managing assets during transactions
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct EscrowRecord {
     pub type_: EscrowType,
     pub buyer: Option<Account>,
@@ -723,7 +723,7 @@ impl Storable for EscrowRecord {
 
 
 
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub enum EscrowType {
     Bid(Vec<Option<TokenSpec>>),
     Ask(Vec<Option<TokenSpec>>),
@@ -812,7 +812,7 @@ impl EscrowType {
 }
 
 /// Encumbrance specification for multi-canister trades
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct EncumbranceSpec {
     pub tokens: Vec<TokenSpec>,
     pub trustees: Vec<Principal>,
@@ -820,7 +820,7 @@ pub struct EncumbranceSpec {
 }
 
 /// Encumbrance details
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct EncumbranceDetail {
     pub spec: EncumbranceSpec,
     pub expires_at: u64,
@@ -831,7 +831,7 @@ pub struct EncumbranceDetail {
 // ============================================================================
 
 /// Ask features for seller listings
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub enum AskFeature {
     AllowPartial,
     UnsolicitedOffer(Account),
@@ -849,14 +849,14 @@ pub enum AskFeature {
 }
 
 /// Buy now requirements
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct BuyNowReq {
     pub token: TokenSpec,
     pub amount: u64,
 }
 
 /// Ending types for asks
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub enum EndingType {
     Perpetual,
     Date(u64),
@@ -2231,7 +2231,7 @@ impl Storable for TransactionRecord {
     fn to_bytes(&self) -> Cow<[u8]> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.id.to_le_bytes());
-        bytes.push(self.transaction_type as u8);
+        bytes.push(self.transaction_type.clone() as u8);
         bytes.extend_from_slice(&self.listing_id.to_le_bytes());
         bytes.extend_from_slice(&self.collection_id.as_slice());
         bytes.extend_from_slice(&self.token_id.to_le_bytes());
@@ -2251,7 +2251,7 @@ impl Storable for TransactionRecord {
     fn into_bytes(self) -> Vec<u8> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.id.to_le_bytes());
-        bytes.push(self.transaction_type as u8);
+        bytes.push(self.transaction_type.clone() as u8);
         bytes.extend_from_slice(&self.listing_id.to_le_bytes());
         bytes.extend_from_slice(&self.collection_id.as_slice());
         bytes.extend_from_slice(&self.token_id.to_le_bytes());

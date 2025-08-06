@@ -88,13 +88,13 @@ impl Marketplace {
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageAskRequest::RejectOffer(ask_id) => {
+                        ManageAskRequest::RejectOffer(_ask_id) => {
                             ManageAskResponse::EndAsk(Err(types::GenericError {
                                 code: 501,
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageAskRequest::DistributeAsk(ask_id) => {
+                        ManageAskRequest::DistributeAsk(_ask_id) => {
                             ManageAskResponse::DistributeAsk(Err(types::GenericError {
                                 code: 501,
                                 message: "Not implemented".to_string(),
@@ -112,7 +112,7 @@ impl Marketplace {
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageAskRequest::Unencumber(ask_id) => {
+                        ManageAskRequest::Unencumber(_ask_id) => {
                             ManageAskResponse::EndAsk(Err(types::GenericError {
                                 code: 501,
                                 message: "Not implemented".to_string(),

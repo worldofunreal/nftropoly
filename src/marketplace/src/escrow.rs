@@ -36,7 +36,7 @@ impl EscrowManager {
         self.next_escrow_id += 1;
         
         let escrow_record = EscrowRecord {
-            escrow_type,
+            type_: escrow_type,
             buyer,
             seller,
             ask_id,
@@ -91,7 +91,7 @@ impl EscrowManager {
     pub fn get_escrows_by_type(&self, escrow_type: &EscrowType) -> Vec<(u64, &EscrowRecord)> {
         self.escrow_records
             .iter()
-            .filter(|(_, escrow)| std::mem::discriminant(&escrow.escrow_type) == std::mem::discriminant(escrow_type))
+            .filter(|(_, escrow)| std::mem::discriminant(&escrow.type_) == std::mem::discriminant(escrow_type))
             .map(|(id, escrow)| (*id, escrow))
             .collect()
     }

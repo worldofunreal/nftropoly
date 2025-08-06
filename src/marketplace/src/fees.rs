@@ -77,19 +77,16 @@ impl FeeManager {
         let mut distributions = Vec::new();
         
         for party in parties {
-            let party_fee = match party.fee_type {
-                FeeType::Percentage(percentage) => {
-                    (total_fee * percentage) / 100
-                }
-                FeeType::Fixed(fixed_amount) => {
-                    fixed_amount.min(total_fee)
-                }
+            let party_fee = if let Some(fixed_amount) = party.fixed_amount {
+                fixed_amount.min(total_fee)
+            } else {
+                (total_fee * party.percentage) / 100
             };
             
             distributions.push(FeeDistribution {
                 account: party.account.clone(),
                 amount: party_fee,
-                fee_type: party.fee_type.clone(),
+                token: TokenSpec::new(Principal::anonymous(), "ICP".to_string()),
             });
         }
         
@@ -194,11 +191,11 @@ pub struct FeeDistribution {
 }
 
 impl FeeDistribution {
-    pub fn new(account: Account, amount: u64, fee_type: FeeType) -> Self {
+    pub fn new(account: Account, amount: u64, token: TokenSpec) -> Self {
         Self {
             account,
             amount,
-            fee_type,
+            token,
         }
     }
 }

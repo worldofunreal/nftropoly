@@ -138,7 +138,7 @@ impl MarketplaceStorage {
     }
 
     pub fn get_all_collections(&self) -> Vec<Collection> {
-        self.collections.iter().map(|(_, collection)| collection.clone()).collect()
+        self.collections.iter().map(|entry| entry.value().clone()).collect()
     }
 
     pub fn insert_transaction(&mut self, transaction_id: u64, transaction: TransactionRecord) {
@@ -172,15 +172,15 @@ impl MarketplaceStorage {
     pub fn get_all_active_asks(&self) -> Vec<AskStatus> {
         self.asks
             .iter()
-            .filter(|(_, ask)| matches!(ask.status, AskStatusType::Open))
-            .map(|(_, ask)| ask.clone())
+            .filter(|entry| matches!(entry.value().status, AskStatusType::Open))
+            .map(|entry| entry.value().clone())
             .collect()
     }
 
     pub fn get_all_ask_history(&self) -> Vec<AskStatus> {
         self.ask_history
             .iter()
-            .map(|(_, ask)| ask.clone())
+            .map(|entry| entry.value().clone())
             .collect()
     }
 }
