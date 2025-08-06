@@ -12,13 +12,14 @@ use crate::errors::{MarketplaceError, MarketplaceResult};
 use crate::storage::MarketplaceStorage;
 use crate::escrow::EscrowManager;
 use crate::fees::FeeManager;
-
+use crate::auctions::AuctionManager;
 
 /// Main marketplace implementation
 pub struct Marketplace {
     storage: MarketplaceStorage,
     escrow_manager: EscrowManager,
     fee_manager: FeeManager,
+    auction_manager: AuctionManager,
     metadata: HashMap<String, String>,
 }
 
@@ -37,6 +38,7 @@ impl Marketplace {
             )),
             escrow_manager: EscrowManager::new(),
             fee_manager: FeeManager::new(),
+            auction_manager: AuctionManager::new(),
             metadata,
         }
     }
@@ -173,12 +175,20 @@ impl Marketplace {
         // Validate features
         let mut has_ask_token = false;
         let mut has_buy_now = false;
+        let mut auction_feature = None;
+        let mut end_date = None;
         
         for feature in &features {
             if let Some(feature) = feature {
                 match feature {
                     AskFeature::AskToken(_) => has_ask_token = true,
                     AskFeature::BuyNow(_) => has_buy_now = true,
+                    AskFeature::Auction(auction) => {
+                        auction_feature = Some(auction.clone());
+                    }
+                    AskFeature::Ending(EndingType::Date(date)) => {
+                        end_date = Some(*date);
+                    }
                     _ => {}
                 }
             }
@@ -188,33 +198,48 @@ impl Marketplace {
             return Err(MarketplaceError::InvalidInput("Missing required ask_token feature".to_string()));
         }
         
-        if !has_buy_now {
-            return Err(MarketplaceError::InvalidInput("Missing required buy_now feature".to_string()));
+        // For auctions, we don't require buy_now
+        if auction_feature.is_none() && !has_buy_now {
+            return Err(MarketplaceError::InvalidInput("Missing required buy_now feature for non-auction asks".to_string()));
         }
         
         // Create ask
-                let ask_id = self.storage.get_next_ask_id();
+        let ask_id = self.storage.get_next_ask_id();
         let account = Account {
             owner: caller,
             sub_account: None,
         };
+        
+        // Handle auction creation if auction feature is present
+        let auction_info = if let Some(auction) = auction_feature {
+            if let Some(end_date) = end_date {
+                match self.auction_manager.create_standard_auction(ask_id, auction, end_date) {
+                    Ok(info) => Some(info),
+                    Err(e) => return Err(e),
+                }
+            } else {
+                return Err(MarketplaceError::InvalidInput("Auction requires an end date".to_string()));
+            }
+        } else {
+            None
+        };
                 
-                let ask_status = AskStatus {
-                    ask_id,
-                    original_broker_id: None,
-                    current_broker_id: None,
+        let ask_status = AskStatus {
+            ask_id,
+            original_broker_id: None,
+            current_broker_id: None,
             config: features.into_iter().filter_map(|f| f).collect(),
-                    auction_info: None,
-                    settlement: None,
-                    allow_list: None,
-                    participants: vec![account.clone()],
-                    settled_at: None,
-                    status: AskStatusType::Open,
-                    seller: account.clone(),
-                };
+            auction_info,
+            settlement: None,
+            allow_list: None,
+            participants: vec![account.clone()],
+            settled_at: None,
+            status: AskStatusType::Open,
+            seller: account.clone(),
+        };
                 
-                self.storage.insert_ask(ask_id, ask_status.clone());
-                self.storage.add_user_ask(caller, ask_id);
+        self.storage.insert_ask(ask_id, ask_status.clone());
+        self.storage.add_user_ask(caller, ask_id);
                 
         // Create escrow record
         let escrow_record = EscrowRecord {
@@ -229,7 +254,7 @@ impl Marketplace {
         self.storage.insert_escrow_record(escrow_id, escrow_record.clone());
         
         Ok(NewAskResult {
-                    ask_id,
+            ask_id,
             escrow: escrow_record,
         })
     }
@@ -261,40 +286,94 @@ impl Marketplace {
     async fn create_new_bid(&mut self, caller: Principal, new_bid_request: NewBidRequest) -> MarketplaceResult<NewBidResult> {
         let ask_id = new_bid_request.ask_id;
         
-        if let Some(ask_status) = self.storage.get_ask(ask_id) {
-                if !matches!(ask_status.status, AskStatusType::Open) {
+        if let Some(mut ask_status) = self.storage.get_ask(ask_id) {
+            if !matches!(ask_status.status, AskStatusType::Open) {
                 return Err(MarketplaceError::InvalidState("Ask is not open for bids".to_string()));
             }
             
-            // Create escrow record
-            let buyer_account = Account {
-                owner: caller,
-                sub_account: None,
-            };
-            
+            // Check if this is an auction
+            if let Some(mut auction_info) = ask_status.auction_info.clone() {
+                // Handle auction bid
+                // Extract bid amount from bid features
+                let bid_amount = self.extract_bid_amount(&new_bid_request.feature)?;
+                
+                // Process the auction bid
+                match self.auction_manager.place_auction_bid(&mut auction_info, caller, bid_amount) {
+                    Ok(()) => {
+                        // Update the auction info in the ask
+                        ask_status.auction_info = Some(auction_info);
+                        self.storage.insert_ask(ask_id, ask_status.clone());
+                        
+                        // Create escrow record for the bid
+                        let buyer_account = Account {
+                            owner: caller,
+                            sub_account: None,
+                        };
+                        
+                        let escrow_record = EscrowRecord {
+                            type_: EscrowType::Bid(vec![]), // Simplified for now
+                            buyer: Some(buyer_account.clone()),
+                            seller: ask_status.seller.clone(),
+                            ask_id: Some(ask_id),
+                            lock_to_date: None,
+                        };
+                        
+                        let escrow_id = self.storage.get_next_escrow_id();
+                        self.storage.insert_escrow_record(escrow_id, escrow_record.clone());
+                        
+                        // Update ask participants
+                        if !ask_status.participants.iter().any(|p| p.owner == caller) {
+                            ask_status.participants.push(buyer_account);
+                            self.storage.insert_ask(ask_id, ask_status);
+                        }
+                        
+                        Ok(NewBidResult {
+                            escrow: escrow_record,
+                            result: escrow_id,
+                        })
+                    }
+                    Err(e) => Err(e),
+                }
+            } else {
+                // Handle regular bid (non-auction)
+                let buyer_account = Account {
+                    owner: caller,
+                    sub_account: None,
+                };
+                
                 let escrow_record = EscrowRecord {
-                type_: EscrowType::Bid(vec![]), // Simplified for now
-                buyer: Some(buyer_account.clone()),
+                    type_: EscrowType::Bid(vec![]), // Simplified for now
+                    buyer: Some(buyer_account.clone()),
                     seller: ask_status.seller.clone(),
                     ask_id: Some(ask_id),
                     lock_to_date: None,
                 };
                 
                 let escrow_id = self.storage.get_next_escrow_id();
-            self.storage.insert_escrow_record(escrow_id, escrow_record.clone());
+                self.storage.insert_escrow_record(escrow_id, escrow_record.clone());
                 
                 // Update ask participants
-            let mut updated_ask = ask_status.clone();
-            updated_ask.participants.push(buyer_account);
-            self.storage.insert_ask(ask_id, updated_ask);
-            
-            Ok(NewBidResult {
+                if !ask_status.participants.iter().any(|p| p.owner == caller) {
+                    ask_status.participants.push(buyer_account);
+                    self.storage.insert_ask(ask_id, ask_status);
+                }
+                
+                Ok(NewBidResult {
                     escrow: escrow_record,
-                result: escrow_id, // Use escrow_id as transaction ID
-            })
+                    result: escrow_id, // Use escrow_id as transaction ID
+                })
+            }
         } else {
             Err(MarketplaceError::NotFound("Ask not found".to_string()))
         }
+    }
+    
+    /// Extract bid amount from bid features
+    fn extract_bid_amount(&self, features: &[Option<BidFeature>]) -> MarketplaceResult<u64> {
+        // For now, we'll use a simplified approach
+        // In a real implementation, you'd extract the actual bid amount from the features
+        // This is a placeholder - you'd need to implement proper bid amount extraction
+        Ok(1000) // Default bid amount for now
     }
 
     /// Get balance information

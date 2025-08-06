@@ -830,8 +830,35 @@ pub struct EncumbranceDetail {
 // Ask Types
 // ============================================================================
 
-/// Ask features for seller listings
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
+// ICRC-61: Standard Auctions for Ledger Native Markets
+/// Auction feature for standard auctions
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct AuctionFeature {
+    pub auction_token: TokenSpec,
+    pub wait_for_quiet: Option<WaitQuietParams>,
+    pub reserve: u64,
+    pub start_price: u64,
+    pub min_increase: MinIncrease,
+}
+
+/// Wait for quiet parameters for auction extensions
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct WaitQuietParams {
+    pub window: u64,
+    pub extension: u64,
+    pub fade: f64,
+    pub max: u64,
+}
+
+/// Minimum increase for auction bids
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub enum MinIncrease {
+    Percentage(f64),
+    Amount(u64),
+}
+
+/// Ask features for marketplace asks
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
 pub enum AskFeature {
     AllowPartial,
     UnsolicitedOffer(Account),
@@ -846,6 +873,7 @@ pub enum AskFeature {
     BidPaysFees(Option<Vec<String>>),
     CreatedAt(u64),
     Memo(Vec<u8>),
+    Auction(AuctionFeature),  // ← New ICRC-61 auction feature
 }
 
 /// Buy now requirements
@@ -873,7 +901,7 @@ pub enum AskStatusType {
 }
 
 /// Auction information for auction-based asks
-#[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
 pub struct AuctionInfo {
     pub token: TokenSpec,
     pub current_bid_amount: Option<u64>,
@@ -882,6 +910,12 @@ pub struct AuctionInfo {
     pub min_next_bid: Option<u64>,
     pub wait_for_quiet_count: Option<u64>,
     pub current_escrow: Option<EscrowRecord>,
+    // ICRC-61 Standard Auction fields
+    pub reserve_price: u64,
+    pub start_price: u64,
+    pub min_increase: MinIncrease,
+    pub wait_for_quiet: Option<WaitQuietParams>,
+    pub current_winner: Option<Account>,
 }
 
 /// Settlement information for completed asks
@@ -893,7 +927,7 @@ pub struct SettlementInfo {
 }
 
 /// Ask status for tracking marketplace asks
-#[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize)]
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize)]
 pub struct AskStatus {
     pub ask_id: u64,
     pub original_broker_id: Option<Account>,
@@ -1289,6 +1323,10 @@ impl AskFeature {
                 bytes.extend_from_slice(&(data.len() as u32).to_le_bytes());
                 bytes.extend_from_slice(data);
             }
+            AskFeature::Auction(feature) => {
+                bytes.push(13);
+                bytes.extend_from_slice(&feature.to_bytes());
+            }
         }
         bytes
     }
@@ -1419,6 +1457,11 @@ impl AskFeature {
                 let data = bytes[pos..pos + data_len].to_vec();
                 pos += data_len;
                 AskFeature::Memo(data)
+            }
+            13 => {
+                let feature = AuctionFeature::from_bytes(&bytes[pos..]);
+                pos += feature.to_bytes().len();
+                AskFeature::Auction(feature)
             }
             _ => panic!("Unknown AskFeature type: {}", feature_type),
         };
@@ -1650,6 +1693,21 @@ impl AuctionInfo {
         } else {
             bytes.push(0);
         }
+        bytes.extend_from_slice(&self.reserve_price.to_le_bytes());
+        bytes.extend_from_slice(&self.start_price.to_le_bytes());
+        bytes.extend_from_slice(&self.min_increase.to_bytes());
+        if let Some(wait) = &self.wait_for_quiet {
+            bytes.push(1);
+            bytes.extend_from_slice(&wait.to_bytes());
+        } else {
+            bytes.push(0);
+        }
+        if let Some(winner) = &self.current_winner {
+            bytes.push(1);
+            bytes.extend_from_slice(&winner.to_bytes());
+        } else {
+            bytes.push(0);
+        }
         bytes
     }
 
@@ -1719,6 +1777,35 @@ impl AuctionInfo {
             None
         };
         
+        let reserve_price = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+        pos += 8;
+        
+        let start_price = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+        pos += 8;
+        
+        let min_increase = MinIncrease::from_bytes(&bytes[pos..]);
+        pos += min_increase.to_bytes().len();
+        
+        let wait_for_quiet = if bytes[pos] == 1 {
+            pos += 1;
+            let wait = WaitQuietParams::from_bytes(&bytes[pos..]);
+            pos += wait.to_bytes().len();
+            Some(wait)
+        } else {
+            pos += 1;
+            None
+        };
+        
+        let current_winner = if bytes[pos] == 1 {
+            pos += 1;
+            let winner = Account::from_bytes(Cow::Borrowed(&bytes[pos..]));
+            pos += winner.to_bytes().len();
+            Some(winner)
+        } else {
+            pos += 1;
+            None
+        };
+        
         (Self {
             token,
             current_bid_amount,
@@ -1727,6 +1814,11 @@ impl AuctionInfo {
             min_next_bid,
             wait_for_quiet_count,
             current_escrow,
+            reserve_price,
+            start_price,
+            min_increase,
+            wait_for_quiet,
+            current_winner,
         }, pos)
     }
 }
@@ -1933,7 +2025,7 @@ pub struct EngineMatchAsk {
 // ============================================================================
 
 /// Manage ask request
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
 pub enum ManageAskRequest {
     NewAsk(Vec<Option<AskFeature>>),
     EndAsk(u64),
@@ -1963,7 +2055,7 @@ pub struct NewBidRequest {
 }
 
 /// Manage ask response
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
 pub enum ManageAskResponse {
     NewAsk(Result<NewAskResult, GenericError>),
     EndAsk(Result<u64, GenericError>),
@@ -1996,7 +2088,7 @@ pub struct NewBidResult {
 }
 
 /// Refresh offers result
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
 pub struct RefreshOffersResult {
     pub records: Vec<(Vec<u8>, Option<AskStatus>)>,
     pub eof: bool,
@@ -2080,7 +2172,7 @@ pub enum AskInfoRequest {
 }
 
 /// Ask info response
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
 pub enum AskInfoResponse {
     Active(AskInfoRecords),
     History(AskInfoRecords),
@@ -2088,7 +2180,7 @@ pub enum AskInfoResponse {
 }
 
 /// Ask info records
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
 pub struct AskInfoRecords {
     pub records: Vec<Option<AskStatus>>,
     pub eof: bool,
@@ -2600,6 +2692,128 @@ impl EscrowRecord {
             seller,
             ask_id: None,
             lock_to_date: None,
+        }
+    }
+}
+
+impl AuctionFeature {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        
+        // auction_token
+        bytes.extend_from_slice(&self.auction_token.to_bytes());
+        
+        // wait_for_quiet
+        if let Some(wait) = &self.wait_for_quiet {
+            bytes.push(1);
+            bytes.extend_from_slice(&wait.to_bytes());
+        } else {
+            bytes.push(0);
+        }
+        
+        // reserve
+        bytes.extend_from_slice(&self.reserve.to_le_bytes());
+        
+        // start_price
+        bytes.extend_from_slice(&self.start_price.to_le_bytes());
+        
+        // min_increase
+        bytes.extend_from_slice(&self.min_increase.to_bytes());
+        
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let mut pos = 0;
+        
+        // auction_token
+        let auction_token = TokenSpec::from_bytes(Cow::Borrowed(&bytes[pos..]));
+        pos += auction_token.to_bytes().len();
+        
+        // wait_for_quiet
+        let wait_for_quiet = if bytes[pos] == 1 {
+            pos += 1;
+            let wait = WaitQuietParams::from_bytes(&bytes[pos..]);
+            pos += wait.to_bytes().len();
+            Some(wait)
+        } else {
+            pos += 1;
+            None
+        };
+        
+        // reserve
+        let reserve = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+        pos += 8;
+        
+        // start_price
+        let start_price = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+        pos += 8;
+        
+        // min_increase
+        let min_increase = MinIncrease::from_bytes(&bytes[pos..]);
+        
+        Self {
+            auction_token,
+            wait_for_quiet,
+            reserve,
+            start_price,
+            min_increase,
+        }
+    }
+}
+
+impl WaitQuietParams {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.window.to_le_bytes());
+        bytes.extend_from_slice(&self.extension.to_le_bytes());
+        bytes.extend_from_slice(&self.fade.to_le_bytes());
+        bytes.extend_from_slice(&self.max.to_le_bytes());
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let window = u64::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]]);
+        let extension = u64::from_le_bytes([bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]]);
+        let fade = f64::from_le_bytes([bytes[16], bytes[17], bytes[18], bytes[19], bytes[20], bytes[21], bytes[22], bytes[23]]);
+        let max = u64::from_le_bytes([bytes[24], bytes[25], bytes[26], bytes[27], bytes[28], bytes[29], bytes[30], bytes[31]]);
+        
+        Self {
+            window,
+            extension,
+            fade,
+            max,
+        }
+    }
+}
+
+impl MinIncrease {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        match self {
+            MinIncrease::Percentage(p) => {
+                bytes.push(0);
+                bytes.extend_from_slice(&p.to_le_bytes());
+            }
+            MinIncrease::Amount(a) => {
+                bytes.push(1);
+                bytes.extend_from_slice(&a.to_le_bytes());
+            }
+        }
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        match bytes[0] {
+            0 => {
+                let percentage = f64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]);
+                MinIncrease::Percentage(percentage)
+            }
+            1 => {
+                let amount = u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]);
+                MinIncrease::Amount(amount)
+            }
+            _ => panic!("Unknown MinIncrease type: {}", bytes[0]),
         }
     }
 }
