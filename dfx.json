@@ -1,11 +1,13 @@
 {
   "canisters": {
     "database": {
-      "declarations": {
-        "node_compatibility": true
-      },
       "main": "src/database/main.mo",
       "type": "motoko"
+    },
+    "marketplace": {
+      "candid": "src/marketplace/marketplace.did",
+      "package": "marketplace",
+      "type": "rust"
     }
   },
   "defaults": {

@@ -1,0 +1,335 @@
+// ICRC-8 Compliant NFT Marketplace Candid Interface
+
+// Core ICRC-8 Types
+type Account = record {
+  owner : principal;
+  sub_account : opt blob;
+};
+
+type TokenSpec = record {
+  canister : principal;
+  symbol : text;
+  standards : vec ICRCStandards;
+};
+
+type ICRCStandards = variant {
+  ICRC1 : opt ICRC1TokenSpecDetail;
+  ICRC2 : opt ICRC2TokenSpecDetail;
+  ICRC4 : opt ICRC4TokenSpecDetail;
+  ICRC7 : opt ICRC7TokenSpecDetail;
+  ICRC37 : opt ICRC37TokenSpecDetail;
+};
+
+type ICRC1TokenSpecDetail = record {
+  amount : nat;
+  fee : opt nat;
+  decimals : nat8;
+};
+
+type ICRC2TokenSpecDetail = record {
+  amount : nat;
+  approval_fee : opt nat;
+  transfer_from_fee : opt nat;
+  decimals : nat8;
+};
+
+type ICRC4TokenSpecDetail = record {
+  batch_fee : opt nat;
+  decimals : nat8;
+};
+
+type ICRC7TokenSpecDetail = record {
+  fee : opt TokenSpec;
+  token_id : opt nat;
+};
+
+type ICRC37TokenSpecDetail = record {
+  approval_fee : opt TokenSpec;
+  transfer_from_fee : opt TokenSpec;
+  token_id : opt nat;
+};
+
+type TokenSpecResult = record {
+  canister : principal;
+  symbol : text;
+  standards : vec ICRCStandards;
+  result : nat;
+  sending_account : Account;
+  receiving_account : Account;
+  ask_id : opt nat;
+};
+
+// Escrow Types
+type EscrowRecord = record {
+  escrow_type : EscrowType;
+  buyer : opt Account;
+  seller : Account;
+  ask_id : opt nat;
+  lock_to_date : opt nat64;
+};
+
+type EscrowType = variant {
+  Bid : vec opt TokenSpec;
+  Ask : vec opt TokenSpec;
+  Settlement : vec opt TokenSpec;
+};
+
+// Ask Types
+type AskFeature = variant {
+  AllowPartial;
+  UnsolicitedOffer : Account;
+  BuyNow : vec vec BuyNowReq;
+  AllowList : vec Account;
+  Broker : Account;
+  StartDate : nat64;
+  Ending : EndingType;
+  AskToken : vec opt TokenSpec;
+  FeeSchema : text;
+  FeeAccounts : vec record { text; TokenSpec; Account };
+  BidPaysFees : opt vec text;
+  CreatedAt : nat64;
+  Memo : blob;
+};
+
+type BuyNowReq = record {
+  token : TokenSpec;
+  amount : nat;
+};
+
+type EndingType = variant {
+  Perpetual;
+  Date : nat64;
+  Timeout : nat64;
+};
+
+type AskStatus = record {
+  ask_id : nat;
+  original_broker_id : opt Account;
+  current_broker_id : opt Account;
+  config : vec AskFeature;
+  auction_info : opt AuctionInfo;
+  settlement : opt SettlementInfo;
+  allow_list : opt vec Account;
+  participants : vec Account;
+  settled_at : opt record { principal; nat };
+  status : AskStatusType;
+  seller : Account;
+};
+
+type AuctionInfo = record {
+  token : TokenSpec;
+  current_bid_amount : opt nat;
+  end_date : opt nat64;
+  start_date : opt nat64;
+  min_next_bid : opt nat;
+  wait_for_quiet_count : opt nat;
+  current_escrow : opt EscrowRecord;
+};
+
+type SettlementInfo = record {
+  bid_tokens : vec opt TokenSpecResult;
+  ask_tokens : vec opt TokenSpecResult;
+  royalties : vec record { Account; nat; text };
+};
+
+type AskStatusType = variant {
+  Open;
+  Closed;
+  Encumbered : vec EncumbranceDetail;
+  NotStarted;
+};
+
+type EncumbranceDetail = record {
+  spec : EncumbranceSpec;
+  expires_at : nat64;
+};
+
+type EncumbranceSpec = record {
+  tokens : vec TokenSpec;
+  trustees : vec principal;
+  timeout : nat64;
+};
+
+// Bid Types
+type BidFeature = variant {
+  Broker : Account;
+  Escrow : EscrowRecord;
+  FeeSchema : text;
+  FeeAccount : vec record { text; TokenSpec; Account };
+  Amm : AMMParams;
+};
+
+type AMMParams = record {
+  token_1 : TokenSpec;
+  token_2 : TokenSpec;
+  max : nat;
+  min : nat;
+  decimals : nat8;
+};
+
+type EngineMatch = record {
+  leader : opt principal;
+  asks : vec EngineMatchAsk;
+};
+
+type EngineMatchAsk = record {
+  ask_canister : opt principal;
+  ask_id : nat;
+  token : opt vec opt TokenSpec;
+};
+
+// Request/Response Types
+type ManageAskRequest = variant {
+  NewAsk : vec opt AskFeature;
+  EndAsk : nat;
+  RefreshOffers : opt Account;
+  WithdrawSettlement : EscrowRecord;
+  WithdrawEscrow : EscrowRecord;
+  RejectOffer : nat;
+  DistributeAsk : nat;
+  UpdateAmm : AMMUpdate;
+  LockAsk : LockAsk;
+  Unencumber : nat;
+};
+
+type ManageBidRequest = variant {
+  NewBid : NewBidRequest;
+  EngineMatch : EngineMatch;
+  WithdrawEscrow : EscrowRecord;
+};
+
+type NewBidRequest = record {
+  ask_id : nat;
+  feature : vec opt BidFeature;
+};
+
+type ManageAskResponse = variant {
+  NewAsk : variant { Ok : NewAskResult; Err : GenericError };
+  EndAsk : variant { Ok : nat; Err : GenericError };
+  RefreshOffers : variant { Ok : RefreshOffersResult; Err : GenericError };
+  WithdrawSettlement : variant { Ok : WithdrawResult; Err : GenericError };
+  DistributeAsk : variant { Ok : vec DistributionResult; Err : GenericError };
+  LockAsk : variant { Ok : vec TokenSpecResult; Err : GenericError };
+};
+
+type ManageBidResponse = variant {
+  NewBid : variant { Ok : NewBidResult; Err : GenericError };
+  EngineMatch : variant { Ok : vec EngineMatchResult; Err : GenericError };
+  WithdrawEscrow : variant { Ok : WithdrawResult; Err : GenericError };
+};
+
+type NewAskResult = record {
+  ask_id : nat;
+  escrow : EscrowRecord;
+};
+
+type NewBidResult = record {
+  escrow : EscrowRecord;
+  result : nat;
+};
+
+type RefreshOffersResult = record {
+  records : vec record { blob; opt AskStatus };
+  eof : bool;
+  count : nat;
+};
+
+type WithdrawResult = record {
+  withdraw_result : nat;
+  token_results : vec TokenResult;
+};
+
+type TokenResult = record {
+  token : TokenSpec;
+  result : variant { Ok : nat; Err : GenericError };
+};
+
+type DistributionResult = record {
+  token : TokenSpec;
+  result : variant { Ok : nat; Err : GenericError };
+};
+
+type EngineMatchResult = record {
+  ask_canister : opt principal;
+  ask_id : nat;
+  token : opt vec opt TokenSpecResult;
+};
+
+type GenericError = record {
+  code : nat;
+  message : text;
+};
+
+type AMMUpdate = record {
+  ask_id : nat;
+  params : AMMParams;
+};
+
+type LockAsk = record {
+  ask_id : nat;
+  lock_duration : nat64;
+  fee : TokenSpec;
+};
+
+// Query Types
+type BalanceRequest = variant {
+  Nfts : opt BalancePagination;
+  Tokens;
+  Escrow : opt BalancePagination;
+  AskSettlements : opt BalancePagination;
+  Offers : opt BalancePagination;
+};
+
+type BalancePagination = record {
+  prev : opt nat;
+  take : opt nat;
+};
+
+type BalanceResult = variant {
+  Nfts : opt BalanceRecords;
+  Tokens : opt nat;
+  Escrow : BalanceRecords;
+  AskSettlements : BalanceRecords;
+  Offers : BalanceRecords;
+};
+
+type BalanceRecords = record {
+  records : vec EscrowRecord;
+  count : nat;
+  eof : bool;
+};
+
+type AskInfoRequest = variant {
+  Active : opt record { opt nat; opt nat };
+  History : record { nat; nat };
+  Status : nat;
+};
+
+type AskInfoResponse = variant {
+  Active : AskInfoRecords;
+  History : AskInfoRecords;
+  Status : opt AskStatus;
+};
+
+type AskInfoRecords = record {
+  records : vec opt AskStatus;
+  eof : bool;
+  count : nat;
+};
+
+// Main Service Interface
+service : {
+  // ICRC-8 Core Methods
+  icrc8_ask : (vec opt ManageAskRequest) -> (vec record { opt ManageAskRequest; opt ManageAskResponse });
+  icrc8_bid : (vec opt ManageBidRequest) -> (vec record { opt ManageBidRequest; opt ManageBidResponse });
+  icrc8_balance_of : (vec record { Account; opt vec opt BalanceRequest }) -> (vec record { Account; vec BalanceResult });
+  icrc8_ask_info : (vec opt AskInfoRequest) -> (vec record { opt AskInfoRequest; opt AskInfoResponse });
+  icrc8_approved_tokens : () -> (opt vec principal);
+  
+  // Metadata and Configuration
+  get_metadata : () -> (vec record { text; text });
+  set_metadata : (text, text) -> (variant { Ok; Err : text });
+  
+  // Health Check
+  health_check : () -> (text);
+};

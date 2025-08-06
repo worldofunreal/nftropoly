@@ -1,0 +1,405 @@
+//! Main marketplace implementation
+//! 
+//! This module implements the core ICRC-8 marketplace functionality.
+
+use candid::{CandidType, Deserialize, Principal};
+use ic_cdk::{api::caller, export_candid};
+use std::collections::HashMap;
+
+use crate::types::*;
+use crate::errors::{MarketplaceError, MarketplaceResult};
+use crate::storage::MarketplaceStorage;
+use crate::escrow::EscrowManager;
+use crate::fees::FeeManager;
+use crate::utils;
+
+/// Main marketplace implementation
+pub struct Marketplace {
+    storage: MarketplaceStorage,
+    escrow_manager: EscrowManager,
+    fee_manager: FeeManager,
+    metadata: HashMap<String, String>,
+}
+
+impl Marketplace {
+    pub fn new() -> Self {
+        let mut metadata = HashMap::new();
+        metadata.insert("icrc8:default_ask_timeout".to_string(), "86400000000000".to_string());
+        metadata.insert("icrc8:default_fee_schema".to_string(), "standard".to_string());
+        metadata.insert("icrc8:supports_icrc_2".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_icrc_4".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_icrc_37".to_string(), "true".to_string());
+
+        Self {
+            storage: MarketplaceStorage::new(&ic_stable_structures::memory_manager::MemoryManager::init(
+                ic_stable_structures::DefaultMemoryImpl::default()
+            )),
+            escrow_manager: EscrowManager::new(),
+            fee_manager: FeeManager::new(),
+            metadata,
+        }
+    }
+
+    /// Handle ask requests (ICRC-8)
+    pub async fn handle_ask_requests(&mut self, requests: Vec<Option<ManageAskRequest>>) -> Vec<(Option<ManageAskRequest>, Option<ManageAskResponse>)> {
+        let mut results = Vec::new();
+        
+        for request in requests {
+            match request {
+                None => {
+                    results.push((None, None));
+                }
+                Some(req) => {
+                    let response = match req {
+                        ManageAskRequest::NewAsk(features) => {
+                            match self.create_new_ask(caller(), features).await {
+                                Ok(result) => ManageAskResponse::NewAsk(Ok(result)),
+                                Err(error) => ManageAskResponse::NewAsk(Err(types::GenericError {
+                                    code: error.to_string().len() as u64,
+                                    message: error.to_string(),
+                                })),
+                            }
+                        }
+                        ManageAskRequest::EndAsk(ask_id) => {
+                            match self.end_ask(caller(), ask_id) {
+                                Ok(tx_id) => ManageAskResponse::EndAsk(Ok(tx_id)),
+                                Err(error) => ManageAskResponse::EndAsk(Err(types::GenericError {
+                                    code: error.to_string().len() as u64,
+                                    message: error.to_string(),
+                                })),
+                            }
+                        }
+                        ManageAskRequest::RefreshOffers(account) => {
+                            ManageAskResponse::RefreshOffers(Err(types::GenericError {
+                                code: 501,
+                                message: "Not implemented".to_string(),
+                            }))
+                        }
+                        ManageAskRequest::WithdrawSettlement(escrow_record) => {
+                            ManageAskResponse::WithdrawSettlement(Err(types::GenericError {
+                                code: 501,
+                                message: "Not implemented".to_string(),
+                            }))
+                        }
+                        ManageAskRequest::WithdrawEscrow(escrow_record) => {
+                            ManageAskResponse::WithdrawSettlement(Err(types::GenericError {
+                                code: 501,
+                                message: "Not implemented".to_string(),
+                            }))
+                        }
+                        ManageAskRequest::RejectOffer(ask_id) => {
+                            ManageAskResponse::EndAsk(Err(types::GenericError {
+                                code: 501,
+                                message: "Not implemented".to_string(),
+                            }))
+                        }
+                        ManageAskRequest::DistributeAsk(ask_id) => {
+                            ManageAskResponse::DistributeAsk(Err(types::GenericError {
+                                code: 501,
+                                message: "Not implemented".to_string(),
+                            }))
+                        }
+                        ManageAskRequest::UpdateAmm(amm_update) => {
+                            ManageAskResponse::NewAsk(Err(types::GenericError {
+                                code: 501,
+                                message: "Not implemented".to_string(),
+                            }))
+                        }
+                        ManageAskRequest::LockAsk(ref lock_ask) => {
+                            ManageAskResponse::LockAsk(Err(types::GenericError {
+                                code: 501,
+                                message: "Not implemented".to_string(),
+                            }))
+                        }
+                        ManageAskRequest::Unencumber(ask_id) => {
+                            ManageAskResponse::EndAsk(Err(types::GenericError {
+                                code: 501,
+                                message: "Not implemented".to_string(),
+                            }))
+                        }
+                    };
+                    results.push((Some(req), Some(response)));
+                }
+            }
+        }
+        
+        results
+    }
+    
+    /// Handle bid requests (ICRC-8)
+    pub async fn handle_bid_requests(&mut self, requests: Vec<Option<ManageBidRequest>>) -> Vec<(Option<ManageBidRequest>, Option<ManageBidResponse>)> {
+        let mut results = Vec::new();
+        
+        for request in requests {
+            match request {
+                None => {
+                    results.push((None, None));
+                }
+                Some(req) => {
+                    let response = match req {
+                        ManageBidRequest::NewBid(new_bid_request) => {
+                            match self.create_new_bid(caller(), new_bid_request).await {
+                                Ok(result) => ManageBidResponse::NewBid(Ok(result)),
+                                Err(error) => ManageBidResponse::NewBid(Err(types::GenericError {
+                                    code: error.to_string().len() as u64,
+                                    message: error.to_string(),
+                                })),
+                            }
+                        }
+                        ManageBidRequest::EngineMatch(engine_match) => {
+                            ManageBidResponse::EngineMatch(Err(types::GenericError {
+                                code: 501,
+                                message: "Not implemented".to_string(),
+                            }))
+                        }
+                        ManageBidRequest::WithdrawEscrow(ref escrow_record) => {
+                            ManageBidResponse::WithdrawEscrow(Err(types::GenericError {
+                                code: 501,
+                                message: "Not implemented".to_string(),
+                            }))
+                        }
+                    };
+                    results.push((Some(req), Some(response)));
+                }
+            }
+        }
+        
+        results
+    }
+    
+    /// Create a new ask
+    async fn create_new_ask(&mut self, caller: Principal, features: Vec<Option<AskFeature>>) -> MarketplaceResult<NewAskResult> {
+        // Validate features
+        let mut has_ask_token = false;
+        let mut has_buy_now = false;
+        
+        for feature in &features {
+            if let Some(Some(feature)) = feature {
+                match feature {
+                    AskFeature::AskToken(_) => has_ask_token = true,
+                    AskFeature::BuyNow(_) => has_buy_now = true,
+                    _ => {}
+                }
+            }
+        }
+        
+        if !has_ask_token {
+            return Err(MarketplaceError::InvalidInput("Missing required ask_token feature".to_string()));
+        }
+        
+        if !has_buy_now {
+            return Err(MarketplaceError::InvalidInput("Missing required buy_now feature".to_string()));
+        }
+        
+        // Create ask
+                let ask_id = self.storage.get_next_ask_id();
+        let account = Account {
+            owner: caller,
+            sub_account: None,
+        };
+                
+                let ask_status = AskStatus {
+                    ask_id,
+                    original_broker_id: None,
+                    current_broker_id: None,
+            config: features.into_iter().filter_map(|f| f).collect(),
+                    auction_info: None,
+                    settlement: None,
+                    allow_list: None,
+                    participants: vec![account.clone()],
+                    settled_at: None,
+                    status: AskStatusType::Open,
+                    seller: account,
+                };
+                
+                self.storage.insert_ask(ask_id, ask_status.clone());
+                self.storage.add_user_ask(caller, ask_id);
+                
+        // Create escrow record
+        let escrow_record = EscrowRecord {
+            type_: EscrowType::Ask(vec![]), // Simplified for now
+            buyer: None,
+            seller: account,
+            ask_id: Some(ask_id),
+            lock_to_date: None,
+        };
+        
+        let escrow_id = self.storage.get_next_escrow_id();
+        self.storage.insert_escrow_record(escrow_id, escrow_record.clone());
+        
+        Ok(NewAskResult {
+                    ask_id,
+            escrow: escrow_record,
+        })
+    }
+    
+    /// End an ask
+    fn end_ask(&mut self, caller: Principal, ask_id: u64) -> MarketplaceResult<u64> {
+        if let Some(mut ask_status) = self.storage.get_ask(ask_id) {
+                if ask_status.seller.owner != caller {
+                return Err(MarketplaceError::Unauthorized("Only the seller can end the ask".to_string()));
+                }
+                
+                if !matches!(ask_status.status, AskStatusType::Open) {
+                return Err(MarketplaceError::InvalidState("Ask is not in open state".to_string()));
+            }
+            
+            // Update status
+            ask_status.status = AskStatusType::Closed;
+            self.storage.insert_ask(ask_id, ask_status.clone());
+            self.storage.add_ask_to_history(ask_id, ask_status);
+                self.storage.remove_user_ask(caller, ask_id);
+                
+            Ok(ask_id) // Use ask_id as transaction ID for simplicity
+        } else {
+            Err(MarketplaceError::NotFound("Ask not found".to_string()))
+        }
+    }
+    
+    /// Create a new bid
+    async fn create_new_bid(&mut self, caller: Principal, new_bid_request: NewBidRequest) -> MarketplaceResult<NewBidResult> {
+        let ask_id = new_bid_request.ask_id;
+        
+        if let Some(ask_status) = self.storage.get_ask(ask_id) {
+                if !matches!(ask_status.status, AskStatusType::Open) {
+                return Err(MarketplaceError::InvalidState("Ask is not open for bids".to_string()));
+            }
+            
+            // Create escrow record
+            let buyer_account = Account {
+                owner: caller,
+                sub_account: None,
+            };
+            
+                let escrow_record = EscrowRecord {
+                type_: EscrowType::Bid(vec![]), // Simplified for now
+                buyer: Some(buyer_account),
+                    seller: ask_status.seller.clone(),
+                    ask_id: Some(ask_id),
+                    lock_to_date: None,
+                };
+                
+                let escrow_id = self.storage.get_next_escrow_id();
+            self.storage.insert_escrow_record(escrow_id, escrow_record.clone());
+                
+                // Update ask participants
+            let mut updated_ask = ask_status.clone();
+            updated_ask.participants.push(buyer_account);
+            self.storage.insert_ask(ask_id, updated_ask);
+            
+            Ok(NewBidResult {
+                    escrow: escrow_record,
+                result: escrow_id, // Use escrow_id as transaction ID
+            })
+        } else {
+            Err(MarketplaceError::NotFound("Ask not found".to_string()))
+        }
+    }
+
+    /// Get balance information
+    pub async fn get_balance_of(&self, requests: Vec<(Account, Option<Vec<Option<BalanceRequest>>>)>) -> Vec<(Account, Vec<BalanceResult>)> {
+        let mut results = Vec::new();
+        
+        for (account, request_opt) in requests {
+            let balance_results = match request_opt {
+                None => vec![],
+                Some(requests) => {
+                    let mut results = Vec::new();
+                    for request in requests {
+                        match request {
+                            None => results.push(BalanceResult::Tokens(None)),
+                            Some(BalanceRequest::Nfts(pagination)) => {
+                                results.push(BalanceResult::Nfts(None)); // Simplified
+                            }
+                            Some(BalanceRequest::Tokens) => {
+                                results.push(BalanceResult::Tokens(Some(0))); // Simplified
+                            }
+                            Some(BalanceRequest::Escrow(pagination)) => {
+                                results.push(BalanceResult::Escrow(BalanceRecords {
+                                    records: vec![],
+            count: 0,
+            eof: true,
+                                }));
+                            }
+                            Some(BalanceRequest::AskSettlements(pagination)) => {
+                                results.push(BalanceResult::AskSettlements(BalanceRecords {
+                                    records: vec![],
+            count: 0,
+            eof: true,
+                                }));
+                            }
+                            Some(BalanceRequest::Offers(pagination)) => {
+                                results.push(BalanceResult::Offers(BalanceRecords {
+                                    records: vec![],
+            count: 0,
+            eof: true,
+                                }));
+                            }
+                        }
+                    }
+                    results
+                }
+            };
+            
+            results.push((account, balance_results));
+        }
+        
+        results
+    }
+
+    /// Get ask information
+    pub async fn get_ask_info(&self, requests: Vec<Option<AskInfoRequest>>) -> Vec<(Option<AskInfoRequest>, Option<AskInfoResponse>)> {
+        let mut results = Vec::new();
+        
+        for request in requests {
+            match request {
+                None => {
+                    results.push((None, None));
+                }
+                Some(AskInfoRequest::Active(pagination)) => {
+                    let active_asks = self.storage.get_all_active_asks();
+                    let count = active_asks.len() as u64;
+                    let response = AskInfoResponse::Active(AskInfoRecords {
+                        records: active_asks.into_iter().map(Some).collect(),
+                        eof: true,
+                        count,
+                    });
+                    results.push((Some(AskInfoRequest::Active(pagination)), Some(response)));
+                }
+                Some(AskInfoRequest::History(offset, limit)) => {
+                    let history = self.storage.get_all_ask_history();
+                    let count = history.len() as u64;
+                    let response = AskInfoResponse::History(AskInfoRecords {
+                        records: history.into_iter().map(Some).collect(),
+                        eof: true,
+                        count,
+                    });
+                    results.push((Some(AskInfoRequest::History(offset, limit)), Some(response)));
+                }
+                Some(AskInfoRequest::Status(ask_id)) => {
+                    let ask_status = self.storage.get_ask(ask_id);
+                    let response = AskInfoResponse::Status(ask_status);
+                    results.push((Some(AskInfoRequest::Status(ask_id)), Some(response)));
+                }
+            }
+        }
+        
+        results
+    }
+
+    /// Get approved tokens
+    pub async fn get_approved_tokens(&self) -> Option<Vec<Principal>> {
+        Some(self.storage.get_approved_tokens())
+    }
+
+    /// Get metadata
+    pub async fn get_metadata(&self) -> Vec<(String, String)> {
+        self.metadata.clone().into_iter().collect()
+    }
+
+    /// Set metadata
+    pub async fn set_metadata(&mut self, key: String, value: String) -> MarketplaceResult<()> {
+        self.metadata.insert(key, value);
+        Ok(())
+    }
+}
