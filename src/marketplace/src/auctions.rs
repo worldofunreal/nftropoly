@@ -22,7 +22,7 @@ impl AuctionManager {
     /// Create a standard auction (ICRC-61 compliant)
     pub fn create_standard_auction(
         &self,
-        ask_id: u64,
+        _ask_id: u64,
         auction_feature: AuctionFeature,
         end_date: u64,
     ) -> MarketplaceResult<AuctionInfo> {
@@ -59,6 +59,50 @@ impl AuctionManager {
             start_price: auction_feature.start_price,
             min_increase: auction_feature.min_increase,
             wait_for_quiet: auction_feature.wait_for_quiet,
+            current_winner: None,
+        };
+        
+        Ok(auction_info)
+    }
+    
+    /// Create a Dutch auction (ICRC-63 compliant)
+    pub fn create_dutch_auction(
+        &self,
+        _ask_id: u64,
+        _dutch_feature: DutchAuctionFeature,
+        start_price: u64,
+        end_price: u64,
+        duration: u64,
+    ) -> MarketplaceResult<AuctionInfo> {
+        if start_price <= end_price {
+            return Err(MarketplaceError::InvalidInput(
+                "Start price must be greater than end price for Dutch auctions".to_string()
+            ));
+        }
+        
+        if duration == 0 {
+            return Err(MarketplaceError::InvalidInput(
+                "Duration must be greater than 0".to_string()
+            ));
+        }
+        
+        let current_time = time();
+        let end_date = current_time + duration;
+        
+        // Create auction info for Dutch auction
+        let auction_info = AuctionInfo {
+            token: TokenSpec::new(Principal::anonymous(), "ICP".to_string()), // Default token
+            current_bid_amount: None,
+            end_date: Some(end_date),
+            start_date: Some(current_time),
+            min_next_bid: Some(end_price), // Minimum bid is the end price
+            wait_for_quiet_count: Some(0),
+            current_escrow: None,
+            // ICRC-61 Standard Auction fields (adapted for Dutch)
+            reserve_price: end_price,
+            start_price,
+            min_increase: MinIncrease::Amount(0), // No minimum increase for Dutch auctions
+            wait_for_quiet: None,
             current_winner: None,
         };
         
@@ -165,52 +209,8 @@ impl AuctionManager {
         }
     }
     
-    /// Create a Dutch auction (price decreases over time)
-    pub fn create_dutch_auction(
-        &self,
-        ask_id: u64,
-        start_price: u64,
-        end_price: u64,
-        duration: u64,
-        decay_type: DecayType,
-    ) -> MarketplaceResult<AuctionInfo> {
-        if start_price <= end_price {
-            return Err(MarketplaceError::InvalidInput(
-                "Start price must be greater than end price for Dutch auctions".to_string()
-            ));
-        }
-        
-        if duration == 0 {
-            return Err(MarketplaceError::InvalidInput(
-                "Duration must be greater than 0".to_string()
-            ));
-        }
-        
-        let current_time = time();
-        let end_date = current_time + duration;
-        
-        // Create auction info for Dutch auction
-        let auction_info = AuctionInfo {
-            token: TokenSpec::new(Principal::anonymous(), "ICP".to_string()), // Default token
-            current_bid_amount: None,
-            end_date: Some(end_date),
-            start_date: Some(current_time),
-            min_next_bid: Some(end_price), // Minimum bid is the end price
-            wait_for_quiet_count: Some(0),
-            current_escrow: None,
-            // ICRC-61 Standard Auction fields
-            reserve_price: end_price,
-            start_price,
-            min_increase: MinIncrease::Amount(0), // No minimum increase for Dutch auctions
-            wait_for_quiet: None,
-            current_winner: None,
-        };
-        
-        Ok(auction_info)
-    }
-    
-    /// Get current price for a Dutch auction
-    pub fn get_dutch_auction_price(&self, auction_info: &AuctionInfo) -> u64 {
+    /// Get current price for a Dutch auction (ICRC-63 compliant)
+    pub fn get_dutch_auction_price(&self, auction_info: &AuctionInfo, dutch_params: &DutchParams) -> u64 {
         let current_time = time();
         
         if let (Some(start_date), Some(end_date)) = (auction_info.start_date, auction_info.end_date) {
@@ -225,20 +225,61 @@ impl AuctionManager {
                 return auction_info.start_price;
             }
             
-            let progress = elapsed as f64 / total_duration as f64;
-            let price_difference = auction_info.start_price - auction_info.reserve_price;
-            let current_price = auction_info.start_price - (price_difference as f64 * progress) as u64;
+            // Calculate time units based on ICRC-63 TimeUnit
+            let time_units_elapsed = self.convert_to_time_units(elapsed, &dutch_params.time_unit);
+            let total_time_units = self.convert_to_time_units(total_duration, &dutch_params.time_unit);
+            
+            if total_time_units == 0 {
+                return auction_info.start_price;
+            }
+            
+            let progress = time_units_elapsed as f64 / total_time_units as f64;
+            let _price_difference = auction_info.start_price - auction_info.reserve_price;
+            
+            // Apply decay based on ICRC-63 DecayType
+            let current_price = match &dutch_params.decay_type {
+                DecayType::Flat(decay_amount) => {
+                    let total_decay = (*decay_amount as f64 * progress) as u64;
+                    auction_info.start_price.saturating_sub(total_decay)
+                }
+                DecayType::Percent(decay_percentage) => {
+                    let decay_factor = 1.0 - (decay_percentage * progress);
+                    let current_price = (auction_info.start_price as f64 * decay_factor) as u64;
+                    current_price
+                }
+            };
             
             current_price.max(auction_info.reserve_price)
         } else {
             auction_info.start_price
         }
     }
-}
-
-/// Decay type for Dutch auctions
-#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
-pub enum DecayType {
-    Flat(u64),
-    Percent(f64),
+    
+    /// Convert nanoseconds to the specified time unit
+    fn convert_to_time_units(&self, nanoseconds: u64, time_unit: &TimeUnit) -> u64 {
+        match time_unit {
+            TimeUnit::Hour(_) => nanoseconds / 3_600_000_000_000, // 1 hour = 3.6e12 nanoseconds
+            TimeUnit::Minute(_) => nanoseconds / 60_000_000_000,  // 1 minute = 6e10 nanoseconds
+            TimeUnit::Day(_) => nanoseconds / 86_400_000_000_000, // 1 day = 8.64e13 nanoseconds
+        }
+    }
+    
+    /// Accept current Dutch auction price
+    pub fn accept_dutch_auction_price(
+        &self,
+        auction_info: &mut AuctionInfo,
+        buyer: Principal,
+        dutch_params: &DutchParams,
+    ) -> MarketplaceResult<u64> {
+        let current_price = self.get_dutch_auction_price(auction_info, dutch_params);
+        
+        // Update auction state
+        auction_info.current_bid_amount = Some(current_price);
+        auction_info.current_winner = Some(Account::new(buyer));
+        
+        // For Dutch auctions, the accepted price becomes the final price
+        auction_info.min_next_bid = Some(current_price);
+        
+        Ok(current_price)
+    }
 }

@@ -176,7 +176,10 @@ impl Marketplace {
         let mut has_ask_token = false;
         let mut has_buy_now = false;
         let mut auction_feature = None;
+        let mut dutch_feature = None;
         let mut end_date = None;
+        let start_price = None;
+        let end_price = None;
         
         for feature in &features {
             if let Some(feature) = feature {
@@ -185,6 +188,9 @@ impl Marketplace {
                     AskFeature::BuyNow(_) => has_buy_now = true,
                     AskFeature::Auction(auction) => {
                         auction_feature = Some(auction.clone());
+                    }
+                    AskFeature::Dutch(dutch) => {
+                        dutch_feature = Some(dutch.clone());
                     }
                     AskFeature::Ending(EndingType::Date(date)) => {
                         end_date = Some(*date);
@@ -199,7 +205,7 @@ impl Marketplace {
         }
         
         // For auctions, we don't require buy_now
-        if auction_feature.is_none() && !has_buy_now {
+        if auction_feature.is_none() && dutch_feature.is_none() && !has_buy_now {
             return Err(MarketplaceError::InvalidInput("Missing required buy_now feature for non-auction asks".to_string()));
         }
         
@@ -219,6 +225,17 @@ impl Marketplace {
                 }
             } else {
                 return Err(MarketplaceError::InvalidInput("Auction requires an end date".to_string()));
+            }
+        } else if let Some(dutch) = dutch_feature {
+            // For Dutch auctions, we need start_price, end_price, and duration
+            // These would typically come from other features or be set as defaults
+            let start_price = start_price.unwrap_or(1000); // Default start price
+            let end_price = end_price.unwrap_or(100); // Default end price
+            let duration = 24 * 60 * 60 * 1_000_000_000; // Default 24 hours in nanoseconds
+            
+            match self.auction_manager.create_dutch_auction(ask_id, dutch, start_price, end_price, duration) {
+                Ok(info) => Some(info),
+                Err(e) => return Err(e),
             }
         } else {
             None
@@ -369,7 +386,7 @@ impl Marketplace {
     }
     
     /// Extract bid amount from bid features
-    fn extract_bid_amount(&self, features: &[Option<BidFeature>]) -> MarketplaceResult<u64> {
+    fn extract_bid_amount(&self, _features: &[Option<BidFeature>]) -> MarketplaceResult<u64> {
         // For now, we'll use a simplified approach
         // In a real implementation, you'd extract the actual bid amount from the features
         // This is a placeholder - you'd need to implement proper bid amount extraction

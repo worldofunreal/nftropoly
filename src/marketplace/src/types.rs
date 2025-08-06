@@ -857,6 +857,35 @@ pub enum MinIncrease {
     Amount(u64),
 }
 
+// ICRC-63: Dutch Auctions for Ledger Native Markets
+/// Time unit for Dutch auction decay
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub enum TimeUnit {
+    Hour(u64),
+    Minute(u64),
+    Day(u64),
+}
+
+/// Decay type for Dutch auctions
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub enum DecayType {
+    Flat(u64),
+    Percent(f64),
+}
+
+/// Dutch auction parameters
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct DutchParams {
+    pub time_unit: TimeUnit,
+    pub decay_type: DecayType,
+}
+
+/// Dutch auction feature for ICRC-63
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct DutchAuctionFeature {
+    pub dutch: DutchParams,
+}
+
 /// Ask features for marketplace asks
 #[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
 pub enum AskFeature {
@@ -874,6 +903,7 @@ pub enum AskFeature {
     CreatedAt(u64),
     Memo(Vec<u8>),
     Auction(AuctionFeature),  // ← New ICRC-61 auction feature
+    Dutch(DutchAuctionFeature),  // ← New ICRC-63 Dutch auction feature
 }
 
 /// Buy now requirements
@@ -1327,6 +1357,10 @@ impl AskFeature {
                 bytes.push(13);
                 bytes.extend_from_slice(&feature.to_bytes());
             }
+            AskFeature::Dutch(feature) => {
+                bytes.push(14);
+                bytes.extend_from_slice(&feature.to_bytes());
+            }
         }
         bytes
     }
@@ -1462,6 +1496,11 @@ impl AskFeature {
                 let feature = AuctionFeature::from_bytes(&bytes[pos..]);
                 pos += feature.to_bytes().len();
                 AskFeature::Auction(feature)
+            }
+            14 => {
+                let feature = DutchAuctionFeature::from_bytes(&bytes[pos..]);
+                pos += feature.to_bytes().len();
+                AskFeature::Dutch(feature)
             }
             _ => panic!("Unknown AskFeature type: {}", feature_type),
         };
@@ -2817,5 +2856,92 @@ impl MinIncrease {
         }
     }
 }
+
+impl DutchAuctionFeature {
+    fn to_bytes(&self) -> Vec<u8> {
+        self.dutch.to_bytes()
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let dutch = DutchParams::from_bytes(bytes);
+        Self { dutch }
+    }
+}
+
+impl DutchParams {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.time_unit.to_bytes());
+        bytes.extend_from_slice(&self.decay_type.to_bytes());
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let time_unit = TimeUnit::from_bytes(&bytes[0..9]);
+        let decay_type = DecayType::from_bytes(&bytes[9..18]);
+        
+        Self {
+            time_unit,
+            decay_type,
+        }
+    }
+}
+
+impl TimeUnit {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        match self {
+            TimeUnit::Hour(hours) => {
+                bytes.push(0);
+                bytes.extend_from_slice(&hours.to_le_bytes());
+            }
+            TimeUnit::Minute(minutes) => {
+                bytes.push(1);
+                bytes.extend_from_slice(&minutes.to_le_bytes());
+            }
+            TimeUnit::Day(days) => {
+                bytes.push(2);
+                bytes.extend_from_slice(&days.to_le_bytes());
+            }
+        }
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        match bytes[0] {
+            0 => TimeUnit::Hour(u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
+            1 => TimeUnit::Minute(u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
+            2 => TimeUnit::Day(u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
+            _ => panic!("Unknown TimeUnit: {}", bytes[0]),
+        }
+    }
+}
+
+impl DecayType {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        match self {
+            DecayType::Flat(amount) => {
+                bytes.push(0);
+                bytes.extend_from_slice(&amount.to_le_bytes());
+            }
+            DecayType::Percent(percentage) => {
+                bytes.push(1);
+                bytes.extend_from_slice(&percentage.to_le_bytes());
+            }
+        }
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        match bytes[0] {
+            0 => DecayType::Flat(u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
+            1 => DecayType::Percent(f64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
+            _ => panic!("Unknown DecayType: {}", bytes[0]),
+        }
+    }
+}
+
+
 
 
