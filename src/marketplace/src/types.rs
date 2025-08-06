@@ -4,8 +4,58 @@
 
 use candid::{CandidType, Deserialize, Principal};
 use serde::Serialize;
-use ic_stable_structures::{Storable, BoundedStorable, Bound};
+use ic_stable_structures::{Storable, storable::Bound};
 use std::borrow::Cow;
+
+// Newtype wrapper for Vec<u64> to implement Storable
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AskIds(pub Vec<u64>);
+
+impl Storable for AskIds {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 1024,
+        is_fixed_size: false,
+    };
+
+    fn to_bytes(&self) -> Cow<[u8]> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&(self.0.len() as u32).to_le_bytes());
+        for item in &self.0 {
+            bytes.extend_from_slice(&item.to_le_bytes());
+        }
+        Cow::Owned(bytes)
+    }
+
+    fn into_bytes(self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&(self.0.len() as u32).to_le_bytes());
+        for item in self.0 {
+            bytes.extend_from_slice(&item.to_le_bytes());
+        }
+        bytes
+    }
+
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        let bytes = bytes.as_ref();
+        if bytes.len() < 4 {
+            return AskIds(Vec::new());
+        }
+        let len = u32::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3]]) as usize;
+        let mut result = Vec::with_capacity(len);
+        let mut pos = 4;
+        for _ in 0..len {
+            if pos + 8 <= bytes.len() {
+                let item = u64::from_le_bytes([
+                    bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3],
+                    bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]
+                ]);
+                result.push(item);
+                pos += 8;
+            }
+        }
+        AskIds(result)
+    }
+}
 
 // ============================================================================
 // Core ICRC-8 Types
@@ -19,6 +69,23 @@ pub struct Account {
 }
 
 impl Storable for Account {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 1024,
+        is_fixed_size: false,
+    };
+
+    fn to_bytes(&self) -> Cow<[u8]> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.owner.as_slice());
+        if let Some(sub) = &self.sub_account {
+            bytes.push(1); // has subaccount
+            bytes.extend_from_slice(sub);
+        } else {
+            bytes.push(0); // no subaccount
+        }
+        Cow::Owned(bytes)
+    }
+
     fn into_bytes(self) -> Vec<u8> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.owner.as_slice());
@@ -47,12 +114,7 @@ impl Storable for Account {
     }
 }
 
-impl BoundedStorable for Account {
-    const BOUND: Bound = Bound::Bounded {
-        max_size: 1024,
-        is_fixed_size: false,
-    };
-}
+
 
 /// Token specification for identifying tokens in the marketplace
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
@@ -63,6 +125,23 @@ pub struct TokenSpec {
 }
 
 impl Storable for TokenSpec {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 2048,
+        is_fixed_size: false,
+    };
+
+    fn to_bytes(&self) -> Cow<[u8]> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.canister.as_slice());
+        bytes.extend_from_slice(self.symbol.as_bytes());
+        bytes.push(0); // null terminator for string
+        bytes.extend_from_slice(&(self.standards.len() as u32).to_le_bytes());
+        for standard in &self.standards {
+            bytes.extend_from_slice(&standard.to_bytes());
+        }
+        Cow::Owned(bytes)
+    }
+
     fn into_bytes(self) -> Vec<u8> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.canister.as_slice());
@@ -102,12 +181,7 @@ impl Storable for TokenSpec {
     }
 }
 
-impl BoundedStorable for TokenSpec {
-    const BOUND: Bound = Bound::Bounded {
-        max_size: 2048,
-        is_fixed_size: false,
-    };
-}
+
 
 /// Supported ICRC standards
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
@@ -529,7 +603,7 @@ pub struct TokenSpecResult {
 // ============================================================================
 
 /// Escrow record for managing assets during transactions
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct EscrowRecord {
     pub type_: EscrowType,
     pub buyer: Option<Account>,
@@ -539,12 +613,42 @@ pub struct EscrowRecord {
 }
 
 impl Storable for EscrowRecord {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 4096,
+        is_fixed_size: false,
+    };
+
+    fn to_bytes(&self) -> Cow<[u8]> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.type_.to_bytes());
+        if let Some(buyer) = &self.buyer {
+            bytes.push(1);
+            bytes.extend_from_slice(&buyer.to_bytes());
+        } else {
+            bytes.push(0);
+        }
+        bytes.extend_from_slice(&self.seller.to_bytes());
+        if let Some(ask_id) = self.ask_id {
+            bytes.push(1);
+            bytes.extend_from_slice(&ask_id.to_le_bytes());
+        } else {
+            bytes.push(0);
+        }
+        if let Some(lock_date) = self.lock_to_date {
+            bytes.push(1);
+            bytes.extend_from_slice(&lock_date.to_le_bytes());
+        } else {
+            bytes.push(0);
+        }
+        Cow::Owned(bytes)
+    }
+
     fn into_bytes(self) -> Vec<u8> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.type_.to_bytes());
         if let Some(buyer) = &self.buyer {
             bytes.push(1);
-            bytes.extend_from_slice(&buyer.into_bytes());
+            bytes.extend_from_slice(&buyer.clone().into_bytes());
         } else {
             bytes.push(0);
         }
@@ -617,12 +721,7 @@ impl Storable for EscrowRecord {
     }
 }
 
-impl BoundedStorable for EscrowRecord {
-    const BOUND: Bound = Bound::Bounded {
-        max_size: 4096,
-        is_fixed_size: false,
-    };
-}
+
 
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub enum EscrowType {
@@ -765,7 +864,7 @@ pub enum EndingType {
 }
 
 /// Ask status type for tracking ask states
-#[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize)]
 pub enum AskStatusType {
     Open,
     Closed,
@@ -786,7 +885,7 @@ pub struct AuctionInfo {
 }
 
 /// Settlement information for completed asks
-#[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize)]
 pub struct SettlementInfo {
     pub bid_tokens: Vec<Option<TokenSpecResult>>,
     pub ask_tokens: Vec<Option<TokenSpecResult>>,
@@ -794,7 +893,7 @@ pub struct SettlementInfo {
 }
 
 /// Ask status for tracking marketplace asks
-#[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize)]
 pub struct AskStatus {
     pub ask_id: u64,
     pub original_broker_id: Option<Account>,
@@ -810,6 +909,11 @@ pub struct AskStatus {
 }
 
 impl Storable for AskStatus {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 8192,
+        is_fixed_size: false,
+    };
+
     fn to_bytes(&self) -> Cow<[u8]> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.ask_id.to_le_bytes());
@@ -885,6 +989,83 @@ impl Storable for AskStatus {
         bytes.extend_from_slice(&self.seller.to_bytes());
         
         Cow::Owned(bytes)
+    }
+
+    fn into_bytes(self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.ask_id.to_le_bytes());
+        
+        // original_broker_id
+        if let Some(broker) = &self.original_broker_id {
+            bytes.push(1);
+            bytes.extend_from_slice(&broker.clone().into_bytes());
+        } else {
+            bytes.push(0);
+        }
+        
+        // current_broker_id
+        if let Some(broker) = &self.current_broker_id {
+            bytes.push(1);
+            bytes.extend_from_slice(&broker.clone().into_bytes());
+        } else {
+            bytes.push(0);
+        }
+        
+        // config
+        bytes.extend_from_slice(&(self.config.len() as u32).to_le_bytes());
+        for feature in &self.config {
+            bytes.extend_from_slice(&feature.to_bytes());
+        }
+        
+        // auction_info
+        if let Some(info) = &self.auction_info {
+            bytes.push(1);
+            bytes.extend_from_slice(&info.to_bytes());
+        } else {
+            bytes.push(0);
+        }
+        
+        // settlement
+        if let Some(settlement) = &self.settlement {
+            bytes.push(1);
+            bytes.extend_from_slice(&settlement.to_bytes());
+        } else {
+            bytes.push(0);
+        }
+        
+        // allow_list
+        if let Some(allow_list) = &self.allow_list {
+            bytes.push(1);
+            bytes.extend_from_slice(&(allow_list.len() as u32).to_le_bytes());
+            for account in allow_list {
+                bytes.extend_from_slice(&account.clone().into_bytes());
+            }
+        } else {
+            bytes.push(0);
+        }
+        
+        // participants
+        bytes.extend_from_slice(&(self.participants.len() as u32).to_le_bytes());
+        for account in &self.participants {
+            bytes.extend_from_slice(&account.clone().into_bytes());
+        }
+        
+        // settled_at
+        if let Some((principal, id)) = self.settled_at {
+            bytes.push(1);
+            bytes.extend_from_slice(&principal.as_slice());
+            bytes.extend_from_slice(&id.to_le_bytes());
+        } else {
+            bytes.push(0);
+        }
+        
+        // status
+        bytes.extend_from_slice(&self.status.to_bytes());
+        
+        // seller
+        bytes.extend_from_slice(&self.seller.clone().into_bytes());
+        
+        bytes
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
@@ -1017,10 +1198,7 @@ impl Storable for AskStatus {
     }
 }
 
-impl BoundedStorable for AskStatus {
-    const MAX_SIZE: u32 = 8192; // Reasonable upper bound
-    const IS_FIXED_SIZE: bool = false;
-}
+
 
 impl AskFeature {
     fn to_bytes(&self) -> Vec<u8> {
@@ -1959,6 +2137,11 @@ pub struct Collection {
 }
 
 impl Storable for Collection {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 2048,
+        is_fixed_size: false,
+    };
+
     fn to_bytes(&self) -> Cow<[u8]> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.id.as_slice());
@@ -1970,6 +2153,19 @@ impl Storable for Collection {
         bytes.extend_from_slice(&self.created_at.to_le_bytes());
         bytes.extend_from_slice(&self.manager.as_slice());
         Cow::Owned(bytes)
+    }
+
+    fn into_bytes(self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.id.as_slice());
+        bytes.extend_from_slice(self.name.as_bytes());
+        bytes.push(0); // null terminator
+        bytes.extend_from_slice(self.symbol.as_bytes());
+        bytes.push(0); // null terminator
+        bytes.push(if self.is_verified { 1 } else { 0 });
+        bytes.extend_from_slice(&self.created_at.to_le_bytes());
+        bytes.extend_from_slice(&self.manager.as_slice());
+        bytes
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
@@ -2009,10 +2205,7 @@ impl Storable for Collection {
     }
 }
 
-impl BoundedStorable for Collection {
-    const MAX_SIZE: u32 = 2048; // Reasonable upper bound
-    const IS_FIXED_SIZE: bool = false;
-}
+
 
 /// Transaction record for tracking marketplace activity
 #[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
@@ -2030,6 +2223,11 @@ pub struct TransactionRecord {
 }
 
 impl Storable for TransactionRecord {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 1024,
+        is_fixed_size: false,
+    };
+
     fn to_bytes(&self) -> Cow<[u8]> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.id.to_le_bytes());
@@ -2048,6 +2246,26 @@ impl Storable for TransactionRecord {
         bytes.extend_from_slice(&self.timestamp.to_le_bytes());
         bytes.extend_from_slice(&self.fee.to_le_bytes());
         Cow::Owned(bytes)
+    }
+
+    fn into_bytes(self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.id.to_le_bytes());
+        bytes.push(self.transaction_type as u8);
+        bytes.extend_from_slice(&self.listing_id.to_le_bytes());
+        bytes.extend_from_slice(&self.collection_id.as_slice());
+        bytes.extend_from_slice(&self.token_id.to_le_bytes());
+        bytes.extend_from_slice(&self.seller.as_slice());
+        if let Some(buyer) = self.buyer {
+            bytes.push(1);
+            bytes.extend_from_slice(&buyer.as_slice());
+        } else {
+            bytes.push(0);
+        }
+        bytes.extend_from_slice(&self.price.to_le_bytes());
+        bytes.extend_from_slice(&self.timestamp.to_le_bytes());
+        bytes.extend_from_slice(&self.fee.to_le_bytes());
+        bytes
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
@@ -2114,10 +2332,7 @@ impl Storable for TransactionRecord {
     }
 }
 
-impl BoundedStorable for TransactionRecord {
-    const MAX_SIZE: u32 = 1024; // Reasonable upper bound
-    const IS_FIXED_SIZE: bool = false;
-}
+
 
 /// Transaction types
 #[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
@@ -2136,11 +2351,23 @@ pub struct TokenKey {
 }
 
 impl Storable for TokenKey {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 64,
+        is_fixed_size: true,
+    };
+
     fn to_bytes(&self) -> Cow<[u8]> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.collection_id.as_slice());
         bytes.extend_from_slice(&self.token_id.to_le_bytes());
         Cow::Owned(bytes)
+    }
+
+    fn into_bytes(self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.collection_id.as_slice());
+        bytes.extend_from_slice(&self.token_id.to_le_bytes());
+        bytes
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
@@ -2154,10 +2381,7 @@ impl Storable for TokenKey {
     }
 }
 
-impl BoundedStorable for TokenKey {
-    const MAX_SIZE: u32 = 64; // Fixed size
-    const IS_FIXED_SIZE: bool = true;
-}
+
 
 /// Listing information
 #[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
@@ -2172,6 +2396,11 @@ pub struct Listing {
 }
 
 impl Storable for Listing {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 128,
+        is_fixed_size: true,
+    };
+
     fn to_bytes(&self) -> Cow<[u8]> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.id.to_le_bytes());
@@ -2182,6 +2411,18 @@ impl Storable for Listing {
         bytes.extend_from_slice(&self.expires.to_le_bytes());
         bytes.extend_from_slice(&self.created_at.to_le_bytes());
         Cow::Owned(bytes)
+    }
+
+    fn into_bytes(self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.id.to_le_bytes());
+        bytes.extend_from_slice(&self.collection_id.as_slice());
+        bytes.extend_from_slice(&self.token_id.to_le_bytes());
+        bytes.extend_from_slice(&self.seller.as_slice());
+        bytes.extend_from_slice(&self.price.to_le_bytes());
+        bytes.extend_from_slice(&self.expires.to_le_bytes());
+        bytes.extend_from_slice(&self.created_at.to_le_bytes());
+        bytes
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
@@ -2223,10 +2464,7 @@ impl Storable for Listing {
     }
 }
 
-impl BoundedStorable for Listing {
-    const MAX_SIZE: u32 = 128; // Fixed size
-    const IS_FIXED_SIZE: bool = true;
-}
+
 
 /// Marketplace statistics
 #[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
@@ -2239,6 +2477,11 @@ pub struct MarketplaceStats {
 }
 
 impl Storable for MarketplaceStats {
+    const BOUND: Bound = Bound::Bounded {
+        max_size: 64,
+        is_fixed_size: true,
+    };
+
     fn to_bytes(&self) -> Cow<[u8]> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.total_listings.to_le_bytes());
@@ -2247,6 +2490,16 @@ impl Storable for MarketplaceStats {
         bytes.extend_from_slice(&self.total_volume.to_le_bytes());
         bytes.extend_from_slice(&self.fee_percentage.to_le_bytes());
         Cow::Owned(bytes)
+    }
+
+    fn into_bytes(self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.total_listings.to_le_bytes());
+        bytes.extend_from_slice(&self.active_listings.to_le_bytes());
+        bytes.extend_from_slice(&self.total_transactions.to_le_bytes());
+        bytes.extend_from_slice(&self.total_volume.to_le_bytes());
+        bytes.extend_from_slice(&self.fee_percentage.to_le_bytes());
+        bytes
     }
 
     fn from_bytes(bytes: Cow<[u8]>) -> Self {
@@ -2280,10 +2533,7 @@ impl Storable for MarketplaceStats {
     }
 }
 
-impl BoundedStorable for MarketplaceStats {
-    const MAX_SIZE: u32 = 64; // Fixed size
-    const IS_FIXED_SIZE: bool = true;
-}
+
 
 /// Error types for the marketplace
 #[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]

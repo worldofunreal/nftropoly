@@ -2,6 +2,8 @@
 //! 
 //! This module handles all state management including stable storage for upgrades.
 
+use candid::{CandidType, Deserialize, Principal};
+use serde::Serialize;
 use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager, VirtualMemory},
     DefaultMemoryImpl, StableBTreeMap, StableCell, StableVec,
@@ -28,7 +30,7 @@ pub struct MarketplaceStorage {
     // ICRC-8 storage
     asks: StableBTreeMap<u64, AskStatus, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
     escrow_records: StableBTreeMap<u64, EscrowRecord, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
-    user_asks: StableBTreeMap<Principal, Vec<u64>, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
+    user_asks: StableBTreeMap<Principal, AskIds, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
     approved_tokens: StableVec<Principal, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
     
     // Legacy storage
@@ -95,7 +97,7 @@ impl MarketplaceStorage {
 
     pub fn get_user_asks(&self, user: Principal) -> Vec<u64> {
         if let Some(asks) = self.user_asks.get(&user) {
-            asks
+            asks.0
         } else {
             Vec::new()
         }
@@ -104,7 +106,7 @@ impl MarketplaceStorage {
     pub fn add_user_ask(&mut self, user: Principal, ask_id: u64) {
         let mut user_asks = self.get_user_asks(user);
         user_asks.push(ask_id);
-        self.user_asks.insert(user, user_asks.clone());
+        self.user_asks.insert(user, AskIds(user_asks));
     }
 
     pub fn remove_user_ask(&mut self, user: Principal, ask_id: u64) {
@@ -113,7 +115,7 @@ impl MarketplaceStorage {
         if user_asks.is_empty() {
             self.user_asks.remove(&user);
         } else {
-            self.user_asks.insert(user, user_asks.clone());
+            self.user_asks.insert(user, AskIds(user_asks));
         }
     }
 
@@ -123,7 +125,7 @@ impl MarketplaceStorage {
     }
 
     pub fn add_approved_token(&mut self, token: Principal) {
-        self.approved_tokens.push(token);
+        self.approved_tokens.push(&token);
     }
 
     // Legacy Methods
@@ -136,7 +138,7 @@ impl MarketplaceStorage {
     }
 
     pub fn get_all_collections(&self) -> Vec<Collection> {
-        self.collections.iter().map(|(_, collection)| collection).collect()
+        self.collections.iter().map(|(_, collection)| collection.clone()).collect()
     }
 
     pub fn insert_transaction(&mut self, transaction_id: u64, transaction: TransactionRecord) {
@@ -171,56 +173,19 @@ impl MarketplaceStorage {
         self.asks
             .iter()
             .filter(|(_, ask)| matches!(ask.status, AskStatusType::Open))
-            .map(|(_, ask)| ask)
+            .map(|(_, ask)| ask.clone())
             .collect()
     }
 
     pub fn get_all_ask_history(&self) -> Vec<AskStatus> {
         self.ask_history
             .iter()
-            .map(|(_, ask)| ask)
+            .map(|(_, ask)| ask.clone())
             .collect()
     }
 }
 
-// Additional types for storage
-#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
-pub struct Collection {
-    pub id: Principal,
-    pub name: String,
-    pub symbol: String,
-    pub is_verified: bool,
-    pub created_at: u64,
-    pub manager: Principal,
-}
 
-#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
-pub struct TransactionRecord {
-    pub id: u64,
-    pub transaction_type: TransactionType,
-    pub listing_id: u64,
-    pub collection_id: Principal,
-    pub token_id: u64,
-    pub seller: Principal,
-    pub buyer: Option<Principal>,
-    pub price: u64,
-    pub timestamp: u64,
-    pub fee: u64,
-}
-
-#[derive(Debug, Clone, CandidType, Deserialize, Serialize)]
-pub enum TransactionType {
-    ListingCreated,
-    ListingSold,
-    ListingCancelled,
-    CollectionRegistered,
-    AskCreated,
-    AskSettled,
-    AskCancelled,
-    BidPlaced,
-    BidAccepted,
-    BidCancelled,
-}
 
 // Global storage instance
 thread_local! {

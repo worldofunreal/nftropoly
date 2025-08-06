@@ -3,9 +3,9 @@
 //! This module provides a modular, ICRC-8 compliant NFT marketplace implementation
 //! for the Internet Computer blockchain.
 
-use candid::{CandidType, Deserialize, Principal};
+use candid::Principal;
 use ic_cdk_macros::*;
-use std::collections::HashMap;
+
 
 // Re-export main types for easy access
 pub use types::*;
@@ -62,7 +62,7 @@ pub async fn icrc8_ask_info(requests: Vec<Option<AskInfoRequest>>) -> Vec<(Optio
     marketplace.get_ask_info(requests).await
 }
 
-#[composite_query]
+#[query]
 pub async fn icrc8_approved_tokens() -> Option<Vec<Principal>> {
     let marketplace = get_marketplace();
     marketplace.get_approved_tokens().await

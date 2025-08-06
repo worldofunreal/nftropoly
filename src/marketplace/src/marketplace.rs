@@ -2,16 +2,17 @@
 //! 
 //! This module implements the core ICRC-8 marketplace functionality.
 
-use candid::{CandidType, Deserialize, Principal};
-use ic_cdk::{api::caller, export_candid};
+use candid::Principal;
+use ic_cdk::api::msg_caller;
 use std::collections::HashMap;
 
+use crate::types;
 use crate::types::*;
 use crate::errors::{MarketplaceError, MarketplaceResult};
 use crate::storage::MarketplaceStorage;
 use crate::escrow::EscrowManager;
 use crate::fees::FeeManager;
-use crate::utils;
+
 
 /// Main marketplace implementation
 pub struct Marketplace {
@@ -50,9 +51,9 @@ impl Marketplace {
                     results.push((None, None));
                 }
                 Some(req) => {
-                    let response = match req {
+                    let response = match &req {
                         ManageAskRequest::NewAsk(features) => {
-                            match self.create_new_ask(caller(), features).await {
+                            match self.create_new_ask(msg_caller(), features.clone()).await {
                                 Ok(result) => ManageAskResponse::NewAsk(Ok(result)),
                                 Err(error) => ManageAskResponse::NewAsk(Err(types::GenericError {
                                     code: error.to_string().len() as u64,
@@ -61,7 +62,7 @@ impl Marketplace {
                             }
                         }
                         ManageAskRequest::EndAsk(ask_id) => {
-                            match self.end_ask(caller(), ask_id) {
+                            match self.end_ask(msg_caller(), *ask_id) {
                                 Ok(tx_id) => ManageAskResponse::EndAsk(Ok(tx_id)),
                                 Err(error) => ManageAskResponse::EndAsk(Err(types::GenericError {
                                     code: error.to_string().len() as u64,
@@ -69,19 +70,19 @@ impl Marketplace {
                                 })),
                             }
                         }
-                        ManageAskRequest::RefreshOffers(account) => {
+                        ManageAskRequest::RefreshOffers(_account) => {
                             ManageAskResponse::RefreshOffers(Err(types::GenericError {
                                 code: 501,
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageAskRequest::WithdrawSettlement(escrow_record) => {
+                        ManageAskRequest::WithdrawSettlement(_escrow_record) => {
                             ManageAskResponse::WithdrawSettlement(Err(types::GenericError {
                                 code: 501,
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageAskRequest::WithdrawEscrow(escrow_record) => {
+                        ManageAskRequest::WithdrawEscrow(_escrow_record) => {
                             ManageAskResponse::WithdrawSettlement(Err(types::GenericError {
                                 code: 501,
                                 message: "Not implemented".to_string(),
@@ -99,13 +100,13 @@ impl Marketplace {
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageAskRequest::UpdateAmm(amm_update) => {
+                        ManageAskRequest::UpdateAmm(_amm_update) => {
                             ManageAskResponse::NewAsk(Err(types::GenericError {
                                 code: 501,
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageAskRequest::LockAsk(ref lock_ask) => {
+                        ManageAskRequest::LockAsk(_lock_ask) => {
                             ManageAskResponse::LockAsk(Err(types::GenericError {
                                 code: 501,
                                 message: "Not implemented".to_string(),
@@ -136,9 +137,9 @@ impl Marketplace {
                     results.push((None, None));
                 }
                 Some(req) => {
-                    let response = match req {
+                    let response = match &req {
                         ManageBidRequest::NewBid(new_bid_request) => {
-                            match self.create_new_bid(caller(), new_bid_request).await {
+                            match self.create_new_bid(msg_caller(), new_bid_request.clone()).await {
                                 Ok(result) => ManageBidResponse::NewBid(Ok(result)),
                                 Err(error) => ManageBidResponse::NewBid(Err(types::GenericError {
                                     code: error.to_string().len() as u64,
@@ -146,13 +147,13 @@ impl Marketplace {
                                 })),
                             }
                         }
-                        ManageBidRequest::EngineMatch(engine_match) => {
+                        ManageBidRequest::EngineMatch(_engine_match) => {
                             ManageBidResponse::EngineMatch(Err(types::GenericError {
                                 code: 501,
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageBidRequest::WithdrawEscrow(ref escrow_record) => {
+                        ManageBidRequest::WithdrawEscrow(_escrow_record) => {
                             ManageBidResponse::WithdrawEscrow(Err(types::GenericError {
                                 code: 501,
                                 message: "Not implemented".to_string(),
@@ -174,7 +175,7 @@ impl Marketplace {
         let mut has_buy_now = false;
         
         for feature in &features {
-            if let Some(Some(feature)) = feature {
+            if let Some(feature) = feature {
                 match feature {
                     AskFeature::AskToken(_) => has_ask_token = true,
                     AskFeature::BuyNow(_) => has_buy_now = true,
@@ -209,7 +210,7 @@ impl Marketplace {
                     participants: vec![account.clone()],
                     settled_at: None,
                     status: AskStatusType::Open,
-                    seller: account,
+                    seller: account.clone(),
                 };
                 
                 self.storage.insert_ask(ask_id, ask_status.clone());
@@ -273,7 +274,7 @@ impl Marketplace {
             
                 let escrow_record = EscrowRecord {
                 type_: EscrowType::Bid(vec![]), // Simplified for now
-                buyer: Some(buyer_account),
+                buyer: Some(buyer_account.clone()),
                     seller: ask_status.seller.clone(),
                     ask_id: Some(ask_id),
                     lock_to_date: None,
@@ -308,27 +309,27 @@ impl Marketplace {
                     for request in requests {
                         match request {
                             None => results.push(BalanceResult::Tokens(None)),
-                            Some(BalanceRequest::Nfts(pagination)) => {
+                            Some(BalanceRequest::Nfts(_pagination)) => {
                                 results.push(BalanceResult::Nfts(None)); // Simplified
                             }
                             Some(BalanceRequest::Tokens) => {
                                 results.push(BalanceResult::Tokens(Some(0))); // Simplified
                             }
-                            Some(BalanceRequest::Escrow(pagination)) => {
+                            Some(BalanceRequest::Escrow(_pagination)) => {
                                 results.push(BalanceResult::Escrow(BalanceRecords {
                                     records: vec![],
             count: 0,
             eof: true,
                                 }));
                             }
-                            Some(BalanceRequest::AskSettlements(pagination)) => {
+                            Some(BalanceRequest::AskSettlements(_pagination)) => {
                                 results.push(BalanceResult::AskSettlements(BalanceRecords {
                                     records: vec![],
             count: 0,
             eof: true,
                                 }));
                             }
-                            Some(BalanceRequest::Offers(pagination)) => {
+                            Some(BalanceRequest::Offers(_pagination)) => {
                                 results.push(BalanceResult::Offers(BalanceRecords {
                                     records: vec![],
             count: 0,
@@ -401,5 +402,17 @@ impl Marketplace {
     pub async fn set_metadata(&mut self, key: String, value: String) -> MarketplaceResult<()> {
         self.metadata.insert(key, value);
         Ok(())
+    }
+
+    /// Save state to stable memory
+    pub fn save_state(&self) {
+        // State is automatically saved by stable structures
+        ic_cdk::println!("State saved to stable memory");
+    }
+
+    /// Load state from stable memory
+    pub fn load_state(&self) {
+        // State is automatically loaded by stable structures
+        ic_cdk::println!("State loaded from stable memory");
     }
 }
