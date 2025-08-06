@@ -886,6 +886,23 @@ pub struct DutchAuctionFeature {
     pub dutch: DutchParams,
 }
 
+// ICRC-62: AMMs for Ledger Native Markets
+/// AMM parameters for automated market making
+#[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
+pub struct AMMParams {
+    pub token_1: TokenSpec,
+    pub token_2: TokenSpec,
+    pub max: u64,
+    pub min: u64,
+    pub decimals: u64,
+}
+
+/// AMM feature for ICRC-62
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct AMMFeature {
+    pub amm: AMMParams,
+}
+
 /// Ask features for marketplace asks
 #[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
 pub enum AskFeature {
@@ -904,6 +921,7 @@ pub enum AskFeature {
     Memo(Vec<u8>),
     Auction(AuctionFeature),  // ← New ICRC-61 auction feature
     Dutch(DutchAuctionFeature),  // ← New ICRC-63 Dutch auction feature
+    AMM(AMMFeature),  // ← New ICRC-62 AMM feature
 }
 
 /// Buy now requirements
@@ -1361,6 +1379,10 @@ impl AskFeature {
                 bytes.push(14);
                 bytes.extend_from_slice(&feature.to_bytes());
             }
+            AskFeature::AMM(feature) => {
+                bytes.push(15);
+                bytes.extend_from_slice(&feature.to_bytes());
+            }
         }
         bytes
     }
@@ -1501,6 +1523,11 @@ impl AskFeature {
                 let feature = DutchAuctionFeature::from_bytes(&bytes[pos..]);
                 pos += feature.to_bytes().len();
                 AskFeature::Dutch(feature)
+            }
+            15 => {
+                let feature = AMMFeature::from_bytes(&bytes[pos..]);
+                pos += feature.to_bytes().len();
+                AskFeature::AMM(feature)
             }
             _ => panic!("Unknown AskFeature type: {}", feature_type),
         };
@@ -2034,15 +2061,7 @@ pub enum BidFeature {
     Amm(AMMParams),
 }
 
-/// AMM parameters
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
-pub struct AMMParams {
-    pub token_1: TokenSpec,
-    pub token_2: TokenSpec,
-    pub max: u64,
-    pub min: u64,
-    pub decimals: u8,
-}
+
 
 /// Engine match for multi-canister trades
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -2938,6 +2957,47 @@ impl DecayType {
             0 => DecayType::Flat(u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
             1 => DecayType::Percent(f64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
             _ => panic!("Unknown DecayType: {}", bytes[0]),
+        }
+    }
+}
+
+impl AMMFeature {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.amm.to_bytes());
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let amm = AMMParams::from_bytes(bytes);
+        Self { amm }
+    }
+}
+
+impl AMMParams {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.token_1.to_bytes());
+        bytes.extend_from_slice(&self.token_2.to_bytes());
+        bytes.extend_from_slice(&self.max.to_le_bytes());
+        bytes.extend_from_slice(&self.min.to_le_bytes());
+        bytes.extend_from_slice(&self.decimals.to_le_bytes());
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let token_1 = TokenSpec::from_bytes(Cow::Borrowed(&bytes[..29]));
+        let token_2 = TokenSpec::from_bytes(Cow::Borrowed(&bytes[29..58]));
+        let max = u64::from_le_bytes([bytes[58], bytes[59], bytes[60], bytes[61], bytes[62], bytes[63], bytes[64], bytes[65]]);
+        let min = u64::from_le_bytes([bytes[66], bytes[67], bytes[68], bytes[69], bytes[70], bytes[71], bytes[72], bytes[73]]);
+        let decimals = u64::from_le_bytes([bytes[74], bytes[75], bytes[76], bytes[77], bytes[78], bytes[79], bytes[80], bytes[81]]);
+        
+        Self {
+            token_1,
+            token_2,
+            max,
+            min,
+            decimals,
         }
     }
 }

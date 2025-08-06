@@ -13,6 +13,7 @@ use crate::storage::MarketplaceStorage;
 use crate::escrow::EscrowManager;
 use crate::fees::FeeManager;
 use crate::auctions::AuctionManager;
+use crate::amm::AMMManager;
 
 /// Main marketplace implementation
 pub struct Marketplace {
@@ -20,6 +21,7 @@ pub struct Marketplace {
     escrow_manager: EscrowManager,
     fee_manager: FeeManager,
     auction_manager: AuctionManager,
+    amm_manager: AMMManager,
     metadata: HashMap<String, String>,
 }
 
@@ -39,6 +41,7 @@ impl Marketplace {
             escrow_manager: EscrowManager::new(),
             fee_manager: FeeManager::new(),
             auction_manager: AuctionManager::new(),
+            amm_manager: AMMManager::new(),
             metadata,
         }
     }
@@ -177,6 +180,7 @@ impl Marketplace {
         let mut has_buy_now = false;
         let mut auction_feature = None;
         let mut dutch_feature = None;
+        let mut amm_feature = None;
         let mut end_date = None;
         let start_price = None;
         let end_price = None;
@@ -192,6 +196,9 @@ impl Marketplace {
                     AskFeature::Dutch(dutch) => {
                         dutch_feature = Some(dutch.clone());
                     }
+                    AskFeature::AMM(amm) => {
+                        amm_feature = Some(amm.clone());
+                    }
                     AskFeature::Ending(EndingType::Date(date)) => {
                         end_date = Some(*date);
                     }
@@ -204,9 +211,9 @@ impl Marketplace {
             return Err(MarketplaceError::InvalidInput("Missing required ask_token feature".to_string()));
         }
         
-        // For auctions, we don't require buy_now
-        if auction_feature.is_none() && dutch_feature.is_none() && !has_buy_now {
-            return Err(MarketplaceError::InvalidInput("Missing required buy_now feature for non-auction asks".to_string()));
+        // For auctions and AMMs, we don't require buy_now
+        if auction_feature.is_none() && dutch_feature.is_none() && amm_feature.is_none() && !has_buy_now {
+            return Err(MarketplaceError::InvalidInput("Missing required buy_now feature for non-auction/non-AMM asks".to_string()));
         }
         
         // Create ask
@@ -240,6 +247,24 @@ impl Marketplace {
         } else {
             None
         };
+        
+        // Handle AMM creation if AMM feature is present
+        if let Some(amm) = amm_feature {
+            // Create AMM pool for the ask
+            match self.amm_manager.create_pool(
+                amm.amm.token_1.clone(),
+                amm.amm.token_2.clone(),
+                amm.amm.max, // Use max as initial liquidity
+                amm.amm.decimals,
+            ) {
+                Ok(pool_id) => {
+                    // Store pool ID with the ask for future reference
+                    // This could be stored in the ask status or a separate mapping
+                    println!("Created AMM pool {} for ask {}", pool_id, ask_id);
+                }
+                Err(e) => return Err(e),
+            }
+        }
                 
         let ask_status = AskStatus {
             ask_id,
