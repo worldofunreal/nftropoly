@@ -3,8 +3,7 @@
 //! This module implements ICRC-64 and ICRC-17 compliant KYC features for
 //! regulatory compliance and elective KYC enforcement.
 
-use candid::{CandidType, Deserialize, Principal};
-use serde::Serialize;
+use candid::Principal;
 
 use crate::types::*;
 use crate::errors::{MarketplaceError, MarketplaceResult};

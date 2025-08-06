@@ -3,8 +3,6 @@
 //! This module implements ICRC-62 compliant AMM features for dynamic pricing
 //! based on liquidity pools and trade volumes.
 
-use candid::{CandidType, Deserialize, Principal};
-use serde::Serialize;
 
 use crate::types::*;
 use crate::errors::{MarketplaceError, MarketplaceResult};

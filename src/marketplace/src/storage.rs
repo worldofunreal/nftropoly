@@ -2,17 +2,14 @@
 //! 
 //! This module handles all state management including stable storage for upgrades.
 
-use candid::{CandidType, Deserialize, Principal};
-use serde::Serialize;
+use candid::Principal;
 use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager, VirtualMemory},
     DefaultMemoryImpl, StableBTreeMap, StableCell, StableVec,
 };
-use std::collections::HashMap;
 use std::cell::RefCell;
 
 use crate::types::*;
-use crate::errors::{MarketplaceError, MarketplaceResult};
 
 // Memory IDs for different storage areas
 const ASKS_MEMORY_ID: MemoryId = MemoryId::new(0);

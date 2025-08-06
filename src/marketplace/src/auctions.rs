@@ -2,8 +2,7 @@
 //! 
 //! This module handles various types of auctions including standard, Dutch, and AMM-based auctions.
 
-use candid::{CandidType, Deserialize, Principal};
-use serde::Serialize;
+use candid::Principal;
 use ic_cdk::api::time;
 
 use crate::types::*;

@@ -2,8 +2,6 @@
 //! 
 //! This module handles escrow operations for bids and asks.
 
-use candid::{CandidType, Deserialize, Principal};
-use serde::Serialize;
 use std::collections::HashMap;
 
 use crate::types::*;

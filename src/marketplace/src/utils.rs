@@ -2,9 +2,7 @@
 //! 
 //! This module provides common utility functions used throughout the marketplace.
 
-use candid::{CandidType, Deserialize, Principal};
-use serde::Serialize;
-use std::collections::HashMap;
+use candid::Principal;
 
 use crate::types::*;
 use crate::errors::{MarketplaceError, MarketplaceResult};
