@@ -1020,6 +1020,7 @@ pub enum AskFeature {
     Dutch(DutchAuctionFeature),  // ← New ICRC-63 Dutch auction feature
     AMM(AMMFeature),  // ← New ICRC-62 AMM feature
     KYC(KYCFeature),  // ← New ICRC-64 KYC feature
+    Notify(NotifyFeature),  // ← New ICRC-71 notification feature
 }
 
 /// Buy now requirements
@@ -1485,6 +1486,10 @@ impl AskFeature {
                 bytes.push(16);
                 bytes.extend_from_slice(&feature.to_bytes());
             }
+            AskFeature::Notify(feature) => {
+                bytes.push(17);
+                bytes.extend_from_slice(&feature.to_bytes());
+            }
         }
         bytes
     }
@@ -1635,6 +1640,11 @@ impl AskFeature {
                 let feature = KYCFeature::from_bytes(&bytes[pos..]);
                 pos += feature.to_bytes().len();
                 AskFeature::KYC(feature)
+            }
+            17 => {
+                let feature = NotifyFeature::from_bytes(&bytes[pos..]);
+                pos += feature.to_bytes().len();
+                AskFeature::Notify(feature)
             }
             _ => panic!("Unknown AskFeature type: {}", feature_type),
         };
@@ -3294,6 +3304,167 @@ impl CandyShared {
                 CandyShared::Text(text)
             }
             _ => panic!("Unknown CandyShared type: {}", bytes[0]),
+        }
+    }
+}
+
+// ICRC-71: Market Notifications
+/// Notification feature for ICRC-71
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct NotifyFeature {
+    pub notify: Vec<Principal>,
+}
+
+/// Notification types for marketplace events
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub enum NotificationType {
+    AskCreated,
+    AskSettled,
+    AskCancelled,
+    BidPlaced,
+    BidAccepted,
+    BidRejected,
+    AuctionStarted,
+    AuctionEnded,
+    PriceChanged,
+    KYCRequired,
+    SettlementCompleted,
+}
+
+/// Notification message structure
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct Notification {
+    pub notification_type: NotificationType,
+    pub ask_id: Option<u64>,
+    pub message: String,
+    pub timestamp: u64,
+    pub data: Option<CandyShared>, // Additional data for extensibility
+}
+
+impl NotifyFeature {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.notify.len().to_le_bytes());
+        for principal in &self.notify {
+            bytes.extend_from_slice(&principal.as_slice());
+        }
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let len = u64::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]]) as usize;
+        let mut notify = Vec::new();
+        let mut pos = 8;
+        
+        for _ in 0..len {
+            let principal = Principal::from_slice(&bytes[pos..pos+29]);
+            notify.push(principal);
+            pos += 29;
+        }
+        
+        Self { notify }
+    }
+}
+
+impl NotificationType {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        match self {
+            NotificationType::AskCreated => bytes.push(0),
+            NotificationType::AskSettled => bytes.push(1),
+            NotificationType::AskCancelled => bytes.push(2),
+            NotificationType::BidPlaced => bytes.push(3),
+            NotificationType::BidAccepted => bytes.push(4),
+            NotificationType::BidRejected => bytes.push(5),
+            NotificationType::AuctionStarted => bytes.push(6),
+            NotificationType::AuctionEnded => bytes.push(7),
+            NotificationType::PriceChanged => bytes.push(8),
+            NotificationType::KYCRequired => bytes.push(9),
+            NotificationType::SettlementCompleted => bytes.push(10),
+        }
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        match bytes[0] {
+            0 => NotificationType::AskCreated,
+            1 => NotificationType::AskSettled,
+            2 => NotificationType::AskCancelled,
+            3 => NotificationType::BidPlaced,
+            4 => NotificationType::BidAccepted,
+            5 => NotificationType::BidRejected,
+            6 => NotificationType::AuctionStarted,
+            7 => NotificationType::AuctionEnded,
+            8 => NotificationType::PriceChanged,
+            9 => NotificationType::KYCRequired,
+            10 => NotificationType::SettlementCompleted,
+            _ => panic!("Unknown NotificationType: {}", bytes[0]),
+        }
+    }
+}
+
+impl Notification {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.notification_type.to_bytes());
+        
+        if let Some(ask_id) = self.ask_id {
+            bytes.push(1);
+            bytes.extend_from_slice(&ask_id.to_le_bytes());
+        } else {
+            bytes.push(0);
+        }
+        
+        bytes.extend_from_slice(&self.message.len().to_le_bytes());
+        bytes.extend_from_slice(self.message.as_bytes());
+        
+        bytes.extend_from_slice(&self.timestamp.to_le_bytes());
+        
+        if let Some(data) = &self.data {
+            bytes.push(1);
+            bytes.extend_from_slice(&data.to_bytes());
+        } else {
+            bytes.push(0);
+        }
+        
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let notification_type = NotificationType::from_bytes(&bytes[0..1]);
+        let mut pos = 1;
+        
+        let ask_id = if bytes[pos] == 1 {
+            pos += 1;
+            let id = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            pos += 8;
+            Some(id)
+        } else {
+            pos += 1;
+            None
+        };
+        
+        let message_len = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]) as usize;
+        pos += 8;
+        let message = String::from_utf8(bytes[pos..pos+message_len].to_vec()).unwrap();
+        pos += message_len;
+        
+        let timestamp = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+        pos += 8;
+        
+        let data = if bytes[pos] == 1 {
+            pos += 1;
+            Some(CandyShared::from_bytes(&bytes[pos..]))
+        } else {
+            None
+        };
+        
+        Self {
+            notification_type,
+            ask_id,
+            message,
+            timestamp,
+            data,
         }
     }
 }

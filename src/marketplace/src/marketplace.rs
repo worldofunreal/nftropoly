@@ -15,6 +15,7 @@ use crate::fees::FeeManager;
 use crate::auctions::AuctionManager;
 use crate::amm::AMMManager;
 use crate::kyc::KYCManager;
+use crate::notifications::NotificationManager;
 
 /// Main marketplace implementation
 pub struct Marketplace {
@@ -24,6 +25,7 @@ pub struct Marketplace {
     auction_manager: AuctionManager,
     amm_manager: AMMManager,
     kyc_manager: KYCManager,
+    notification_manager: NotificationManager,
     metadata: HashMap<String, String>,
 }
 
@@ -45,6 +47,7 @@ impl Marketplace {
             auction_manager: AuctionManager::new(),
             amm_manager: AMMManager::new(),
             kyc_manager: KYCManager::new(),
+            notification_manager: NotificationManager::new(),
             metadata,
         }
     }
@@ -185,6 +188,7 @@ impl Marketplace {
         let mut dutch_feature = None;
         let mut amm_feature = None;
         let mut kyc_feature = None;
+        let mut notify_feature = None;
         let mut end_date = None;
         let start_price = None;
         let end_price = None;
@@ -206,6 +210,9 @@ impl Marketplace {
                     AskFeature::KYC(kyc) => {
                         kyc_feature = Some(kyc.clone());
                     }
+                    AskFeature::Notify(notify) => {
+                        notify_feature = Some(notify.clone());
+                    }
                     AskFeature::Ending(EndingType::Date(date)) => {
                         end_date = Some(*date);
                     }
@@ -218,9 +225,9 @@ impl Marketplace {
             return Err(MarketplaceError::InvalidInput("Missing required ask_token feature".to_string()));
         }
         
-        // For auctions, AMMs, and KYC, we don't require buy_now
-        if auction_feature.is_none() && dutch_feature.is_none() && amm_feature.is_none() && kyc_feature.is_none() && !has_buy_now {
-            return Err(MarketplaceError::InvalidInput("Missing required buy_now feature for non-auction/non-AMM/non-KYC asks".to_string()));
+        // For auctions, AMMs, KYC, and notifications, we don't require buy_now
+        if auction_feature.is_none() && dutch_feature.is_none() && amm_feature.is_none() && kyc_feature.is_none() && notify_feature.is_none() && !has_buy_now {
+            return Err(MarketplaceError::InvalidInput("Missing required buy_now feature for non-auction/non-AMM/non-KYC/non-notify asks".to_string()));
         }
         
         // Create ask
@@ -286,6 +293,22 @@ impl Marketplace {
             }
             
             println!("KYC requirement enabled for ask {} with provider {}", ask_id, kyc.icrc17_kyc);
+        }
+        
+        // Handle notifications if Notify feature is present
+        if let Some(notify) = notify_feature {
+            let notify_principals = notify.notify.clone();
+            // Send notification to specified principals about the new ask
+            if let Err(e) = self.notification_manager.notify_ask_created(
+                ask_id,
+                caller,
+                notify_principals,
+            ) {
+                println!("Failed to send notification for ask {}: {:?}", ask_id, e);
+                // Don't fail the ask creation if notifications fail
+            } else {
+                println!("Notifications sent for ask {} to {} principals", ask_id, notify.notify.len());
+            }
         }
                 
         let ask_status = AskStatus {
