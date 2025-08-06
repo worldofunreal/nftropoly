@@ -1,10 +1,10 @@
 //! ICRC-8 Compliant Data Types
-//! 
+//!
 //! This module defines all the data types required for ICRC-8 compliance.
 
 use candid::{CandidType, Deserialize, Principal};
+use ic_stable_structures::{storable::Bound, Storable};
 use serde::Serialize;
-use ic_stable_structures::{Storable, storable::Bound};
 use std::borrow::Cow;
 
 // Newtype wrapper for Vec<u64> to implement Storable
@@ -46,8 +46,14 @@ impl Storable for AskIds {
         for _ in 0..len {
             if pos + 8 <= bytes.len() {
                 let item = u64::from_le_bytes([
-                    bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3],
-                    bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                    bytes[pos + 4],
+                    bytes[pos + 5],
+                    bytes[pos + 6],
+                    bytes[pos + 7],
                 ]);
                 result.push(item);
                 pos += 8;
@@ -114,8 +120,6 @@ impl Storable for Account {
     }
 }
 
-
-
 /// Token specification for identifying tokens in the marketplace
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct TokenSpec {
@@ -161,14 +165,19 @@ impl Storable for TokenSpec {
         }
         let canister = Principal::from_slice(&bytes[..29]);
         let mut pos = 29;
-        
+
         // Read symbol
-        let symbol_end = bytes[pos..].iter().position(|&b| b == 0).unwrap_or(bytes.len() - pos);
+        let symbol_end = bytes[pos..]
+            .iter()
+            .position(|&b| b == 0)
+            .unwrap_or(bytes.len() - pos);
         let symbol = String::from_utf8(bytes[pos..pos + symbol_end].to_vec()).unwrap();
         pos += symbol_end + 1;
-        
+
         // Read standards
-        let standards_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+        let standards_len =
+            u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                as usize;
         pos += 4;
         let mut standards = Vec::new();
         for _ in 0..standards_len {
@@ -176,12 +185,14 @@ impl Storable for TokenSpec {
             standards.push(standard);
             pos += consumed;
         }
-        
-        Self { canister, symbol, standards }
+
+        Self {
+            canister,
+            symbol,
+            standards,
+        }
     }
 }
-
-
 
 /// Supported ICRC standards
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
@@ -252,10 +263,10 @@ impl ICRCStandards {
         }
         let standard_type = bytes[0];
         let mut pos = 1;
-        
+
         let has_detail = bytes[pos] == 1;
         pos += 1;
-        
+
         let standard = match standard_type {
             1 => {
                 if has_detail {
@@ -304,7 +315,7 @@ impl ICRCStandards {
             }
             _ => panic!("Unknown ICRC standard type: {}", standard_type),
         };
-        
+
         (standard, pos)
     }
 }
@@ -335,19 +346,46 @@ impl ICRC1TokenSpecDetail {
         if bytes.len() < 17 {
             panic!("Invalid ICRC1TokenSpecDetail bytes");
         }
-        let amount = u64::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]]);
+        let amount = u64::from_le_bytes([
+            bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
+        ]);
         let has_fee = bytes[8] == 1;
         let mut pos = 9;
         let fee = if has_fee {
-            let fee_val = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let fee_val = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(fee_val)
         } else {
             None
         };
-        let decimals = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+        let decimals = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        (Self { amount, fee, decimals }, pos)
+        (
+            Self {
+                amount,
+                fee,
+                decimals,
+            },
+            pos,
+        )
     }
 }
 
@@ -384,33 +422,70 @@ impl ICRC2TokenSpecDetail {
         if bytes.len() < 25 {
             panic!("Invalid ICRC2TokenSpecDetail bytes");
         }
-        let amount = u64::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]]);
+        let amount = u64::from_le_bytes([
+            bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
+        ]);
         let mut pos = 8;
-        
+
         let approval_fee = if bytes[pos] == 1 {
             pos += 1;
-            let fee_val = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let fee_val = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(fee_val)
         } else {
             pos += 1;
             None
         };
-        
+
         let transfer_from_fee = if bytes[pos] == 1 {
             pos += 1;
-            let fee_val = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let fee_val = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(fee_val)
         } else {
             pos += 1;
             None
         };
-        
-        let decimals = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let decimals = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        (Self { amount, approval_fee, transfer_from_fee, decimals }, pos)
+
+        (
+            Self {
+                amount,
+                approval_fee,
+                transfer_from_fee,
+                decimals,
+            },
+            pos,
+        )
     }
 }
 
@@ -441,15 +516,39 @@ impl ICRC4TokenSpecDetail {
         let has_fee = bytes[0] == 1;
         let mut pos = 1;
         let batch_fee = if has_fee {
-            let fee_val = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let fee_val = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(fee_val)
         } else {
             None
         };
-        let decimals = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+        let decimals = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        (Self { batch_fee, decimals }, pos)
+        (
+            Self {
+                batch_fee,
+                decimals,
+            },
+            pos,
+        )
     }
 }
 
@@ -483,7 +582,7 @@ impl ICRC7TokenSpecDetail {
             panic!("Empty bytes for ICRC7TokenSpecDetail");
         }
         let mut pos = 0;
-        
+
         let fee = if bytes[pos] == 1 {
             pos += 1;
             let fee_spec = TokenSpec::from_bytes(Cow::Borrowed(&bytes[pos..]));
@@ -493,20 +592,29 @@ impl ICRC7TokenSpecDetail {
             pos += 1;
             None
         };
-        
+
         let token_id = if bytes[pos] == 1 {
             pos += 1;
             if bytes.len() < pos + 8 {
                 panic!("Invalid token_id bytes");
             }
-            let token_id_val = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let token_id_val = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(token_id_val)
         } else {
             pos += 1;
             None
         };
-        
+
         (Self { fee, token_id }, pos)
     }
 }
@@ -548,7 +656,7 @@ impl ICRC37TokenSpecDetail {
             panic!("Empty bytes for ICRC37TokenSpecDetail");
         }
         let mut pos = 0;
-        
+
         let approval_fee = if bytes[pos] == 1 {
             pos += 1;
             let fee_spec = TokenSpec::from_bytes(Cow::Borrowed(&bytes[pos..]));
@@ -558,7 +666,7 @@ impl ICRC37TokenSpecDetail {
             pos += 1;
             None
         };
-        
+
         let transfer_from_fee = if bytes[pos] == 1 {
             pos += 1;
             let fee_spec = TokenSpec::from_bytes(Cow::Borrowed(&bytes[pos..]));
@@ -568,21 +676,37 @@ impl ICRC37TokenSpecDetail {
             pos += 1;
             None
         };
-        
+
         let token_id = if bytes[pos] == 1 {
             pos += 1;
             if bytes.len() < pos + 8 {
                 panic!("Invalid token_id bytes");
             }
-            let token_id_val = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let token_id_val = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(token_id_val)
         } else {
             pos += 1;
             None
         };
-        
-        (Self { approval_fee, transfer_from_fee, token_id }, pos)
+
+        (
+            Self {
+                approval_fee,
+                transfer_from_fee,
+                token_id,
+            },
+            pos,
+        )
     }
 }
 
@@ -679,13 +803,13 @@ impl Storable for EscrowRecord {
                 lock_to_date: None,
             };
         }
-        
+
         let mut pos = 0;
-        
+
         // Parse escrow type
         let escrow_type = EscrowType::from_bytes(&bytes[pos..]);
         pos += escrow_type.0.to_bytes().len();
-        
+
         // Parse buyer
         let buyer = if bytes[pos] == 1 {
             pos += 1;
@@ -696,44 +820,66 @@ impl Storable for EscrowRecord {
             pos += 1;
             None
         };
-        
+
         // Parse seller
         let seller = Account::from_bytes(Cow::Borrowed(&bytes[pos..]));
         pos += seller.to_bytes().len();
-        
+
         // Parse ask_id
         let ask_id = if bytes[pos] == 1 {
             pos += 1;
             if pos + 8 > bytes.len() {
                 panic!("Invalid ask_id bytes");
             }
-            let ask_id_val = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let ask_id_val = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(ask_id_val)
         } else {
             pos += 1;
             None
         };
-        
+
         // Parse lock_to_date
         let lock_to_date = if bytes[pos] == 1 {
             pos += 1;
             if pos + 8 > bytes.len() {
                 panic!("Invalid lock_to_date bytes");
             }
-            let lock_date_val = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let lock_date_val = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(lock_date_val)
         } else {
             pos += 1;
             None
         };
-        
-        Self { type_: escrow_type.0, buyer, seller, ask_id, lock_to_date }
+
+        Self {
+            type_: escrow_type.0,
+            buyer,
+            seller,
+            ask_id,
+            lock_to_date,
+        }
     }
 }
-
-
 
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub enum EscrowType {
@@ -792,13 +938,15 @@ impl EscrowType {
         }
         let escrow_type = bytes[0];
         let mut pos = 1;
-        
+
         if bytes.len() < pos + 4 {
             panic!("Invalid EscrowType bytes");
         }
-        let tokens_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+        let tokens_len =
+            u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                as usize;
         pos += 4;
-        
+
         let mut tokens = Vec::new();
         for _ in 0..tokens_len {
             if bytes[pos] == 1 {
@@ -811,14 +959,14 @@ impl EscrowType {
                 tokens.push(None);
             }
         }
-        
+
         let escrow_type = match escrow_type {
             0 => EscrowType::Bid(tokens),
             1 => EscrowType::Ask(tokens),
             2 => EscrowType::Settlement(tokens),
             _ => panic!("Unknown escrow type: {}", escrow_type),
         };
-        
+
         (escrow_type, pos)
     }
 }
@@ -1028,11 +1176,11 @@ pub enum AskFeature {
     BidPaysFees(Option<Vec<String>>),
     CreatedAt(u64),
     Memo(Vec<u8>),
-    Auction(AuctionFeature),  // ← New ICRC-61 auction feature
-    Dutch(DutchAuctionFeature),  // ← New ICRC-63 Dutch auction feature
-    AMM(AMMFeature),  // ← New ICRC-62 AMM feature
-    KYC(KYCFeature),  // ← New ICRC-64 KYC feature
-    Notify(NotifyFeature),  // ← New ICRC-71 notification feature
+    Auction(AuctionFeature),    // ← New ICRC-61 auction feature
+    Dutch(DutchAuctionFeature), // ← New ICRC-63 Dutch auction feature
+    AMM(AMMFeature),            // ← New ICRC-62 AMM feature
+    KYC(KYCFeature),            // ← New ICRC-64 KYC feature
+    Notify(NotifyFeature),      // ← New ICRC-71 notification feature
 }
 
 /// Buy now requirements
@@ -1110,7 +1258,7 @@ impl Storable for AskStatus {
     fn to_bytes(&self) -> Cow<[u8]> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.ask_id.to_le_bytes());
-        
+
         // original_broker_id
         if let Some(broker) = &self.original_broker_id {
             bytes.push(1);
@@ -1118,7 +1266,7 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // current_broker_id
         if let Some(broker) = &self.current_broker_id {
             bytes.push(1);
@@ -1126,13 +1274,13 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // config
         bytes.extend_from_slice(&(self.config.len() as u32).to_le_bytes());
         for feature in &self.config {
             bytes.extend_from_slice(&feature.to_bytes());
         }
-        
+
         // auction_info
         if let Some(info) = &self.auction_info {
             bytes.push(1);
@@ -1140,7 +1288,7 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // settlement
         if let Some(settlement) = &self.settlement {
             bytes.push(1);
@@ -1148,7 +1296,7 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // allow_list
         if let Some(allow_list) = &self.allow_list {
             bytes.push(1);
@@ -1159,13 +1307,13 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // participants
         bytes.extend_from_slice(&(self.participants.len() as u32).to_le_bytes());
         for account in &self.participants {
             bytes.extend_from_slice(&account.to_bytes());
         }
-        
+
         // settled_at
         if let Some((principal, id)) = self.settled_at {
             bytes.push(1);
@@ -1174,20 +1322,20 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // status
         bytes.extend_from_slice(&self.status.to_bytes());
-        
+
         // seller
         bytes.extend_from_slice(&self.seller.to_bytes());
-        
+
         Cow::Owned(bytes)
     }
 
     fn into_bytes(self) -> Vec<u8> {
         let mut bytes = Vec::new();
         bytes.extend_from_slice(&self.ask_id.to_le_bytes());
-        
+
         // original_broker_id
         if let Some(broker) = &self.original_broker_id {
             bytes.push(1);
@@ -1195,7 +1343,7 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // current_broker_id
         if let Some(broker) = &self.current_broker_id {
             bytes.push(1);
@@ -1203,13 +1351,13 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // config
         bytes.extend_from_slice(&(self.config.len() as u32).to_le_bytes());
         for feature in &self.config {
             bytes.extend_from_slice(&feature.to_bytes());
         }
-        
+
         // auction_info
         if let Some(info) = &self.auction_info {
             bytes.push(1);
@@ -1217,7 +1365,7 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // settlement
         if let Some(settlement) = &self.settlement {
             bytes.push(1);
@@ -1225,7 +1373,7 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // allow_list
         if let Some(allow_list) = &self.allow_list {
             bytes.push(1);
@@ -1236,13 +1384,13 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // participants
         bytes.extend_from_slice(&(self.participants.len() as u32).to_le_bytes());
         for account in &self.participants {
             bytes.extend_from_slice(&account.clone().into_bytes());
         }
-        
+
         // settled_at
         if let Some((principal, id)) = self.settled_at {
             bytes.push(1);
@@ -1251,13 +1399,13 @@ impl Storable for AskStatus {
         } else {
             bytes.push(0);
         }
-        
+
         // status
         bytes.extend_from_slice(&self.status.to_bytes());
-        
+
         // seller
         bytes.extend_from_slice(&self.seller.clone().into_bytes());
-        
+
         bytes
     }
 
@@ -1267,10 +1415,19 @@ impl Storable for AskStatus {
             panic!("Invalid AskStatus bytes");
         }
         let mut pos = 0;
-        
-        let ask_id = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let ask_id = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
+
         // original_broker_id
         let original_broker_id = if bytes[pos] == 1 {
             pos += 1;
@@ -1281,7 +1438,7 @@ impl Storable for AskStatus {
             pos += 1;
             None
         };
-        
+
         // current_broker_id
         let current_broker_id = if bytes[pos] == 1 {
             pos += 1;
@@ -1292,9 +1449,11 @@ impl Storable for AskStatus {
             pos += 1;
             None
         };
-        
+
         // config
-        let config_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+        let config_len =
+            u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                as usize;
         pos += 4;
         let mut config = Vec::new();
         for _ in 0..config_len {
@@ -1302,7 +1461,7 @@ impl Storable for AskStatus {
             config.push(feature);
             pos += consumed;
         }
-        
+
         // auction_info
         let auction_info = if bytes[pos] == 1 {
             pos += 1;
@@ -1313,7 +1472,7 @@ impl Storable for AskStatus {
             pos += 1;
             None
         };
-        
+
         // settlement
         let settlement = if bytes[pos] == 1 {
             pos += 1;
@@ -1324,11 +1483,13 @@ impl Storable for AskStatus {
             pos += 1;
             None
         };
-        
+
         // allow_list
         let allow_list = if bytes[pos] == 1 {
             pos += 1;
-            let allow_list_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+            let allow_list_len =
+                u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                    as usize;
             pos += 4;
             let mut allow_list = Vec::new();
             for _ in 0..allow_list_len {
@@ -1341,9 +1502,11 @@ impl Storable for AskStatus {
             pos += 1;
             None
         };
-        
+
         // participants
-        let participants_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+        let participants_len =
+            u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                as usize;
         pos += 4;
         let mut participants = Vec::new();
         for _ in 0..participants_len {
@@ -1351,30 +1514,39 @@ impl Storable for AskStatus {
             pos += account.to_bytes().len();
             participants.push(account);
         }
-        
+
         // settled_at
         let settled_at = if bytes[pos] == 1 {
             pos += 1;
             if bytes.len() < pos + 37 {
                 panic!("Invalid settled_at bytes");
             }
-            let principal = Principal::from_slice(&bytes[pos..pos+29]);
+            let principal = Principal::from_slice(&bytes[pos..pos + 29]);
             pos += 29;
-            let id = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let id = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some((principal, id))
         } else {
             pos += 1;
             None
         };
-        
+
         // status
         let (status, consumed) = AskStatusType::from_bytes(&bytes[pos..]);
         pos += consumed;
-        
+
         // seller
         let seller = Account::from_bytes(Cow::Borrowed(&bytes[pos..]));
-        
+
         Self {
             ask_id,
             original_broker_id,
@@ -1390,8 +1562,6 @@ impl Storable for AskStatus {
         }
     }
 }
-
-
 
 impl AskFeature {
     fn to_bytes(&self) -> Vec<u8> {
@@ -1513,7 +1683,7 @@ impl AskFeature {
         }
         let feature_type = bytes[0];
         let mut pos = 1;
-        
+
         let feature = match feature_type {
             0 => AskFeature::AllowPartial,
             1 => {
@@ -1522,11 +1692,21 @@ impl AskFeature {
                 AskFeature::UnsolicitedOffer(account)
             }
             2 => {
-                let options_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+                let options_len = u32::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                ]) as usize;
                 pos += 4;
                 let mut buy_now_options = Vec::new();
                 for _ in 0..options_len {
-                    let reqs_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+                    let reqs_len = u32::from_le_bytes([
+                        bytes[pos],
+                        bytes[pos + 1],
+                        bytes[pos + 2],
+                        bytes[pos + 3],
+                    ]) as usize;
                     pos += 4;
                     let mut reqs = Vec::new();
                     for _ in 0..reqs_len {
@@ -1539,7 +1719,12 @@ impl AskFeature {
                 AskFeature::BuyNow(buy_now_options)
             }
             3 => {
-                let accounts_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+                let accounts_len = u32::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                ]) as usize;
                 pos += 4;
                 let mut accounts = Vec::new();
                 for _ in 0..accounts_len {
@@ -1555,7 +1740,16 @@ impl AskFeature {
                 AskFeature::Broker(account)
             }
             5 => {
-                let date = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+                let date = u64::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                    bytes[pos + 4],
+                    bytes[pos + 5],
+                    bytes[pos + 6],
+                    bytes[pos + 7],
+                ]);
                 pos += 8;
                 AskFeature::StartDate(date)
             }
@@ -1565,7 +1759,12 @@ impl AskFeature {
                 AskFeature::Ending(ending)
             }
             7 => {
-                let tokens_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+                let tokens_len = u32::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                ]) as usize;
                 pos += 4;
                 let mut tokens = Vec::new();
                 for _ in 0..tokens_len {
@@ -1582,17 +1781,28 @@ impl AskFeature {
                 AskFeature::AskToken(tokens)
             }
             8 => {
-                let schema_end = bytes[pos..].iter().position(|&b| b == 0).unwrap_or(bytes.len() - pos);
+                let schema_end = bytes[pos..]
+                    .iter()
+                    .position(|&b| b == 0)
+                    .unwrap_or(bytes.len() - pos);
                 let schema = String::from_utf8(bytes[pos..pos + schema_end].to_vec()).unwrap();
                 pos += schema_end + 1;
                 AskFeature::FeeSchema(schema)
             }
             9 => {
-                let accounts_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+                let accounts_len = u32::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                ]) as usize;
                 pos += 4;
                 let mut accounts = Vec::new();
                 for _ in 0..accounts_len {
-                    let name_end = bytes[pos..].iter().position(|&b| b == 0).unwrap_or(bytes.len() - pos);
+                    let name_end = bytes[pos..]
+                        .iter()
+                        .position(|&b| b == 0)
+                        .unwrap_or(bytes.len() - pos);
                     let name = String::from_utf8(bytes[pos..pos + name_end].to_vec()).unwrap();
                     pos += name_end + 1;
                     let token = TokenSpec::from_bytes(Cow::Borrowed(&bytes[pos..]));
@@ -1607,11 +1817,19 @@ impl AskFeature {
                 let has_fees = bytes[pos] == 1;
                 pos += 1;
                 let fees = if has_fees {
-                    let fees_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+                    let fees_len = u32::from_le_bytes([
+                        bytes[pos],
+                        bytes[pos + 1],
+                        bytes[pos + 2],
+                        bytes[pos + 3],
+                    ]) as usize;
                     pos += 4;
                     let mut fees = Vec::new();
                     for _ in 0..fees_len {
-                        let fee_end = bytes[pos..].iter().position(|&b| b == 0).unwrap_or(bytes.len() - pos);
+                        let fee_end = bytes[pos..]
+                            .iter()
+                            .position(|&b| b == 0)
+                            .unwrap_or(bytes.len() - pos);
                         let fee = String::from_utf8(bytes[pos..pos + fee_end].to_vec()).unwrap();
                         pos += fee_end + 1;
                         fees.push(fee);
@@ -1623,12 +1841,26 @@ impl AskFeature {
                 AskFeature::BidPaysFees(fees)
             }
             11 => {
-                let timestamp = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+                let timestamp = u64::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                    bytes[pos + 4],
+                    bytes[pos + 5],
+                    bytes[pos + 6],
+                    bytes[pos + 7],
+                ]);
                 pos += 8;
                 AskFeature::CreatedAt(timestamp)
             }
             12 => {
-                let data_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+                let data_len = u32::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                ]) as usize;
                 pos += 4;
                 let data = bytes[pos..pos + data_len].to_vec();
                 pos += data_len;
@@ -1654,14 +1886,14 @@ impl AskFeature {
                 pos += feature.to_bytes().len();
                 AskFeature::KYC(feature)
             }
-                            17 => {
-                    // NotifyFeature uses Candid serialization, skip custom deserialization
-                    // This would need to be implemented if custom serialization is required
-                    AskFeature::Notify(NotifyFeature { notify: Vec::new() })
-                }
+            17 => {
+                // NotifyFeature uses Candid serialization, skip custom deserialization
+                // This would need to be implemented if custom serialization is required
+                AskFeature::Notify(NotifyFeature { notify: Vec::new() })
+            }
             _ => panic!("Unknown AskFeature type: {}", feature_type),
         };
-        
+
         (feature, pos)
     }
 }
@@ -1677,7 +1909,16 @@ impl BuyNowReq {
     fn from_bytes(bytes: &[u8]) -> (Self, usize) {
         let token = TokenSpec::from_bytes(Cow::Borrowed(bytes));
         let mut pos = token.to_bytes().len();
-        let amount = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+        let amount = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
         (Self { token, amount }, pos)
     }
@@ -1708,22 +1949,40 @@ impl EndingType {
         }
         let ending_type = bytes[0];
         let mut pos = 1;
-        
+
         let ending = match ending_type {
             0 => EndingType::Perpetual,
             1 => {
-                let date = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+                let date = u64::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                    bytes[pos + 4],
+                    bytes[pos + 5],
+                    bytes[pos + 6],
+                    bytes[pos + 7],
+                ]);
                 pos += 8;
                 EndingType::Date(date)
             }
             2 => {
-                let timeout = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+                let timeout = u64::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                    bytes[pos + 4],
+                    bytes[pos + 5],
+                    bytes[pos + 6],
+                    bytes[pos + 7],
+                ]);
                 pos += 8;
                 EndingType::Timeout(timeout)
             }
             _ => panic!("Unknown EndingType: {}", ending_type),
         };
-        
+
         (ending, pos)
     }
 }
@@ -1758,12 +2017,17 @@ impl AskStatusType {
         }
         let status_type = bytes[0];
         let mut pos = 1;
-        
+
         let status = match status_type {
             0 => AskStatusType::Open,
             1 => AskStatusType::Closed,
             2 => {
-                let details_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+                let details_len = u32::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                ]) as usize;
                 pos += 4;
                 let mut details = Vec::new();
                 for _ in 0..details_len {
@@ -1776,7 +2040,7 @@ impl AskStatusType {
             3 => AskStatusType::NotStarted,
             _ => panic!("Unknown AskStatusType: {}", status_type),
         };
-        
+
         (status, pos)
     }
 }
@@ -1794,8 +2058,17 @@ impl EncumbranceDetail {
         if bytes.len() < 8 {
             panic!("Invalid EncumbranceDetail bytes");
         }
-        let spec = EncumbranceSpec::from_bytes(Cow::Borrowed(&bytes[..bytes.len()-8]));
-        let expires_at = u64::from_le_bytes([bytes[bytes.len()-8], bytes[bytes.len()-7], bytes[bytes.len()-6], bytes[bytes.len()-5], bytes[bytes.len()-4], bytes[bytes.len()-3], bytes[bytes.len()-2], bytes[bytes.len()-1]]);
+        let spec = EncumbranceSpec::from_bytes(Cow::Borrowed(&bytes[..bytes.len() - 8]));
+        let expires_at = u64::from_le_bytes([
+            bytes[bytes.len() - 8],
+            bytes[bytes.len() - 7],
+            bytes[bytes.len() - 6],
+            bytes[bytes.len() - 5],
+            bytes[bytes.len() - 4],
+            bytes[bytes.len() - 3],
+            bytes[bytes.len() - 2],
+            bytes[bytes.len() - 1],
+        ]);
         Self { spec, expires_at }
     }
 }
@@ -1821,8 +2094,10 @@ impl EncumbranceSpec {
             panic!("Invalid EncumbranceSpec bytes");
         }
         let mut pos = 0;
-        
-        let tokens_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+
+        let tokens_len =
+            u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                as usize;
         pos += 4;
         let mut tokens = Vec::new();
         for _ in 0..tokens_len {
@@ -1830,22 +2105,37 @@ impl EncumbranceSpec {
             pos += token.to_bytes().len();
             tokens.push(token);
         }
-        
-        let trustees_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+
+        let trustees_len =
+            u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                as usize;
         pos += 4;
         let mut trustees = Vec::new();
         for _ in 0..trustees_len {
             if bytes.len() < pos + 29 {
                 panic!("Invalid trustee bytes");
             }
-            let trustee = Principal::from_slice(&bytes[pos..pos+29]);
+            let trustee = Principal::from_slice(&bytes[pos..pos + 29]);
             pos += 29;
             trustees.push(trustee);
         }
-        
-        let timeout = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
-        
-        Self { tokens, trustees, timeout }
+
+        let timeout = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
+
+        Self {
+            tokens,
+            trustees,
+            timeout,
+        }
     }
 }
 
@@ -1909,60 +2199,105 @@ impl AuctionInfo {
 
     fn from_bytes(bytes: &[u8]) -> (Self, usize) {
         let mut pos = 0;
-        
+
         let token = TokenSpec::from_bytes(Cow::Borrowed(&bytes[pos..]));
         pos += token.to_bytes().len();
-        
+
         let current_bid_amount = if bytes[pos] == 1 {
             pos += 1;
-            let amount = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let amount = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(amount)
         } else {
             pos += 1;
             None
         };
-        
+
         let end_date = if bytes[pos] == 1 {
             pos += 1;
-            let date = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let date = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(date)
         } else {
             pos += 1;
             None
         };
-        
+
         let start_date = if bytes[pos] == 1 {
             pos += 1;
-            let date = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let date = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(date)
         } else {
             pos += 1;
             None
         };
-        
+
         let min_next_bid = if bytes[pos] == 1 {
             pos += 1;
-            let amount = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let amount = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(amount)
         } else {
             pos += 1;
             None
         };
-        
+
         let wait_for_quiet_count = if bytes[pos] == 1 {
             pos += 1;
-            let count = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let count = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
             Some(count)
         } else {
             pos += 1;
             None
         };
-        
+
         let current_escrow = if bytes[pos] == 1 {
             pos += 1;
             let escrow = EscrowRecord::from_bytes(Cow::Borrowed(&bytes[pos..]));
@@ -1972,16 +2307,34 @@ impl AuctionInfo {
             pos += 1;
             None
         };
-        
-        let reserve_price = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let reserve_price = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let start_price = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let start_price = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
+
         let min_increase = MinIncrease::from_bytes(&bytes[pos..]);
         pos += min_increase.to_bytes().len();
-        
+
         let wait_for_quiet = if bytes[pos] == 1 {
             pos += 1;
             let wait = WaitQuietParams::from_bytes(&bytes[pos..]);
@@ -1991,7 +2344,7 @@ impl AuctionInfo {
             pos += 1;
             None
         };
-        
+
         let current_winner = if bytes[pos] == 1 {
             pos += 1;
             let winner = Account::from_bytes(Cow::Borrowed(&bytes[pos..]));
@@ -2001,21 +2354,24 @@ impl AuctionInfo {
             pos += 1;
             None
         };
-        
-        (Self {
-            token,
-            current_bid_amount,
-            end_date,
-            start_date,
-            min_next_bid,
-            wait_for_quiet_count,
-            current_escrow,
-            reserve_price,
-            start_price,
-            min_increase,
-            wait_for_quiet,
-            current_winner,
-        }, pos)
+
+        (
+            Self {
+                token,
+                current_bid_amount,
+                end_date,
+                start_date,
+                min_next_bid,
+                wait_for_quiet_count,
+                current_escrow,
+                reserve_price,
+                start_price,
+                min_increase,
+                wait_for_quiet,
+                current_winner,
+            },
+            pos,
+        )
     }
 }
 
@@ -2052,8 +2408,10 @@ impl SettlementInfo {
 
     fn from_bytes(bytes: &[u8]) -> (Self, usize) {
         let mut pos = 0;
-        
-        let bid_tokens_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+
+        let bid_tokens_len =
+            u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                as usize;
         pos += 4;
         let mut bid_tokens = Vec::new();
         for _ in 0..bid_tokens_len {
@@ -2067,8 +2425,10 @@ impl SettlementInfo {
                 bid_tokens.push(None);
             }
         }
-        
-        let ask_tokens_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+
+        let ask_tokens_len =
+            u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                as usize;
         pos += 4;
         let mut ask_tokens = Vec::new();
         for _ in 0..ask_tokens_len {
@@ -2082,22 +2442,43 @@ impl SettlementInfo {
                 ask_tokens.push(None);
             }
         }
-        
-        let royalties_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+
+        let royalties_len =
+            u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                as usize;
         pos += 4;
         let mut royalties = Vec::new();
         for _ in 0..royalties_len {
             let account = Account::from_bytes(Cow::Borrowed(&bytes[pos..]));
             pos += account.to_bytes().len();
-            let amount = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+            let amount = u64::from_le_bytes([
+                bytes[pos],
+                bytes[pos + 1],
+                bytes[pos + 2],
+                bytes[pos + 3],
+                bytes[pos + 4],
+                bytes[pos + 5],
+                bytes[pos + 6],
+                bytes[pos + 7],
+            ]);
             pos += 8;
-            let tag_end = bytes[pos..].iter().position(|&b| b == 0).unwrap_or(bytes.len() - pos);
+            let tag_end = bytes[pos..]
+                .iter()
+                .position(|&b| b == 0)
+                .unwrap_or(bytes.len() - pos);
             let tag = String::from_utf8(bytes[pos..pos + tag_end].to_vec()).unwrap();
             pos += tag_end + 1;
             royalties.push((account, amount, tag));
         }
-        
-        (Self { bid_tokens, ask_tokens, royalties }, pos)
+
+        (
+            Self {
+                bid_tokens,
+                ask_tokens,
+                royalties,
+            },
+            pos,
+        )
     }
 }
 
@@ -2129,15 +2510,20 @@ impl TokenSpecResult {
             panic!("Invalid TokenSpecResult bytes");
         }
         let mut pos = 0;
-        
-        let canister = Principal::from_slice(&bytes[pos..pos+29]);
+
+        let canister = Principal::from_slice(&bytes[pos..pos + 29]);
         pos += 29;
-        
-        let symbol_end = bytes[pos..].iter().position(|&b| b == 0).unwrap_or(bytes.len() - pos);
+
+        let symbol_end = bytes[pos..]
+            .iter()
+            .position(|&b| b == 0)
+            .unwrap_or(bytes.len() - pos);
         let symbol = String::from_utf8(bytes[pos..pos + symbol_end].to_vec()).unwrap();
         pos += symbol_end + 1;
-        
-        let standards_len = u32::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3]]) as usize;
+
+        let standards_len =
+            u32::from_le_bytes([bytes[pos], bytes[pos + 1], bytes[pos + 2], bytes[pos + 3]])
+                as usize;
         pos += 4;
         let mut standards = Vec::new();
         for _ in 0..standards_len {
@@ -2145,20 +2531,38 @@ impl TokenSpecResult {
             standards.push(standard);
             pos += consumed;
         }
-        
-        let result = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let result = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
+
         let sending_account = Account::from_bytes(Cow::Borrowed(&bytes[pos..]));
         pos += sending_account.to_bytes().len();
-        
+
         let receiving_account = Account::from_bytes(Cow::Borrowed(&bytes[pos..]));
         pos += receiving_account.to_bytes().len();
-        
+
         let ask_id = if pos < bytes.len() && bytes[pos] == 1 {
             pos += 1;
             if pos + 8 <= bytes.len() {
-                let ask_id_val = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+                let ask_id_val = u64::from_le_bytes([
+                    bytes[pos],
+                    bytes[pos + 1],
+                    bytes[pos + 2],
+                    bytes[pos + 3],
+                    bytes[pos + 4],
+                    bytes[pos + 5],
+                    bytes[pos + 6],
+                    bytes[pos + 7],
+                ]);
                 pos += 8;
                 Some(ask_id_val)
             } else {
@@ -2170,7 +2574,7 @@ impl TokenSpecResult {
             }
             None
         };
-        
+
         Self {
             canister,
             symbol,
@@ -2196,8 +2600,6 @@ pub enum BidFeature {
     FeeAccount(Vec<(String, TokenSpec, Account)>),
     Amm(AMMParams),
 }
-
-
 
 /// Engine match for multi-canister trades
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
@@ -2460,26 +2862,41 @@ impl Storable for Collection {
             panic!("Invalid Collection bytes");
         }
         let mut pos = 0;
-        
-        let id = Principal::from_slice(&bytes[pos..pos+29]);
+
+        let id = Principal::from_slice(&bytes[pos..pos + 29]);
         pos += 29;
-        
-        let name_end = bytes[pos..].iter().position(|&b| b == 0).unwrap_or(bytes.len() - pos);
+
+        let name_end = bytes[pos..]
+            .iter()
+            .position(|&b| b == 0)
+            .unwrap_or(bytes.len() - pos);
         let name = String::from_utf8(bytes[pos..pos + name_end].to_vec()).unwrap();
         pos += name_end + 1;
-        
-        let symbol_end = bytes[pos..].iter().position(|&b| b == 0).unwrap_or(bytes.len() - pos);
+
+        let symbol_end = bytes[pos..]
+            .iter()
+            .position(|&b| b == 0)
+            .unwrap_or(bytes.len() - pos);
         let symbol = String::from_utf8(bytes[pos..pos + symbol_end].to_vec()).unwrap();
         pos += symbol_end + 1;
-        
+
         let is_verified = bytes[pos] == 1;
         pos += 1;
-        
-        let created_at = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let created_at = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let manager = Principal::from_slice(&bytes[pos..pos+29]);
-        
+
+        let manager = Principal::from_slice(&bytes[pos..pos + 29]);
+
         Self {
             id,
             name,
@@ -2490,8 +2907,6 @@ impl Storable for Collection {
         }
     }
 }
-
-
 
 /// Transaction record for tracking marketplace activity
 #[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
@@ -2560,10 +2975,19 @@ impl Storable for TransactionRecord {
             panic!("Invalid TransactionRecord bytes");
         }
         let mut pos = 0;
-        
-        let id = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let id = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
+
         let transaction_type = match bytes[pos] {
             0 => TransactionType::Sale,
             1 => TransactionType::Bid,
@@ -2572,37 +2996,82 @@ impl Storable for TransactionRecord {
             _ => panic!("Unknown transaction type: {}", bytes[pos]),
         };
         pos += 1;
-        
-        let listing_id = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let listing_id = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let collection_id = Principal::from_slice(&bytes[pos..pos+29]);
+
+        let collection_id = Principal::from_slice(&bytes[pos..pos + 29]);
         pos += 29;
-        
-        let token_id = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let token_id = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let seller = Principal::from_slice(&bytes[pos..pos+29]);
+
+        let seller = Principal::from_slice(&bytes[pos..pos + 29]);
         pos += 29;
-        
+
         let buyer = if bytes[pos] == 1 {
             pos += 1;
-            let buyer_principal = Principal::from_slice(&bytes[pos..pos+29]);
+            let buyer_principal = Principal::from_slice(&bytes[pos..pos + 29]);
             pos += 29;
             Some(buyer_principal)
         } else {
             pos += 1;
             None
         };
-        
-        let price = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let price = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let timestamp = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let timestamp = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let fee = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
-        
+
+        let fee = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
+
         Self {
             id,
             transaction_type,
@@ -2617,8 +3086,6 @@ impl Storable for TransactionRecord {
         }
     }
 }
-
-
 
 /// Transaction types
 #[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
@@ -2662,12 +3129,15 @@ impl Storable for TokenKey {
             panic!("Invalid TokenKey bytes");
         }
         let collection_id = Principal::from_slice(&bytes[..29]);
-        let token_id = u64::from_le_bytes([bytes[29], bytes[30], bytes[31], bytes[32], bytes[33], bytes[34], bytes[35], bytes[36]]);
-        Self { collection_id, token_id }
+        let token_id = u64::from_le_bytes([
+            bytes[29], bytes[30], bytes[31], bytes[32], bytes[33], bytes[34], bytes[35], bytes[36],
+        ]);
+        Self {
+            collection_id,
+            token_id,
+        }
     }
 }
-
-
 
 /// Listing information
 #[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
@@ -2717,27 +3187,72 @@ impl Storable for Listing {
             panic!("Invalid Listing bytes");
         }
         let mut pos = 0;
-        
-        let id = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let id = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let collection_id = Principal::from_slice(&bytes[pos..pos+29]);
+
+        let collection_id = Principal::from_slice(&bytes[pos..pos + 29]);
         pos += 29;
-        
-        let token_id = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let token_id = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let seller = Principal::from_slice(&bytes[pos..pos+29]);
+
+        let seller = Principal::from_slice(&bytes[pos..pos + 29]);
         pos += 29;
-        
-        let price = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let price = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let expires = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let expires = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let created_at = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
-        
+
+        let created_at = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
+
         Self {
             id,
             collection_id,
@@ -2749,8 +3264,6 @@ impl Storable for Listing {
         }
     }
 }
-
-
 
 /// Marketplace statistics
 #[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
@@ -2794,21 +3307,66 @@ impl Storable for MarketplaceStats {
             panic!("Invalid MarketplaceStats bytes");
         }
         let mut pos = 0;
-        
-        let total_listings = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let total_listings = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let active_listings = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let active_listings = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let total_transactions = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let total_transactions = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let total_volume = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+
+        let total_volume = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
-        let fee_percentage = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
-        
+
+        let fee_percentage = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
+
         Self {
             total_listings,
             active_listings,
@@ -2818,8 +3376,6 @@ impl Storable for MarketplaceStats {
         }
     }
 }
-
-
 
 /// Error types for the marketplace
 #[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize, Serialize)]
@@ -2893,10 +3449,10 @@ impl EscrowRecord {
 impl AuctionFeature {
     fn to_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::new();
-        
+
         // auction_token
         bytes.extend_from_slice(&self.auction_token.to_bytes());
-        
+
         // wait_for_quiet
         if let Some(wait) = &self.wait_for_quiet {
             bytes.push(1);
@@ -2904,26 +3460,26 @@ impl AuctionFeature {
         } else {
             bytes.push(0);
         }
-        
+
         // reserve
         bytes.extend_from_slice(&self.reserve.to_le_bytes());
-        
+
         // start_price
         bytes.extend_from_slice(&self.start_price.to_le_bytes());
-        
+
         // min_increase
         bytes.extend_from_slice(&self.min_increase.to_bytes());
-        
+
         bytes
     }
-    
+
     fn from_bytes(bytes: &[u8]) -> Self {
         let mut pos = 0;
-        
+
         // auction_token
         let auction_token = TokenSpec::from_bytes(Cow::Borrowed(&bytes[pos..]));
         pos += auction_token.to_bytes().len();
-        
+
         // wait_for_quiet
         let wait_for_quiet = if bytes[pos] == 1 {
             pos += 1;
@@ -2934,18 +3490,36 @@ impl AuctionFeature {
             pos += 1;
             None
         };
-        
+
         // reserve
-        let reserve = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+        let reserve = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
+
         // start_price
-        let start_price = u64::from_le_bytes([bytes[pos], bytes[pos+1], bytes[pos+2], bytes[pos+3], bytes[pos+4], bytes[pos+5], bytes[pos+6], bytes[pos+7]]);
+        let start_price = u64::from_le_bytes([
+            bytes[pos],
+            bytes[pos + 1],
+            bytes[pos + 2],
+            bytes[pos + 3],
+            bytes[pos + 4],
+            bytes[pos + 5],
+            bytes[pos + 6],
+            bytes[pos + 7],
+        ]);
         pos += 8;
-        
+
         // min_increase
         let min_increase = MinIncrease::from_bytes(&bytes[pos..]);
-        
+
         Self {
             auction_token,
             wait_for_quiet,
@@ -2965,13 +3539,21 @@ impl WaitQuietParams {
         bytes.extend_from_slice(&self.max.to_le_bytes());
         bytes
     }
-    
+
     fn from_bytes(bytes: &[u8]) -> Self {
-        let window = u64::from_le_bytes([bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]]);
-        let extension = u64::from_le_bytes([bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15]]);
-        let fade = f64::from_le_bytes([bytes[16], bytes[17], bytes[18], bytes[19], bytes[20], bytes[21], bytes[22], bytes[23]]);
-        let max = u64::from_le_bytes([bytes[24], bytes[25], bytes[26], bytes[27], bytes[28], bytes[29], bytes[30], bytes[31]]);
-        
+        let window = u64::from_le_bytes([
+            bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
+        ]);
+        let extension = u64::from_le_bytes([
+            bytes[8], bytes[9], bytes[10], bytes[11], bytes[12], bytes[13], bytes[14], bytes[15],
+        ]);
+        let fade = f64::from_le_bytes([
+            bytes[16], bytes[17], bytes[18], bytes[19], bytes[20], bytes[21], bytes[22], bytes[23],
+        ]);
+        let max = u64::from_le_bytes([
+            bytes[24], bytes[25], bytes[26], bytes[27], bytes[28], bytes[29], bytes[30], bytes[31],
+        ]);
+
         Self {
             window,
             extension,
@@ -2996,15 +3578,19 @@ impl MinIncrease {
         }
         bytes
     }
-    
+
     fn from_bytes(bytes: &[u8]) -> Self {
         match bytes[0] {
             0 => {
-                let percentage = f64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]);
+                let percentage = f64::from_le_bytes([
+                    bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8],
+                ]);
                 MinIncrease::Percentage(percentage)
             }
             1 => {
-                let amount = u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]);
+                let amount = u64::from_le_bytes([
+                    bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8],
+                ]);
                 MinIncrease::Amount(amount)
             }
             _ => panic!("Unknown MinIncrease type: {}", bytes[0]),
@@ -3016,7 +3602,7 @@ impl DutchAuctionFeature {
     fn to_bytes(&self) -> Vec<u8> {
         self.dutch.to_bytes()
     }
-    
+
     fn from_bytes(bytes: &[u8]) -> Self {
         let dutch = DutchParams::from_bytes(bytes);
         Self { dutch }
@@ -3030,11 +3616,11 @@ impl DutchParams {
         bytes.extend_from_slice(&self.decay_type.to_bytes());
         bytes
     }
-    
+
     fn from_bytes(bytes: &[u8]) -> Self {
         let time_unit = TimeUnit::from_bytes(&bytes[0..9]);
         let decay_type = DecayType::from_bytes(&bytes[9..18]);
-        
+
         Self {
             time_unit,
             decay_type,
@@ -3061,12 +3647,18 @@ impl TimeUnit {
         }
         bytes
     }
-    
+
     fn from_bytes(bytes: &[u8]) -> Self {
         match bytes[0] {
-            0 => TimeUnit::Hour(u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
-            1 => TimeUnit::Minute(u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
-            2 => TimeUnit::Day(u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
+            0 => TimeUnit::Hour(u64::from_le_bytes([
+                bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8],
+            ])),
+            1 => TimeUnit::Minute(u64::from_le_bytes([
+                bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8],
+            ])),
+            2 => TimeUnit::Day(u64::from_le_bytes([
+                bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8],
+            ])),
             _ => panic!("Unknown TimeUnit: {}", bytes[0]),
         }
     }
@@ -3087,11 +3679,15 @@ impl DecayType {
         }
         bytes
     }
-    
+
     fn from_bytes(bytes: &[u8]) -> Self {
         match bytes[0] {
-            0 => DecayType::Flat(u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
-            1 => DecayType::Percent(f64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]])),
+            0 => DecayType::Flat(u64::from_le_bytes([
+                bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8],
+            ])),
+            1 => DecayType::Percent(f64::from_le_bytes([
+                bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8],
+            ])),
             _ => panic!("Unknown DecayType: {}", bytes[0]),
         }
     }
@@ -3103,7 +3699,7 @@ impl AMMFeature {
         bytes.extend_from_slice(&self.amm.to_bytes());
         bytes
     }
-    
+
     fn from_bytes(bytes: &[u8]) -> Self {
         let amm = AMMParams::from_bytes(bytes);
         Self { amm }
@@ -3120,14 +3716,20 @@ impl AMMParams {
         bytes.extend_from_slice(&self.decimals.to_le_bytes());
         bytes
     }
-    
+
     fn from_bytes(bytes: &[u8]) -> Self {
         let token_1 = TokenSpec::from_bytes(Cow::Borrowed(&bytes[..29]));
         let token_2 = TokenSpec::from_bytes(Cow::Borrowed(&bytes[29..58]));
-        let max = u64::from_le_bytes([bytes[58], bytes[59], bytes[60], bytes[61], bytes[62], bytes[63], bytes[64], bytes[65]]);
-        let min = u64::from_le_bytes([bytes[66], bytes[67], bytes[68], bytes[69], bytes[70], bytes[71], bytes[72], bytes[73]]);
-        let decimals = u64::from_le_bytes([bytes[74], bytes[75], bytes[76], bytes[77], bytes[78], bytes[79], bytes[80], bytes[81]]);
-        
+        let max = u64::from_le_bytes([
+            bytes[58], bytes[59], bytes[60], bytes[61], bytes[62], bytes[63], bytes[64], bytes[65],
+        ]);
+        let min = u64::from_le_bytes([
+            bytes[66], bytes[67], bytes[68], bytes[69], bytes[70], bytes[71], bytes[72], bytes[73],
+        ]);
+        let decimals = u64::from_le_bytes([
+            bytes[74], bytes[75], bytes[76], bytes[77], bytes[78], bytes[79], bytes[80], bytes[81],
+        ]);
+
         Self {
             token_1,
             token_2,
@@ -3144,7 +3746,7 @@ impl KYCFeature {
         bytes.extend_from_slice(&self.icrc17_kyc.as_slice());
         bytes
     }
-    
+
     fn from_bytes(bytes: &[u8]) -> Self {
         let icrc17_kyc = Principal::from_slice(&bytes[..29]);
         Self { icrc17_kyc }
@@ -3194,7 +3796,3 @@ pub struct Notification {
 // NotificationType uses Candid serialization, no custom serialization needed
 
 // Notification uses Candid serialization, no custom serialization needed
-
-
-
-

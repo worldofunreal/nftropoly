@@ -1,5 +1,5 @@
 //! Storage management for the NFT Marketplace
-//! 
+//!
 //! This module handles all state management including stable storage for upgrades.
 
 use candid::Principal;
@@ -26,17 +26,29 @@ const ASK_HISTORY_MEMORY_ID: MemoryId = MemoryId::new(8);
 pub struct MarketplaceStorage {
     // ICRC-8 storage
     asks: StableBTreeMap<u64, AskStatus, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
-    escrow_records: StableBTreeMap<u64, EscrowRecord, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
-    user_asks: StableBTreeMap<Principal, AskIds, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
+    escrow_records:
+        StableBTreeMap<u64, EscrowRecord, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
+    user_asks:
+        StableBTreeMap<Principal, AskIds, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
     approved_tokens: StableVec<Principal, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
-    
+
     // Legacy storage
-    collections: StableBTreeMap<Principal, Collection, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
-    transactions: StableBTreeMap<u64, TransactionRecord, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
+    collections: StableBTreeMap<
+        Principal,
+        Collection,
+        VirtualMemory<ic_stable_structures::DefaultMemoryImpl>,
+    >,
+    transactions: StableBTreeMap<
+        u64,
+        TransactionRecord,
+        VirtualMemory<ic_stable_structures::DefaultMemoryImpl>,
+    >,
     owner: StableCell<Principal, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
-    marketplace_fee_percentage: StableCell<u64, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
-    ask_history: StableBTreeMap<u64, AskStatus, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
-    
+    marketplace_fee_percentage:
+        StableCell<u64, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
+    ask_history:
+        StableBTreeMap<u64, AskStatus, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
+
     // Runtime state
     next_ask_id: RefCell<u64>,
     next_escrow_id: RefCell<u64>,
@@ -52,7 +64,10 @@ impl MarketplaceStorage {
             collections: StableBTreeMap::new(memory_manager.get(COLLECTIONS_MEMORY_ID)),
             transactions: StableBTreeMap::new(memory_manager.get(TRANSACTIONS_MEMORY_ID)),
             owner: StableCell::new(memory_manager.get(OWNER_MEMORY_ID), Principal::anonymous()),
-            marketplace_fee_percentage: StableCell::new(memory_manager.get(FEE_PERCENTAGE_MEMORY_ID), 250), // 2.5%
+            marketplace_fee_percentage: StableCell::new(
+                memory_manager.get(FEE_PERCENTAGE_MEMORY_ID),
+                250,
+            ), // 2.5%
             ask_history: StableBTreeMap::new(memory_manager.get(ASK_HISTORY_MEMORY_ID)),
             next_ask_id: RefCell::new(1),
             next_escrow_id: RefCell::new(1),
@@ -135,7 +150,10 @@ impl MarketplaceStorage {
     }
 
     pub fn get_all_collections(&self) -> Vec<Collection> {
-        self.collections.iter().map(|entry| entry.value().clone()).collect()
+        self.collections
+            .iter()
+            .map(|entry| entry.value().clone())
+            .collect()
     }
 
     pub fn insert_transaction(&mut self, transaction_id: u64, transaction: TransactionRecord) {
@@ -181,8 +199,6 @@ impl MarketplaceStorage {
             .collect()
     }
 }
-
-
 
 // Global storage instance
 thread_local! {

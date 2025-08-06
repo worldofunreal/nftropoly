@@ -1,5 +1,5 @@
 //! Error types for the NFT Marketplace
-//! 
+//!
 //! This module defines all error types used throughout the marketplace.
 
 use candid::{CandidType, Deserialize};
@@ -11,94 +11,94 @@ use thiserror::Error;
 pub enum MarketplaceError {
     #[error("Unauthorized access: {0}")]
     Unauthorized(String),
-    
+
     #[error("Invalid price: {0}")]
     InvalidPrice(String),
-    
+
     #[error("Token specification not supported")]
     TokenSpecNotSupported,
-    
+
     #[error("Token not found")]
     TokenNotFound,
-    
+
     #[error("Not the owner of the token")]
     NotOwner,
-    
+
     #[error("Not ICRC-7 compliant")]
     NotICRC7Compliant,
-    
+
     #[error("Listing not found")]
     ListingNotFound,
-    
+
     #[error("Ask not active")]
     AskNotActive,
-    
+
     #[error("Unsupported operation")]
     UnsupportedOperation,
-    
+
     #[error("Invalid fee percentage")]
     InvalidFeePercentage,
-    
+
     #[error("Cannot buy own NFT")]
     CannotBuyOwnNFT,
-    
+
     #[error("Collection not registered")]
     CollectionNotRegistered,
-    
+
     #[error("Not collection manager")]
     NotCollectionManager,
-    
+
     #[error("Listing not active")]
     ListingNotActive,
-    
+
     #[error("Ask not found")]
     AskNotFound,
-    
+
     #[error("Ask is not in open state")]
     AskNotOpen,
-    
+
     #[error("Only seller can end the ask")]
     OnlySellerCanEndAsk,
-    
+
     #[error("Ask is not open for bids")]
     AskNotOpenForBids,
-    
+
     #[error("Missing required token_id feature")]
     MissingTokenIdFeature,
-    
+
     #[error("Missing required buy_now feature")]
     MissingBuyNowFeature,
-    
+
     #[error("Invalid ask features")]
     InvalidAskFeatures,
-    
+
     #[error("Escrow not found")]
     EscrowNotFound,
-    
+
     #[error("Insufficient balance")]
     InsufficientBalance,
-    
+
     #[error("Transfer failed")]
     TransferFailed,
-    
+
     #[error("Settlement failed")]
     SettlementFailed,
-    
+
     #[error("Engine match failed")]
     EngineMatchFailed,
-    
+
     #[error("Encumbrance failed")]
     EncumbranceFailed,
-    
+
     #[error("Internal error: {0}")]
     Internal(String),
-    
+
     #[error("Invalid input: {0}")]
     InvalidInput(String),
-    
+
     #[error("Invalid state: {0}")]
     InvalidState(String),
-    
+
     #[error("Not found: {0}")]
     NotFound(String),
 }
@@ -145,7 +145,7 @@ impl From<MarketplaceError> for GenericError {
             MarketplaceError::InvalidState(_) => (400, "Invalid state"),
             MarketplaceError::NotFound(_) => (404, "Not found"),
         };
-        
+
         GenericError {
             code,
             message: message.to_string(),
@@ -167,26 +167,26 @@ impl<T, E> ResultWrapper<T, E> {
     pub fn ok(value: T) -> Self {
         ResultWrapper::Ok(value)
     }
-    
+
     pub fn err(error: E) -> Self {
         ResultWrapper::Err(error)
     }
-    
+
     pub fn is_ok(&self) -> bool {
         matches!(self, ResultWrapper::Ok(_))
     }
-    
+
     pub fn is_err(&self) -> bool {
         matches!(self, ResultWrapper::Err(_))
     }
-    
+
     pub fn unwrap(self) -> T {
         match self {
             ResultWrapper::Ok(value) => value,
             ResultWrapper::Err(_) => panic!("Called unwrap on an Err value"),
         }
     }
-    
+
     pub fn unwrap_err(self) -> E {
         match self {
             ResultWrapper::Ok(_) => panic!("Called unwrap_err on an Ok value"),
