@@ -903,6 +903,103 @@ pub struct AMMFeature {
     pub amm: AMMParams,
 }
 
+// ICRC-64: Elective KYC for Ledger Native Markets
+/// KYC feature for ICRC-64
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct KYCFeature {
+    pub icrc17_kyc: Principal,
+}
+
+// ICRC-17: Elective KYC Service Standard
+/// KYC account types for ICRC-17
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub enum KYCAccount {
+    Account(Vec<u8>),
+    Extensible(CandyShared),
+    ICRC1 {
+        owner: Principal,
+        subaccount: Option<Vec<u8>>,
+    },
+}
+
+/// ICRC-17 token specification
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub enum ICTokenSpec {
+    Extensible(CandyShared),
+    IC(ICTokenSpecDetail),
+}
+
+/// ICRC-17 token specification details
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct ICTokenSpecDetail {
+    pub canister: Principal,
+    pub decimals: u64,
+    pub fee: Option<u64>,
+    pub id: Option<u64>,
+    pub standard: ICTokenStandard,
+    pub symbol: String,
+}
+
+/// ICRC-17 token standards
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub enum ICTokenStandard {
+    DIP20,
+    EXTFungible,
+    ICRC1,
+    Ledger,
+    Other(CandyShared),
+}
+
+/// ICRC-17 KYC request
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct KYCCanisterRequest {
+    pub amount: Option<u64>,
+    pub counterparty: KYCAccount,
+    pub token: Option<ICTokenSpec>,
+}
+
+/// ICRC-17 KYC notification
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct KYCNotification {
+    pub amount: Option<u64>,
+    pub counterparty: KYCAccount,
+    pub token: Option<ICTokenSpec>,
+}
+
+/// ICRC-17 KYC result
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub struct KYCResult {
+    pub aml: KYCStatus,
+    pub amount: Option<u64>,
+    pub kyc: KYCStatus,
+    pub message: Option<String>,
+    pub token: Option<ICTokenSpec>,
+    pub timeout: Option<u64>,
+}
+
+/// KYC status enum
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub enum KYCStatus {
+    Fail,
+    NA,
+    Pass,
+}
+
+/// CandyShared type for extensibility (simplified version)
+#[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
+pub enum CandyShared {
+    Array(Vec<CandyShared>),
+    Blob(Vec<u8>),
+    Bool(bool),
+    Bytes(Vec<u8>),
+    Float(f64),
+    Int(i64),
+    Nat(u64),
+    Option(Option<Box<CandyShared>>),
+    Principal(Principal),
+    Text(String),
+}
+
 /// Ask features for marketplace asks
 #[derive(Debug, Clone, PartialEq, CandidType, Deserialize, Serialize)]
 pub enum AskFeature {
@@ -922,6 +1019,7 @@ pub enum AskFeature {
     Auction(AuctionFeature),  // ← New ICRC-61 auction feature
     Dutch(DutchAuctionFeature),  // ← New ICRC-63 Dutch auction feature
     AMM(AMMFeature),  // ← New ICRC-62 AMM feature
+    KYC(KYCFeature),  // ← New ICRC-64 KYC feature
 }
 
 /// Buy now requirements
@@ -1383,6 +1481,10 @@ impl AskFeature {
                 bytes.push(15);
                 bytes.extend_from_slice(&feature.to_bytes());
             }
+            AskFeature::KYC(feature) => {
+                bytes.push(16);
+                bytes.extend_from_slice(&feature.to_bytes());
+            }
         }
         bytes
     }
@@ -1528,6 +1630,11 @@ impl AskFeature {
                 let feature = AMMFeature::from_bytes(&bytes[pos..]);
                 pos += feature.to_bytes().len();
                 AskFeature::AMM(feature)
+            }
+            16 => {
+                let feature = KYCFeature::from_bytes(&bytes[pos..]);
+                pos += feature.to_bytes().len();
+                AskFeature::KYC(feature)
             }
             _ => panic!("Unknown AskFeature type: {}", feature_type),
         };
@@ -2998,6 +3105,195 @@ impl AMMParams {
             max,
             min,
             decimals,
+        }
+    }
+}
+
+impl KYCFeature {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        bytes.extend_from_slice(&self.icrc17_kyc.as_slice());
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        let icrc17_kyc = Principal::from_slice(&bytes[..29]);
+        Self { icrc17_kyc }
+    }
+}
+
+impl KYCAccount {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        match self {
+            KYCAccount::Account(account) => {
+                bytes.push(0);
+                bytes.extend_from_slice(&account.len().to_le_bytes());
+                bytes.extend_from_slice(account);
+            }
+            KYCAccount::Extensible(candy) => {
+                bytes.push(1);
+                bytes.extend_from_slice(&candy.to_bytes());
+            }
+            KYCAccount::ICRC1 { owner, subaccount } => {
+                bytes.push(2);
+                bytes.extend_from_slice(&owner.as_slice());
+                if let Some(sub) = subaccount {
+                    bytes.push(1);
+                    bytes.extend_from_slice(&sub.len().to_le_bytes());
+                    bytes.extend_from_slice(sub);
+                } else {
+                    bytes.push(0);
+                }
+            }
+        }
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        match bytes[0] {
+            0 => {
+                let len = u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]) as usize;
+                let account = bytes[9..9+len].to_vec();
+                KYCAccount::Account(account)
+            }
+            1 => {
+                let candy = CandyShared::from_bytes(&bytes[1..]);
+                KYCAccount::Extensible(candy)
+            }
+            2 => {
+                let owner = Principal::from_slice(&bytes[1..30]);
+                let has_subaccount = bytes[30] == 1;
+                let subaccount = if has_subaccount {
+                    let len = u64::from_le_bytes([bytes[31], bytes[32], bytes[33], bytes[34], bytes[35], bytes[36], bytes[37], bytes[38]]) as usize;
+                    Some(bytes[39..39+len].to_vec())
+                } else {
+                    None
+                };
+                KYCAccount::ICRC1 { owner, subaccount }
+            }
+            _ => panic!("Unknown KYCAccount type: {}", bytes[0]),
+        }
+    }
+}
+
+impl CandyShared {
+    fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::new();
+        match self {
+            CandyShared::Array(arr) => {
+                bytes.push(0);
+                bytes.extend_from_slice(&arr.len().to_le_bytes());
+                for item in arr {
+                    bytes.extend_from_slice(&item.to_bytes());
+                }
+            }
+            CandyShared::Blob(blob) => {
+                bytes.push(1);
+                bytes.extend_from_slice(&blob.len().to_le_bytes());
+                bytes.extend_from_slice(blob);
+            }
+            CandyShared::Bool(b) => {
+                bytes.push(2);
+                bytes.push(if *b { 1 } else { 0 });
+            }
+            CandyShared::Bytes(bytes_data) => {
+                bytes.push(3);
+                bytes.extend_from_slice(&bytes_data.len().to_le_bytes());
+                bytes.extend_from_slice(bytes_data);
+            }
+            CandyShared::Float(f) => {
+                bytes.push(4);
+                bytes.extend_from_slice(&f.to_le_bytes());
+            }
+            CandyShared::Int(i) => {
+                bytes.push(5);
+                bytes.extend_from_slice(&i.to_le_bytes());
+            }
+            CandyShared::Nat(n) => {
+                bytes.push(6);
+                bytes.extend_from_slice(&n.to_le_bytes());
+            }
+            CandyShared::Option(opt) => {
+                bytes.push(7);
+                if let Some(val) = opt {
+                    bytes.push(1);
+                    bytes.extend_from_slice(&val.to_bytes());
+                } else {
+                    bytes.push(0);
+                }
+            }
+            CandyShared::Principal(p) => {
+                bytes.push(8);
+                bytes.extend_from_slice(&p.as_slice());
+            }
+            CandyShared::Text(t) => {
+                bytes.push(9);
+                bytes.extend_from_slice(&t.len().to_le_bytes());
+                bytes.extend_from_slice(t.as_bytes());
+            }
+        }
+        bytes
+    }
+    
+    fn from_bytes(bytes: &[u8]) -> Self {
+        match bytes[0] {
+            0 => {
+                let len = u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]) as usize;
+                let mut pos = 9;
+                let mut arr = Vec::new();
+                for _ in 0..len {
+                    let item = CandyShared::from_bytes(&bytes[pos..]);
+                    pos += item.to_bytes().len();
+                    arr.push(item);
+                }
+                CandyShared::Array(arr)
+            }
+            1 => {
+                let len = u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]) as usize;
+                let blob = bytes[9..9+len].to_vec();
+                CandyShared::Blob(blob)
+            }
+            2 => {
+                let b = bytes[1] == 1;
+                CandyShared::Bool(b)
+            }
+            3 => {
+                let len = u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]) as usize;
+                let bytes_data = bytes[9..9+len].to_vec();
+                CandyShared::Bytes(bytes_data)
+            }
+            4 => {
+                let f = f64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]);
+                CandyShared::Float(f)
+            }
+            5 => {
+                let i = i64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]);
+                CandyShared::Int(i)
+            }
+            6 => {
+                let n = u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]);
+                CandyShared::Nat(n)
+            }
+            7 => {
+                let has_value = bytes[1] == 1;
+                if has_value {
+                    let val = CandyShared::from_bytes(&bytes[2..]);
+                    CandyShared::Option(Some(Box::new(val)))
+                } else {
+                    CandyShared::Option(None)
+                }
+            }
+            8 => {
+                let p = Principal::from_slice(&bytes[1..30]);
+                CandyShared::Principal(p)
+            }
+            9 => {
+                let len = u64::from_le_bytes([bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7], bytes[8]]) as usize;
+                let text = String::from_utf8(bytes[9..9+len].to_vec()).unwrap();
+                CandyShared::Text(text)
+            }
+            _ => panic!("Unknown CandyShared type: {}", bytes[0]),
         }
     }
 }

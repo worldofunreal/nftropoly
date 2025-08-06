@@ -14,6 +14,7 @@ use crate::escrow::EscrowManager;
 use crate::fees::FeeManager;
 use crate::auctions::AuctionManager;
 use crate::amm::AMMManager;
+use crate::kyc::KYCManager;
 
 /// Main marketplace implementation
 pub struct Marketplace {
@@ -22,6 +23,7 @@ pub struct Marketplace {
     fee_manager: FeeManager,
     auction_manager: AuctionManager,
     amm_manager: AMMManager,
+    kyc_manager: KYCManager,
     metadata: HashMap<String, String>,
 }
 
@@ -42,6 +44,7 @@ impl Marketplace {
             fee_manager: FeeManager::new(),
             auction_manager: AuctionManager::new(),
             amm_manager: AMMManager::new(),
+            kyc_manager: KYCManager::new(),
             metadata,
         }
     }
@@ -181,6 +184,7 @@ impl Marketplace {
         let mut auction_feature = None;
         let mut dutch_feature = None;
         let mut amm_feature = None;
+        let mut kyc_feature = None;
         let mut end_date = None;
         let start_price = None;
         let end_price = None;
@@ -199,6 +203,9 @@ impl Marketplace {
                     AskFeature::AMM(amm) => {
                         amm_feature = Some(amm.clone());
                     }
+                    AskFeature::KYC(kyc) => {
+                        kyc_feature = Some(kyc.clone());
+                    }
                     AskFeature::Ending(EndingType::Date(date)) => {
                         end_date = Some(*date);
                     }
@@ -211,9 +218,9 @@ impl Marketplace {
             return Err(MarketplaceError::InvalidInput("Missing required ask_token feature".to_string()));
         }
         
-        // For auctions and AMMs, we don't require buy_now
-        if auction_feature.is_none() && dutch_feature.is_none() && amm_feature.is_none() && !has_buy_now {
-            return Err(MarketplaceError::InvalidInput("Missing required buy_now feature for non-auction/non-AMM asks".to_string()));
+        // For auctions, AMMs, and KYC, we don't require buy_now
+        if auction_feature.is_none() && dutch_feature.is_none() && amm_feature.is_none() && kyc_feature.is_none() && !has_buy_now {
+            return Err(MarketplaceError::InvalidInput("Missing required buy_now feature for non-auction/non-AMM/non-KYC asks".to_string()));
         }
         
         // Create ask
@@ -264,6 +271,21 @@ impl Marketplace {
                 }
                 Err(e) => return Err(e),
             }
+        }
+        
+        // Handle KYC validation if KYC feature is present
+        if let Some(kyc) = kyc_feature {
+            // Validate that the KYC provider exists and is active
+            let providers = self.kyc_manager.get_providers();
+            let provider_exists = providers.iter().any(|p| p.principal == kyc.icrc17_kyc && p.is_active);
+            
+            if !provider_exists {
+                return Err(MarketplaceError::InvalidInput(
+                    format!("KYC provider {} is not registered or not active", kyc.icrc17_kyc)
+                ));
+            }
+            
+            println!("KYC requirement enabled for ask {} with provider {}", ask_id, kyc.icrc17_kyc);
         }
                 
         let ask_status = AskStatus {
