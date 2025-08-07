@@ -16,11 +16,9 @@ const ASKS_MEMORY_ID: MemoryId = MemoryId::new(0);
 const ESCROW_RECORDS_MEMORY_ID: MemoryId = MemoryId::new(1);
 const USER_ASKS_MEMORY_ID: MemoryId = MemoryId::new(2);
 const APPROVED_TOKENS_MEMORY_ID: MemoryId = MemoryId::new(3);
-const COLLECTIONS_MEMORY_ID: MemoryId = MemoryId::new(4);
-const TRANSACTIONS_MEMORY_ID: MemoryId = MemoryId::new(5);
-const OWNER_MEMORY_ID: MemoryId = MemoryId::new(6);
-const FEE_PERCENTAGE_MEMORY_ID: MemoryId = MemoryId::new(7);
-const ASK_HISTORY_MEMORY_ID: MemoryId = MemoryId::new(8);
+const OWNER_MEMORY_ID: MemoryId = MemoryId::new(4);
+const FEE_PERCENTAGE_MEMORY_ID: MemoryId = MemoryId::new(5);
+const ASK_HISTORY_MEMORY_ID: MemoryId = MemoryId::new(6);
 
 /// Stable storage for the marketplace
 pub struct MarketplaceStorage {
@@ -31,18 +29,6 @@ pub struct MarketplaceStorage {
     user_asks:
         StableBTreeMap<Principal, AskIds, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
     approved_tokens: StableVec<Principal, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
-
-    // Legacy storage
-    collections: StableBTreeMap<
-        Principal,
-        Collection,
-        VirtualMemory<ic_stable_structures::DefaultMemoryImpl>,
-    >,
-    transactions: StableBTreeMap<
-        u64,
-        TransactionRecord,
-        VirtualMemory<ic_stable_structures::DefaultMemoryImpl>,
-    >,
     owner: StableCell<Principal, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
     marketplace_fee_percentage:
         StableCell<u64, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
@@ -61,8 +47,6 @@ impl MarketplaceStorage {
             escrow_records: StableBTreeMap::new(memory_manager.get(ESCROW_RECORDS_MEMORY_ID)),
             user_asks: StableBTreeMap::new(memory_manager.get(USER_ASKS_MEMORY_ID)),
             approved_tokens: StableVec::new(memory_manager.get(APPROVED_TOKENS_MEMORY_ID)),
-            collections: StableBTreeMap::new(memory_manager.get(COLLECTIONS_MEMORY_ID)),
-            transactions: StableBTreeMap::new(memory_manager.get(TRANSACTIONS_MEMORY_ID)),
             owner: StableCell::new(memory_manager.get(OWNER_MEMORY_ID), Principal::anonymous()),
             marketplace_fee_percentage: StableCell::new(
                 memory_manager.get(FEE_PERCENTAGE_MEMORY_ID),
@@ -140,25 +124,7 @@ impl MarketplaceStorage {
         self.approved_tokens.push(&token);
     }
 
-    // Legacy Methods
-    pub fn get_collection(&self, collection_id: Principal) -> Option<Collection> {
-        self.collections.get(&collection_id)
-    }
 
-    pub fn insert_collection(&mut self, collection_id: Principal, collection: Collection) {
-        self.collections.insert(collection_id, collection.clone());
-    }
-
-    pub fn get_all_collections(&self) -> Vec<Collection> {
-        self.collections
-            .iter()
-            .map(|entry| entry.value().clone())
-            .collect()
-    }
-
-    pub fn insert_transaction(&mut self, transaction_id: u64, transaction: TransactionRecord) {
-        self.transactions.insert(transaction_id, transaction);
-    }
 
     pub fn get_owner(&self) -> Principal {
         self.owner.get().clone()

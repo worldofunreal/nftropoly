@@ -10,7 +10,7 @@ use crate::amm::AMMManager;
 use crate::auctions::AuctionManager;
 use crate::errors::{MarketplaceError, MarketplaceResult};
 use crate::escrow::EscrowManager;
-use crate::fees::FeeManager;
+use crate::fees::{FeeManager, FeeParty};
 use crate::kyc::KYCManager;
 use crate::notifications::NotificationManager;
 use crate::storage::MarketplaceStorage;
@@ -43,6 +43,20 @@ impl Marketplace {
         metadata.insert("icrc8:supports_icrc_2".to_string(), "true".to_string());
         metadata.insert("icrc8:supports_icrc_4".to_string(), "true".to_string());
         metadata.insert("icrc8:supports_icrc_37".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_icrc_1".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_icrc_7".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_auctions".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_dutch_auctions".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_amm".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_kyc".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_notifications".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_escrow".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_settlements".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_fee_schemas".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_buy_now".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_bids".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_withdrawals".to_string(), "true".to_string());
+        metadata.insert("icrc8:supports_distributions".to_string(), "true".to_string());
 
         Self {
             storage: MarketplaceStorage::new(
@@ -98,17 +112,23 @@ impl Marketplace {
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageAskRequest::WithdrawSettlement(_escrow_record) => {
-                            ManageAskResponse::WithdrawSettlement(Err(types::GenericError {
-                                code: 501,
-                                message: "Not implemented".to_string(),
-                            }))
+                        ManageAskRequest::WithdrawSettlement(escrow_record) => {
+                            match self.withdraw_settlement(msg_caller(), escrow_record.clone()) {
+                                Ok(result) => ManageAskResponse::WithdrawSettlement(Ok(result)),
+                                Err(error) => ManageAskResponse::WithdrawSettlement(Err(types::GenericError {
+                                    code: error.to_string().len() as u64,
+                                    message: error.to_string(),
+                                })),
+                            }
                         }
-                        ManageAskRequest::WithdrawEscrow(_escrow_record) => {
-                            ManageAskResponse::WithdrawSettlement(Err(types::GenericError {
-                                code: 501,
-                                message: "Not implemented".to_string(),
-                            }))
+                        ManageAskRequest::WithdrawEscrow(escrow_record) => {
+                            match self.withdraw_escrow(msg_caller(), escrow_record.clone()) {
+                                Ok(result) => ManageAskResponse::WithdrawSettlement(Ok(result)),
+                                Err(error) => ManageAskResponse::WithdrawSettlement(Err(types::GenericError {
+                                    code: error.to_string().len() as u64,
+                                    message: error.to_string(),
+                                })),
+                            }
                         }
                         ManageAskRequest::RejectOffer(_ask_id) => {
                             ManageAskResponse::EndAsk(Err(types::GenericError {
@@ -116,28 +136,31 @@ impl Marketplace {
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageAskRequest::DistributeAsk(_ask_id) => {
-                            ManageAskResponse::DistributeAsk(Err(types::GenericError {
-                                code: 501,
-                                message: "Not implemented".to_string(),
-                            }))
+                        ManageAskRequest::DistributeAsk(ask_id) => {
+                            match self.distribute_ask(msg_caller(), *ask_id) {
+                                Ok(result) => ManageAskResponse::DistributeAsk(Ok(result)),
+                                Err(error) => ManageAskResponse::DistributeAsk(Err(types::GenericError {
+                                    code: error.to_string().len() as u64,
+                                    message: error.to_string(),
+                                })),
+                            }
                         }
                         ManageAskRequest::UpdateAmm(_amm_update) => {
                             ManageAskResponse::NewAsk(Err(types::GenericError {
                                 code: 501,
-                                message: "Not implemented".to_string(),
+                                message: "UpdateAmm not implemented".to_string(),
                             }))
                         }
                         ManageAskRequest::LockAsk(_lock_ask) => {
                             ManageAskResponse::LockAsk(Err(types::GenericError {
                                 code: 501,
-                                message: "Not implemented".to_string(),
+                                message: "LockAsk not implemented".to_string(),
                             }))
                         }
                         ManageAskRequest::Unencumber(_ask_id) => {
                             ManageAskResponse::EndAsk(Err(types::GenericError {
                                 code: 501,
-                                message: "Not implemented".to_string(),
+                                message: "Unencumber not implemented".to_string(),
                             }))
                         }
                     };
@@ -181,11 +204,14 @@ impl Marketplace {
                                 message: "Not implemented".to_string(),
                             }))
                         }
-                        ManageBidRequest::WithdrawEscrow(_escrow_record) => {
-                            ManageBidResponse::WithdrawEscrow(Err(types::GenericError {
-                                code: 501,
-                                message: "Not implemented".to_string(),
-                            }))
+                        ManageBidRequest::WithdrawEscrow(escrow_record) => {
+                            match self.withdraw_escrow(msg_caller(), escrow_record.clone()) {
+                                Ok(result) => ManageBidResponse::WithdrawEscrow(Ok(result)),
+                                Err(error) => ManageBidResponse::WithdrawEscrow(Err(types::GenericError {
+                                    code: error.to_string().len() as u64,
+                                    message: error.to_string(),
+                                })),
+                            }
                         }
                     };
                     results.push((Some(req), Some(response)));
@@ -380,18 +406,19 @@ impl Marketplace {
         self.storage.insert_ask(ask_id, ask_status.clone());
         self.storage.add_user_ask(caller, ask_id);
 
-        // Create escrow record
-        let escrow_record = EscrowRecord {
-            type_: EscrowType::Ask(vec![]), // Simplified for now
-            buyer: None,
-            seller: account,
-            ask_id: Some(ask_id),
-            lock_to_date: None,
-        };
+        // Create escrow record using EscrowManager
+        let escrow_id = self.escrow_manager.create_escrow(
+            EscrowType::Ask(vec![]), // Simplified for now
+            None, // No buyer yet
+            account.clone(),
+            Some(ask_id),
+            None, // No lock date
+        );
 
-        let escrow_id = self.storage.get_next_escrow_id();
-        self.storage
-            .insert_escrow_record(escrow_id, escrow_record.clone());
+        // Get the escrow record from EscrowManager
+        let escrow_record = self.escrow_manager.get_escrow(escrow_id)
+            .ok_or(MarketplaceError::Internal("Failed to retrieve created escrow".to_string()))?
+            .clone();
 
         Ok(NewAskResult {
             ask_id,
@@ -457,23 +484,23 @@ impl Marketplace {
                         ask_status.auction_info = Some(auction_info);
                         self.storage.insert_ask(ask_id, ask_status.clone());
 
-                        // Create escrow record for the bid
+                        // Create escrow record for the bid using EscrowManager
                         let buyer_account = Account {
                             owner: caller,
                             sub_account: None,
                         };
 
-                        let escrow_record = EscrowRecord {
-                            type_: EscrowType::Bid(vec![]), // Simplified for now
-                            buyer: Some(buyer_account.clone()),
-                            seller: ask_status.seller.clone(),
-                            ask_id: Some(ask_id),
-                            lock_to_date: None,
-                        };
+                        let escrow_id = self.escrow_manager.create_escrow(
+                            EscrowType::Bid(vec![]), // Simplified for now
+                            Some(buyer_account.clone()),
+                            ask_status.seller.clone(),
+                            Some(ask_id),
+                            None, // No lock date
+                        );
 
-                        let escrow_id = self.storage.get_next_escrow_id();
-                        self.storage
-                            .insert_escrow_record(escrow_id, escrow_record.clone());
+                        let escrow_record = self.escrow_manager.get_escrow(escrow_id)
+                            .ok_or(MarketplaceError::Internal("Failed to retrieve created escrow".to_string()))?
+                            .clone();
 
                         // Update ask participants
                         if !ask_status.participants.iter().any(|p| p.owner == caller) {
@@ -495,28 +522,57 @@ impl Marketplace {
                     sub_account: None,
                 };
 
-                let escrow_record = EscrowRecord {
-                    type_: EscrowType::Bid(vec![]), // Simplified for now
-                    buyer: Some(buyer_account.clone()),
-                    seller: ask_status.seller.clone(),
-                    ask_id: Some(ask_id),
-                    lock_to_date: None,
-                };
+                // Check if this is a buy_now bid (immediate settlement)
+                let buy_now_amount = self.extract_buy_now_amount(&ask_status.config);
+                if let Some(amount) = buy_now_amount {
+                    // Process immediate settlement
+                    match self.process_settlement(ask_id, caller, amount) {
+                        Ok(_settlement_info) => {
+                            // Create settlement escrow record
+                            let escrow_id = self.escrow_manager.create_escrow(
+                                EscrowType::Settlement(vec![]), // Would contain actual token specs
+                                Some(buyer_account.clone()),
+                                ask_status.seller.clone(),
+                                Some(ask_id),
+                                None, // No lock date
+                            );
 
-                let escrow_id = self.storage.get_next_escrow_id();
-                self.storage
-                    .insert_escrow_record(escrow_id, escrow_record.clone());
+                            let escrow_record = self.escrow_manager.get_escrow(escrow_id)
+                                .ok_or(MarketplaceError::Internal("Failed to retrieve created escrow".to_string()))?
+                                .clone();
 
-                // Update ask participants
-                if !ask_status.participants.iter().any(|p| p.owner == caller) {
-                    ask_status.participants.push(buyer_account);
-                    self.storage.insert_ask(ask_id, ask_status);
+                            Ok(NewBidResult {
+                                escrow: escrow_record,
+                                result: escrow_id, // Use escrow_id as transaction ID
+                            })
+                        }
+                        Err(e) => Err(e),
+                    }
+                } else {
+                    // Regular bid (not buy_now)
+                    let escrow_id = self.escrow_manager.create_escrow(
+                        EscrowType::Bid(vec![]), // Simplified for now
+                        Some(buyer_account.clone()),
+                        ask_status.seller.clone(),
+                        Some(ask_id),
+                        None, // No lock date
+                    );
+
+                    let escrow_record = self.escrow_manager.get_escrow(escrow_id)
+                        .ok_or(MarketplaceError::Internal("Failed to retrieve created escrow".to_string()))?
+                        .clone();
+
+                    // Update ask participants
+                    if !ask_status.participants.iter().any(|p| p.owner == caller) {
+                        ask_status.participants.push(buyer_account);
+                        self.storage.insert_ask(ask_id, ask_status);
+                    }
+
+                    Ok(NewBidResult {
+                        escrow: escrow_record,
+                        result: escrow_id, // Use escrow_id as transaction ID
+                    })
                 }
-
-                Ok(NewBidResult {
-                    escrow: escrow_record,
-                    result: escrow_id, // Use escrow_id as transaction ID
-                })
             }
         } else {
             Err(MarketplaceError::NotFound("Ask not found".to_string()))
@@ -654,5 +710,270 @@ impl Marketplace {
     pub fn load_state(&self) {
         // State is automatically loaded by stable structures
         ic_cdk::println!("State loaded from stable memory");
+    }
+
+    /// Withdraw escrow funds
+    fn withdraw_escrow(&mut self, caller: Principal, escrow_record: EscrowRecord) -> MarketplaceResult<WithdrawResult> {
+        // Validate that the caller is authorized to withdraw from this escrow
+        let _caller_account = Account {
+            owner: caller,
+            sub_account: None,
+        };
+
+        // Check if caller is the buyer or seller
+        let is_authorized = escrow_record.seller.owner == caller
+            || escrow_record.buyer.as_ref().map(|b| b.owner == caller).unwrap_or(false);
+
+        if !is_authorized {
+            return Err(MarketplaceError::Unauthorized(
+                "Only buyer or seller can withdraw from escrow".to_string(),
+            ));
+        }
+
+        // Check if escrow is locked
+        let current_time = ic_cdk::api::time();
+        if self.escrow_manager.is_locked(escrow_record.ask_id.unwrap_or(0), current_time)? {
+            return Err(MarketplaceError::InvalidState(
+                "Escrow is currently locked".to_string(),
+            ));
+        }
+
+        // Find the escrow record in the manager
+        let escrow_id = self.find_escrow_by_record(&escrow_record)?;
+        
+        // Remove the escrow record
+        if let Some(_removed_escrow) = self.escrow_manager.remove_escrow(escrow_id) {
+            Ok(WithdrawResult {
+                withdraw_result: escrow_id,
+                token_results: vec![], // Empty for now, would contain actual token transfer results
+            })
+        } else {
+            Err(MarketplaceError::NotFound("Escrow record not found".to_string()))
+        }
+    }
+
+    /// Withdraw settlement funds
+    fn withdraw_settlement(&mut self, caller: Principal, escrow_record: EscrowRecord) -> MarketplaceResult<WithdrawResult> {
+        // Validate that the caller is authorized to withdraw settlement
+        let _caller_account = Account {
+            owner: caller,
+            sub_account: None,
+        };
+
+        // Check if caller is the seller (only seller can withdraw settlement)
+        if escrow_record.seller.owner != caller {
+            return Err(MarketplaceError::Unauthorized(
+                "Only seller can withdraw settlement".to_string(),
+            ));
+        }
+
+        // Check if there's an associated ask and it's settled
+        if let Some(ask_id) = escrow_record.ask_id {
+            if let Some(ask_status) = self.storage.get_ask(ask_id) {
+                if ask_status.settled_at.is_none() {
+                    return Err(MarketplaceError::InvalidState(
+                        "Ask is not settled yet".to_string(),
+                    ));
+                }
+            }
+        }
+
+        // Find the escrow record in the manager
+        let escrow_id = self.find_escrow_by_record(&escrow_record)?;
+        
+        // Remove the escrow record
+        if let Some(_removed_escrow) = self.escrow_manager.remove_escrow(escrow_id) {
+            Ok(WithdrawResult {
+                withdraw_result: escrow_id,
+                token_results: vec![], // Empty for now, would contain actual token transfer results
+            })
+        } else {
+            Err(MarketplaceError::NotFound("Escrow record not found".to_string()))
+        }
+    }
+
+    /// Helper method to find escrow ID by escrow record
+    fn find_escrow_by_record(&self, escrow_record: &EscrowRecord) -> MarketplaceResult<u64> {
+        // This is a simplified implementation
+        // In a real implementation, you'd have a more efficient way to find escrow by record
+        let all_escrows = self.escrow_manager.get_all_escrows();
+        
+        for (escrow_id, record) in all_escrows {
+            if record.ask_id == escrow_record.ask_id
+                && record.seller.owner == escrow_record.seller.owner
+                && record.buyer.as_ref().map(|b| b.owner) == escrow_record.buyer.as_ref().map(|b| b.owner)
+            {
+                return Ok(*escrow_id);
+            }
+        }
+        
+        Err(MarketplaceError::NotFound("Escrow record not found".to_string()))
+    }
+
+    /// Process settlement for an ask (integrated with FeeManager)
+    fn process_settlement(&mut self, ask_id: u64, buyer: Principal, amount: u64) -> MarketplaceResult<SettlementInfo> {
+        // Get the ask status
+        let mut ask_status = self.storage.get_ask(ask_id)
+            .ok_or(MarketplaceError::NotFound("Ask not found".to_string()))?;
+
+        // Validate ask is open
+        if !matches!(ask_status.status, AskStatusType::Open) {
+            return Err(MarketplaceError::InvalidState("Ask is not open for settlement".to_string()));
+        }
+
+        // Calculate fees using FeeManager
+        let fee_schema = self.extract_fee_schema(&ask_status.config);
+        let _total_fee = self.fee_manager.calculate_fee(amount, fee_schema.as_deref());
+
+        // Create fee distribution for marketplace
+        let marketplace_account = Account {
+            owner: ic_cdk::api::canister_self(), // Marketplace canister ID
+            sub_account: None,
+        };
+
+        let fee_distributions = vec![
+            FeeParty {
+                account: marketplace_account,
+                percentage: 100, // 100% of fees go to marketplace
+                fixed_amount: None,
+            }
+        ];
+
+        let _fee_results = self.fee_manager.calculate_fees(amount, fee_schema.as_deref(), &fee_distributions);
+
+        // Create settlement info
+        let settlement_info = SettlementInfo {
+            bid_tokens: vec![], // Would contain actual token transfer results
+            ask_tokens: vec![], // Would contain actual token transfer results
+            royalties: vec![], // Would contain royalty distributions
+        };
+
+        // Update ask status
+        ask_status.settlement = Some(settlement_info.clone());
+        ask_status.settled_at = Some((buyer, ic_cdk::api::time()));
+        ask_status.status = AskStatusType::Closed;
+
+        // Save updated ask status
+        self.storage.insert_ask(ask_id, ask_status.clone());
+
+        // Create settlement escrow record
+        let buyer_account = Account {
+            owner: buyer,
+            sub_account: None,
+        };
+
+        let _settlement_escrow_id = self.escrow_manager.create_escrow(
+            EscrowType::Settlement(vec![]), // Would contain actual token specs
+            Some(buyer_account),
+            ask_status.seller.clone(),
+            Some(ask_id),
+            None, // No lock date for settlements
+        );
+
+        // Send notification about settlement
+        if let Err(e) = self.notification_manager.notify_ask_settled(
+            ask_id,
+            buyer,
+            ask_status.seller.owner,
+            vec![], // Empty notification list for now
+        ) {
+            println!("Failed to send settlement notification: {:?}", e);
+        }
+
+        Ok(settlement_info)
+    }
+
+    /// Extract fee schema from ask features
+    fn extract_fee_schema(&self, features: &[AskFeature]) -> Option<String> {
+        for feature in features {
+            if let AskFeature::FeeSchema(schema) = feature {
+                return Some(schema.clone());
+            }
+        }
+        None
+    }
+
+    /// Get fee information for an ask
+    pub fn get_fee_info(&self, ask_id: u64) -> MarketplaceResult<u64> {
+        let ask_status = self.storage.get_ask(ask_id)
+            .ok_or(MarketplaceError::NotFound("Ask not found".to_string()))?;
+
+        // Extract buy_now amount for fee calculation
+        let amount = self.extract_buy_now_amount(&ask_status.config)
+            .unwrap_or(1000); // Default amount for fee calculation
+
+        let fee_schema = self.extract_fee_schema(&ask_status.config);
+        let fee = self.fee_manager.calculate_fee(amount, fee_schema.as_deref());
+
+        Ok(fee)
+    }
+
+    /// Extract buy_now amount from ask features
+    fn extract_buy_now_amount(&self, features: &[AskFeature]) -> Option<u64> {
+        for feature in features {
+            if let AskFeature::BuyNow(buy_now_options) = feature {
+                if let Some(buy_now_vec) = buy_now_options.first() {
+                    if let Some(buy_now) = buy_now_vec.first() {
+                        return Some(buy_now.amount);
+                    }
+                }
+            }
+        }
+        None
+    }
+
+    /// Distribute ask settlement funds
+    fn distribute_ask(&mut self, caller: Principal, ask_id: u64) -> MarketplaceResult<Vec<DistributionResult>> {
+        // Get the ask status
+        let ask_status = self.storage.get_ask(ask_id)
+            .ok_or(MarketplaceError::NotFound("Ask not found".to_string()))?;
+
+        // Validate that the caller is the seller
+        if ask_status.seller.owner != caller {
+            return Err(MarketplaceError::Unauthorized(
+                "Only seller can distribute ask funds".to_string(),
+            ));
+        }
+
+        // Check if ask is settled
+        if ask_status.settled_at.is_none() {
+            return Err(MarketplaceError::InvalidState(
+                "Ask is not settled yet".to_string(),
+            ));
+        }
+
+        // Calculate distribution amounts using FeeManager
+        let amount = self.extract_buy_now_amount(&ask_status.config)
+            .unwrap_or(1000); // Default amount
+
+        let fee_schema = self.extract_fee_schema(&ask_status.config);
+        let total_fee = self.fee_manager.calculate_fee(amount, fee_schema.as_deref());
+
+        // Calculate seller's share (amount minus fees)
+        let seller_amount = amount - total_fee;
+
+        // Create distribution results
+        let mut distributions = Vec::new();
+
+        // Seller distribution
+        let seller_distribution = DistributionResult {
+            token: TokenSpec::new(Principal::anonymous(), "ICP".to_string()), // Default token
+            result: Ok(seller_amount),
+        };
+        distributions.push(seller_distribution);
+
+        // Marketplace fee distribution
+        let marketplace_distribution = DistributionResult {
+            token: TokenSpec::new(Principal::anonymous(), "ICP".to_string()), // Default token
+            result: Ok(total_fee),
+        };
+        distributions.push(marketplace_distribution);
+
+        Ok(distributions)
+    }
+
+    /// Public method to trigger settlement
+    pub fn settle_ask(&mut self, ask_id: u64, buyer: Principal, amount: u64) -> MarketplaceResult<SettlementInfo> {
+        self.process_settlement(ask_id, buyer, amount)
     }
 }

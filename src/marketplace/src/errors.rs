@@ -27,9 +27,6 @@ pub enum MarketplaceError {
     #[error("Not ICRC-7 compliant")]
     NotICRC7Compliant,
 
-    #[error("Listing not found")]
-    ListingNotFound,
-
     #[error("Ask not active")]
     AskNotActive,
 
@@ -41,15 +38,6 @@ pub enum MarketplaceError {
 
     #[error("Cannot buy own NFT")]
     CannotBuyOwnNFT,
-
-    #[error("Collection not registered")]
-    CollectionNotRegistered,
-
-    #[error("Not collection manager")]
-    NotCollectionManager,
-
-    #[error("Listing not active")]
-    ListingNotActive,
 
     #[error("Ask not found")]
     AskNotFound,
@@ -119,14 +107,10 @@ impl From<MarketplaceError> for GenericError {
             MarketplaceError::TokenNotFound => (404, "Token not found"),
             MarketplaceError::NotOwner => (403, "Not the owner of the token"),
             MarketplaceError::NotICRC7Compliant => (400, "Not ICRC-7 compliant"),
-            MarketplaceError::ListingNotFound => (404, "Listing not found"),
             MarketplaceError::AskNotActive => (400, "Ask not active"),
             MarketplaceError::UnsupportedOperation => (501, "Unsupported operation"),
             MarketplaceError::InvalidFeePercentage => (400, "Invalid fee percentage"),
             MarketplaceError::CannotBuyOwnNFT => (400, "Cannot buy own NFT"),
-            MarketplaceError::CollectionNotRegistered => (404, "Collection not registered"),
-            MarketplaceError::NotCollectionManager => (403, "Not collection manager"),
-            MarketplaceError::ListingNotActive => (400, "Listing not active"),
             MarketplaceError::AskNotFound => (404, "Ask not found"),
             MarketplaceError::AskNotOpen => (400, "Ask is not in open state"),
             MarketplaceError::OnlySellerCanEndAsk => (403, "Only seller can end the ask"),
