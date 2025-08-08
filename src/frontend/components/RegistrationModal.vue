@@ -613,7 +613,8 @@ async function handleRegistration() {
       privacy: formData.value.privacy
     };
 
-    console.log('Registration data:', registrationData);
+    console.log('Registration data (new format):', registrationData);
+    console.log('Bio field specifically:', registrationData.bio);
 
     // Call canister registerUser method
     const result = await canisterService.registerUser(registrationData);
