@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { mnemonicToSeedSync, generateMnemonic, validateMnemonic } from 'bip39';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
 import { AuthClient } from '@dfinity/auth-client';
+import { canisterService, type UserProfile } from '@/services/CanisterService';
 import nacl from 'tweetnacl';
 import * as bip39 from 'bip39';
 
@@ -46,10 +47,12 @@ export const useAuthStore = defineStore('auth', {
     authenticated: false,
     registered: false,
     player: null as any,
+    userProfile: null as UserProfile | null,
     seedPhrase: '',
     walletAddress: '',
     walletType: '',
     icpPrincipal: '',
+    canisterInitialized: false,
   }),
   actions: {
     getIdentity() {
@@ -71,33 +74,98 @@ export const useAuthStore = defineStore('auth', {
       return this.handleLoginFlow(seedPhrase);
     },
     async handleLoginFlow(seedPhrase: string, walletAddress?: string, walletType?: string) {
-      // For now, accept any seed phrase since we're using a custom approach
-      // TODO: Add proper validation for our custom seed phrase format
-
-      console.log('Seed Phrase:', seedPhrase);
-    
-      // Derive keys and create identity
-      const keyPair = await deriveKeysFromSeedPhrase(seedPhrase);
-      identity = createIdentityFromKeyPair(keyPair);
-    
-      console.log('Identity initialized:', identity.getPrincipal().toText());
-      this.authenticated = true;
-    
-      this.seedPhrase = seedPhrase;
-      this.walletAddress = walletAddress || '';
-      this.walletType = walletType || '';
-      this.icpPrincipal = identity.getPrincipal().toText();
-      this.saveStateToLocalStorage();
-    
-      // TODO: Check if player exists in canister
-      // For now, assume they need to register
-      this.registered = false;
+      try {
+        console.log('Starting login flow with seed phrase...');
+      
+        // Derive keys and create identity
+        const keyPair = await deriveKeysFromSeedPhrase(seedPhrase);
+        identity = createIdentityFromKeyPair(keyPair);
+      
+        console.log('Identity initialized:', identity.getPrincipal().toText());
+        
+        // Initialize canister service with the new identity
+        await canisterService.initialize(identity);
+        this.canisterInitialized = true;
+        
+        // Check if user exists in database
+        console.log('Checking if user exists in database...');
+        const existingProfile = await canisterService.getMyProfile();
+        
+        if (existingProfile) {
+          console.log('User found in database:', existingProfile);
+          // User exists, load their profile
+          this.userProfile = existingProfile;
+          this.registered = true;
+          this.authenticated = true;
+          
+          // Update auth state with profile data
+          this.seedPhrase = seedPhrase;
+          this.walletAddress = walletAddress || existingProfile.wallet?.ethAddress || '';
+          this.walletType = walletType || existingProfile.wallet?.walletType || '';
+          this.icpPrincipal = identity.getPrincipal().toText();
+          
+          // Legacy player object for compatibility
+          this.player = {
+            username: existingProfile.username,
+            displayName: existingProfile.displayName,
+            avatarPreset: existingProfile.assets?.avatarPreset ? Number(existingProfile.assets.avatarPreset) : 1,
+            avatarUrl: existingProfile.assets?.avatarUrl,
+            bannerUrl: existingProfile.assets?.bannerUrl,
+            ethAddress: walletAddress || existingProfile.wallet?.ethAddress,
+            principal: identity.getPrincipal().toText(),
+            walletType: walletType || existingProfile.wallet?.walletType
+          };
+          
+          this.saveStateToLocalStorage();
+          console.log('Existing user logged in successfully');
+          
+          return { existing: true, profile: existingProfile };
+        } else {
+          console.log('User not found in database, needs registration');
+          // New user, needs registration
+          this.authenticated = true;
+          this.registered = false;
+          this.userProfile = null;
+          
+          this.seedPhrase = seedPhrase;
+          this.walletAddress = walletAddress || '';
+          this.walletType = walletType || '';
+          this.icpPrincipal = identity.getPrincipal().toText();
+          this.saveStateToLocalStorage();
+          
+          return { existing: false, profile: null };
+        }
+      } catch (error) {
+        console.error('Error in handleLoginFlow:', error);
+        throw error;
+      }
     },
     async createGuestAccount() {
       const seedPhrase = generateMnemonic();
       await this.handleLoginFlow(seedPhrase);
       return { username: identity?.getPrincipal().toText() };
     },
+    // Complete user registration
+    async completeRegistration(profile: UserProfile) {
+      this.userProfile = profile;
+      this.registered = true;
+      
+      // Update legacy player object
+      this.player = {
+        username: profile.username,
+        displayName: profile.displayName,
+        avatarPreset: profile.assets?.avatarPreset ? Number(profile.assets.avatarPreset) : 1,
+        avatarUrl: profile.assets?.avatarUrl,
+        bannerUrl: profile.assets?.bannerUrl,
+        ethAddress: this.walletAddress,
+        principal: this.icpPrincipal,
+        walletType: this.walletType
+      };
+      
+      this.saveStateToLocalStorage();
+      console.log('User registration completed:', profile.username);
+    },
+
     async logout() {
       // If using Internet Identity, logout from AuthClient as well
       if (internetIdentityClient && this.walletType === 'internet-identity') {
@@ -114,6 +182,8 @@ export const useAuthStore = defineStore('auth', {
       internetIdentityClient = null;
       this.authenticated = false;
       this.registered = false;
+      this.userProfile = null;
+      this.canisterInitialized = false;
       this.$reset();
       window.location.href = '/';
     },

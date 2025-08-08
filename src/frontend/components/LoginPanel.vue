@@ -114,7 +114,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import metaMaskService from '@/services/MetaMaskService';
 import phantomService from '@/services/PhantomService';
@@ -216,29 +216,47 @@ async function loginWithMetaMask() {
     const finalSeedPhrase = seedPhrase.join(' ');
     console.log('Generated seed phrase:', finalSeedPhrase);
     
-    // Handle login flow (this creates the identity)
+    // Handle login flow (this creates the identity and checks for existing user)
     console.log('Calling handleLoginFlow...');
-    await auth.handleLoginFlow(finalSeedPhrase, ethAddress, 'metamask');
-    console.log('handleLoginFlow completed');
+    const loginResult = await auth.handleLoginFlow(finalSeedPhrase, ethAddress, 'metamask');
+    console.log('handleLoginFlow completed:', loginResult);
     
     // Get the ICP principal from the identity
     const identity = auth.getIdentity();
     const icpPrincipal = identity?.getPrincipal().toText() || '';
     console.log('Got ICP principal:', icpPrincipal);
     
-    // Close login modal and show registration
-    console.log('Opening registration modal...');
-    show.value = false;
-    showRegistrationModal.value = true;
-    registrationModalRef.value?.open(ethAddress, icpPrincipal);
-    console.log('Registration modal opened');
-    
-    // Show success toast
-    toast.add({
-      title: 'MetaMask Connected',
-      description: 'Successfully connected with MetaMask wallet',
-      color: 'success'
-    });
+    if (loginResult.existing) {
+      // User already exists, redirect to profile
+      console.log('Existing user found, redirecting to profile...');
+      show.value = false;
+      
+      // Show success toast
+      toast.add({
+        title: 'Welcome Back!',
+        description: `Welcome back, ${loginResult.profile?.username || 'user'}!`,
+        color: 'success'
+      });
+      
+      // Navigate to profile page
+      await navigateTo('/profile');
+    } else {
+      // New user, show registration modal
+      console.log('New user, opening registration modal...');
+      show.value = false;
+      showRegistrationModal.value = true;
+      console.log('showRegistrationModal set to:', showRegistrationModal.value);
+      await nextTick();
+      console.log('After nextTick, registrationModalRef.value:', registrationModalRef.value);
+      if (registrationModalRef.value) {
+        console.log('Calling registrationModalRef.value.open with:', ethAddress, icpPrincipal, 'metamask');
+        registrationModalRef.value.open(ethAddress, icpPrincipal, 'metamask');
+        console.log('Registration modal open() called successfully');
+      } else {
+        console.error('registrationModalRef.value is null/undefined!');
+      }
+      console.log('Registration modal opened');
+    }
     
   } catch (err: any) {
     console.error('MetaMask login error:', err);
@@ -313,17 +331,34 @@ async function loginWithPhantom() {
     // For Phantom, we'll use a placeholder address since we don't have it directly
     const phantomAddress = 'Phantom Wallet Connected';
     
-    // Handle login flow (this creates the identity)
+    // Handle login flow (this creates the identity and checks for existing user)
     console.log('Calling handleLoginFlow...');
-    await auth.handleLoginFlow(finalSeedPhrase, phantomAddress, 'phantom');
-    console.log('handleLoginFlow completed');
+    const loginResult = await auth.handleLoginFlow(finalSeedPhrase, phantomAddress, 'phantom');
+    console.log('handleLoginFlow completed:', loginResult);
     
-    // Close login modal and show registration
-    console.log('Opening registration modal...');
-    show.value = false;
-    showRegistrationModal.value = true;
-    registrationModalRef.value?.open(phantomAddress, icpPrincipal);
-    console.log('Registration modal opened');
+    if (loginResult.existing) {
+      // User already exists, redirect to profile
+      console.log('Existing user found, redirecting to profile...');
+      show.value = false;
+      
+      // Show success toast
+      toast.add({
+        title: 'Welcome Back!',
+        description: `Welcome back, ${loginResult.profile?.username || 'user'}!`,
+        color: 'success'
+      });
+      
+      // Navigate to profile page
+      await navigateTo('/profile');
+    } else {
+      // New user, show registration modal
+      console.log('New user, opening registration modal...');
+      show.value = false;
+      showRegistrationModal.value = true;
+      await nextTick();
+      registrationModalRef.value?.open(phantomAddress, icpPrincipal, 'phantom');
+      console.log('Registration modal opened');
+    }
     
   } catch (err: any) {
     console.error('Phantom login error:', err);
@@ -415,7 +450,8 @@ async function loginWithPlug() {
     console.log('Opening registration modal...');
     show.value = false;
     showRegistrationModal.value = true;
-    registrationModalRef.value?.open(plugAddress, icpPrincipal);
+    await nextTick();
+    registrationModalRef.value?.open(plugAddress, icpPrincipal, 'plug');
     console.log('Registration modal opened');
     
   } catch (err: any) {
@@ -498,7 +534,8 @@ async function loginWithGoogle() {
     console.log('Opening registration modal...');
     show.value = false;
     showRegistrationModal.value = true;
-    registrationModalRef.value?.open(googleAddress, icpPrincipal);
+    await nextTick();
+    registrationModalRef.value?.open(googleAddress, icpPrincipal, 'google');
     console.log('Registration modal opened');
     
   } catch (err: any) {
@@ -603,7 +640,8 @@ async function loginWithInternetIdentity() {
     console.log('Opening registration modal...');
     show.value = false;
     showRegistrationModal.value = true;
-    registrationModalRef.value?.open(principalText, principalText);
+    await nextTick();
+    registrationModalRef.value?.open(principalText, principalText, 'internet-identity');
     console.log('Registration modal opened');
     
     // Show success toast
