@@ -33,6 +33,15 @@
       </div>
       <!-- Stats Block (Top Right, vertically stacked) -->
       <div class="flex gap-x-8 gap-y-2">
+        <!-- Sell NFT Button -->
+        <UButton 
+          color="primary" 
+          variant="solid" 
+          class="sell-nft-btn"
+          icon="i-heroicons-arrow-up-tray"
+        >
+          Sell NFT
+        </UButton>
         <div class="flex flex-col items-start gap-1">
           <span class="uppercase text-xs text-gray-200 font-light flex items-center gap-1">Portfolio Value <UIcon name="i-heroicons-eye-20-solid" class="text-gray-200 text-xs" /></span>
           <span class="text-base font-semibold text-white">0.00 ETH</span>

@@ -30,6 +30,14 @@
             <span class="font-bold">{{ col.floorPrice }}</span>
             <span :class="col.change >= 0 ? 'text-green-600' : 'text-red-600'">{{ col.change >= 0 ? '+' : '' }}{{ col.change }}%</span>
           </div>
+          <UButton 
+            size="sm" 
+            color="primary" 
+            class="buy-nft-btn mt-2"
+            @click.stop
+          >
+            Buy Now
+          </UButton>
         </div>
       </div>
     </div>

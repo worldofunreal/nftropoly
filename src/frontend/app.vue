@@ -21,6 +21,8 @@
     </div>
     <LoginPanel ref="loginPanelRef" />
     <DisclaimerModal />
+    <OnboardingTour ref="onboardingTourRef" />
+    <OnboardingTrigger />
   </UApp>
 </template>
 
@@ -32,14 +34,20 @@ import Header from "./components/Header.vue";
 import AppFooter from "./components/AppFooter.vue";
 import LoginPanel from "./components/LoginPanel.vue";
 import DisclaimerModal from "./components/DisclaimerModal.vue";
+import OnboardingTour from "./components/OnboardingTour.vue";
+import OnboardingTrigger from "./components/OnboardingTrigger.vue";
 
 const loginPanelRef = ref<{ open: () => void } | null>(null);
 const mobileSidebarOpen = ref(false);
+const onboardingTourRef = ref<any>(null);
 
 // Provide the login panel ref so other components can access it
 provide('loginPanelRef', loginPanelRef);
+// Provide the onboarding tour ref for manual triggering
+provide('onboardingTourRef', onboardingTourRef);
 </script>
 
 <style>
 /* Add any global styles or layout styles here if needed */
+@import 'intro.js/minified/introjs.min.css';
 </style>

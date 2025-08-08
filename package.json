@@ -18,6 +18,8 @@
   "dependencies": {
     "buffer": "^6.0.3",
     "chart.js": "^4.5.0",
+    "intro.js": "^8.3.2",
+    "intro.js-react": "^1.0.0",
     "vue-chartjs": "^5.3.2"
   }
 }

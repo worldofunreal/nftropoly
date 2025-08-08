@@ -23,7 +23,7 @@
           />
         </button>
         <!-- Search Bar -->
-        <div class="hidden md:flex items-center ml-2">
+        <div class="hidden md:flex items-center ml-2 search-nfts-section">
           <UInput
             v-model="search"
             placeholder="Search Nftropoly"
@@ -56,11 +56,11 @@
           </button>
         </ClientOnly>
         <!-- Connect Wallet Button -->
-        <UButton color="primary"  icon="solar:wallet-bold" class="hidden md:flex" @click="openLoginPanel" v-if="!authStore.authenticated">
+        <UButton color="primary"  icon="solar:wallet-bold" class="hidden md:flex connect-wallet-btn" @click="openLoginPanel" v-if="!authStore.authenticated">
           Connect Wallet
         </UButton>
         <!-- Profile Avatar with Dropdown -->
-        <div v-if="authStore.authenticated" class="relative">
+        <div v-if="authStore.authenticated" class="relative profile-settings-icon">
           <div class="flex items-center gap-2 cursor-pointer" @click="toggleUserMenu">
             <!-- Avatar with Wallet Icon Overlay -->
             <div class="relative">
