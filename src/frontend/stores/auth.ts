@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { mnemonicToSeedSync, generateMnemonic, validateMnemonic } from 'bip39';
 import { Ed25519KeyIdentity } from '@dfinity/identity';
+import { AuthClient } from '@dfinity/auth-client';
 import nacl from 'tweetnacl';
 import * as bip39 from 'bip39';
 
@@ -11,6 +12,7 @@ import * as bip39 from 'bip39';
 // import Registration from '@/components/forms/RegistrationForm.vue';
 
 let identity: Ed25519KeyIdentity | null = null;
+let internetIdentityClient: AuthClient | null = null;
 
 function generateSeedPhrase(input: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -53,6 +55,12 @@ export const useAuthStore = defineStore('auth', {
     getIdentity() {
       return identity;
     },
+    setInternetIdentityClient(client: AuthClient) {
+      internetIdentityClient = client;
+    },
+    getInternetIdentityClient() {
+      return internetIdentityClient;
+    },
     isAuthenticated() {
       return this.authenticated;
     },
@@ -91,8 +99,19 @@ export const useAuthStore = defineStore('auth', {
       return { username: identity?.getPrincipal().toText() };
     },
     async logout() {
+      // If using Internet Identity, logout from AuthClient as well
+      if (internetIdentityClient && this.walletType === 'internet-identity') {
+        try {
+          await internetIdentityClient.logout();
+          console.log('Logged out from Internet Identity');
+        } catch (error) {
+          console.error('Error logging out from Internet Identity:', error);
+        }
+      }
+      
       localStorage.removeItem('authStore');
       identity = null;
+      internetIdentityClient = null;
       this.authenticated = false;
       this.registered = false;
       this.$reset();
@@ -129,6 +148,28 @@ export const useAuthStore = defineStore('auth', {
               identity = createIdentityFromKeyPair(keyPair);
               this.authenticated = true;
               this.registered = true;
+              
+              // If this was an Internet Identity session, try to restore the AuthClient
+              if (parsed.walletType === 'internet-identity') {
+                try {
+                  const authClient = await AuthClient.create();
+                  const isAuthenticated = await authClient.isAuthenticated();
+                  if (isAuthenticated) {
+                    internetIdentityClient = authClient;
+                    console.log('Restored Internet Identity session');
+                  } else {
+                    // Internet Identity session expired, clear our auth
+                    console.log('Internet Identity session expired');
+                    this.$reset();
+                    identity = null;
+                    localStorage.removeItem('authStore');
+                    return false;
+                  }
+                } catch (iiError) {
+                  console.warn('Could not restore Internet Identity session:', iiError);
+                  // Continue with regular auth even if II session can't be restored
+                }
+              }
             } catch (identityError) {
               this.$reset();
               identity = null;
