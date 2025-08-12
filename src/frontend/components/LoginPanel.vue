@@ -21,6 +21,7 @@
             variant="soft"
             class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
             @click="loginWithInternetIdentity"
+            :loading="loading && loginMethod === 'internet-identity'"
           >
             <div class="flex items-center gap-3">
               <UIcon name="token-branded:icp" class="text-2xl" />
@@ -113,11 +114,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, nextTick } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import metaMaskService from '@/services/MetaMaskService';
 import phantomService from '@/services/PhantomService';
 import RegistrationModal from './RegistrationModal.vue';
+import { AuthClient } from '@dfinity/auth-client';
 import * as bip39 from 'bip39';
 
 // TypeScript declarations for wallet extensions
@@ -214,29 +216,47 @@ async function loginWithMetaMask() {
     const finalSeedPhrase = seedPhrase.join(' ');
     console.log('Generated seed phrase:', finalSeedPhrase);
     
-    // Handle login flow (this creates the identity)
+    // Handle login flow (this creates the identity and checks for existing user)
     console.log('Calling handleLoginFlow...');
-    await auth.handleLoginFlow(finalSeedPhrase, ethAddress, 'metamask');
-    console.log('handleLoginFlow completed');
+    const loginResult = await auth.handleLoginFlow(finalSeedPhrase, ethAddress, 'metamask');
+    console.log('handleLoginFlow completed:', loginResult);
     
     // Get the ICP principal from the identity
     const identity = auth.getIdentity();
     const icpPrincipal = identity?.getPrincipal().toText() || '';
     console.log('Got ICP principal:', icpPrincipal);
     
-    // Close login modal and show registration
-    console.log('Opening registration modal...');
-    show.value = false;
-    showRegistrationModal.value = true;
-    registrationModalRef.value?.open(ethAddress, icpPrincipal);
-    console.log('Registration modal opened');
-    
-    // Show success toast
-    toast.add({
-      title: 'MetaMask Connected',
-      description: 'Successfully connected with MetaMask wallet',
-      color: 'success'
-    });
+    if (loginResult.existing) {
+      // User already exists, redirect to profile
+      console.log('Existing user found, redirecting to profile...');
+      show.value = false;
+      
+      // Show success toast
+      toast.add({
+        title: 'Welcome Back!',
+        description: `Welcome back, ${loginResult.profile?.username || 'user'}!`,
+        color: 'success'
+      });
+      
+      // Navigate to profile page
+      await navigateTo('/profile');
+    } else {
+      // New user, show registration modal
+      console.log('New user, opening registration modal...');
+      show.value = false;
+      showRegistrationModal.value = true;
+      console.log('showRegistrationModal set to:', showRegistrationModal.value);
+      await nextTick();
+      console.log('After nextTick, registrationModalRef.value:', registrationModalRef.value);
+      if (registrationModalRef.value) {
+        console.log('Calling registrationModalRef.value.open with:', ethAddress, icpPrincipal, 'metamask');
+        registrationModalRef.value.open(ethAddress, icpPrincipal, 'metamask');
+        console.log('Registration modal open() called successfully');
+      } else {
+        console.error('registrationModalRef.value is null/undefined!');
+      }
+      console.log('Registration modal opened');
+    }
     
   } catch (err: any) {
     console.error('MetaMask login error:', err);
@@ -311,17 +331,34 @@ async function loginWithPhantom() {
     // For Phantom, we'll use a placeholder address since we don't have it directly
     const phantomAddress = 'Phantom Wallet Connected';
     
-    // Handle login flow (this creates the identity)
+    // Handle login flow (this creates the identity and checks for existing user)
     console.log('Calling handleLoginFlow...');
-    await auth.handleLoginFlow(finalSeedPhrase, phantomAddress, 'phantom');
-    console.log('handleLoginFlow completed');
+    const loginResult = await auth.handleLoginFlow(finalSeedPhrase, phantomAddress, 'phantom');
+    console.log('handleLoginFlow completed:', loginResult);
     
-    // Close login modal and show registration
-    console.log('Opening registration modal...');
-    show.value = false;
-    showRegistrationModal.value = true;
-    registrationModalRef.value?.open(phantomAddress, icpPrincipal);
-    console.log('Registration modal opened');
+    if (loginResult.existing) {
+      // User already exists, redirect to profile
+      console.log('Existing user found, redirecting to profile...');
+      show.value = false;
+      
+      // Show success toast
+      toast.add({
+        title: 'Welcome Back!',
+        description: `Welcome back, ${loginResult.profile?.username || 'user'}!`,
+        color: 'success'
+      });
+      
+      // Navigate to profile page
+      await navigateTo('/profile');
+    } else {
+      // New user, show registration modal
+      console.log('New user, opening registration modal...');
+      show.value = false;
+      showRegistrationModal.value = true;
+      await nextTick();
+      registrationModalRef.value?.open(phantomAddress, icpPrincipal, 'phantom');
+      console.log('Registration modal opened');
+    }
     
   } catch (err: any) {
     console.error('Phantom login error:', err);
@@ -413,7 +450,8 @@ async function loginWithPlug() {
     console.log('Opening registration modal...');
     show.value = false;
     showRegistrationModal.value = true;
-    registrationModalRef.value?.open(plugAddress, icpPrincipal);
+    await nextTick();
+    registrationModalRef.value?.open(plugAddress, icpPrincipal, 'plug');
     console.log('Registration modal opened');
     
   } catch (err: any) {
@@ -496,7 +534,8 @@ async function loginWithGoogle() {
     console.log('Opening registration modal...');
     show.value = false;
     showRegistrationModal.value = true;
-    registrationModalRef.value?.open(googleAddress, icpPrincipal);
+    await nextTick();
+    registrationModalRef.value?.open(googleAddress, icpPrincipal, 'google');
     console.log('Registration modal opened');
     
   } catch (err: any) {
@@ -508,7 +547,123 @@ async function loginWithGoogle() {
   }
 }
 async function loginWithInternetIdentity() {
-  alert('Internet Identity login (stub)');
-  show.value = false;
+  error.value = '';
+  loading.value = true;
+  loginMethod.value = 'internet-identity';
+  
+  try {
+    console.log('Starting Internet Identity login...');
+    
+    // Initialize the AuthClient
+    const authClient = await AuthClient.create({
+      idleOptions: {
+        idleTimeout: 1000 * 60 * 30, // 30 minutes
+        disableDefaultIdleCallback: true
+      }
+    });
+    
+    // Check if already authenticated
+    const isAuthenticated = await authClient.isAuthenticated();
+    if (isAuthenticated) {
+      console.log('Already authenticated with Internet Identity');
+    } else {
+      // Start the login process
+      console.log('Starting Internet Identity authentication flow...');
+      await new Promise<void>((resolve, reject) => {
+        authClient.login({
+          identityProvider: 'https://identity.ic0.app',
+          maxTimeToLive: BigInt(7 * 24 * 60 * 60 * 1000 * 1000 * 1000), // 7 days in nanoseconds
+          onSuccess: () => {
+            console.log('Internet Identity login successful');
+            resolve();
+          },
+          onError: (error) => {
+            console.error('Internet Identity login failed:', error);
+            reject(new Error('Internet Identity login failed'));
+          }
+        });
+      });
+    }
+    
+    // Get the identity from the auth client
+    const identity = authClient.getIdentity();
+    const principal = identity.getPrincipal();
+    const principalText = principal.toText();
+    
+    console.log('Internet Identity Principal:', principalText);
+    
+    // Generate a seed phrase from the principal ID for compatibility with existing auth flow
+    const encoder = new TextEncoder();
+    const encoded = encoder.encode(principalText);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', encoded);
+    const seed = new Uint8Array(hashBuffer.slice(0, 32));
+    
+    // Generate a deterministic seed phrase from the principal
+    const seedHex = Array.from(seed).map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    // Use a simple word list to create a seed phrase (12 words)
+    const words = [
+      'abandon', 'ability', 'able', 'about', 'above', 'absent', 'absorb', 'abstract', 'absurd', 'abuse',
+      'access', 'accident', 'account', 'accuse', 'achieve', 'acid', 'acoustic', 'acquire', 'across', 'act',
+      'action', 'actor', 'actual', 'adapt', 'add', 'addict', 'address', 'adjust', 'admit', 'adult',
+      'advance', 'advice', 'aerobic', 'affair', 'afford', 'afraid', 'again', 'age', 'agent', 'agree',
+      'ahead', 'aim', 'air', 'airport', 'aisle', 'alarm', 'album', 'alcohol', 'alert', 'alien',
+      'all', 'alley', 'allow', 'almost', 'alone', 'alpha', 'already', 'also', 'alter', 'always',
+      'amateur', 'amazing', 'among', 'amount', 'amused', 'analyst', 'anchor', 'ancient', 'anger', 'angle',
+      'angry', 'animal', 'ankle', 'announce', 'annual', 'another', 'answer', 'antenna', 'antique', 'anxiety',
+      'any', 'apart', 'apology', 'appear', 'apple', 'approve', 'april', 'arch', 'arctic', 'area',
+      'arena', 'argue', 'arm', 'armed', 'armor', 'army', 'around', 'arrange', 'arrest', 'arrive',
+      'arrow', 'art', 'arte', 'article', 'aside', 'ask', 'aspect', 'assault', 'asset', 'assist'
+    ];
+    
+    // Use the seed hex to select 12 words deterministically
+    const seedPhrase = [];
+    for (let i = 0; i < 12; i++) {
+      const start = i * 4;
+      const end = start + 4;
+      const hexSlice = seedHex.slice(start, end);
+      const wordIndex = parseInt(hexSlice, 16) % words.length;
+      seedPhrase.push(words[wordIndex]);
+    }
+    const finalSeedPhrase = seedPhrase.join(' ');
+    console.log('Generated seed phrase for Internet Identity:', finalSeedPhrase);
+    
+    // Handle login flow using the existing auth store method
+    console.log('Calling handleLoginFlow...');
+    await auth.handleLoginFlow(finalSeedPhrase, principalText, 'internet-identity');
+    console.log('handleLoginFlow completed');
+    
+    // Store the AuthClient instance in the auth store for logout purposes
+    auth.setInternetIdentityClient(authClient);
+    
+    // Close login modal and show registration
+    console.log('Opening registration modal...');
+    show.value = false;
+    showRegistrationModal.value = true;
+    await nextTick();
+    registrationModalRef.value?.open(principalText, principalText, 'internet-identity');
+    console.log('Registration modal opened');
+    
+    // Show success toast
+    toast.add({
+      title: 'Internet Identity Connected',
+      description: 'Successfully authenticated with Internet Identity',
+      color: 'success'
+    });
+    
+  } catch (err: any) {
+    console.error('Internet Identity login error:', err);
+    error.value = err?.message || 'Internet Identity login failed.';
+    
+    // Show error toast
+    toast.add({
+      title: 'Login Failed',
+      description: err?.message || 'Internet Identity login failed',
+      color: 'error'
+    });
+  } finally {
+    loading.value = false;
+    loginMethod.value = '';
+  }
 }
 </script> 
