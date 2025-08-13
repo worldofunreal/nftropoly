@@ -54,9 +54,41 @@ export default defineNuxtConfig({
         ]
       }
     },
+    vite: {
+      define: {
+        global: 'globalThis',
+      },
+      resolve: {
+        alias: {
+          buffer: 'buffer',
+          process: 'process/browser',
+          util: 'util',
+        },
+      },
+      optimizeDeps: {
+        include: ['buffer', 'process', 'util'],
+      },
+    },
+    nitro: {
+      experimental: {
+        wasm: true,
+      },
+      rollupConfig: {
+        external: [],
+      },
+      nodeModulesDirs: ['../../node_modules'],
+      alias: {
+        buffer: 'buffer',
+        process: 'process',
+        util: 'util',
+      },
+    },
     runtimeConfig: {
       public: {
-        HF_TOKEN: process.env.HF_TOKEN
+        HF_TOKEN: process.env.NUXT_PUBLIC_HF_TOKEN,
+        GA_MEASUREMENT_ID: process.env.NUXT_PUBLIC_GA_MEASUREMENT_ID || 'G-9M4CYZTMME',
+        GTM_ID: process.env.NUXT_PUBLIC_GTM_ID || 'GTM-MGJCRHQ3',
+        CLARITY_PROJECT_ID: process.env.NUXT_PUBLIC_CLARITY_PROJECT_ID || 'stqeko2g9v'
       }
     }
   })

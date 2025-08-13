@@ -1,10 +1,31 @@
-import { Connection, clusterApiUrl } from '@solana/web3.js';
+export default defineNuxtPlugin(async () => {
+  // Only load on client side
+  if (process.server) {
+    return {
+      provide: {
+        solana: { 
+          connection: null,
+          async getConnection() {
+            const { Connection, clusterApiUrl } = await import('@solana/web3.js');
+            return new Connection(clusterApiUrl('devnet'), 'confirmed');
+          }
+        }
+      }
+    };
+  }
 
-export default defineNuxtPlugin(() => {
+  // Client-side: lazy load to avoid SSR issues
+  const { Connection, clusterApiUrl } = await import('@solana/web3.js');
   const connection = new Connection(clusterApiUrl('devnet'), 'confirmed');
+  
   return {
     provide: {
-      solana: { connection }
+      solana: { 
+        connection,
+        async getConnection() {
+          return connection;
+        }
+      }
     }
   };
 }); 

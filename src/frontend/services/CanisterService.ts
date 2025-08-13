@@ -2,8 +2,8 @@ import { Actor, HttpAgent } from '@dfinity/agent';
 import type { Identity } from '@dfinity/agent';
 import { AuthClient } from '@dfinity/auth-client';
 
-// Canister IDs (these will be set by environment variables in production)
-const DATABASE_CANISTER_ID = process.env.CANISTER_ID_DATABASE || 'uxrrr-q7777-77774-qaaaq-cai';
+// Canister IDs (hardcoded for production)
+const DATABASE_CANISTER_ID = 'uxrrr-q7777-77774-qaaaq-cai';
 
 // Inline IDL factory for database canister (copied from generated declarations)
 const databaseIdlFactory = ({ IDL }: any) => {
@@ -217,14 +217,9 @@ class CanisterService {
       
       // Create HTTP agent
       this.agent = new HttpAgent({
-        host: process.env.NODE_ENV === 'development' ? 'http://localhost:4943' : 'https://ic0.app',
+        host: 'https://ic0.app',
         identity: this.identity
       });
-
-      // Fetch root key for local development
-      if (process.env.NODE_ENV === 'development') {
-        await this.agent.fetchRootKey();
-      }
 
       // Create database actor
       this.databaseActor = Actor.createActor(databaseIdlFactory, {

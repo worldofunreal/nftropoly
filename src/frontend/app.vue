@@ -1,5 +1,16 @@
 <template>
   <UApp>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript>
+      <iframe 
+        src="https://www.googletagmanager.com/ns.html?id=GTM-MGJCRHQ3"
+        height="0" 
+        width="0" 
+        style="display:none;visibility:hidden"
+      />
+    </noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    
     <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-950">
       <!-- Desktop Sidebar (hidden on mobile) -->
       <SidebarNav />

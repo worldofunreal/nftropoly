@@ -6,13 +6,15 @@ declare global {
   }
 }
 
-import { Connection, clusterApiUrl } from '@solana/web3.js';
-
 class PhantomService {
-  connection: Connection;
+  connection: any = null;
 
-  constructor() {
-    this.connection = new Connection(clusterApiUrl('mainnet-beta'));
+  async getConnection() {
+    if (!this.connection) {
+      const { Connection, clusterApiUrl } = await import('@solana/web3.js');
+      this.connection = new Connection(clusterApiUrl('mainnet-beta'));
+    }
+    return this.connection;
   }
 
   async connectWallet(): Promise<string | null> {
