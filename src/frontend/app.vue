@@ -36,7 +36,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, provide } from 'vue';
+import { ref, provide, onMounted } from 'vue';
+import { useNuxtApp } from '#imports';
 import SidebarNav from "./components/SidebarNav.vue";
 import MobileSidebar from "./components/MobileSidebar.vue";
 import Header from "./components/Header.vue";
@@ -46,9 +47,20 @@ import DisclaimerModal from "./components/DisclaimerModal.vue";
 
 const loginPanelRef = ref<{ open: () => void } | null>(null);
 const mobileSidebarOpen = ref(false);
+const { $trackInteraction } = useNuxtApp();
 
 // Provide the login panel ref so other components can access it
 provide('loginPanelRef', loginPanelRef);
+
+// Track app initialization and key metrics
+onMounted(() => {
+  $trackInteraction('App Mounted', {
+    userAgent: navigator.userAgent,
+    screenSize: `${window.screen.width}x${window.screen.height}`,
+    viewportSize: `${window.innerWidth}x${window.innerHeight}`,
+    timestamp: Date.now()
+  });
+});
 </script>
 
 <style>

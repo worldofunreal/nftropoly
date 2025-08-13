@@ -178,11 +178,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch, inject } from 'vue'
-import { useColorMode } from '#imports'
+import { useColorMode, useNuxtApp } from '#imports'
 import { useAuthStore } from '@/stores/auth'
 
 const colorMode = useColorMode()
 const authStore = useAuthStore()
+const { $trackInteraction, $trackButtonClick, $trackWalletConnect } = useNuxtApp()
 
 const scrolled = ref(false)
 const search = ref('')
@@ -198,6 +199,10 @@ const onScroll = () => {
 
 function toggleTheme() {
   colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
+  $trackButtonClick('Theme Toggle', { 
+    newTheme: colorMode.value,
+    location: 'header'
+  })
 }
 
 function toggleMobileSidebar() {
@@ -239,11 +244,19 @@ onUnmounted(() => {
 function openLoginPanel() {
   console.log('openLoginPanel called');
   console.log('loginPanelRef:', loginPanelRef);
+  $trackButtonClick('Connect Wallet', { 
+    location: 'header',
+    authenticated: authStore.authenticated
+  })
   loginPanelRef?.value?.open()
 }
 
 function toggleUserMenu() {
   showUserMenu.value = !showUserMenu.value
+  $trackButtonClick('User Menu Toggle', { 
+    isOpen: showUserMenu.value,
+    username: authStore.player?.username
+  })
 }
 
 function handleClickOutside(event: MouseEvent) {
@@ -257,13 +270,25 @@ function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text).then(() => {
     // You could add a toast notification here
     console.log('Copied to clipboard:', text)
+    $trackButtonClick('Copy to Clipboard', { 
+      textType: text.includes('icp') ? 'ICP Principal' : 'Wallet Address',
+      textLength: text.length
+    })
   }).catch(err => {
     console.error('Failed to copy to clipboard:', err)
+    $trackInteraction('Error', { 
+      error: 'Copy to clipboard failed',
+      textType: text.includes('icp') ? 'ICP Principal' : 'Wallet Address'
+    })
   })
 }
 
 function logout() {
   showUserMenu.value = false
+  $trackButtonClick('Logout', { 
+    username: authStore.player?.username,
+    walletType: authStore.walletType
+  })
   authStore.logout()
 }
 

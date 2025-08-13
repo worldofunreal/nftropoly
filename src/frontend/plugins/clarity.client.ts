@@ -74,10 +74,55 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
   })
 
-  // Provide clarity instance for manual usage in components via useNuxtApp().$clarity
+  // Track page views and route changes
+  nuxtApp.hook('page:finish', () => {
+    if (!hasConsent()) return
+    try {
+      Clarity.setTag('page', window.location.pathname)
+      Clarity.setTag('page_title', document.title)
+    } catch {
+      // noop
+    }
+  })
+
+  // Track user interactions globally
+  const trackInteraction = (event: string, data?: any) => {
+    if (!hasConsent()) return
+    try {
+      // Use setTag for custom events since Clarity doesn't have a direct event method
+      Clarity.setTag(event, JSON.stringify({
+        ...data,
+        timestamp: Date.now(),
+        url: window.location.href
+      }))
+    } catch {
+      // noop
+    }
+  }
+
+  // Provide clarity instance and tracking helpers for manual usage in components
   return {
     provide: {
       clarity: Clarity,
+      trackInteraction,
+      trackPageView: (pageName: string, data?: any) => {
+        trackInteraction('Page View', { pageName, ...data })
+      },
+      trackButtonClick: (buttonName: string, data?: any) => {
+        trackInteraction('Button Click', { buttonName, ...data })
+      },
+      trackFormSubmit: (formName: string, data?: any) => {
+        trackInteraction('Form Submit', { formName, ...data })
+      },
+      trackWalletConnect: (walletType: string, data?: any) => {
+        trackInteraction('Wallet Connect', { walletType, ...data })
+      },
+      trackNavigation: (from: string, to: string, data?: any) => {
+        trackInteraction('Navigation', { from, to, ...data })
+      },
+      trackError: (error: string, data?: any) => {
+        trackInteraction('Error', { error, ...data })
+      }
     },
   }
 })

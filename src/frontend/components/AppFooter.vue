@@ -66,15 +66,23 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useColorMode } from '#imports'
+import { useColorMode, useNuxtApp } from '#imports'
 
 const colorMode = useColorMode()
+const { $trackButtonClick } = useNuxtApp()
 const showFiat = ref(false)
 
 function toggleTheme() {
   colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
+  $trackButtonClick('Theme Toggle', { 
+    newTheme: colorMode.value,
+    location: 'footer'
+  })
 }
 function toggleFiat() {
   showFiat.value = !showFiat.value
+  $trackButtonClick('Fiat/Crypto Toggle', { 
+    showFiat: showFiat.value
+  })
 }
 </script>
