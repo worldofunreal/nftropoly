@@ -1,5 +1,3 @@
-import { useRuntimeConfig } from '#imports'
-
 const INITIAL_PROMPT_TEMPLATE = `You are an expert productivity assistant. Your job is to help me break down ideas into clear, actionable tasks.
 
 Here is a raw idea from my brainstorm:
@@ -57,10 +55,15 @@ Provide 2-3 specific, actionable tools, apps, or approaches that would help them
 
 Format as a simple list with brief explanations.`
 
+import { useRuntimeConfig } from '#imports'
+
 export async function useHuggingFaceAI(idea: string): Promise<string> {
   const config = useRuntimeConfig()
-  const HF_TOKEN = config.public?.HF_TOKEN || process.env.HF_TOKEN
-  if (!HF_TOKEN) throw new Error('Hugging Face token not found')
+  const HF_TOKEN = config.public.HF_TOKEN
+
+  if (!HF_TOKEN) {
+    throw new Error('Hugging Face token not configured')
+  }
 
   const prompt = INITIAL_PROMPT_TEMPLATE.replace('{{idea}}', idea)
 
@@ -90,8 +93,11 @@ export async function useHuggingFaceAI(idea: string): Promise<string> {
 
 export async function useHuggingFaceAIBreakdown(idea: string, answer: string): Promise<string> {
   const config = useRuntimeConfig()
-  const HF_TOKEN = config.public?.HF_TOKEN || process.env.HF_TOKEN
-  if (!HF_TOKEN) throw new Error('Hugging Face token not found')
+  const HF_TOKEN = config.public.HF_TOKEN
+
+  if (!HF_TOKEN) {
+    throw new Error('Hugging Face token not configured')
+  }
 
   const prompt = BREAKDOWN_PROMPT_TEMPLATE
     .replace('{{idea}}', idea)
@@ -123,8 +129,11 @@ export async function useHuggingFaceAIBreakdown(idea: string, answer: string): P
 
 export async function useHuggingFaceAIFiltering(tasks: { title: string, subtasks?: string[] }[], jsonOrder?: boolean): Promise<string> {
   const config = useRuntimeConfig()
-  const HF_TOKEN = config.public?.HF_TOKEN || process.env.HF_TOKEN
-  if (!HF_TOKEN) throw new Error('Hugging Face token not found')
+  const HF_TOKEN = config.public.HF_TOKEN
+
+  if (!HF_TOKEN) {
+    throw new Error('Hugging Face token not configured')
+  }
 
   const formattedTasks = tasks.map((t, i) => {
     let s = `${i + 1}. ${t.title}`
@@ -165,8 +174,11 @@ export async function useHuggingFaceAIFiltering(tasks: { title: string, subtasks
 
 export async function useHuggingFaceTaskBreakdown(task: string): Promise<string> {
   const config = useRuntimeConfig()
-  const HF_TOKEN = config.public?.HF_TOKEN || process.env.HF_TOKEN
-  if (!HF_TOKEN) throw new Error('Hugging Face token not found')
+  const HF_TOKEN = config.public.HF_TOKEN
+
+  if (!HF_TOKEN) {
+    throw new Error('Hugging Face token not configured')
+  }
 
   const prompt = TASK_BREAKDOWN_PROMPT_TEMPLATE.replace('{{task}}', task)
 
@@ -196,8 +208,11 @@ export async function useHuggingFaceTaskBreakdown(task: string): Promise<string>
 
 export async function useHuggingFaceTaskTools(task: string, question: string): Promise<string> {
   const config = useRuntimeConfig()
-  const HF_TOKEN = config.public?.HF_TOKEN || process.env.HF_TOKEN
-  if (!HF_TOKEN) throw new Error('Hugging Face token not found')
+  const HF_TOKEN = config.public.HF_TOKEN
+
+  if (!HF_TOKEN) {
+    throw new Error('Hugging Face token not configured')
+  }
 
   const prompt = TASK_TOOLS_PROMPT_TEMPLATE
     .replace('{{task}}', task)

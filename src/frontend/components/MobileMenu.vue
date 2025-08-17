@@ -112,15 +112,20 @@
 
 <script setup lang="ts">
 import { resolveComponent, ref, nextTick } from 'vue'
-import { useColorMode } from '#imports'
+import { useColorMode, useNuxtApp } from '#imports'
 import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const Motion = resolveComponent('Motion')
 const colorMode = useColorMode()
+const { $trackButtonClick, $trackNavigation } = useNuxtApp()
 
 function toggleTheme() {
   colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
+  $trackButtonClick('Theme Toggle', { 
+    newTheme: colorMode.value,
+    location: 'mobile_menu'
+  })
 }
 
 interface Route {
@@ -142,15 +147,24 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
 const handleClose = () => {
+  $trackButtonClick('Mobile Menu Close', { 
+    currentRoute: route.path
+  })
   emit('close')
 }
 
 function handleMobileHomeClick(e: MouseEvent): void {
+  $trackButtonClick('Mobile Home Click', { 
+    currentRoute: route.path,
+    action: route.path === '/' ? 'scroll_to_top' : 'navigate_home'
+  })
+  
   if (route.path === '/') {
     window.scrollTo({ top: 0, behavior: 'smooth' })
     handleClose()
   } else {
     // Let Nuxt handle navigation
+    $trackNavigation(route.path, '/')
     handleClose()
   }
 }
