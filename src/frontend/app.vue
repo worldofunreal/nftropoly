@@ -20,7 +20,7 @@
       </div>
     </div>
     <LoginPanel ref="loginPanelRef" />
-    <DisclaimerModal />
+    <DisclaimerModal ref="disclaimerModalRef" @close="onDisclaimerClose" />
     <OnboardingTour ref="onboardingTourRef" />
     <OnboardingTrigger />
   </UApp>
@@ -34,12 +34,29 @@ import Header from "./components/Header.vue";
 import AppFooter from "./components/AppFooter.vue";
 import LoginPanel from "./components/LoginPanel.vue";
 import DisclaimerModal from "./components/DisclaimerModal.vue";
-import OnboardingTour from "./components/OnboardingTour.vue";
+import OnboardingTour from "./components/onBoardingTour/OnboardingTour.vue";
 import OnboardingTrigger from "./components/OnboardingTrigger.vue";
 
 const loginPanelRef = ref<{ open: () => void } | null>(null);
+const disclaimerModalRef = ref<{ open: () => void; close: () => void } | null>(
+  null
+);
 const mobileSidebarOpen = ref(false);
-const onboardingTourRef = ref<any>(null);
+const onboardingTourRef = ref<{
+  startTour: () => void;
+  stopTour: () => void;
+  updateTourForRegistration: () => void;
+} | null>(null);
+
+// Handle disclaimer close event
+const onDisclaimerClose = () => {
+  // Start the onboarding tour after disclaimer is closed
+  setTimeout(() => {
+    if (onboardingTourRef?.value?.startTour) {
+      onboardingTourRef.value.startTour();
+    }
+  }, 500); // Small delay to ensure smooth transition
+};
 
 // Provide the login panel ref so other components can access it
 provide('loginPanelRef', loginPanelRef);
