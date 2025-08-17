@@ -1,7 +1,7 @@
 <template>
   <header
     :class="[
-      'sticky top-0 left-0 w-full z-50 transition-all duration-500 ease-in-out',
+      'sticky z-50 top-0 left-0 w-full transition-all duration-500 ease-in-out',
       scrolled
         ? 'bg-white/70 dark:bg-neutral-950/70 backdrop-blur-sm shadow-md'
         : 'bg-transparent',
@@ -13,9 +13,9 @@
       <div class="flex items-center gap-2 flex-shrink-0">
         <!-- Mobile Menu Button -->
         <button
-          @click="toggleMobileSidebar"
           class="md:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           aria-label="Toggle mobile menu"
+          @click="toggleMobileSidebar"
         >
           <UIcon
             name="i-heroicons-bars-3-20-solid"
@@ -38,10 +38,10 @@
         <!-- Theme Toggle Button - Client Only -->
         <ClientOnly>
           <button
-            @click="toggleTheme"
-            aria-label="Toggle theme"
             class="relative w-12.5 h-7.5 rounded-full transition-colors duration-300 focus:outline-none border border-gray-300 dark:border-gray-700 flex mr-2"
             :class="colorMode.value === 'dark' ? 'bg-pink-500' : 'bg-stone-600'"
+            aria-label="Toggle theme"
+            @click="toggleTheme"
           >
             <span
               class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-all duration-300 flex items-center justify-center"
@@ -56,7 +56,7 @@
           </button>
         </ClientOnly>
         <!-- Connect Wallet Button -->
-        <UButton color="primary"  icon="solar:wallet-bold" class="hidden md:flex connect-wallet-btn" @click="openLoginPanel" v-if="!authStore.authenticated">
+        <UButton v-if="!authStore.authenticated"  color="primary" icon="solar:wallet-bold" class="hidden md:flex connect-wallet-btn" @click="openLoginPanel">
           Connect Wallet
         </UButton>
         <!-- Profile Avatar with Dropdown -->
@@ -177,9 +177,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, inject } from 'vue'
+import { ref, onMounted, onUnmounted, watch, inject, type Ref } from 'vue'
 import { useColorMode } from '#imports'
 import { useAuthStore } from '@/stores/auth'
+
+defineOptions({
+  name: 'AppHeader'
+})
 
 const colorMode = useColorMode()
 const authStore = useAuthStore()
