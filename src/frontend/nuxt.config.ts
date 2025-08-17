@@ -56,7 +56,13 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
       public: {
-        HF_TOKEN: process.env.HF_TOKEN
+        HF_TOKEN: process.env.HF_TOKEN,
+        canisterIds: {
+          database: 'uxrrr-q7777-77774-qaaaq-cai',
+          marketplace: 'u6s2n-gx777-77774-qaaba-cai',
+          spiral: 'uzt4z-lp777-77774-qaabq-cai'
+        },
+        network: process.env.NODE_ENV === 'development' ? 'local' : 'mainnet'
       }
     }
   })
