@@ -2,7 +2,7 @@
   <!-- Simple Modal Overlay -->
   <div v-if="show" class="fixed inset-0 z-[9999] flex items-center justify-center">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/50" @click="show = false"></div>
+    <div class="absolute inset-0 bg-black/50" @click="closeModal"></div>
     <!-- Modal Content -->
     <div class="relative bg-white dark:bg-neutral-900 rounded-lg shadow-xl max-w-md w-full mx-4">
       <div class="p-6">
@@ -39,9 +39,20 @@ import { ref, onMounted } from 'vue';
 
 const show = ref(false);
 
+// Emit events for parent components
+const emit = defineEmits<{
+  close: []
+}>()
+
 // Mark disclaimer as accepted
 const acceptDisclaimer = () => {
+  closeModal();
+};
+
+// Close modal and emit event
+const closeModal = () => {
   show.value = false;
+  emit('close');
 };
 
 // Show disclaimer on mount every time
@@ -54,7 +65,7 @@ defineExpose({
     show.value = true; 
   }, 
   close: () => { 
-    show.value = false; 
+    closeModal();
   } 
 });
 </script> 
