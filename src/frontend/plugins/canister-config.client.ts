@@ -7,8 +7,8 @@ declare const useRuntimeConfig: () => {
     network: 'local' | 'mainnet'; 
     canisterIds: { 
       database: 'uxrrr-q7777-77774-qaaaq-cai'; 
-      marketplace: 'u6s2n-gx777-77774-qaaba-cai'; 
-      spiral: 'uzt4z-lp777-77774-qaabq-cai'; 
+      // marketplace?: 'u6s2n-gx777-77774-qaaba-cai'; 
+      // spiral?: 'uzt4z-lp777-77774-qaabq-cai'; 
     } 
   } 
 };
@@ -22,8 +22,8 @@ export default defineNuxtPlugin(() => {
     network: config.public.network,
     canisterIds: {
       DATABASE: config.public.canisterIds.database,
-      MARKETPLACE: config.public.canisterIds.marketplace,
-      SPIRAL: config.public.canisterIds.spiral,
+      // MARKETPLACE: config.public.canisterIds.marketplace, // Not deployed yet
+      // SPIRAL: config.public.canisterIds.spiral, // Not deployed yet
     }
   });
   

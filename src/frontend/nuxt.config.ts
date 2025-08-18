@@ -88,7 +88,13 @@ export default defineNuxtConfig({
         HF_TOKEN: process.env.NUXT_PUBLIC_HF_TOKEN,
         GA_MEASUREMENT_ID: process.env.NUXT_PUBLIC_GA_MEASUREMENT_ID || 'G-9M4CYZTMME',
         GTM_ID: process.env.NUXT_PUBLIC_GTM_ID || 'GTM-MGJCRHQ3',
-        CLARITY_PROJECT_ID: process.env.NUXT_PUBLIC_CLARITY_PROJECT_ID || 'stqeko2g9v'
+        CLARITY_PROJECT_ID: process.env.NUXT_PUBLIC_CLARITY_PROJECT_ID || 'stqeko2g9v',
+        canisterIds: {
+          database: 'uxrrr-q7777-77774-qaaaq-cai',
+          // marketplace: 'u6s2n-gx777-77774-qaaba-cai', // Not deployed yet
+          // spiral: 'uzt4z-lp777-77774-qaabq-cai' // Not deployed yet
+        },
+        network: 'local'
       }
     }
   })

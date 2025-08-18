@@ -19,6 +19,11 @@ import { getCanisterId, getNetworkHost } from '@/config/canisters';
 
 const MARKETPLACE_CANISTER_ID = getCanisterId('MARKETPLACE');
 
+// Check if marketplace canister is available
+if (!MARKETPLACE_CANISTER_ID || MARKETPLACE_CANISTER_ID === 'your-mainnet-marketplace-id') {
+  console.warn('Marketplace canister is not deployed or configured. Marketplace features will be disabled.');
+}
+
 class MarketplaceService {
   private agent: HttpAgent | null = null;
   private marketplaceActor: _SERVICE | null = null;
@@ -27,6 +32,12 @@ class MarketplaceService {
   async initialize(identity?: Identity): Promise<void> {
     try {
       this.identity = identity;
+      
+      // Check if marketplace canister is available
+      if (!MARKETPLACE_CANISTER_ID || MARKETPLACE_CANISTER_ID === 'your-mainnet-marketplace-id') {
+        console.warn('Marketplace canister is not deployed. Skipping initialization.');
+        return;
+      }
       
       // Create HttpAgent with identity
       this.agent = new HttpAgent({
@@ -55,7 +66,7 @@ class MarketplaceService {
   // Health check - returns string
   async healthCheck(): Promise<string> {
     if (!this.marketplaceActor) {
-      throw new Error('Marketplace actor not initialized');
+      throw new Error('Marketplace canister is not deployed or not initialized');
     }
     return await this.marketplaceActor.health_check();
   }
@@ -63,7 +74,7 @@ class MarketplaceService {
   // Get metadata - returns array of [string, string] tuples
   async getMetadata(): Promise<[string, string][]> {
     if (!this.marketplaceActor) {
-      throw new Error('Marketplace actor not initialized');
+      throw new Error('Marketplace canister is not deployed or not initialized');
     }
     return await this.marketplaceActor.get_metadata();
   }

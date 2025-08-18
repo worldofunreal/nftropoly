@@ -38,7 +38,7 @@ export function setRuntimeConfig(config: {
 // Get canister ID based on current configuration
 export const getCanisterId = (canisterName: keyof typeof DEV_CANISTER_IDS): string => {
   // Use runtime config if available
-  if (RUNTIME_CONFIG.canisterIds) {
+  if (RUNTIME_CONFIG.canisterIds && RUNTIME_CONFIG.canisterIds[canisterName]) {
     return RUNTIME_CONFIG.canisterIds[canisterName];
   }
   
