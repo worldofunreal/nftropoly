@@ -4,13 +4,13 @@
     <button
       v-for="f in rankingFilters"
       :key="f.label"
-      @click="selectedRanking = f.label"
       class="flex items-center gap-1 px-3 h-8 rounded-md border text-xs font-semibold transition"
       :class="
         selectedRanking === f.label
           ? 'bg-primary-600 text-white border-primary-600'
           : 'bg-white dark:bg-neutral-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-500'
       "
+      @click="selectedRanking = f.label"
     >
       <UIcon :name="f.icon" class="text-base" />
       <span>{{ f.label }}</span>
@@ -19,21 +19,21 @@
     <button
       v-for="v in viewModes"
       :key="v.label"
-      @click="selectedView = v.label"
       class="flex items-center justify-center w-8 h-8 rounded-md border text-xs font-semibold transition"
       :class="
         selectedView === v.label
           ? 'bg-primary-600 text-white border-primary-600'
           : 'bg-white dark:bg-neutral-950 text-gray-700 dark:text-gray-200 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-500'
       "
+      @click="selectedView = v.label"
     >
       <UIcon :name="v.icon" class="text-base" />
     </button>
     <!-- Time Filter Dropdown -->
-    <div class="relative" ref="dropdownRef">
+    <div ref="dropdownRef" class="relative">
       <button
-        @click="showDropdown = !showDropdown"
         class="flex items-center gap-1 px-3 h-8 rounded-md border text-xs font-semibold transition bg-white dark:bg-neutral-950 border-gray-200 dark:border-gray-700 hover:bg-primary-50 dark:hover:bg-primary-500"
+        @click="showDropdown = !showDropdown"
       >
         <span>{{ selectedTime }}</span>
         <UIcon name="mdi:chevron-down" class="text-base" />
@@ -45,13 +45,13 @@
         <button
           v-for="t in timeFilters"
           :key="t"
-          @click="selectTime(t)"
           class="block w-full text-left px-3 h-8 rounded-md text-xs font-semibold hover:bg-primary-50 dark:hover:bg-primary-500 transition"
           :class="
             selectedTime === t
               ? 'text-primary-600'
               : 'text-gray-700 dark:text-gray-200'
           "
+          @click="selectTime(t)"
         >
           {{ t }}
         </button>

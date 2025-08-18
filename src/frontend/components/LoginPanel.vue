@@ -8,7 +8,7 @@
     <div
       class="absolute inset-0 bg-white/80 dark:bg-black/90"
       @click="show = false"
-    ></div>
+    />
     <!-- Modal Content -->
     <div
       class="relative bg-white dark:bg-neutral-900 rounded-lg shadow-xl max-w-md w-full mx-4"
@@ -16,8 +16,8 @@
       <div class="p-8">
         <!-- Logo Section -->
         <div class="flex flex-col items-center mb-8">
-          <img src="/logo.svg" alt="NFTropoly Logo" class="w-12 h-12 mb-2" />
-          <img src="/logo-text.svg" alt="NFTropoly" class="h-6 light:invert" />
+          <img src="/logo.svg" alt="NFTropoly Logo" class="w-12 h-12 mb-2" >
+          <img src="/logo-text.svg" alt="NFTropoly" class="h-6 light:invert" >
         </div>
 
         <h2 class="text-2xl font-bold mb-6 text-center">
@@ -30,8 +30,8 @@
             color="neutral"
             variant="soft"
             class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start"
-            @click="loginWithInternetIdentity"
             :loading="loading && loginMethod === 'internet-identity'"
+            @click="loginWithInternetIdentity"
           >
             <div class="flex items-center gap-3">
               <UIcon name="token-branded:icp" class="text-2xl" />
@@ -45,8 +45,8 @@
             color="neutral"
             variant="soft"
             class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start"
-            @click="loginWithMetaMask"
             :loading="loading && loginMethod === 'metamask'"
+            @click="loginWithMetaMask"
           >
             <div class="flex items-center gap-3">
               <UIcon name="token-branded:metamask" class="text-2xl" />
@@ -59,8 +59,8 @@
             color="neutral"
             variant="soft"
             class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start"
-            @click="loginWithPhantom"
             :loading="loading && loginMethod === 'phantom'"
+            @click="loginWithPhantom"
           >
             <div class="flex items-center gap-3">
               <UIcon name="token-branded:phantom" class="text-2xl" />
@@ -73,8 +73,8 @@
             color="neutral"
             variant="soft"
             class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start"
-            @click="loginWithPlug"
             :loading="loading && loginMethod === 'plug'"
+            @click="loginWithPlug"
           >
             <div class="flex items-center gap-3">
               <UIcon name="fa6-solid:plug" class="text-2xl" />
@@ -87,8 +87,8 @@
             color="neutral"
             variant="soft"
             class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start"
-            @click="loginWithGoogle"
             :loading="loading && loginMethod === 'google'"
+            @click="loginWithGoogle"
           >
             <div class="flex items-center gap-3">
               <UIcon name="logos:google-icon" class="text-2xl" />
@@ -96,7 +96,7 @@
             </div>
           </UButton>
         </div>
-        <hr class="my-6 border-gray-200 dark:border-gray-700" />
+        <hr class="my-6 border-gray-200 dark:border-gray-700" >
         <UButton
           block
           color="neutral"

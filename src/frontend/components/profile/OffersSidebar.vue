@@ -74,7 +74,7 @@
         type="text"
         placeholder="Search for chains"
         class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-2 mt-2"
-      />
+      >
       <div class="text-gray-400 text-xs">[Chain filter pills here]</div>
     </SidebarSection>
     <SidebarSection
@@ -86,7 +86,7 @@
         type="text"
         placeholder="Search for collections"
         class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-2 mt-2"
-      />
+      >
       <div class="text-gray-400 text-xs">[Collection filter pills here]</div>
     </SidebarSection>
   </div>

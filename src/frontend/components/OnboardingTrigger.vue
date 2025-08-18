@@ -5,8 +5,8 @@
       variant="solid"
       size="sm"
       icon="i-heroicons-question-mark-circle"
-      @click="triggerOnboarding"
       class="shadow-lg"
+      @click="triggerOnboarding"
     >
       Start Tour
     </UButton>

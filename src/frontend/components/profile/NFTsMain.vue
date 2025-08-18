@@ -4,8 +4,8 @@
     <div class="md:hidden flex items-center justify-between mb-4">
       <h2 class="text-lg font-semibold text-gray-900 dark:text-white">NFTs</h2>
       <button
-        @click="isDrawerOpen = true"
         class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        @click="isDrawerOpen = true"
       >
         <UIcon name="heroicons:funnel" class="w-4 h-4" />
         <span class="text-sm font-medium">Filters</span>
@@ -20,7 +20,7 @@
         type="text"
         placeholder="Search for items"
         class="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-      />
+      >
       <select
         class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
       >
@@ -49,7 +49,7 @@
         src="https://placehold.co/96x96?text=NFT"
         alt="NFT"
         class="w-24 h-24 rounded-lg shadow mb-4"
-      />
+      >
       <div class="text-xl font-bold mb-2">No items found</div>
       <div class="text-gray-400 mb-4">Discover new collections on OS2</div>
       <button class="px-4 py-2 rounded bg-primary-600 text-white font-semibold">
@@ -110,7 +110,7 @@
                   :src="nft.image"
                   alt="NFT"
                   class="w-12 h-12 rounded-lg border border-gray-300 dark:border-gray-700 flex-shrink-0"
-                />
+                >
                 <div class="flex flex-col">
                   <span class="font-semibold text-gray-900 dark:text-white">{{
                     nft.name
@@ -170,7 +170,7 @@
       @click="isDrawerOpen = false"
     >
       <!-- Backdrop -->
-      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="absolute inset-0 bg-black/50"/>
 
       <!-- Drawer Content -->
       <div
@@ -182,7 +182,7 @@
       >
         <!-- Drawer Handle -->
         <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
-          <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+          <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"/>
         </div>
 
         <!-- Drawer Header -->
@@ -193,8 +193,8 @@
             Filters
           </h3>
           <button
-            @click="isDrawerOpen = false"
             class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            @click="isDrawerOpen = false"
           >
             <UIcon
               name="heroicons:x-mark"
@@ -236,7 +236,7 @@
               type="text"
               placeholder="Search chains..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-3"
-            />
+            >
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="chain in chains"
@@ -259,7 +259,7 @@
               type="text"
               placeholder="Search collections..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-            />
+            >
           </div>
 
           <!-- Search and Sort -->
@@ -272,7 +272,7 @@
                 type="text"
                 placeholder="Search for items"
                 class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-3"
-              />
+              >
               <select
                 class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
               >
@@ -314,14 +314,14 @@
         >
           <div class="flex gap-3">
             <button
-              @click="clearFilters"
               class="flex-1 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              @click="clearFilters"
             >
               Clear All
             </button>
             <button
-              @click="applyFilters"
               class="flex-1 px-4 py-3 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 transition-colors"
+              @click="applyFilters"
             >
               Apply Filters
             </button>

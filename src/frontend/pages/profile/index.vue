@@ -13,8 +13,8 @@
     <div class="flex-1 flex w-full min-h-0">
       <!-- Sidebar (except Galleries tab) - Hidden on mobile -->
       <component
-        v-if="activeTab !== 'Galleries'"
         :is="sidebarComponent"
+        v-if="activeTab !== 'Galleries'"
         :tab="activeTab"
         class="hidden md:block"
       />

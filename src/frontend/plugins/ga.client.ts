@@ -7,7 +7,7 @@ declare global {
 }
 
 export default defineNuxtPlugin(nuxtApp => {
-  if (process.server) return
+  if (import.meta.server) return
 
   const config = useRuntimeConfig()
   const gtmId = config.public.GTM_ID || 'GTM-MGJCRHQ3'

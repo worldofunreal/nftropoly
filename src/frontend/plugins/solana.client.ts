@@ -1,6 +1,6 @@
 export default defineNuxtPlugin(async () => {
   // Only load on client side
-  if (process.server) {
+  if (import.meta.server) {
     return {
       provide: {
         solana: {

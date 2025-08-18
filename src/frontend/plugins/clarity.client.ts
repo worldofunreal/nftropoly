@@ -8,7 +8,7 @@ import Clarity from '@microsoft/clarity'
  * - Identifies authenticated users using ICP Principal and username
  */
 export default defineNuxtPlugin(nuxtApp => {
-  if (process.server) return
+  if (import.meta.server) return
 
   const config = useRuntimeConfig()
   const projectId = (config.public.CLARITY_PROJECT_ID as string) || 'stqeko2g9v'

@@ -1,8 +1,8 @@
 <template>
   <div class="mb-2">
     <button
-      @click="$emit('toggle')"
       class="flex items-center w-full justify-between font-bold text-sm py-2 focus:outline-none"
+      @click="$emit('toggle')"
     >
       <span>{{ title }}</span>
       <svg

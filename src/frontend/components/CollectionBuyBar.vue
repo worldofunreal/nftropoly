@@ -5,21 +5,21 @@
     <div class="flex items-center gap-2">
       <span class="font-semibold">Qty:</span>
       <input
+        v-model="qty"
         type="number"
         min="1"
-        v-model="qty"
         class="w-16 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-      />
+      >
     </div>
     <div class="flex items-center gap-2">
       <span class="font-semibold">Max Price:</span>
       <input
+        v-model="maxPrice"
         type="number"
         min="0"
         step="0.0001"
-        v-model="maxPrice"
         class="w-24 px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-      />
+      >
       <span class="text-gray-500">ETH</span>
     </div>
     <button

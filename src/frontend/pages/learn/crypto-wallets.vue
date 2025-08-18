@@ -24,7 +24,7 @@
                     fill-rule="evenodd"
                     d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                     clip-rule="evenodd"
-                  ></path>
+                  />
                 </svg>
                 <span class="ml-1 text-gray-500 md:ml-2 dark:text-gray-400"
                   >Crypto Wallets</span
@@ -145,7 +145,7 @@
                         stroke-linejoin="round"
                         stroke-width="2"
                         d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      ></path>
+                      />
                     </svg>
                   </div>
                   <div>
@@ -188,7 +188,7 @@
                             fill-rule="evenodd"
                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                             clip-rule="evenodd"
-                          ></path>
+                          />
                         </svg>
                         <span class="text-sm text-gray-600 dark:text-gray-400"
                           >Easy to use, convenient access</span
@@ -204,7 +204,7 @@
                             fill-rule="evenodd"
                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                             clip-rule="evenodd"
-                          ></path>
+                          />
                         </svg>
                         <span class="text-sm text-gray-600 dark:text-gray-400"
                           >Vulnerable to online attacks</span
@@ -234,7 +234,7 @@
                         stroke-linejoin="round"
                         stroke-width="2"
                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                      ></path>
+                      />
                     </svg>
                   </div>
                   <div>
@@ -277,7 +277,7 @@
                             fill-rule="evenodd"
                             d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                             clip-rule="evenodd"
-                          ></path>
+                          />
                         </svg>
                         <span class="text-sm text-gray-600 dark:text-gray-400"
                           >Maximum security, offline protection</span
@@ -293,7 +293,7 @@
                             fill-rule="evenodd"
                             d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                             clip-rule="evenodd"
-                          ></path>
+                          />
                         </svg>
                         <span class="text-sm text-gray-600 dark:text-gray-400"
                           >Less convenient, requires physical device</span
@@ -345,7 +345,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>Supports Ethereum and EVM chains</span>
                   </div>
@@ -359,7 +359,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>Easy dApp integration</span>
                   </div>
@@ -373,7 +373,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>Free to use</span>
                   </div>
@@ -413,7 +413,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>Multi-chain support</span>
                   </div>
@@ -427,7 +427,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>Built-in DEX</span>
                   </div>
@@ -441,7 +441,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>User-friendly interface</span>
                   </div>
@@ -481,7 +481,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>Maximum security</span>
                   </div>
@@ -495,7 +495,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>Supports 1000+ cryptocurrencies</span>
                   </div>
@@ -509,7 +509,7 @@
                         fill-rule="evenodd"
                         d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>Requires physical device ($59+)</span>
                   </div>
@@ -549,7 +549,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>Easy integration with Coinbase</span>
                   </div>
@@ -563,7 +563,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>Multi-chain support</span>
                   </div>
@@ -577,7 +577,7 @@
                         fill-rule="evenodd"
                         d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
                         clip-rule="evenodd"
-                      ></path>
+                      />
                     </svg>
                     <span>User-friendly for beginners</span>
                   </div>
@@ -608,7 +608,7 @@
                           fill-rule="evenodd"
                           d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                           clip-rule="evenodd"
-                        ></path>
+                        />
                       </svg>
                       <div>
                         <h5
@@ -632,7 +632,7 @@
                           fill-rule="evenodd"
                           d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                           clip-rule="evenodd"
-                        ></path>
+                        />
                       </svg>
                       <div>
                         <h5
@@ -656,7 +656,7 @@
                           fill-rule="evenodd"
                           d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                           clip-rule="evenodd"
-                        ></path>
+                        />
                       </svg>
                       <div>
                         <h5
@@ -688,7 +688,7 @@
                           fill-rule="evenodd"
                           d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                           clip-rule="evenodd"
-                        ></path>
+                        />
                       </svg>
                       <div>
                         <h5
@@ -711,7 +711,7 @@
                           fill-rule="evenodd"
                           d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                           clip-rule="evenodd"
-                        ></path>
+                        />
                       </svg>
                       <div>
                         <h5
@@ -734,7 +734,7 @@
                           fill-rule="evenodd"
                           d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                           clip-rule="evenodd"
-                        ></path>
+                        />
                       </svg>
                       <div>
                         <h5
@@ -764,7 +764,7 @@
                       fill-rule="evenodd"
                       d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                       clip-rule="evenodd"
-                    ></path>
+                    />
                   </svg>
                   <div>
                     <h5 class="font-medium text-red-800 dark:text-red-200">
@@ -832,9 +832,9 @@
                   >Security Level</span
                 >
                 <div class="flex space-x-1">
-                  <div class="w-3 h-3 bg-red-400 rounded"></div>
-                  <div class="w-3 h-3 bg-yellow-400 rounded"></div>
-                  <div class="w-3 h-3 bg-green-400 rounded"></div>
+                  <div class="w-3 h-3 bg-red-400 rounded"/>
+                  <div class="w-3 h-3 bg-yellow-400 rounded"/>
+                  <div class="w-3 h-3 bg-green-400 rounded"/>
                 </div>
               </div>
               <div class="flex justify-between items-center">
@@ -842,17 +842,17 @@
                   >Ease of Use</span
                 >
                 <div class="flex space-x-1">
-                  <div class="w-3 h-3 bg-green-400 rounded"></div>
-                  <div class="w-3 h-3 bg-green-400 rounded"></div>
-                  <div class="w-3 h-3 bg-yellow-400 rounded"></div>
+                  <div class="w-3 h-3 bg-green-400 rounded"/>
+                  <div class="w-3 h-3 bg-green-400 rounded"/>
+                  <div class="w-3 h-3 bg-yellow-400 rounded"/>
                 </div>
               </div>
               <div class="flex justify-between items-center">
                 <span class="text-gray-600 dark:text-gray-400">Cost</span>
                 <div class="flex space-x-1">
-                  <div class="w-3 h-3 bg-green-400 rounded"></div>
-                  <div class="w-3 h-3 bg-green-400 rounded"></div>
-                  <div class="w-3 h-3 bg-red-400 rounded"></div>
+                  <div class="w-3 h-3 bg-green-400 rounded"/>
+                  <div class="w-3 h-3 bg-green-400 rounded"/>
+                  <div class="w-3 h-3 bg-red-400 rounded"/>
                 </div>
               </div>
               <div class="text-xs text-gray-500 dark:text-gray-400 text-center">

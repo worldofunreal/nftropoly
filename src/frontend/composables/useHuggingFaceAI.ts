@@ -1,3 +1,5 @@
+import { useRuntimeConfig } from '#imports'
+
 const INITIAL_PROMPT_TEMPLATE = `You are an expert productivity assistant. Your job is to help me break down ideas into clear, actionable tasks.
 
 Here is a raw idea from my brainstorm:
@@ -54,8 +56,6 @@ User question: "{{question}}"
 Provide 2-3 specific, actionable tools, apps, or approaches that would help them complete this task. Be concrete and practical. Don't ask follow-up questions - give them actionable recommendations.
 
 Format as a simple list with brief explanations.`
-
-import { useRuntimeConfig } from '#imports'
 
 export async function useHuggingFaceAI(idea: string): Promise<string> {
   const config = useRuntimeConfig()

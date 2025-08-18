@@ -12,7 +12,7 @@
           :src="nft.image"
           :alt="nft.name"
           class="object-cover w-full h-full"
-        />
+        >
       </div>
       <div class="font-bold text-base">{{ nft.name }}</div>
       <div class="flex items-center gap-2 text-xs">

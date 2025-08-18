@@ -4,7 +4,7 @@
     v-if="isOpen"
     class="fixed inset-0 bg-black/50 z-[9998] md:hidden"
     @click="closeDrawer"
-  ></div>
+  />
 
   <div
     class="fixed flex flex-col bottom-0 left-0 right-0 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 z-[9999] md:hidden transition-transform duration-300 ease-in-out max-h-[90vh] overflow-hidden"
@@ -36,24 +36,24 @@
         <h4 class="font-medium text-gray-900 dark:text-white">Token Type</h4>
         <div class="flex gap-1">
           <button
-            @click="type = 'NFTs'"
             :class="
               type === 'NFTs'
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
             "
             class="px-3 py-2 rounded-l font-medium text-sm"
+            @click="type = 'NFTs'"
           >
             NFTs
           </button>
           <button
-            @click="type = 'Tokens'"
             :class="
               type === 'Tokens'
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
             "
             class="px-3 py-2 rounded-r font-medium text-sm"
+            @click="type = 'Tokens'"
           >
             Tokens
           </button>
@@ -67,13 +67,13 @@
           <button
             v-for="filter in filters"
             :key="filter"
-            @click="selectedFilter = filter"
             :class="
               selectedFilter === filter
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
             "
             class="px-3 py-2 rounded font-medium text-sm"
+            @click="selectedFilter = filter"
           >
             {{ filter }}
           </button>
@@ -87,13 +87,13 @@
           <button
             v-for="time in times"
             :key="time"
-            @click="selectedTime = time"
             :class="
               selectedTime === time
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
             "
             class="px-3 py-2 rounded font-medium text-sm"
+            @click="selectedTime = time"
           >
             {{ time }}
           </button>
@@ -110,7 +110,7 @@
             type="text"
             placeholder="Search chains..."
             class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
-          />
+          >
           <UIcon
             name="ri:search-line"
             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -125,13 +125,13 @@
           <button
             v-for="chain in chains"
             :key="chain"
-            @click="toggleChain(chain)"
             :class="
               selectedChains.includes(chain)
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
             "
             class="px-3 py-2 rounded-full border text-sm font-medium"
+            @click="toggleChain(chain)"
           >
             {{ chain }}
           </button>
@@ -145,13 +145,13 @@
           <button
             v-for="cap in marketCaps"
             :key="cap"
-            @click="toggleMarketCap(cap)"
             :class="
               selectedMarketCaps.includes(cap)
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
             "
             class="px-3 py-2 rounded-full border text-sm font-medium"
+            @click="toggleMarketCap(cap)"
           >
             {{ cap }}
           </button>
@@ -165,13 +165,13 @@
           <button
             v-for="cat in categories"
             :key="cat.label"
-            @click="toggleCategoryOption(cat.label, cat.label)"
             :class="
               selectedCategoryOptions[cat.label]?.includes(cat.label)
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
             "
             class="px-3 py-2 rounded-full border text-sm font-medium"
+            @click="toggleCategoryOption(cat.label, cat.label)"
           >
             {{ cat.label }}
           </button>
@@ -184,11 +184,11 @@
         <div class="space-y-3">
           <div class="flex items-center gap-3">
             <input
-              type="checkbox"
               id="mobile-has-nft"
-              class="accent-primary-600 w-5 h-5"
               v-model="hasNft"
-            />
+              type="checkbox"
+              class="accent-primary-600 w-5 h-5"
+            >
             <label
               for="mobile-has-nft"
               class="text-gray-700 dark:text-gray-200 font-medium"
@@ -197,11 +197,11 @@
           </div>
           <div class="flex items-center gap-3">
             <input
-              type="checkbox"
               id="mobile-branded-token"
-              class="accent-primary-600 w-5 h-5"
               v-model="brandedToken"
-            />
+              type="checkbox"
+              class="accent-primary-600 w-5 h-5"
+            >
             <label
               for="mobile-branded-token"
               class="text-gray-700 dark:text-gray-200 font-medium"
@@ -217,14 +217,14 @@
       class="flex gap-3 p-4 border-t border-gray-200 dark:border-gray-800 flex-shrink-0"
     >
       <button
-        @click="resetFilters"
         class="flex-1 px-4 py-3 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-medium"
+        @click="resetFilters"
       >
         Reset
       </button>
       <button
-        @click="applyFilters"
         class="flex-1 px-4 py-3 rounded bg-primary-600 text-white font-medium"
+        @click="applyFilters"
       >
         Apply Filters
       </button>

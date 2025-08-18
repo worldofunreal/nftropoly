@@ -18,13 +18,13 @@
             <button
               v-for="tab in tabs"
               :key="tab.id"
-              @click="activeTab = tab.id"
               :class="[
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300',
                 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
               ]"
+              @click="activeTab = tab.id"
             >
               {{ tab.name }}
             </button>
@@ -50,7 +50,7 @@
                   class="h-16 w-16 rounded-full"
                   src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                   alt="Profile"
-                />
+                >
               </div>
               <div>
                 <button
@@ -71,10 +71,10 @@
                   >First Name</label
                 >
                 <input
-                  type="text"
                   v-model="profile.firstName"
+                  type="text"
                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
+                >
               </div>
               <div>
                 <label
@@ -82,10 +82,10 @@
                   >Last Name</label
                 >
                 <input
-                  type="text"
                   v-model="profile.lastName"
+                  type="text"
                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
+                >
               </div>
               <div class="sm:col-span-2">
                 <label
@@ -93,10 +93,10 @@
                   >Email</label
                 >
                 <input
-                  type="email"
                   v-model="profile.email"
+                  type="email"
                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                />
+                >
               </div>
               <div class="sm:col-span-2">
                 <label
@@ -107,7 +107,7 @@
                   v-model="profile.bio"
                   rows="3"
                   class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                ></textarea>
+                />
               </div>
             </div>
           </div>
@@ -158,7 +158,7 @@
                     type="checkbox"
                     checked
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
+                  >
                 </div>
               </div>
             </div>
@@ -178,7 +178,7 @@
                   <input
                     type="password"
                     class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  >
                 </div>
                 <div>
                   <label
@@ -188,7 +188,7 @@
                   <input
                     type="password"
                     class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  >
                 </div>
                 <div>
                   <label
@@ -198,7 +198,7 @@
                   <input
                     type="password"
                     class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  >
                 </div>
               </div>
             </div>
@@ -232,7 +232,7 @@
                     type="checkbox"
                     checked
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
+                  >
                 </div>
               </div>
 
@@ -252,7 +252,7 @@
                     type="checkbox"
                     checked
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
+                  >
                 </div>
               </div>
 
@@ -272,7 +272,7 @@
                     type="checkbox"
                     checked
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
+                  >
                 </div>
               </div>
 
@@ -291,7 +291,7 @@
                   <input
                     type="checkbox"
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
+                  >
                 </div>
               </div>
             </div>

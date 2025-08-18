@@ -30,7 +30,7 @@
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-              ></path>
+              />
             </svg>
           </div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -40,8 +40,8 @@
             Find answers to common questions
           </p>
           <button
-            @click="activeSection = 'faq'"
             class="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+            @click="activeSection = 'faq'"
           >
             Browse FAQ →
           </button>
@@ -64,7 +64,7 @@
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-              ></path>
+              />
             </svg>
           </div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -74,8 +74,8 @@
             Get in touch with our support team
           </p>
           <button
-            @click="activeSection = 'contact'"
             class="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 font-medium"
+            @click="activeSection = 'contact'"
           >
             Contact Support →
           </button>
@@ -98,7 +98,7 @@
                 stroke-linejoin="round"
                 stroke-width="2"
                 d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-              ></path>
+              />
             </svg>
           </div>
           <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
@@ -108,8 +108,8 @@
             Read our guides and tutorials
           </p>
           <button
-            @click="activeSection = 'docs'"
             class="text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 font-medium"
+            @click="activeSection = 'docs'"
           >
             View Docs →
           </button>
@@ -131,8 +131,8 @@
               class="border border-gray-200 dark:border-gray-700 rounded-lg"
             >
               <button
-                @click="faq.open = !faq.open"
                 class="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-neutral-50 dark:hover:bg-neutral-700"
+                @click="faq.open = !faq.open"
               >
                 <span class="font-medium text-gray-900 dark:text-white">{{
                   faq.question
@@ -151,7 +151,7 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M19 9l-7 7-7-7"
-                  ></path>
+                  />
                 </svg>
               </button>
               <div v-if="faq.open" class="px-6 pb-4">
@@ -187,7 +187,7 @@
                       stroke-linejoin="round"
                       stroke-width="2"
                       d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                    ></path>
+                    />
                   </svg>
                   <span class="text-gray-600 dark:text-gray-400"
                     >support@nftropoly.com</span
@@ -205,7 +205,7 @@
                       stroke-linejoin="round"
                       stroke-width="2"
                       d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-                    ></path>
+                    />
                   </svg>
                   <span class="text-gray-600 dark:text-gray-400"
                     >+1 (555) 123-4567</span
@@ -223,13 +223,13 @@
                       stroke-linejoin="round"
                       stroke-width="2"
                       d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    ></path>
+                    />
                     <path
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
                       d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    ></path>
+                    />
                   </svg>
                   <span class="text-gray-600 dark:text-gray-400"
                     >24/7 Support Available</span
@@ -253,7 +253,7 @@
                   <input
                     type="text"
                     class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  >
                 </div>
                 <div>
                   <label
@@ -263,7 +263,7 @@
                   <input
                     type="email"
                     class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  />
+                  >
                 </div>
                 <div>
                   <label
@@ -288,7 +288,7 @@
                   <textarea
                     rows="4"
                     class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                  ></textarea>
+                  />
                 </div>
                 <button
                   type="submit"
@@ -327,7 +327,7 @@
                     stroke-linejoin="round"
                     stroke-width="2"
                     d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
-                  ></path>
+                  />
                 </svg>
               </div>
               <h3

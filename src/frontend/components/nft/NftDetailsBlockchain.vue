@@ -8,7 +8,7 @@
           class="text-primary-500"
         />
         <span class="font-bold">Blockchain details</span>
-        <button @click="isExpanded = !isExpanded" class="ml-2">
+        <button class="ml-2" @click="isExpanded = !isExpanded">
           <UIcon
             :name="
               isExpanded
@@ -54,7 +54,7 @@
         <div class="flex justify-between items-center py-2">
           <span class="text-gray-400">Chain</span>
           <div class="flex items-center gap-2">
-            <div class="w-4 h-4 bg-blue-500 rounded-full"></div>
+            <div class="w-4 h-4 bg-blue-500 rounded-full"/>
             <span class="text-white">Ethereum</span>
           </div>
         </div>

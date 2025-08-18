@@ -22,7 +22,7 @@ class MetaMaskService {
 
     try {
       // Always prompt user to connect MetaMask
-      let accounts = await window.ethereum.request({
+      const accounts = await window.ethereum.request({
         method: 'eth_requestAccounts',
       })
       console.log('MetaMask eth_requestAccounts result:', accounts)

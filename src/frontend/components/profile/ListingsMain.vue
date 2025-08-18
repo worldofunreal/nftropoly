@@ -32,7 +32,7 @@
         src="https://placehold.co/96x96?text=NFT"
         alt="NFT"
         class="w-24 h-24 rounded-lg shadow mb-4"
-      />
+      >
       <div class="text-xl font-bold mb-2">No listings found</div>
       <div class="text-gray-400 mb-4">
         You currently don't have any listings
@@ -93,7 +93,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="border-b border-gray-200 dark:border-gray-700 h-px"></tr>
+          <tr class="border-b border-gray-200 dark:border-gray-700 h-px"/>
           <tr
             v-for="listing in listings"
             :key="listing.id"
@@ -105,7 +105,7 @@
                   :src="listing.image"
                   alt="NFT"
                   class="w-12 h-12 rounded-lg border border-gray-300 dark:border-gray-700 flex-shrink-0"
-                />
+                >
                 <div class="flex flex-col">
                   <span class="font-semibold text-gray-900 dark:text-white">{{
                     listing.name
@@ -242,7 +242,7 @@
               type="text"
               placeholder="Search chains..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-3"
-            />
+            >
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="chain in chains"
@@ -265,7 +265,7 @@
               type="text"
               placeholder="Search collections..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-            />
+            >
           </div>
 
           <!-- Sort Options -->
@@ -294,12 +294,12 @@
                 type="text"
                 placeholder="Min price"
                 class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-              />
+              >
               <input
                 type="text"
                 placeholder="Max price"
                 class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-              />
+              >
             </div>
           </div>
         </div>

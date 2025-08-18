@@ -4,7 +4,7 @@
     v-if="isOpen"
     class="fixed inset-0 bg-black/50 z-[9998] md:hidden"
     @click="closeDrawer"
-  ></div>
+  />
 
   <div
     class="fixed flex flex-col bottom-0 left-0 right-0 bg-white dark:bg-gray-950 border-t border-gray-200 dark:border-gray-800 z-[9999] md:hidden transition-transform duration-300 ease-in-out max-h-[90vh] overflow-hidden"
@@ -18,9 +18,9 @@
         Filters
       </h3>
       <button
-        @click="closeDrawer"
         class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
         aria-label="Close filters"
+        @click="closeDrawer"
       >
         <UIcon
           name="i-heroicons-x-mark-20-solid"
@@ -38,13 +38,13 @@
           <button
             v-for="status in statuses"
             :key="status"
-            @click="toggleStatus(status)"
             :class="
               selectedStatuses.includes(status)
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
             "
             class="px-3 py-2 rounded-full border text-sm font-medium"
+            @click="toggleStatus(status)"
           >
             {{ status }}
           </button>
@@ -66,13 +66,13 @@
               type="number"
               placeholder="Min"
               class="flex-1 min-w-0 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
-            />
+            >
             <span class="text-gray-500 dark:text-gray-400">to</span>
             <input
               type="number"
               placeholder="Max"
               class="flex-1 min-w-0 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200"
-            />
+            >
           </div>
           <button
             class="w-full px-3 py-2 rounded bg-primary-600 text-white font-medium"
@@ -92,11 +92,11 @@
             class="flex items-center gap-2"
           >
             <input
-              type="checkbox"
               v-model="selectedMarketplaces"
+              type="checkbox"
               :value="m"
               class="accent-primary-600 w-5 h-5"
-            />
+            >
             <span class="text-gray-700 dark:text-gray-200 font-medium">{{
               m
             }}</span>
@@ -111,18 +111,18 @@
           type="text"
           placeholder="Search chains..."
           class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 mb-2"
-        />
+        >
         <div class="flex flex-wrap gap-2">
           <button
             v-for="chain in chains"
             :key="chain.label"
-            @click="toggleChain(chain.label)"
             :class="
               selectedChains.includes(chain.label)
                 ? 'bg-primary-600 text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200'
             "
             class="flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium border"
+            @click="toggleChain(chain.label)"
           >
             <UIcon :name="chain.icon" class="text-base" /> {{ chain.label }}
           </button>
@@ -136,7 +136,7 @@
           type="text"
           placeholder="Search for collections"
           class="w-full px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 mb-2"
-        />
+        >
         <div class="flex flex-col gap-1 max-h-40 overflow-y-auto">
           <label
             v-for="col in collections"
@@ -144,11 +144,11 @@
             class="flex items-center gap-2"
           >
             <input
-              type="checkbox"
               v-model="selectedCollections"
+              type="checkbox"
               :value="col.name"
               class="accent-primary-600 w-5 h-5"
-            />
+            >
             <span>{{ col.name }}</span>
             <UIcon
               v-if="col.verified"
@@ -165,14 +165,14 @@
       class="flex gap-3 p-4 border-t border-gray-200 dark:border-gray-800 flex-shrink-0"
     >
       <button
-        @click="resetFilters"
         class="flex-1 px-4 py-3 rounded border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-medium"
+        @click="resetFilters"
       >
         Reset
       </button>
       <button
-        @click="applyFilters"
         class="flex-1 px-4 py-3 rounded bg-primary-600 text-white font-medium"
+        @click="applyFilters"
       >
         Apply Filters
       </button>

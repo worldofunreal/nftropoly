@@ -13,7 +13,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr class="border-b border-gray-200 dark:border-gray-700 h-px"></tr>
+        <tr class="border-b border-gray-200 dark:border-gray-700 h-px"/>
         <tr
           v-for="row in rows"
           :key="row.id"
@@ -35,7 +35,7 @@
                 :src="row.itemAvatar"
                 alt="avatar"
                 class="w-8 h-8 rounded border border-gray-300 dark:border-gray-700 flex-shrink-0"
-              />
+              >
               <div class="min-w-0">
                 <div
                   class="font-semibold text-gray-900 dark:text-white truncate"

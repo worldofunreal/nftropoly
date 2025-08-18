@@ -3,24 +3,24 @@
     <!-- Token Type Toggle -->
     <div class="flex gap-1">
       <button
-        @click="type = 'NFTs'"
         class="px-3 py-2 rounded-l font-bold"
         :class="
           type === 'NFTs'
             ? 'bg-primary-600 text-white'
             : 'bg-neutral-800 text-gray-200'
         "
+        @click="type = 'NFTs'"
       >
         NFTs
       </button>
       <button
-        @click="type = 'Tokens'"
         class="px-3 py-2 rounded-r font-bold"
         :class="
           type === 'Tokens'
             ? 'bg-primary-600 text-white'
             : 'bg-neutral-800 text-gray-200'
         "
+        @click="type = 'Tokens'"
       >
         Tokens
       </button>
@@ -30,13 +30,13 @@
       <button
         v-for="f in filters"
         :key="f"
-        @click="selectedFilter = f"
         :class="
           selectedFilter === f
             ? 'bg-primary-600 text-white'
             : 'bg-neutral-800 text-gray-200'
         "
         class="px-3 py-2 rounded font-bold"
+        @click="selectedFilter = f"
       >
         {{ f }}
       </button>
@@ -46,13 +46,13 @@
       <button
         v-for="t in times"
         :key="t"
-        @click="selectedTime = t"
         :class="
           selectedTime === t
             ? 'bg-primary-600 text-white'
             : 'bg-neutral-800 text-gray-200'
         "
         class="px-3 py-2 rounded font-bold"
+        @click="selectedTime = t"
       >
         {{ t }}
       </button>

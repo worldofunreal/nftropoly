@@ -8,7 +8,7 @@
         :src="bannerUrl || 'https://placehold.co/1200x240'"
         alt="Banner"
         class="w-full h-48 object-cover blur-sm opacity-60"
-      />
+      >
     </div>
     <div
       class="relative h-full justify-end md:justify-between z-10 flex md:items-end flex-col md:flex-row gap-6 px-8 py-8"
@@ -19,7 +19,7 @@
           :src="avatarUrl || 'https://placehold.co/96x96'"
           alt="Avatar"
           class="w-24 h-24 rounded-2xl border-4 border-white dark:border-gray-900 shadow-lg bg-white object-cover"
-        />
+        >
         <div class="flex flex-col gap-2 min-w-0">
           <!-- Display Name / Username -->
           <div

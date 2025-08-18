@@ -2,14 +2,14 @@
   <div class="p-4">
     <h3 class="text-lg font-semibold mb-4">Toast Test Component</h3>
     <div class="space-y-2">
-      <UButton @click="showSuccessToast" color="success">
+      <UButton color="success" @click="showSuccessToast">
         Show Success Toast
       </UButton>
-      <UButton @click="showErrorToast" color="error">
+      <UButton color="error" @click="showErrorToast">
         Show Error Toast
       </UButton>
-      <UButton @click="showInfoToast" color="info"> Show Info Toast </UButton>
-      <UButton @click="clearAllToasts" color="neutral">
+      <UButton color="info" @click="showInfoToast"> Show Info Toast </UButton>
+      <UButton color="neutral" @click="clearAllToasts">
         Clear All Toasts
       </UButton>
     </div>

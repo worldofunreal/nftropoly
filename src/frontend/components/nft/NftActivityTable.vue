@@ -9,13 +9,13 @@
         <button
           v-for="filter in eventFilters"
           :key="filter.key"
-          @click="activeFilter = filter.key"
           :class="
             activeFilter === filter.key
               ? 'bg-primary-500 text-white'
               : 'bg-neutral-700 text-gray-300 hover:bg-neutral-600'
           "
           class="px-3 py-1 rounded-full text-sm font-medium transition-colors"
+          @click="activeFilter = filter.key"
         >
           {{ filter.label }}
         </button>
@@ -55,12 +55,12 @@
             </th>
             <th
               class="px-4 py-3 text-left text-xs font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap"
-            ></th>
+            />
           </tr>
         </thead>
         <!-- Header Separator -->
         <tr class="border-b border-gray-700">
-          <td colspan="6" class="h-px"></td>
+          <td colspan="6" class="h-px"/>
         </tr>
 
         <!-- Table Body -->
@@ -76,7 +76,7 @@
                 <div
                   :class="getEventIcon(activity.event)"
                   class="w-5 h-5 flex-shrink-0"
-                ></div>
+                />
                 <span class="text-sm font-medium">{{ activity.event }}</span>
               </div>
             </td>
@@ -88,7 +88,7 @@
                   src="https://placehold.co/16x16"
                   alt="ETH"
                   class="w-4 h-4 rounded-full flex-shrink-0"
-                />
+                >
                 <span class="font-mono text-sm">{{ activity.price }}</span>
               </div>
               <span v-else class="text-sm text-gray-400">-</span>
@@ -101,7 +101,7 @@
                   :src="activity.from.avatar"
                   :alt="activity.from.name"
                   class="w-6 h-6 rounded-full flex-shrink-0"
-                />
+                >
                 <span class="text-sm font-medium">{{
                   activity.from.name
                 }}</span>
@@ -120,7 +120,7 @@
                   :src="activity.to.avatar"
                   :alt="activity.to.name"
                   class="w-6 h-6 rounded-full flex-shrink-0"
-                />
+                >
                 <span class="text-sm font-medium">{{ activity.to.name }}</span>
                 <UIcon
                   v-if="activity.to.verified"

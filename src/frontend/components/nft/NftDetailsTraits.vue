@@ -6,7 +6,7 @@
         <UIcon name="i-heroicons-sparkles-20-solid" class="text-primary-500" />
         <span class="font-bold">Traits</span>
         <span class="text-gray-400 text-sm">TRAITS 4</span>
-        <button @click="isExpanded = !isExpanded" class="ml-2">
+        <button class="ml-2" @click="isExpanded = !isExpanded">
           <UIcon
             :name="
               isExpanded
@@ -19,16 +19,16 @@
       </div>
       <div class="flex gap-1">
         <button
-          @click="viewMode = 'grid'"
           :class="viewMode === 'grid' ? 'text-primary-500' : 'text-gray-400'"
           class="p-1"
+          @click="viewMode = 'grid'"
         >
           <UIcon name="i-heroicons-squares-2x2-20-solid" />
         </button>
         <button
-          @click="viewMode = 'list'"
           :class="viewMode === 'list' ? 'text-primary-500' : 'text-gray-400'"
           class="p-1"
+          @click="viewMode = 'list'"
         >
           <UIcon name="i-heroicons-bars-3-20-solid" />
         </button>

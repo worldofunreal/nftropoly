@@ -6,8 +6,8 @@
         Tokens
       </h2>
       <button
-        @click="isDrawerOpen = true"
         class="flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+        @click="isDrawerOpen = true"
       >
         <UIcon name="heroicons:funnel" class="w-4 h-4" />
         <span class="text-sm font-medium">Filters</span>
@@ -22,7 +22,7 @@
         type="text"
         placeholder="Search for tokens"
         class="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-      />
+      >
       <div class="flex gap-2">
         <button class="px-2 py-1 rounded bg-primary-600 text-white">
           List
@@ -40,7 +40,7 @@
         src="https://placehold.co/96x96?text=Token"
         alt="Token"
         class="w-24 h-24 rounded-lg shadow mb-4"
-      />
+      >
       <div class="text-xl font-bold mb-2">No results found</div>
       <div class="text-gray-400 mb-4">We've been searching the blockchain.</div>
       <button class="px-4 py-2 rounded bg-primary-600 text-white font-semibold">
@@ -84,7 +84,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="border-b border-gray-200 dark:border-gray-700 h-px"></tr>
+          <tr class="border-b border-gray-200 dark:border-gray-700 h-px"/>
           <tr
             v-for="token in tokens"
             :key="token.id"
@@ -96,7 +96,7 @@
                   :src="token.logo"
                   alt="Token"
                   class="w-10 h-10 rounded-full border border-gray-300 dark:border-gray-700 flex-shrink-0"
-                />
+                >
                 <span class="font-semibold text-gray-900 dark:text-white">{{
                   token.name
                 }}</span>
@@ -147,7 +147,7 @@
       @click="isDrawerOpen = false"
     >
       <!-- Backdrop -->
-      <div class="absolute inset-0 bg-black/50"></div>
+      <div class="absolute inset-0 bg-black/50"/>
 
       <!-- Drawer Content -->
       <div
@@ -159,7 +159,7 @@
       >
         <!-- Drawer Handle -->
         <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
-          <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
+          <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"/>
         </div>
 
         <!-- Drawer Header -->
@@ -170,8 +170,8 @@
             Filters
           </h3>
           <button
-            @click="isDrawerOpen = false"
             class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            @click="isDrawerOpen = false"
           >
             <UIcon
               name="heroicons:x-mark"
@@ -191,7 +191,7 @@
               type="text"
               placeholder="Search for tokens"
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-            />
+            >
           </div>
 
           <!-- Chains Filter -->
@@ -203,7 +203,7 @@
               type="text"
               placeholder="Search chains..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-3"
-            />
+            >
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="chain in chains"
@@ -249,7 +249,7 @@
                 <input
                   type="checkbox"
                   class="rounded border-gray-300 dark:border-gray-600"
-                />
+                >
                 <span class="text-sm text-gray-700 dark:text-gray-300"
                   >Has NFT</span
                 >
@@ -258,7 +258,7 @@
                 <input
                   type="checkbox"
                   class="rounded border-gray-300 dark:border-gray-600"
-                />
+                >
                 <span class="text-sm text-gray-700 dark:text-gray-300"
                   >Branded Token Page</span
                 >
@@ -292,14 +292,14 @@
         >
           <div class="flex gap-3">
             <button
-              @click="clearFilters"
               class="flex-1 px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              @click="clearFilters"
             >
               Clear All
             </button>
             <button
-              @click="applyFilters"
               class="flex-1 px-4 py-3 rounded-lg bg-primary-600 text-white font-medium hover:bg-primary-700 transition-colors"
+              @click="applyFilters"
             >
               Apply Filters
             </button>

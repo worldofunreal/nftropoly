@@ -24,7 +24,7 @@
         <div
           class="absolute w-2 h-2 bg-gray-900 dark:bg-gray-800 transform rotate-45"
           :class="arrowClasses"
-        ></div>
+        />
       </div>
     </Transition>
   </div>

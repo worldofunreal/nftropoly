@@ -5,16 +5,16 @@
     </div>
     <div class="relative">
       <button
-        @click="scrollLeft"
         class="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 p-0 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 hover:bg-primary-50 dark:hover:bg-primary-500 transition"
         style="transform: translateY(-50%)"
+        @click="scrollLeft"
       >
         <UIcon name="i-heroicons-chevron-left-20-solid" class="text-base" />
       </button>
       <button
-        @click="scrollRight"
         class="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-9 h-9 p-0 rounded-full flex items-center justify-center border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 hover:bg-primary-50 dark:hover:bg-primary-500 transition"
         style="transform: translateY(-50%)"
+        @click="scrollRight"
       >
         <UIcon name="i-heroicons-chevron-right-20-solid" class="text-base" />
       </button>
@@ -36,7 +36,7 @@
               :src="drop.image"
               :alt="drop.name"
               class="object-cover w-full h-full"
-            />
+            >
             <span
               class="absolute top-2 left-2 bg-emerald-600 text-white text-xs font-bold px-2 py-1 rounded shadow"
               >MINTING NOW</span

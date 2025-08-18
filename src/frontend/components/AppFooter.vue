@@ -98,9 +98,9 @@
         <!-- Theme Switcher -->
         <ClientOnly>
           <button
-            @click="toggleTheme"
             aria-label="Toggle theme"
             class="flex items-center gap-1 px-2 py-1 rounded transition-colors border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
+            @click="toggleTheme"
           >
             <UIcon
               :name="
@@ -115,8 +115,8 @@
         <span class="hidden md:inline">|</span>
         <!-- Fiat/Crypto Switch -->
         <button
-          @click="toggleFiat"
           class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
+          @click="toggleFiat"
         >
           {{ showFiat ? 'USD' : 'Crypto' }}
         </button>

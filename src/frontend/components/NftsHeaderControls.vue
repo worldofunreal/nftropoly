@@ -5,13 +5,13 @@
       <button
         v-for="tab in tabs"
         :key="tab"
-        @click="selectedTab = tab"
         :class="
           selectedTab === tab
             ? 'bg-primary-600 text-white'
             : 'bg-neutral-800 text-gray-200'
         "
         class="px-3 py-2 rounded font-bold"
+        @click="selectedTab = tab"
       >
         {{ tab }}
       </button>
@@ -21,13 +21,13 @@
       <button
         v-for="t in times"
         :key="t"
-        @click="selectedTime = t"
         :class="
           selectedTime === t
             ? 'bg-primary-600 text-white'
             : 'bg-neutral-800 text-gray-200'
         "
         class="px-3 py-2 rounded font-bold text-sm"
+        @click="selectedTime = t"
       >
         {{ t }}
       </button>
@@ -35,24 +35,24 @@
     <!-- View Toggle -->
     <div class="flex gap-1 ml-auto">
       <button
-        @click="view = 'grid'"
         :class="
           view === 'grid'
             ? 'bg-primary-600 text-white'
             : 'bg-neutral-800 text-gray-200'
         "
         class="p-2 rounded"
+        @click="view = 'grid'"
       >
         <UIcon name="i-heroicons-squares-2x2-20-solid" />
       </button>
       <button
-        @click="view = 'list'"
         :class="
           view === 'list'
             ? 'bg-primary-600 text-white'
             : 'bg-neutral-800 text-gray-200'
         "
         class="p-2 rounded"
+        @click="view = 'list'"
       >
         <UIcon name="i-heroicons-bars-3-20-solid" />
       </button>

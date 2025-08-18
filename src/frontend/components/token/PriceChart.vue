@@ -15,7 +15,7 @@
           <div
             class="bg-gradient-to-t from-blue-600 to-blue-400 rounded-t shadow-sm hover:shadow-md transition-shadow"
             :style="{ height: `${dataPoint.height}%` }"
-          ></div>
+          />
 
           <!-- Price Label (hidden by default, shown on hover) -->
           <div
@@ -52,7 +52,7 @@
             v-for="i in 5"
             :key="i"
             class="border-t border-gray-200 dark:border-gray-700"
-          ></div>
+          />
         </div>
       </div>
     </div>

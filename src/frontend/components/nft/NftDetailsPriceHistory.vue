@@ -8,7 +8,7 @@
           class="text-primary-500"
         />
         <span class="font-bold">Price history</span>
-        <button @click="isExpanded = !isExpanded" class="ml-2">
+        <button class="ml-2" @click="isExpanded = !isExpanded">
           <UIcon
             :name="
               isExpanded
@@ -41,7 +41,7 @@
         <div class="ml-12 h-full relative">
           <!-- Grid lines -->
           <div class="absolute inset-0 grid grid-rows-5">
-            <div v-for="i in 5" :key="i" class="border-b border-gray-700"></div>
+            <div v-for="i in 5" :key="i" class="border-b border-gray-700"/>
           </div>
 
           <!-- Price line with gradient fill -->

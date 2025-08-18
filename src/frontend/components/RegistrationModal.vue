@@ -9,7 +9,7 @@
       <!-- Header -->
       <div class="flex items-center justify-between p-6 border-b">
         <h2 class="text-xl font-semibold text-gray-900">Create Your Profile</h2>
-        <button @click="close()" class="text-gray-400 hover:text-gray-600">
+        <button class="text-gray-400 hover:text-gray-600" @click="close()">
           <svg
             class="w-6 h-6"
             fill="none"
@@ -21,7 +21,7 @@
               stroke-linejoin="round"
               stroke-width="2"
               d="M6 18L18 6M6 6l12 12"
-            ></path>
+            />
           </svg>
         </button>
       </div>
@@ -46,7 +46,7 @@
                 'h-1 w-8',
                 currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-200',
               ]"
-            ></div>
+            />
             <div
               :class="[
                 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold',
@@ -62,7 +62,7 @@
                 'h-1 w-8',
                 currentStep >= 3 ? 'bg-blue-600' : 'bg-gray-200',
               ]"
-            ></div>
+            />
             <div
               :class="[
                 'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold',
@@ -108,9 +108,9 @@
                 placeholder="Enter your username"
                 required
                 :disabled="loading"
-                @input="checkUsernameAvailability"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              />
+                @input="checkUsernameAvailability"
+              >
               <p
                 v-if="usernameStatus"
                 :class="[
@@ -132,7 +132,7 @@
                 placeholder="How you'd like to be called"
                 :disabled="loading"
                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-              />
+              >
             </div>
           </div>
 
@@ -144,7 +144,7 @@
               rows="3"
               :disabled="loading"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 resize-vertical"
-            ></textarea>
+            />
           </div>
 
           <div>
@@ -157,7 +157,7 @@
               placeholder="your@email.com"
               :disabled="loading"
               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
-            />
+            >
           </div>
         </div>
 
@@ -180,9 +180,9 @@
                   type="file"
                   class="hidden"
                   accept="image/*"
-                  @change="handleAvatarUpload"
                   :disabled="loading"
-                />
+                  @change="handleAvatarUpload"
+                >
                 <div class="text-center">
                   <UIcon
                     name="i-heroicons-cloud-arrow-up"
@@ -201,10 +201,10 @@
                 :src="avatarPreview"
                 alt="Avatar preview"
                 class="w-24 h-24 rounded-full mx-auto border-4 border-white shadow-lg"
-              />
+              >
               <button
-                @click="clearAvatar"
                 class="text-sm text-red-600 hover:text-red-800 mt-2"
+                @click="clearAvatar"
               >
                 Remove
               </button>
@@ -216,13 +216,13 @@
                 v-for="i in 12"
                 :key="i"
                 type="button"
-                @click="selectPresetAvatar(i)"
                 :class="[
                   'w-12 h-12 rounded-full border-2 transition-colors',
                   formData.avatarPreset === i && !avatarPreview
                     ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300',
                 ]"
+                @click="selectPresetAvatar(i)"
               >
                 <div
                   class="w-full h-full rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold text-xs"
@@ -245,9 +245,9 @@
                 type="file"
                 class="hidden"
                 accept="image/*"
-                @change="handleBannerUpload"
                 :disabled="loading"
-              />
+                @change="handleBannerUpload"
+              >
               <div class="text-center">
                 <UIcon
                   name="i-heroicons-photo"
@@ -265,10 +265,10 @@
                 :src="bannerPreview"
                 alt="Banner preview"
                 class="w-full h-32 object-cover rounded-lg"
-              />
+              >
               <button
-                @click="clearBanner"
                 class="text-sm text-red-600 hover:text-red-800 mt-2"
+                @click="clearBanner"
               >
                 Remove Banner
               </button>
@@ -326,34 +326,34 @@
               <div class="flex items-center justify-between">
                 <span class="text-sm">Make profile public</span>
                 <input
-                  type="checkbox"
                   v-model="formData.privacy.profilePublic"
+                  type="checkbox"
                   class="toggle"
-                />
+                >
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-sm">Show portfolio value</span>
                 <input
-                  type="checkbox"
                   v-model="formData.privacy.showPortfolio"
+                  type="checkbox"
                   class="toggle"
-                />
+                >
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-sm">Show trading activity</span>
                 <input
-                  type="checkbox"
                   v-model="formData.privacy.showActivity"
+                  type="checkbox"
                   class="toggle"
-                />
+                >
               </div>
               <div class="flex items-center justify-between">
                 <span class="text-sm">Show email in profile</span>
                 <input
-                  type="checkbox"
                   v-model="formData.privacy.showEmail"
+                  type="checkbox"
                   class="toggle"
-                />
+                >
               </div>
             </div>
           </div>
@@ -364,20 +364,20 @@
           <button
             v-if="currentStep > 1"
             type="button"
-            @click="previousStep"
             :disabled="loading"
             class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            @click="previousStep"
           >
             Previous
           </button>
-          <div v-else></div>
+          <div v-else/>
 
           <div class="flex gap-3">
             <button
               type="button"
-              @click="close"
               :disabled="loading"
               class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="close"
             >
               Cancel
             </button>
@@ -385,9 +385,9 @@
             <button
               v-if="currentStep < 3"
               type="button"
-              @click="nextStep"
               :disabled="!canProceed || loading"
               class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="nextStep"
             >
               Next
             </button>
@@ -395,9 +395,9 @@
             <button
               v-else
               type="button"
-              @click="handleRegistration"
               :disabled="!canComplete || loading"
               class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              @click="handleRegistration"
             >
               {{ loading ? 'Creating...' : 'Create Profile' }}
             </button>
@@ -694,7 +694,7 @@
 
     try {
       // Upload avatar if provided
-      let avatarUrl = null
+      const avatarUrl = null
       if (avatarFile.value) {
         // TODO: Upload to asset canister
         console.log('Would upload avatar:', avatarFile.value.name)
@@ -702,7 +702,7 @@
       }
 
       // Upload banner if provided
-      let bannerUrl = null
+      const bannerUrl = null
       if (bannerFile.value) {
         // TODO: Upload to asset canister
         console.log('Would upload banner:', bannerFile.value.name)

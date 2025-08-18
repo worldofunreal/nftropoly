@@ -5,13 +5,13 @@
     <button
       v-for="tab in tabs"
       :key="tab"
-      @click="selected = tab"
       class="px-4 py-2 text-sm font-semibold border-b-2 transition whitespace-nowrap"
       :class="
         selected === tab
           ? 'border-primary-600 text-primary-600 dark:text-primary-400'
           : 'border-transparent text-gray-500 hover:text-primary-600 dark:hover:text-primary-400'
       "
+      @click="selected = tab"
     >
       {{ tab }}
     </button>

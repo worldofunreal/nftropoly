@@ -9,7 +9,7 @@
     >
       <div
         class="absolute inset-0 bg-gradient-radial from-cyan-500/10 via-fuchsia-700/10 to-transparent opacity-80 pointer-events-none"
-      ></div>
+      />
     </div>
     <!-- Theme Switcher (top left) -->
     <div
@@ -20,9 +20,9 @@
     >
       <ClientOnly>
         <button
-          @click="toggleTheme"
           aria-label="Toggle theme"
           class="relative w-14 h-10 rounded-full border border-cyan-400 bg-neutral/60 flex items-center justify-start transition-colors duration-300 focus:outline-none shadow-md overflow-hidden"
+          @click="toggleTheme"
         >
           <span
             class="absolute top-1.2 left-0.5 w-8 h-8 transition-all duration-500 flex items-center justify-center"
@@ -50,8 +50,8 @@
       v-motion
       :initial="{ opacity: 0, y: -30 }"
       :enter="{ opacity: 1, y: 0, transition: { delay: 180, duration: 350 } }"
-      @click="handleClose"
       class="absolute top-6 right-6 z-20 text-cyan-200 hover:text-cyan-400 text-5xl focus:outline-none"
+      @click="handleClose"
     >
       <UIcon name="i-heroicons-x-mark-20-solid" />
     </button>
@@ -89,8 +89,8 @@
           class="w-full flex flex-col items-center gap-6 text-2xl font-semibold text-cyan-100"
         >
           <component
-            v-for="(route, i) in routes"
             :is="Motion"
+            v-for="(route, i) in routes"
             :key="route.path"
             class="w-full"
             :initial="{ opacity: 0, y: 30 }"

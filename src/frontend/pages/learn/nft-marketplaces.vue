@@ -24,7 +24,7 @@
                     fill-rule="evenodd"
                     d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
                     clip-rule="evenodd"
-                  ></path>
+                  />
                 </svg>
                 <span class="ml-1 text-gray-500 md:ml-2 dark:text-gray-400"
                   >NFT Marketplaces</span
@@ -537,7 +537,7 @@
                         stroke-linejoin="round"
                         stroke-width="2"
                         d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                      ></path>
+                      />
                     </svg>
                   </div>
                   <h4 class="font-semibold text-gray-900 dark:text-white mb-2">
@@ -565,7 +565,7 @@
                         stroke-linejoin="round"
                         stroke-width="2"
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                      ></path>
+                      />
                     </svg>
                   </div>
                   <h4 class="font-semibold text-gray-900 dark:text-white mb-2">
@@ -593,7 +593,7 @@
                         stroke-linejoin="round"
                         stroke-width="2"
                         d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m6 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01"
-                      ></path>
+                      />
                     </svg>
                   </div>
                   <h4 class="font-semibold text-gray-900 dark:text-white mb-2">
@@ -618,7 +618,7 @@
                       fill-rule="evenodd"
                       d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
                       clip-rule="evenodd"
-                    ></path>
+                    />
                   </svg>
                   <div>
                     <h5
