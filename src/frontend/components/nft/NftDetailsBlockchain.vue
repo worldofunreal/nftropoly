@@ -3,10 +3,20 @@
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-gray-700">
       <div class="flex items-center gap-2">
-        <UIcon name="i-heroicons-squares-2x2-20-solid" class="text-primary-500" />
+        <UIcon
+          name="i-heroicons-squares-2x2-20-solid"
+          class="text-primary-500"
+        />
         <span class="font-bold">Blockchain details</span>
         <button @click="isExpanded = !isExpanded" class="ml-2">
-          <UIcon :name="isExpanded ? 'i-heroicons-chevron-up-20-solid' : 'i-heroicons-chevron-down-20-solid'" class="text-gray-400" />
+          <UIcon
+            :name="
+              isExpanded
+                ? 'i-heroicons-chevron-up-20-solid'
+                : 'i-heroicons-chevron-down-20-solid'
+            "
+            class="text-gray-400"
+          />
         </button>
       </div>
     </div>
@@ -20,7 +30,10 @@
           <div class="flex items-center gap-2">
             <span class="font-mono text-sm text-white">0xbc4ca0...a6c</span>
             <button class="text-primary-500 hover:text-primary-400">
-              <UIcon name="i-heroicons-arrow-top-right-on-square-20-solid" class="w-4 h-4" />
+              <UIcon
+                name="i-heroicons-arrow-top-right-on-square-20-solid"
+                class="w-4 h-4"
+              />
             </button>
           </div>
         </div>
@@ -58,7 +71,10 @@
           <div class="flex items-center gap-2">
             <span class="font-mono text-sm text-white">0x7ddfe8...f2a</span>
             <button class="text-primary-500 hover:text-primary-400">
-              <UIcon name="i-heroicons-arrow-top-right-on-square-20-solid" class="w-4 h-4" />
+              <UIcon
+                name="i-heroicons-arrow-top-right-on-square-20-solid"
+                class="w-4 h-4"
+              />
             </button>
           </div>
         </div>
@@ -74,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+  import { ref } from 'vue'
 
-const isExpanded = ref(false)
-</script> 
+  const isExpanded = ref(false)
+</script>

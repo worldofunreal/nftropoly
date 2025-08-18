@@ -97,8 +97,8 @@
             </th>
           </tr>
         </thead>
-        <tr class="border-b border-gray-200 dark:border-gray-700 h-px" />
         <tbody>
+          <tr class="border-b border-gray-200 dark:border-gray-700 h-px" />
           <tr
             v-for="nft in nfts"
             :key="nft.id"
@@ -110,15 +110,21 @@
                   :src="nft.image"
                   alt="NFT"
                   class="w-12 h-12 rounded-lg border border-gray-300 dark:border-gray-700 flex-shrink-0"
-                >
+                />
                 <div class="flex flex-col">
-                  <span class="font-semibold text-gray-900 dark:text-white">{{ nft.name }}</span>
-                  <span class="text-sm text-gray-600 dark:text-gray-400">#{{ nft.id }}</span>
+                  <span class="font-semibold text-gray-900 dark:text-white">{{
+                    nft.name
+                  }}</span>
+                  <span class="text-sm text-gray-600 dark:text-gray-400"
+                    >#{{ nft.id }}</span
+                  >
                 </div>
               </div>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="font-medium text-gray-900 dark:text-white">{{ nft.listingPrice }}</span>
+              <span class="font-medium text-gray-900 dark:text-white">{{
+                nft.listingPrice
+              }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
               <span
@@ -133,23 +139,31 @@
               </span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-600 dark:text-gray-300">{{ nft.floorPrice }}</span>
+              <span class="text-gray-600 dark:text-gray-300">{{
+                nft.floorPrice
+              }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-green-600 dark:text-green-400">{{ nft.topOffer }}</span>
+              <span class="text-green-600 dark:text-green-400">{{
+                nft.topOffer
+              }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-600 dark:text-gray-300">{{ nft.cost }}</span>
+              <span class="text-gray-600 dark:text-gray-300">{{
+                nft.cost
+              }}</span>
             </td>
             <td class="p-4 text-right whitespace-nowrap">
-              <span class="text-gray-600 dark:text-gray-400 text-sm">{{ nft.received }}</span>
+              <span class="text-gray-600 dark:text-gray-400 text-sm">{{
+                nft.received
+              }}</span>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
 
-        <!-- Mobile Filter Drawer -->
+    <!-- Mobile Filter Drawer -->
     <div
       class="fixed inset-0 z-50 md:hidden transition-opacity duration-300"
       :class="isDrawerOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'"
@@ -157,18 +171,20 @@
     >
       <!-- Backdrop -->
       <div class="absolute inset-0 bg-black/50"></div>
-      
-            <!-- Drawer Content -->
+
+      <!-- Drawer Content -->
       <div
         class="absolute left-0 right-0 bg-white dark:bg-neutral-950 rounded-t-2xl border-t border-gray-200 dark:border-gray-800 max-h-[80vh] flex flex-col transition-transform duration-300 ease-out"
-        :class="isDrawerOpen ? 'bottom-0 translate-y-0' : 'bottom-0 translate-y-full'"
+        :class="
+          isDrawerOpen ? 'bottom-0 translate-y-0' : 'bottom-0 translate-y-full'
+        "
         @click.stop
       >
         <!-- Drawer Handle -->
         <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
           <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"></div>
         </div>
-        
+
         <!-- Drawer Header -->
         <div
           class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0"
@@ -186,7 +202,7 @@
             />
           </button>
         </div>
-        
+
         <!-- Filter Content - Scrollable Area -->
         <div class="flex-1 overflow-y-auto p-6 space-y-6">
           <!-- Status Filter -->
@@ -290,10 +306,12 @@
               </div>
             </div>
           </div>
-                </div>
-        
+        </div>
+
         <!-- Drawer Footer -->
-        <div class="p-6 border-t border-gray-200 dark:border-gray-800 flex-shrink-0">
+        <div
+          class="p-6 border-t border-gray-200 dark:border-gray-800 flex-shrink-0"
+        >
           <div class="flex gap-3">
             <button
               @click="clearFilters"
@@ -314,78 +332,82 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
+  import { ref } from 'vue'
 
-// Drawer state
-const isDrawerOpen = ref(false);
+  // Drawer state
+  const isDrawerOpen = ref(false)
 
-// Filter states
-const selectedStatus = ref("All");
-const statuses = ["All", "Listed", "Not Listed", "Hidden"];
+  // Filter states
+  const selectedStatus = ref('All')
+  const statuses = ['All', 'Listed', 'Not Listed', 'Hidden']
 
-const chains = [
-  {
-    label: "All",
-    icon: "logos:ethereum",
-    color: "bg-neutral-200 dark:bg-neutral-800",
-  },
-  {
-    label: "Ethereum",
-    icon: "logos:ethereum",
-    color: "bg-blue-100 dark:bg-blue-900",
-  },
-  {
-    label: "Solana",
-    icon: "token-branded:solana",
-    color: "bg-green-100 dark:bg-green-900",
-  },
-  {
-    label: "Arbitrum",
-    icon: "token-branded:arbitrum-one",
-    color: "bg-indigo-100 dark:bg-indigo-900",
-  },
-  {
-    label: "Polygon",
-    icon: "token-branded:polygon",
-    color: "bg-purple-100 dark:bg-purple-900",
-  },
-  { label: "Base", icon: "logos:base", color: "bg-blue-200 dark:bg-blue-800" },
-];
+  const chains = [
+    {
+      label: 'All',
+      icon: 'logos:ethereum',
+      color: 'bg-neutral-200 dark:bg-neutral-800',
+    },
+    {
+      label: 'Ethereum',
+      icon: 'logos:ethereum',
+      color: 'bg-blue-100 dark:bg-blue-900',
+    },
+    {
+      label: 'Solana',
+      icon: 'token-branded:solana',
+      color: 'bg-green-100 dark:bg-green-900',
+    },
+    {
+      label: 'Arbitrum',
+      icon: 'token-branded:arbitrum-one',
+      color: 'bg-indigo-100 dark:bg-indigo-900',
+    },
+    {
+      label: 'Polygon',
+      icon: 'token-branded:polygon',
+      color: 'bg-purple-100 dark:bg-purple-900',
+    },
+    {
+      label: 'Base',
+      icon: 'logos:base',
+      color: 'bg-blue-200 dark:bg-blue-800',
+    },
+  ]
 
-// Filter functions
-const clearFilters = () => {
-  selectedStatus.value = "All";
-  // Add more filter clearing logic here
-  isDrawerOpen.value = false;
-};
+  // Filter functions
+  const clearFilters = () => {
+    selectedStatus.value = 'All'
+    // Add more filter clearing logic here
+    isDrawerOpen.value = false
+  }
 
-const applyFilters = () => {
-  // Add filter application logic here
-  isDrawerOpen.value = false;
-};
+  const applyFilters = () => {
+    // Add filter application logic here
+    isDrawerOpen.value = false
+  }
 
-const nfts = [
-  {
-    id: 1,
-    name: "CryptoPunk #1234",
-    image: "https://placehold.co/40x40?text=NFT",
-    listingPrice: "2.5 ETH",
-    rarity: "Rare",
-    floorPrice: "2.1 ETH",
-    topOffer: "2.3 ETH",
-    cost: "1.8 ETH",
-    received: "2024-06-01",
-  },
-  {
-    id: 2,
-    name: "Bored Ape #5678",
-    image: "https://placehold.co/40x40?text=NFT",
-    listingPrice: "8.0 ETH",
-    rarity: "Epic",
-    floorPrice: "7.5 ETH",
-    topOffer: "7.8 ETH",
-    cost: "6.9 ETH",
-    received: "2024-05-20",
-  },
-];
+  const nfts = [
+    {
+      id: 1,
+      name: 'CryptoPunk #1234',
+      image: 'https://placehold.co/40x40?text=NFT',
+      listingPrice: '2.5 ETH',
+      rarity: 'Rare',
+      floorPrice: '2.1 ETH',
+      topOffer: '2.3 ETH',
+      cost: '1.8 ETH',
+      received: '2024-06-01',
+    },
+    {
+      id: 2,
+      name: 'Bored Ape #5678',
+      image: 'https://placehold.co/40x40?text=NFT',
+      listingPrice: '8.0 ETH',
+      rarity: 'Epic',
+      floorPrice: '7.5 ETH',
+      topOffer: '7.8 ETH',
+      cost: '6.9 ETH',
+      received: '2024-05-20',
+    },
+  ]
 </script>

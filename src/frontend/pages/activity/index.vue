@@ -38,27 +38,27 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import ActivityFilterPanel from '@/components/ActivityFilterPanel.vue'
-import ActivityTopFilterBar from '@/components/ActivityTopFilterBar.vue'
-import ActivityTable from '@/components/ActivityTable.vue'
-import ActivityFilterDrawer from '@/components/ActivityFilterDrawer.vue'
+  import { ref } from 'vue'
+  import ActivityFilterPanel from '@/components/ActivityFilterPanel.vue'
+  import ActivityTopFilterBar from '@/components/ActivityTopFilterBar.vue'
+  import ActivityTable from '@/components/ActivityTable.vue'
+  import ActivityFilterDrawer from '@/components/ActivityFilterDrawer.vue'
 
-const showFilterDrawer = ref(false)
+  const showFilterDrawer = ref(false)
 
-interface Filters {
-  statuses: string[]
-  priceCurrency: string
-  priceMin: string
-  priceMax: string
-  marketplaces: string[]
-  chains: string[]
-  collections: string[]
-}
+  interface Filters {
+    statuses: string[]
+    priceCurrency: string
+    priceMin: string
+    priceMax: string
+    marketplaces: string[]
+    chains: string[]
+    collections: string[]
+  }
 
-function handleApplyFilters(filters: Filters) {
-  console.log('Applied filters:', filters)
-  // Here you would typically update the table data based on the filters
-  // For now, we'll just log the filters
-}
-</script> 
+  function handleApplyFilters(filters: Filters) {
+    console.log('Applied filters:', filters)
+    // Here you would typically update the table data based on the filters
+    // For now, we'll just log the filters
+  }
+</script>

@@ -38,28 +38,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import TokenFilterSection from '@/components/TokenFilterSection.vue'
-import TokenListHeaderControls from '@/components/TokenListHeaderControls.vue'
-import TokenDataTable from '@/components/TokenDataTable.vue'
-import TokensFilterDrawer from '@/components/TokensFilterDrawer.vue'
+  import { ref } from 'vue'
+  import TokenFilterSection from '@/components/TokenFilterSection.vue'
+  import TokenListHeaderControls from '@/components/TokenListHeaderControls.vue'
+  import TokenDataTable from '@/components/TokenDataTable.vue'
+  import TokensFilterDrawer from '@/components/TokensFilterDrawer.vue'
 
-const showFilterDrawer = ref(false)
+  const showFilterDrawer = ref(false)
 
-interface Filters {
-  type: string
-  filter: string
-  time: string
-  chains: string[]
-  marketCaps: string[]
-  categories: Record<string, string[]>
-  hasNft: boolean
-  brandedToken: boolean
-}
+  interface Filters {
+    type: string
+    filter: string
+    time: string
+    chains: string[]
+    marketCaps: string[]
+    categories: Record<string, string[]>
+    hasNft: boolean
+    brandedToken: boolean
+  }
 
-function handleApplyFilters(filters: Filters) {
-  console.log('Applied filters:', filters)
-  // Here you would typically update the table data based on the filters
-  // For now, we'll just log the filters
-}
+  function handleApplyFilters(filters: Filters) {
+    console.log('Applied filters:', filters)
+    // Here you would typically update the table data based on the filters
+    // For now, we'll just log the filters
+  }
 </script>

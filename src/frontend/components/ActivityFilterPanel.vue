@@ -38,13 +38,13 @@
             type="number"
             placeholder="Min"
             class="w-16 px-2 py-1 flex-1 rounded border"
-          >
+          />
           <span>to</span>
           <input
             type="number"
             placeholder="Max"
             class="w-16 px-2 py-1 flex-1 rounded border"
-          >
+          />
         </div>
         <button class="px-3 py-1 rounded bg-primary-600 text-white w-full">
           Apply
@@ -112,67 +112,71 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref, reactive } from "vue";
-import SidebarSection from "./profile/SidebarSection.vue";
-const openSections = reactive({
-  status: true,
-  price: false,
-  marketplaces: false,
-  chains: false,
-  collections: false,
-});
-const statuses = [
-  "All",
-  "Sale",
-  "Mint",
-  "Transfer",
-  "Listing",
-  "Item Offer",
-  "Collection Offer",
-  "Trait Offer",
-];
-const selectedStatuses = ref(["All"]);
-function toggleStatus(status: string) {
-  if (selectedStatuses.value.includes(status)) {
-    selectedStatuses.value = selectedStatuses.value.filter((s) => s !== status);
-  } else {
-    selectedStatuses.value.push(status);
+  import { ref, reactive } from 'vue'
+  import SidebarSection from './profile/SidebarSection.vue'
+  const openSections = reactive({
+    status: true,
+    price: false,
+    marketplaces: false,
+    chains: false,
+    collections: false,
+  })
+  const statuses = [
+    'All',
+    'Sale',
+    'Mint',
+    'Transfer',
+    'Listing',
+    'Item Offer',
+    'Collection Offer',
+    'Trait Offer',
+  ]
+  const selectedStatuses = ref(['All'])
+  function toggleStatus(status: string) {
+    if (selectedStatuses.value.includes(status)) {
+      selectedStatuses.value = selectedStatuses.value.filter(s => s !== status)
+    } else {
+      selectedStatuses.value.push(status)
+    }
   }
-}
-const marketplaces = ["OpenSea", "Blur", "MagicEden", "CryptoPunks"];
-const chains = [
-  {
-    label: "All",
-    icon: "logos:ethereum",
-    color: "bg-neutral-200 dark:bg-neutral-800",
-  },
-  {
-    label: "Ethereum",
-    icon: "logos:ethereum",
-    color: "bg-blue-100 dark:bg-blue-900",
-  },
-  {
-    label: "Solana",
-    icon: "token-branded:solana",
-    color: "bg-green-100 dark:bg-green-900",
-  },
-  {
-    label: "Arbitrum",
-    icon: "token-branded:arbitrum-one",
-    color: "bg-indigo-100 dark:bg-indigo-900",
-  },
-  {
-    label: "Polygon",
-    icon: "token-branded:polygon",
-    color: "bg-purple-100 dark:bg-purple-900",
-  },
-  { label: "Base", icon: "logos:base", color: "bg-blue-200 dark:bg-blue-800" },
-];
-const collections = [
-  { name: "X FIGURES", verified: true },
-  { name: "CryptoPunks", verified: true },
-  { name: "Cool Cats", verified: false },
-  { name: "Bored Apes", verified: true },
-  { name: "Doodles", verified: false },
-];
+  const marketplaces = ['OpenSea', 'Blur', 'MagicEden', 'CryptoPunks']
+  const chains = [
+    {
+      label: 'All',
+      icon: 'logos:ethereum',
+      color: 'bg-neutral-200 dark:bg-neutral-800',
+    },
+    {
+      label: 'Ethereum',
+      icon: 'logos:ethereum',
+      color: 'bg-blue-100 dark:bg-blue-900',
+    },
+    {
+      label: 'Solana',
+      icon: 'token-branded:solana',
+      color: 'bg-green-100 dark:bg-green-900',
+    },
+    {
+      label: 'Arbitrum',
+      icon: 'token-branded:arbitrum-one',
+      color: 'bg-indigo-100 dark:bg-indigo-900',
+    },
+    {
+      label: 'Polygon',
+      icon: 'token-branded:polygon',
+      color: 'bg-purple-100 dark:bg-purple-900',
+    },
+    {
+      label: 'Base',
+      icon: 'logos:base',
+      color: 'bg-blue-200 dark:bg-blue-800',
+    },
+  ]
+  const collections = [
+    { name: 'X FIGURES', verified: true },
+    { name: 'CryptoPunks', verified: true },
+    { name: 'Cool Cats', verified: false },
+    { name: 'Bored Apes', verified: true },
+    { name: 'Doodles', verified: false },
+  ]
 </script>

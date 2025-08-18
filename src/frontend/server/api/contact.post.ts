@@ -1,6 +1,6 @@
 import { readBody } from 'h3'
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(async event => {
   const body = await readBody(event)
   const { firstName, lastName, email, company, projectType, message } = body
 
@@ -11,15 +11,18 @@ export default defineEventHandler(async (event) => {
     `**Email:** ${email}`,
     company ? `**Company:** ${company}` : '',
     projectType ? `**Project Type:** ${projectType}` : '',
-    `**Message:**\n${message}`
-  ].filter(Boolean).join('\n')
+    `**Message:**\n${message}`,
+  ]
+    .filter(Boolean)
+    .join('\n')
 
   // Send to Discord webhook
-  const webhookUrl = 'https://discord.com/api/webhooks/1396853496275537952/y5cmYXCQB4Naw5lnZtN7EArHDNXGj_QgMu_1NR-1r9Mc5pARD--zqLWnOTOVIZ-oPv10'
+  const webhookUrl =
+    'https://discord.com/api/webhooks/1396853496275537952/y5cmYXCQB4Naw5lnZtN7EArHDNXGj_QgMu_1NR-1r9Mc5pARD--zqLWnOTOVIZ-oPv10'
   await $fetch(webhookUrl, {
     method: 'POST',
-    body: { content }
+    body: { content },
   })
 
   return { success: true }
-}) 
+})

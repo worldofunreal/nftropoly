@@ -10,4 +10,4 @@ tags:
   - launch
 ---
 
-Stay tuned for the full story on the launch of Cosmicrafts Battleground! 
+Stay tuned for the full story on the launch of Cosmicrafts Battleground!

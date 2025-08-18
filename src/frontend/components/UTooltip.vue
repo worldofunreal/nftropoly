@@ -1,5 +1,10 @@
 <template>
-  <div class="relative inline-block" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false" @mousemove="updatePosition">
+  <div
+    class="relative inline-block"
+    @mouseenter="showTooltip = true"
+    @mouseleave="showTooltip = false"
+    @mousemove="updatePosition"
+  >
     <slot />
     <Transition
       enter-active-class="transition duration-200 ease-out"
@@ -26,87 +31,87 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+  import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-interface Props {
-  text: string
-  position?: 'top' | 'bottom' | 'left' | 'right'
-  offset?: number
-}
-
-const props = withDefaults(defineProps<Props>(), {
-  position: 'bottom',
-  offset: 8
-})
-
-const showTooltip = ref(false)
-const tooltipRef = ref<HTMLElement>()
-const mouseX = ref(0)
-const mouseY = ref(0)
-
-const updatePosition = (event: MouseEvent) => {
-  mouseX.value = event.clientX
-  mouseY.value = event.clientY
-}
-
-const arrowClasses = computed(() => {
-  switch (props.position) {
-    case 'top':
-      return 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2'
-    case 'bottom':
-      return 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2'
-    case 'left':
-      return 'right-0 top-1/2 -translate-y-1/2 translate-x-1/2'
-    case 'right':
-      return 'left-0 top-1/2 -translate-y-1/2 -translate-x-1/2'
-    default:
-      return ''
+  interface Props {
+    text: string
+    position?: 'top' | 'bottom' | 'left' | 'right'
+    offset?: number
   }
-})
 
-const tooltipStyle = computed(() => {
-  const offset = props.offset
-  let left = mouseX.value
-  let top = mouseY.value
-  
-  // Adjust position based on tooltip position preference
-  switch (props.position) {
-    case 'top':
-      left -= 50 // Center horizontally
-      top -= offset + 30 // Position above cursor
-      break
-    case 'bottom':
-      left -= 50 // Center horizontally
-      top += offset // Position below cursor
-      break
-    case 'left':
-      left -= offset + 80 // Position to the left
-      top -= 15 // Center vertically
-      break
-    case 'right':
-      left += offset // Position to the right
-      top -= 15 // Center vertically
-      break
+  const props = withDefaults(defineProps<Props>(), {
+    position: 'bottom',
+    offset: 8,
+  })
+
+  const showTooltip = ref(false)
+  const tooltipRef = ref<HTMLElement>()
+  const mouseX = ref(0)
+  const mouseY = ref(0)
+
+  const updatePosition = (event: MouseEvent) => {
+    mouseX.value = event.clientX
+    mouseY.value = event.clientY
   }
-  
-  return {
-    left: `${left}px`,
-    top: `${top}px`
+
+  const arrowClasses = computed(() => {
+    switch (props.position) {
+      case 'top':
+        return 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2'
+      case 'bottom':
+        return 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2'
+      case 'left':
+        return 'right-0 top-1/2 -translate-y-1/2 translate-x-1/2'
+      case 'right':
+        return 'left-0 top-1/2 -translate-y-1/2 -translate-x-1/2'
+      default:
+        return ''
+    }
+  })
+
+  const tooltipStyle = computed(() => {
+    const offset = props.offset
+    let left = mouseX.value
+    let top = mouseY.value
+
+    // Adjust position based on tooltip position preference
+    switch (props.position) {
+      case 'top':
+        left -= 50 // Center horizontally
+        top -= offset + 30 // Position above cursor
+        break
+      case 'bottom':
+        left -= 50 // Center horizontally
+        top += offset // Position below cursor
+        break
+      case 'left':
+        left -= offset + 80 // Position to the left
+        top -= 15 // Center vertically
+        break
+      case 'right':
+        left += offset // Position to the right
+        top -= 15 // Center vertically
+        break
+    }
+
+    return {
+      left: `${left}px`,
+      top: `${top}px`,
+    }
+  })
+
+  // Handle escape key to close tooltip
+  const handleEscape = (event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      showTooltip.value = false
+    }
   }
-})
 
-// Handle escape key to close tooltip
-const handleEscape = (event: KeyboardEvent) => {
-  if (event.key === 'Escape') {
-    showTooltip.value = false
-  }
-}
+  onMounted(() => {
+    document.addEventListener('keydown', handleEscape)
+  })
 
-onMounted(() => {
-  document.addEventListener('keydown', handleEscape)
-})
-
-onUnmounted(() => {
-  document.removeEventListener('keydown', handleEscape)
-})
-</script> 
+  onUnmounted(() => {
+    document.removeEventListener('keydown', handleEscape)
+  })
+</script>

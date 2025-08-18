@@ -155,146 +155,146 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+  import { ref, onMounted, onUnmounted } from 'vue'
 
-const collections = [
-  {
-    id: 1,
-    name: "Pixel Punks",
-    verified: true,
-    creator: "Team Alpha",
-    image:
-      "https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80",
-    floorPrice: "1.2 ICP",
-    items: 1000,
-    volume: "12K ICP",
-    listedPct: 15,
-    mintStatus: "Open",
-    mintPrice: "0.8 ICP",
-    mintTotal: 2000,
-  },
-  {
-    id: 2,
-    name: "Art Blocks",
-    verified: true,
-    creator: "Art Collective",
-    image:
-      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
-    floorPrice: "3.5 ICP",
-    items: 500,
-    volume: "8K ICP",
-    listedPct: 22,
-    mintStatus: "Closed",
-    mintPrice: "3 ICP",
-    mintTotal: 500,
-  },
-  {
-    id: 3,
-    name: "Music Legends",
-    verified: false,
-    creator: "SoundWave",
-    image:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80",
-    floorPrice: "0.7 ICP",
-    items: 200,
-    volume: "1.2K ICP",
-    listedPct: 10,
-    mintStatus: "Open",
-    mintPrice: "0.5 ICP",
-    mintTotal: 300,
-  },
-  {
-    id: 4,
-    name: "Crypto Creatures",
-    verified: true,
-    creator: "Digital Zoo",
-    image:
-      "https://images.unsplash.com/photo-1519985176271-adb1088fa94c?auto=format&fit=crop&w=800&q=80",
-    floorPrice: "2.1 ICP",
-    items: 750,
-    volume: "15K ICP",
-    listedPct: 18,
-    mintStatus: "Open",
-    mintPrice: "1.5 ICP",
-    mintTotal: 1000,
-  },
-  {
-    id: 5,
-    name: "Generative Dreams",
-    verified: true,
-    creator: "AI Studio",
-    image:
-      "https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80",
-    floorPrice: "4.2 ICP",
-    items: 300,
-    volume: "25K ICP",
-    listedPct: 8,
-    mintStatus: "Closed",
-    mintPrice: "3.8 ICP",
-    mintTotal: 300,
-  },
-];
+  const collections = [
+    {
+      id: 1,
+      name: 'Pixel Punks',
+      verified: true,
+      creator: 'Team Alpha',
+      image:
+        'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=800&q=80',
+      floorPrice: '1.2 ICP',
+      items: 1000,
+      volume: '12K ICP',
+      listedPct: 15,
+      mintStatus: 'Open',
+      mintPrice: '0.8 ICP',
+      mintTotal: 2000,
+    },
+    {
+      id: 2,
+      name: 'Art Blocks',
+      verified: true,
+      creator: 'Art Collective',
+      image:
+        'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80',
+      floorPrice: '3.5 ICP',
+      items: 500,
+      volume: '8K ICP',
+      listedPct: 22,
+      mintStatus: 'Closed',
+      mintPrice: '3 ICP',
+      mintTotal: 500,
+    },
+    {
+      id: 3,
+      name: 'Music Legends',
+      verified: false,
+      creator: 'SoundWave',
+      image:
+        'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+      floorPrice: '0.7 ICP',
+      items: 200,
+      volume: '1.2K ICP',
+      listedPct: 10,
+      mintStatus: 'Open',
+      mintPrice: '0.5 ICP',
+      mintTotal: 300,
+    },
+    {
+      id: 4,
+      name: 'Crypto Creatures',
+      verified: true,
+      creator: 'Digital Zoo',
+      image:
+        'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?auto=format&fit=crop&w=800&q=80',
+      floorPrice: '2.1 ICP',
+      items: 750,
+      volume: '15K ICP',
+      listedPct: 18,
+      mintStatus: 'Open',
+      mintPrice: '1.5 ICP',
+      mintTotal: 1000,
+    },
+    {
+      id: 5,
+      name: 'Generative Dreams',
+      verified: true,
+      creator: 'AI Studio',
+      image:
+        'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80',
+      floorPrice: '4.2 ICP',
+      items: 300,
+      volume: '25K ICP',
+      listedPct: 8,
+      mintStatus: 'Closed',
+      mintPrice: '3.8 ICP',
+      mintTotal: 300,
+    },
+  ]
 
-const scrollRef = ref(null);
-const currentSlide = ref(0);
+  const scrollRef = ref(null)
+  const currentSlide = ref(0)
 
-function scrollLeft() {
-  if (scrollRef.value) {
-    const container = scrollRef.value as HTMLElement;
-    const cardWidth = container.offsetWidth;
-    container.scrollBy({ left: -cardWidth, behavior: "smooth" });
+  function scrollLeft() {
+    if (scrollRef.value) {
+      const container = scrollRef.value as HTMLElement
+      const cardWidth = container.offsetWidth
+      container.scrollBy({ left: -cardWidth, behavior: 'smooth' })
+    }
   }
-}
 
-function scrollRight() {
-  if (scrollRef.value) {
-    const container = scrollRef.value as HTMLElement;
-    const cardWidth = container.offsetWidth;
-    container.scrollBy({ left: cardWidth, behavior: "smooth" });
+  function scrollRight() {
+    if (scrollRef.value) {
+      const container = scrollRef.value as HTMLElement
+      const cardWidth = container.offsetWidth
+      container.scrollBy({ left: cardWidth, behavior: 'smooth' })
+    }
   }
-}
 
-function scrollToSlide(index: number) {
-  if (scrollRef.value) {
-    const container = scrollRef.value as HTMLElement;
-    const cardWidth = container.offsetWidth;
-    container.scrollTo({ left: cardWidth * index, behavior: "smooth" });
+  function scrollToSlide(index: number) {
+    if (scrollRef.value) {
+      const container = scrollRef.value as HTMLElement
+      const cardWidth = container.offsetWidth
+      container.scrollTo({ left: cardWidth * index, behavior: 'smooth' })
+    }
   }
-}
 
-function updateCurrentSlide() {
-  if (scrollRef.value) {
-    const container = scrollRef.value as HTMLElement;
-    const cardWidth = container.offsetWidth;
-    const scrollPosition = container.scrollLeft;
-    currentSlide.value = Math.round(scrollPosition / cardWidth);
+  function updateCurrentSlide() {
+    if (scrollRef.value) {
+      const container = scrollRef.value as HTMLElement
+      const cardWidth = container.offsetWidth
+      const scrollPosition = container.scrollLeft
+      currentSlide.value = Math.round(scrollPosition / cardWidth)
+    }
   }
-}
 
-onMounted(() => {
-  if (scrollRef.value) {
-    const container = scrollRef.value as HTMLElement;
-    container.addEventListener("scroll", updateCurrentSlide);
-  }
-});
+  onMounted(() => {
+    if (scrollRef.value) {
+      const container = scrollRef.value as HTMLElement
+      container.addEventListener('scroll', updateCurrentSlide)
+    }
+  })
 
-onUnmounted(() => {
-  if (scrollRef.value) {
-    const container = scrollRef.value as HTMLElement;
-    container.removeEventListener("scroll", updateCurrentSlide);
-  }
-});
+  onUnmounted(() => {
+    if (scrollRef.value) {
+      const container = scrollRef.value as HTMLElement
+      container.removeEventListener('scroll', updateCurrentSlide)
+    }
+  })
 </script>
 
 <style scoped>
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.aspect-w-16 {
-  aspect-ratio: 16/9;
-}
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .aspect-w-16 {
+    aspect-ratio: 16/9;
+  }
 </style>

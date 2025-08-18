@@ -8,11 +8,6 @@
       "candid": "src/marketplace/marketplace.did",
       "package": "marketplace",
       "type": "rust"
-    },
-    "spiral": {
-      "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/615045e039c57ed842c689e49a07ab3de3a8a781/rs/ledger_suite/icrc1/ledger/ledger.did",
-      "wasm": "https://download.dfinity.systems/ic/615045e039c57ed842c689e49a07ab3de3a8a781/canisters/ic-icrc1-ledger.wasm.gz"
     }
   },
   "defaults": {

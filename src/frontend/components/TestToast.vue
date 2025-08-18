@@ -8,9 +8,7 @@
       <UButton @click="showErrorToast" color="error">
         Show Error Toast
       </UButton>
-      <UButton @click="showInfoToast" color="info">
-        Show Info Toast
-      </UButton>
+      <UButton @click="showInfoToast" color="info"> Show Info Toast </UButton>
       <UButton @click="clearAllToasts" color="neutral">
         Clear All Toasts
       </UButton>
@@ -19,33 +17,33 @@
 </template>
 
 <script setup lang="ts">
-const toast = useToast()
+  const toast = useToast()
 
-const showSuccessToast = () => {
-  toast.add({
-    title: 'Success!',
-    description: 'This is a success toast notification',
-    color: 'success'
-  })
-}
+  const showSuccessToast = () => {
+    toast.add({
+      title: 'Success!',
+      description: 'This is a success toast notification',
+      color: 'success',
+    })
+  }
 
-const showErrorToast = () => {
-  toast.add({
-    title: 'Error!',
-    description: 'This is an error toast notification',
-    color: 'error'
-  })
-}
+  const showErrorToast = () => {
+    toast.add({
+      title: 'Error!',
+      description: 'This is an error toast notification',
+      color: 'error',
+    })
+  }
 
-const showInfoToast = () => {
-  toast.add({
-    title: 'Info',
-    description: 'This is an info toast notification',
-    color: 'info'
-  })
-}
+  const showInfoToast = () => {
+    toast.add({
+      title: 'Info',
+      description: 'This is an info toast notification',
+      color: 'info',
+    })
+  }
 
-const clearAllToasts = () => {
-  toast.clear()
-}
-</script> 
+  const clearAllToasts = () => {
+    toast.clear()
+  }
+</script>

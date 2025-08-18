@@ -1,6 +1,7 @@
 ## NFTs Page UI Layout and Description
 
 ### 1. **Sidebar (Left Panel)**
+
 The sidebar is a vertical filter panel that allows users to refine NFT collections by various criteria. It is visually separated from the main content and uses a dark background.
 
 #### **Sections:**
@@ -35,14 +36,17 @@ The sidebar is a vertical filter panel that allows users to refine NFT collectio
 ---
 
 ### 2. **Main Table (Right Panel)**
+
 The main area displays a sortable, filterable table of NFT collections. It uses a dark theme and clear, readable typography.
 
 #### **Header Controls:**
+
 - Tabs for "Top", "Trending", "Watchlist"
 - Time range filters: All, 30d, 7d, 1d, 1h, 15m, 5m, 1m
 - Toggle between grid and list view (icon buttons)
 
 #### **Table Columns:**
+
 - **Collection**
   - Star icon for favoriting
   - Collection image/avatar
@@ -69,6 +73,7 @@ The main area displays a sortable, filterable table of NFT collections. It uses 
   - Number of unique owners (e.g., 4,948)
 
 #### **Table Rows:**
+
 - Each row represents a collection, displaying the above columns.
 - Rows are visually separated with subtle lines or background shading on hover.
 

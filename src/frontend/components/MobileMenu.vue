@@ -7,7 +7,9 @@
       :enter="{ opacity: 1, transition: { duration: 250 } }"
       class="absolute inset-0 bg-neutral/40 backdrop-blur-lg"
     >
-      <div class="absolute inset-0 bg-gradient-radial from-cyan-500/10 via-fuchsia-700/10 to-transparent opacity-80 pointer-events-none"></div>
+      <div
+        class="absolute inset-0 bg-gradient-radial from-cyan-500/10 via-fuchsia-700/10 to-transparent opacity-80 pointer-events-none"
+      ></div>
     </div>
     <!-- Theme Switcher (top left) -->
     <div
@@ -23,13 +25,21 @@
           class="relative w-14 h-10 rounded-full border border-cyan-400 bg-neutral/60 flex items-center justify-start transition-colors duration-300 focus:outline-none shadow-md overflow-hidden"
         >
           <span
-            class="absolute top-1.2 left-0.5 w-8 h-8  transition-all duration-500 flex items-center justify-center"
-            :class="colorMode.value === 'dark' ? 'translate-x-5' : 'translate-x-1'"
+            class="absolute top-1.2 left-0.5 w-8 h-8 transition-all duration-500 flex items-center justify-center"
+            :class="
+              colorMode.value === 'dark' ? 'translate-x-5' : 'translate-x-1'
+            "
           >
             <UIcon
-              :name="colorMode.value === 'dark' ? 'ix:sun-filled' : 'tabler:moon-filled'"
+              :name="
+                colorMode.value === 'dark'
+                  ? 'ix:sun-filled'
+                  : 'tabler:moon-filled'
+              "
               class="w-8 h-8 transition-colors duration-300"
-              :class="colorMode.value === 'dark' ? 'text-yellow-400' : 'text-cyan-600'"
+              :class="
+                colorMode.value === 'dark' ? 'text-yellow-400' : 'text-cyan-600'
+              "
             />
           </span>
         </button>
@@ -45,15 +55,23 @@
     >
       <UIcon name="i-heroicons-x-mark-20-solid" />
     </button>
-    
+
     <!-- Main Content (centered) -->
-    <div class="flex-1 flex flex-col items-center justify-center relative z-10 w-full max-w-md mx-auto px-12 py-10">
-      <div class="flex flex-col items-center justify-center w-full gap-8 pt-20 pb-32">
-           <!-- CTA Button -->
-            <component
+    <div
+      class="flex-1 flex flex-col items-center justify-center relative z-10 w-full max-w-md mx-auto px-12 py-10"
+    >
+      <div
+        class="flex flex-col items-center justify-center w-full gap-8 pt-20 pb-32"
+      >
+        <!-- CTA Button -->
+        <component
           :is="Motion"
           :initial="{ opacity: 0, scale: 0.15 }"
-          :enter="{ opacity: 1, scale: 1, transition: { delay: 250 + routes.length * 80 + 80, duration: 350 } }"
+          :enter="{
+            opacity: 1,
+            scale: 1,
+            transition: { delay: 250 + routes.length * 80 + 80, duration: 350 },
+          }"
           class="w-full flex justify-center"
         >
           <UButton
@@ -62,19 +80,25 @@
             variant="solid"
             size="xl"
             label="Home"
-            class="items-center justify-center  w-full neon-btn text-2xl font-bold py-4 mt-4"
+            class="items-center justify-center w-full neon-btn text-2xl font-bold py-4 mt-4"
             @click="handleMobileHomeClick"
           />
         </component>
         <!-- Navigation -->
-        <nav class="w-full flex flex-col items-center gap-6 text-2xl font-semibold text-cyan-100">
+        <nav
+          class="w-full flex flex-col items-center gap-6 text-2xl font-semibold text-cyan-100"
+        >
           <component
             v-for="(route, i) in routes"
             :is="Motion"
             :key="route.path"
             class="w-full"
             :initial="{ opacity: 0, y: 30 }"
-            :enter="{ opacity: 1, y: 0, transition: { delay: 250 + i * 80, duration: 350 } }"
+            :enter="{
+              opacity: 1,
+              y: 0,
+              transition: { delay: 250 + i * 80, duration: 350 },
+            }"
           >
             <NuxtLink
               :to="route.path"
@@ -82,28 +106,50 @@
               active-class="text-cyan-400"
               @click="handleClose"
             >
-              <UIcon v-if="route.icon" :name="route.icon" class="text-cyan-400 text-2xl" />
+              <UIcon
+                v-if="route.icon"
+                :name="route.icon"
+                class="text-cyan-400 text-2xl"
+              />
               {{ route.name }}
             </NuxtLink>
           </component>
         </nav>
-
       </div>
     </div>
     <!-- Social Icons (bottom center) -->
     <div
       v-motion
       :initial="{ opacity: 0, y: 30 }"
-      :enter="{ opacity: 1, y: 0, transition: { delay: 250 + routes.length * 80 + 200, duration: 350 } }"
+      :enter="{
+        opacity: 1,
+        y: 0,
+        transition: { delay: 250 + routes.length * 80 + 200, duration: 350 },
+      }"
       class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 w-full flex items-center justify-center gap-8"
     >
-      <a href="https://x.com/worldofunreal" target="_blank" rel="noopener" class="text-cyan-300 hover:text-cyan-400 transition text-3xl">
+      <a
+        href="https://x.com/worldofunreal"
+        target="_blank"
+        rel="noopener"
+        class="text-cyan-300 hover:text-cyan-400 transition text-3xl"
+      >
         <UIcon name="i-fa6-brands-twitter" />
       </a>
-      <a href="https://github.com/worldofunreal" target="_blank" rel="noopener" class="text-cyan-300 hover:text-cyan-400 transition text-3xl">
+      <a
+        href="https://github.com/worldofunreal"
+        target="_blank"
+        rel="noopener"
+        class="text-cyan-300 hover:text-cyan-400 transition text-3xl"
+      >
         <UIcon name="i-fa6-brands-github" />
       </a>
-      <a href="https://www.linkedin.com/company/worldofunreal/" target="_blank" rel="noopener" class="text-cyan-300 hover:text-cyan-400 transition text-3xl">
+      <a
+        href="https://www.linkedin.com/company/worldofunreal/"
+        target="_blank"
+        rel="noopener"
+        class="text-cyan-300 hover:text-cyan-400 transition text-3xl"
+      >
         <UIcon name="i-fa6-brands-linkedin" />
       </a>
     </div>
@@ -111,61 +157,61 @@
 </template>
 
 <script setup lang="ts">
-import { resolveComponent, ref, nextTick } from 'vue'
-import { useColorMode, useNuxtApp } from '#imports'
-import { useRoute, useRouter } from 'vue-router'
-const route = useRoute()
-const router = useRouter()
-const Motion = resolveComponent('Motion')
-const colorMode = useColorMode()
-const { $trackButtonClick, $trackNavigation } = useNuxtApp()
+  import { resolveComponent, ref, nextTick } from 'vue'
+  import { useColorMode, useNuxtApp } from '#imports'
+  import { useRoute, useRouter } from 'vue-router'
+  const route = useRoute()
+  const router = useRouter()
+  const Motion = resolveComponent('Motion')
+  const colorMode = useColorMode()
+  const { $trackButtonClick, $trackNavigation } = useNuxtApp()
 
-function toggleTheme() {
-  colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
-  $trackButtonClick('Theme Toggle', { 
-    newTheme: colorMode.value,
-    location: 'mobile_menu'
-  })
-}
-
-interface Route {
-  name: string
-  path: string
-  icon?: string
-}
-
-interface Props {
-  routes: Route[]
-  isOpen: boolean
-}
-
-interface Emits {
-  close: []
-}
-
-const props = defineProps<Props>()
-const emit = defineEmits<Emits>()
-
-const handleClose = () => {
-  $trackButtonClick('Mobile Menu Close', { 
-    currentRoute: route.path
-  })
-  emit('close')
-}
-
-function handleMobileHomeClick(e: MouseEvent): void {
-  $trackButtonClick('Mobile Home Click', { 
-    currentRoute: route.path,
-    action: route.path === '/' ? 'scroll_to_top' : 'navigate_home'
-  })
-  
-  if (route.path === '/') {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-    handleClose()
-  } else {
-    // Let Nuxt handle navigation
-    $trackNavigation(route.path, '/')
-    handleClose()
+  function toggleTheme() {
+    colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
+    $trackButtonClick('Theme Toggle', {
+      newTheme: colorMode.value,
+      location: 'mobile_menu',
+    })
   }
-}
+
+  interface Route {
+    name: string
+    path: string
+    icon?: string
+  }
+
+  interface Props {
+    routes: Route[]
+    isOpen: boolean
+  }
+
+  interface Emits {
+    close: []
+  }
+
+  const props = defineProps<Props>()
+  const emit = defineEmits<Emits>()
+
+  const handleClose = () => {
+    $trackButtonClick('Mobile Menu Close', {
+      currentRoute: route.path,
+    })
+    emit('close')
+  }
+
+  function handleMobileHomeClick(e: MouseEvent): void {
+    $trackButtonClick('Mobile Home Click', {
+      currentRoute: route.path,
+      action: route.path === '/' ? 'scroll_to_top' : 'navigate_home',
+    })
+
+    if (route.path === '/') {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      handleClose()
+    } else {
+      // Let Nuxt handle navigation
+      $trackNavigation(route.path, '/')
+      handleClose()
+    }
+  }
 </script>

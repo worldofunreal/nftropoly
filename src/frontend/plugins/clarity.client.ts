@@ -7,7 +7,7 @@ import Clarity from '@microsoft/clarity'
  * - Provides `$clarity` for manual tagging/events
  * - Identifies authenticated users using ICP Principal and username
  */
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin(nuxtApp => {
   if (process.server) return
 
   const config = useRuntimeConfig()
@@ -48,8 +48,12 @@ export default defineNuxtPlugin((nuxtApp) => {
 
       const identifyIfReady = () => {
         if (!hasConsent()) return
-        const principal = auth.icpPrincipal || auth.getIdentity()?.getPrincipal()?.toText()
-        const friendlyName = auth.userProfile?.username || auth.userProfile?.displayName || undefined
+        const principal =
+          auth.icpPrincipal || auth.getIdentity()?.getPrincipal()?.toText()
+        const friendlyName =
+          auth.userProfile?.username ||
+          auth.userProfile?.displayName ||
+          undefined
         if (principal) {
           try {
             Clarity.identify(principal, undefined, undefined, friendlyName)
@@ -90,11 +94,14 @@ export default defineNuxtPlugin((nuxtApp) => {
     if (!hasConsent()) return
     try {
       // Use setTag for custom events since Clarity doesn't have a direct event method
-      Clarity.setTag(event, JSON.stringify({
-        ...data,
-        timestamp: Date.now(),
-        url: window.location.href
-      }))
+      Clarity.setTag(
+        event,
+        JSON.stringify({
+          ...data,
+          timestamp: Date.now(),
+          url: window.location.href,
+        })
+      )
     } catch {
       // noop
     }
@@ -122,9 +129,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       },
       trackError: (error: string, data?: any) => {
         trackInteraction('Error', { error, ...data })
-      }
+      },
     },
   }
 })
-
-

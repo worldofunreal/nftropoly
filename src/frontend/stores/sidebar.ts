@@ -9,6 +9,6 @@ export const useSidebarStore = defineStore('sidebar', () => {
 
   return {
     isStatsPanelVisible,
-    toggleStatsPanel
+    toggleStatsPanel,
   }
-}) 
+})

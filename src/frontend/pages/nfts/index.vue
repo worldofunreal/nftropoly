@@ -42,25 +42,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import NftsSidebar from '@/components/NftsSidebar.vue'
-import NftsHeaderControls from '@/components/NftsHeaderControls.vue'
-import NftsCollectionsTable from '@/components/NftsCollectionsTable.vue'
-import NftsFilterDrawer from '@/components/NftsFilterDrawer.vue'
+  import { ref } from 'vue'
+  import NftsSidebar from '@/components/NftsSidebar.vue'
+  import NftsHeaderControls from '@/components/NftsHeaderControls.vue'
+  import NftsCollectionsTable from '@/components/NftsCollectionsTable.vue'
+  import NftsFilterDrawer from '@/components/NftsFilterDrawer.vue'
 
-const showFilterDrawer = ref(false)
+  const showFilterDrawer = ref(false)
 
-interface Filters {
-  tab: string
-  time: string
-  category: string
-  chain: string
-  isVerified: boolean
-}
+  interface Filters {
+    tab: string
+    time: string
+    category: string
+    chain: string
+    isVerified: boolean
+  }
 
-function handleApplyFilters(filters: Filters) {
-  console.log('Applied filters:', filters)
-  // Here you would typically update the table data based on the filters
-  // For now, we'll just log the filters
-}
+  function handleApplyFilters(filters: Filters) {
+    console.log('Applied filters:', filters)
+    // Here you would typically update the table data based on the filters
+    // For now, we'll just log the filters
+  }
 </script>

@@ -18,9 +18,17 @@
     <div>
       <div class="font-bold mb-2">Price</div>
       <div class="flex gap-2 items-center">
-        <input type="number" placeholder="Min" class="w-16 px-2 py-1 rounded border" />
+        <input
+          type="number"
+          placeholder="Min"
+          class="w-16 px-2 py-1 rounded border"
+        />
         <span>-</span>
-        <input type="number" placeholder="Max" class="w-16 px-2 py-1 rounded border" />
+        <input
+          type="number"
+          placeholder="Max"
+          class="w-16 px-2 py-1 rounded border"
+        />
       </div>
     </div>
     <div>
@@ -44,4 +52,4 @@
     </div>
   </div>
 </template>
-<script setup lang="ts"></script> 
+<script setup lang="ts"></script>

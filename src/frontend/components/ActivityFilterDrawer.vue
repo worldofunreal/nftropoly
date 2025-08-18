@@ -181,121 +181,121 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, onUnmounted } from "vue";
+  import { ref, watchEffect, onUnmounted } from 'vue'
 
-interface Props {
-  isOpen: boolean;
-}
-
-const props = defineProps<Props>();
-
-interface Filters {
-  statuses: string[];
-  priceCurrency: string;
-  priceMin: string;
-  priceMax: string;
-  marketplaces: string[];
-  chains: string[];
-  collections: string[];
-}
-
-const emit = defineEmits<{
-  close: [];
-  "apply-filters": [filters: Filters];
-}>();
-
-// Filter states
-const statuses = [
-  "All",
-  "Sale",
-  "Mint",
-  "Transfer",
-  "Listing",
-  "Item Offer",
-  "Collection Offer",
-  "Trait Offer",
-];
-const selectedStatuses = ref<string[]>(["All"]);
-function toggleStatus(status: string) {
-  if (selectedStatuses.value.includes(status)) {
-    selectedStatuses.value = selectedStatuses.value.filter((s) => s !== status);
-  } else {
-    selectedStatuses.value.push(status);
+  interface Props {
+    isOpen: boolean
   }
-}
-const marketplaces = ["OpenSea", "Blur", "MagicEden", "CryptoPunks"];
-const selectedMarketplaces = ref<string[]>([]);
-const chains = [
-  { label: "All", icon: "logos:ethereum" },
-  { label: "Ethereum", icon: "logos:ethereum" },
-  { label: "Solana", icon: "token-branded:solana" },
-  { label: "Arbitrum", icon: "token-branded:arbitrum-one" },
-  { label: "Polygon", icon: "token-branded:polygon" },
-  { label: "Base", icon: "logos:base" },
-];
-const selectedChains = ref<string[]>([]);
-function toggleChain(chain: string) {
-  if (selectedChains.value.includes(chain)) {
-    selectedChains.value = selectedChains.value.filter((c) => c !== chain);
-  } else {
-    selectedChains.value.push(chain);
-  }
-}
-const collections = [
-  { name: "X FIGURES", verified: true },
-  { name: "CryptoPunks", verified: true },
-  { name: "Cool Cats", verified: false },
-  { name: "Bored Apes", verified: true },
-  { name: "Doodles", verified: false },
-];
-const selectedCollections = ref<string[]>([]);
-const priceCurrency = ref("USD");
-const priceMin = ref("");
-const priceMax = ref("");
 
-// Prevent body scrolling when drawer is open
-watchEffect(() => {
-  if (typeof document !== "undefined" && document.body) {
-    if (props.isOpen) {
-      document.body.style.overflow = "hidden";
+  const props = defineProps<Props>()
+
+  interface Filters {
+    statuses: string[]
+    priceCurrency: string
+    priceMin: string
+    priceMax: string
+    marketplaces: string[]
+    chains: string[]
+    collections: string[]
+  }
+
+  const emit = defineEmits<{
+    close: []
+    'apply-filters': [filters: Filters]
+  }>()
+
+  // Filter states
+  const statuses = [
+    'All',
+    'Sale',
+    'Mint',
+    'Transfer',
+    'Listing',
+    'Item Offer',
+    'Collection Offer',
+    'Trait Offer',
+  ]
+  const selectedStatuses = ref<string[]>(['All'])
+  function toggleStatus(status: string) {
+    if (selectedStatuses.value.includes(status)) {
+      selectedStatuses.value = selectedStatuses.value.filter(s => s !== status)
     } else {
-      document.body.style.overflow = "";
+      selectedStatuses.value.push(status)
     }
   }
-});
-
-// Clean up on component unmount
-onUnmounted(() => {
-  if (typeof document !== "undefined" && document.body) {
-    document.body.style.overflow = "";
+  const marketplaces = ['OpenSea', 'Blur', 'MagicEden', 'CryptoPunks']
+  const selectedMarketplaces = ref<string[]>([])
+  const chains = [
+    { label: 'All', icon: 'logos:ethereum' },
+    { label: 'Ethereum', icon: 'logos:ethereum' },
+    { label: 'Solana', icon: 'token-branded:solana' },
+    { label: 'Arbitrum', icon: 'token-branded:arbitrum-one' },
+    { label: 'Polygon', icon: 'token-branded:polygon' },
+    { label: 'Base', icon: 'logos:base' },
+  ]
+  const selectedChains = ref<string[]>([])
+  function toggleChain(chain: string) {
+    if (selectedChains.value.includes(chain)) {
+      selectedChains.value = selectedChains.value.filter(c => c !== chain)
+    } else {
+      selectedChains.value.push(chain)
+    }
   }
-});
+  const collections = [
+    { name: 'X FIGURES', verified: true },
+    { name: 'CryptoPunks', verified: true },
+    { name: 'Cool Cats', verified: false },
+    { name: 'Bored Apes', verified: true },
+    { name: 'Doodles', verified: false },
+  ]
+  const selectedCollections = ref<string[]>([])
+  const priceCurrency = ref('USD')
+  const priceMin = ref('')
+  const priceMax = ref('')
 
-function resetFilters() {
-  selectedStatuses.value = ["All"];
-  priceCurrency.value = "USD";
-  priceMin.value = "";
-  priceMax.value = "";
-  selectedMarketplaces.value = [];
-  selectedChains.value = [];
-  selectedCollections.value = [];
-}
+  // Prevent body scrolling when drawer is open
+  watchEffect(() => {
+    if (typeof document !== 'undefined' && document.body) {
+      if (props.isOpen) {
+        document.body.style.overflow = 'hidden'
+      } else {
+        document.body.style.overflow = ''
+      }
+    }
+  })
 
-function closeDrawer() {
-  emit("close");
-}
+  // Clean up on component unmount
+  onUnmounted(() => {
+    if (typeof document !== 'undefined' && document.body) {
+      document.body.style.overflow = ''
+    }
+  })
 
-function applyFilters() {
-  const filters = {
-    statuses: selectedStatuses.value,
-    priceCurrency: priceCurrency.value,
-    priceMin: priceMin.value,
-    priceMax: priceMax.value,
-    marketplaces: selectedMarketplaces.value,
-    chains: selectedChains.value,
-    collections: selectedCollections.value,
-  };
-  emit("apply-filters", filters);
-  closeDrawer();
-}
+  function resetFilters() {
+    selectedStatuses.value = ['All']
+    priceCurrency.value = 'USD'
+    priceMin.value = ''
+    priceMax.value = ''
+    selectedMarketplaces.value = []
+    selectedChains.value = []
+    selectedCollections.value = []
+  }
+
+  function closeDrawer() {
+    emit('close')
+  }
+
+  function applyFilters() {
+    const filters = {
+      statuses: selectedStatuses.value,
+      priceCurrency: priceCurrency.value,
+      priceMin: priceMin.value,
+      priceMax: priceMax.value,
+      marketplaces: selectedMarketplaces.value,
+      chains: selectedChains.value,
+      collections: selectedCollections.value,
+    }
+    emit('apply-filters', filters)
+    closeDrawer()
+  }
 </script>

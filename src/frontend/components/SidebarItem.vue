@@ -15,11 +15,11 @@
 </template>
 
 <script setup lang="ts">
-const props = defineProps({
-  icon: String,
-  label: String,
-  to: String,
-  collapsed: Boolean,
-  hr: Boolean
-})
-</script> 
+  const props = defineProps({
+    icon: String,
+    label: String,
+    to: String,
+    collapsed: Boolean,
+    hr: Boolean,
+  })
+</script>

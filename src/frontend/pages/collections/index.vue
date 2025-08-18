@@ -1,7 +1,9 @@
 <template>
   <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-950">
     <!-- Filtering Sidebar (Left) -->
-    <aside class="hidden lg:block w-64 p-4 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-950">
+    <aside
+      class="hidden lg:block w-64 p-4 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-neutral-950"
+    >
       <CollectionFilters />
     </aside>
     <!-- Main Content (Right) -->
@@ -27,10 +29,10 @@
 </template>
 
 <script setup lang="ts">
-import CollectionBanner from '@/components/CollectionBanner.vue'
-import CollectionTabs from '@/components/CollectionTabs.vue'
-import CollectionFilters from '@/components/CollectionFilters.vue'
-import CollectionTopControls from '@/components/CollectionTopControls.vue'
-import CollectionNFTGrid from '@/components/CollectionNFTGrid.vue'
-import CollectionBuyBar from '@/components/CollectionBuyBar.vue'
-</script> 
+  import CollectionBanner from '@/components/CollectionBanner.vue'
+  import CollectionTabs from '@/components/CollectionTabs.vue'
+  import CollectionFilters from '@/components/CollectionFilters.vue'
+  import CollectionTopControls from '@/components/CollectionTopControls.vue'
+  import CollectionNFTGrid from '@/components/CollectionNFTGrid.vue'
+  import CollectionBuyBar from '@/components/CollectionBuyBar.vue'
+</script>

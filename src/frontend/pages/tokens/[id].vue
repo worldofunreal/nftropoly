@@ -149,9 +149,9 @@
 </template>
 
 <script setup lang="ts">
-import PriceChart from "~/components/token/PriceChart.vue";
-import TokenSwapWidget from "~/components/token/TokenSwapWidget.vue";
-import TrendingTokens from "~/components/token/TrendingTokens.vue";
+  import PriceChart from '~/components/token/PriceChart.vue'
+  import TokenSwapWidget from '~/components/token/TokenSwapWidget.vue'
+  import TrendingTokens from '~/components/token/TrendingTokens.vue'
 
-const timeframes = ["All", "1y", "30d", "7d", "1d"];
+  const timeframes = ['All', '1y', '30d', '7d', '1d']
 </script>
