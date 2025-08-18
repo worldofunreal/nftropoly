@@ -157,11 +157,10 @@
 </template>
 
 <script setup lang="ts">
-  import { resolveComponent, ref, nextTick } from 'vue'
+  import { resolveComponent } from 'vue'
   import { useColorMode, useNuxtApp } from '#imports'
-  import { useRoute, useRouter } from 'vue-router'
+  import { useRoute } from 'vue-router'
   const route = useRoute()
-  const router = useRouter()
   const Motion = resolveComponent('Motion')
   const colorMode = useColorMode()
   const { $trackButtonClick, $trackNavigation } = useNuxtApp()
@@ -189,7 +188,7 @@
     close: []
   }
 
-  const props = defineProps<Props>()
+  defineProps<Props>()
   const emit = defineEmits<Emits>()
 
   const handleClose = () => {
@@ -199,7 +198,7 @@
     emit('close')
   }
 
-  function handleMobileHomeClick(e: MouseEvent): void {
+  function handleMobileHomeClick(): void {
     $trackButtonClick('Mobile Home Click', {
       currentRoute: route.path,
       action: route.path === '/' ? 'scroll_to_top' : 'navigate_home',

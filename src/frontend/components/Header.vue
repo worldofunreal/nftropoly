@@ -233,8 +233,7 @@
 
   const colorMode = useColorMode()
   const authStore = useAuthStore()
-  const { $trackInteraction, $trackButtonClick, $trackWalletConnect } =
-    useNuxtApp()
+  const { $trackInteraction, $trackButtonClick } = useNuxtApp()
 
   const scrolled = ref(false)
   const search = ref('')

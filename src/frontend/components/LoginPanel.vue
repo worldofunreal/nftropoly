@@ -199,141 +199,15 @@
       console.log('Got signature:', signature)
       if (!signature) throw new Error('Failed to sign with MetaMask.')
 
-      // Generate a seed phrase from the signature
+      // Generate a seed phrase from the signature using proper bip39
       const encoder = new TextEncoder()
       const encoded = encoder.encode(signature)
       const hashBuffer = await crypto.subtle.digest('SHA-256', encoded)
       const seed = new Uint8Array(hashBuffer.slice(0, 32))
-      // Generate a deterministic seed phrase from the signature
-      const seedHex = Array.from(seed)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('')
-      console.log('Generated seed hex:', seedHex)
-      // Use a simple word list to create a seed phrase (12 words)
-      const words = [
-        'abandon',
-        'ability',
-        'able',
-        'about',
-        'above',
-        'absent',
-        'absorb',
-        'abstract',
-        'absurd',
-        'abuse',
-        'access',
-        'accident',
-        'account',
-        'accuse',
-        'achieve',
-        'acid',
-        'acoustic',
-        'acquire',
-        'across',
-        'act',
-        'action',
-        'actor',
-        'actual',
-        'adapt',
-        'add',
-        'addict',
-        'address',
-        'adjust',
-        'admit',
-        'adult',
-        'advance',
-        'advice',
-        'aerobic',
-        'affair',
-        'afford',
-        'afraid',
-        'again',
-        'age',
-        'agent',
-        'agree',
-        'ahead',
-        'aim',
-        'air',
-        'airport',
-        'aisle',
-        'alarm',
-        'album',
-        'alcohol',
-        'alert',
-        'alien',
-        'all',
-        'alley',
-        'allow',
-        'almost',
-        'alone',
-        'alpha',
-        'already',
-        'also',
-        'alter',
-        'always',
-        'amateur',
-        'amazing',
-        'among',
-        'amount',
-        'amused',
-        'analyst',
-        'anchor',
-        'ancient',
-        'anger',
-        'angle',
-        'angry',
-        'animal',
-        'ankle',
-        'announce',
-        'annual',
-        'another',
-        'answer',
-        'antenna',
-        'antique',
-        'anxiety',
-        'any',
-        'apart',
-        'apology',
-        'appear',
-        'apple',
-        'approve',
-        'april',
-        'arch',
-        'arctic',
-        'area',
-        'arena',
-        'argue',
-        'arm',
-        'armed',
-        'armor',
-        'army',
-        'around',
-        'arrange',
-        'arrest',
-        'arrive',
-        'arrow',
-        'art',
-        'arte',
-        'article',
-        'aside',
-        'ask',
-        'aspect',
-        'assault',
-        'asset',
-        'assist',
-      ]
-
-      // Use the seed hex to select 12 words deterministically
-      const seedPhrase = []
-      for (let i = 0; i < 12; i++) {
-        const start = i * 4
-        const end = start + 4
-        const hexSlice = seedHex.slice(start, end)
-        const wordIndex = parseInt(hexSlice, 16) % words.length
-        seedPhrase.push(words[wordIndex])
-      }
-      const finalSeedPhrase = seedPhrase.join(' ')
-      console.log('Generated seed phrase:', finalSeedPhrase)
+      
+      // Generate proper BIP39 mnemonic from the seed
+      const finalSeedPhrase = bip39.entropyToMnemonic(Buffer.from(seed))
+      console.log('Generated BIP39 seed phrase:', finalSeedPhrase)
 
       // Handle login flow (this creates the identity and checks for existing user)
       console.log('Calling handleLoginFlow...')
@@ -419,143 +293,15 @@
 
       if (!signature) throw new Error('Failed to sign with Phantom.')
 
-      // Generate a seed phrase from the signature
+      // Generate a seed phrase from the signature using proper bip39
       const encoder = new TextEncoder()
       const encoded = encoder.encode(signature.toString())
       const hashBuffer = await crypto.subtle.digest('SHA-256', encoded)
       const seed = new Uint8Array(hashBuffer.slice(0, 32))
 
-      // Generate a deterministic seed phrase from the signature
-      const seedHex = Array.from(seed)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('')
-      console.log('Generated seed hex:', seedHex)
-
-      // Use a simple word list to create a seed phrase (12 words)
-      const words = [
-        'abandon',
-        'ability',
-        'able',
-        'about',
-        'above',
-        'absent',
-        'absorb',
-        'abstract',
-        'absurd',
-        'abuse',
-        'access',
-        'accident',
-        'account',
-        'accuse',
-        'achieve',
-        'acid',
-        'acoustic',
-        'acquire',
-        'across',
-        'act',
-        'action',
-        'actor',
-        'actual',
-        'adapt',
-        'add',
-        'addict',
-        'address',
-        'adjust',
-        'admit',
-        'adult',
-        'advance',
-        'advice',
-        'aerobic',
-        'affair',
-        'afford',
-        'afraid',
-        'again',
-        'age',
-        'agent',
-        'agree',
-        'ahead',
-        'aim',
-        'air',
-        'airport',
-        'aisle',
-        'alarm',
-        'album',
-        'alcohol',
-        'alert',
-        'alien',
-        'all',
-        'alley',
-        'allow',
-        'almost',
-        'alone',
-        'alpha',
-        'already',
-        'also',
-        'alter',
-        'always',
-        'amateur',
-        'amazing',
-        'among',
-        'amount',
-        'amused',
-        'analyst',
-        'anchor',
-        'ancient',
-        'anger',
-        'angle',
-        'angry',
-        'animal',
-        'ankle',
-        'announce',
-        'annual',
-        'another',
-        'answer',
-        'antenna',
-        'antique',
-        'anxiety',
-        'any',
-        'apart',
-        'apology',
-        'appear',
-        'apple',
-        'approve',
-        'april',
-        'arch',
-        'arctic',
-        'area',
-        'arena',
-        'argue',
-        'arm',
-        'armed',
-        'armor',
-        'army',
-        'around',
-        'arrange',
-        'arrest',
-        'arrive',
-        'arrow',
-        'art',
-        'arte',
-        'article',
-        'aside',
-        'ask',
-        'aspect',
-        'assault',
-        'asset',
-        'assist',
-      ]
-
-      // Use the seed hex to select 12 words deterministically
-      const seedPhrase = []
-      for (let i = 0; i < 12; i++) {
-        const start = i * 4
-        const end = start + 4
-        const hexSlice = seedHex.slice(start, end)
-        const wordIndex = parseInt(hexSlice, 16) % words.length
-        seedPhrase.push(words[wordIndex])
-      }
-      const finalSeedPhrase = seedPhrase.join(' ')
-      console.log('Generated seed phrase:', finalSeedPhrase)
+      // Generate proper BIP39 mnemonic from the seed
+      const finalSeedPhrase = bip39.entropyToMnemonic(Buffer.from(seed))
+      console.log('Generated BIP39 seed phrase:', finalSeedPhrase)
 
       // Get the ICP principal from the identity
       const identity = auth.getIdentity()
@@ -639,143 +385,15 @@
       const principalId = await window.ic.plug.agent.getPrincipal()
       console.log('Plug Principal ID:', principalId)
 
-      // Generate a seed phrase from the principal ID
+      // Generate a seed phrase from the principal ID using proper bip39
       const encoder = new TextEncoder()
       const encoded = encoder.encode(principalId.toText())
       const hashBuffer = await crypto.subtle.digest('SHA-256', encoded)
       const seed = new Uint8Array(hashBuffer.slice(0, 32))
 
-      // Generate a deterministic seed phrase from the principal
-      const seedHex = Array.from(seed)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('')
-      console.log('Generated seed hex:', seedHex)
-
-      // Use a simple word list to create a seed phrase (12 words)
-      const words = [
-        'abandon',
-        'ability',
-        'able',
-        'about',
-        'above',
-        'absent',
-        'absorb',
-        'abstract',
-        'absurd',
-        'abuse',
-        'access',
-        'accident',
-        'account',
-        'accuse',
-        'achieve',
-        'acid',
-        'acoustic',
-        'acquire',
-        'across',
-        'act',
-        'action',
-        'actor',
-        'actual',
-        'adapt',
-        'add',
-        'addict',
-        'address',
-        'adjust',
-        'admit',
-        'adult',
-        'advance',
-        'advice',
-        'aerobic',
-        'affair',
-        'afford',
-        'afraid',
-        'again',
-        'age',
-        'agent',
-        'agree',
-        'ahead',
-        'aim',
-        'air',
-        'airport',
-        'aisle',
-        'alarm',
-        'album',
-        'alcohol',
-        'alert',
-        'alien',
-        'all',
-        'alley',
-        'allow',
-        'almost',
-        'alone',
-        'alpha',
-        'already',
-        'also',
-        'alter',
-        'always',
-        'amateur',
-        'amazing',
-        'among',
-        'amount',
-        'amused',
-        'analyst',
-        'anchor',
-        'ancient',
-        'anger',
-        'angle',
-        'angry',
-        'animal',
-        'ankle',
-        'announce',
-        'annual',
-        'another',
-        'answer',
-        'antenna',
-        'antique',
-        'anxiety',
-        'any',
-        'apart',
-        'apology',
-        'appear',
-        'apple',
-        'approve',
-        'april',
-        'arch',
-        'arctic',
-        'area',
-        'arena',
-        'argue',
-        'arm',
-        'armed',
-        'armor',
-        'army',
-        'around',
-        'arrange',
-        'arrest',
-        'arrive',
-        'arrow',
-        'art',
-        'arte',
-        'article',
-        'aside',
-        'ask',
-        'aspect',
-        'assault',
-        'asset',
-        'assist',
-      ]
-
-      // Use the seed hex to select 12 words deterministically
-      const seedPhrase = []
-      for (let i = 0; i < 12; i++) {
-        const start = i * 4
-        const end = start + 4
-        const hexSlice = seedHex.slice(start, end)
-        const wordIndex = parseInt(hexSlice, 16) % words.length
-        seedPhrase.push(words[wordIndex])
-      }
-      const finalSeedPhrase = seedPhrase.join(' ')
-      console.log('Generated seed phrase:', finalSeedPhrase)
+      // Generate proper BIP39 mnemonic from the seed
+      const finalSeedPhrase = bip39.entropyToMnemonic(Buffer.from(seed))
+      console.log('Generated BIP39 seed phrase:', finalSeedPhrase)
 
       // Handle login flow (this creates the identity)
       console.log('Calling handleLoginFlow...')
@@ -827,143 +445,15 @@
         Math.random().toString(36).substr(2, 9)
       console.log('Mock Google user ID:', mockUserId)
 
-      // Generate a seed phrase from the user ID
+      // Generate a seed phrase from the user ID using proper bip39
       const encoder = new TextEncoder()
       const encoded = encoder.encode(mockUserId)
       const hashBuffer = await crypto.subtle.digest('SHA-256', encoded)
       const seed = new Uint8Array(hashBuffer.slice(0, 32))
 
-      // Generate a deterministic seed phrase from the user ID
-      const seedHex = Array.from(seed)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('')
-      console.log('Generated seed hex:', seedHex)
-
-      // Use a simple word list to create a seed phrase (12 words)
-      const words = [
-        'abandon',
-        'ability',
-        'able',
-        'about',
-        'above',
-        'absent',
-        'absorb',
-        'abstract',
-        'absurd',
-        'abuse',
-        'access',
-        'accident',
-        'account',
-        'accuse',
-        'achieve',
-        'acid',
-        'acoustic',
-        'acquire',
-        'across',
-        'act',
-        'action',
-        'actor',
-        'actual',
-        'adapt',
-        'add',
-        'addict',
-        'address',
-        'adjust',
-        'admit',
-        'adult',
-        'advance',
-        'advice',
-        'aerobic',
-        'affair',
-        'afford',
-        'afraid',
-        'again',
-        'age',
-        'agent',
-        'agree',
-        'ahead',
-        'aim',
-        'air',
-        'airport',
-        'aisle',
-        'alarm',
-        'album',
-        'alcohol',
-        'alert',
-        'alien',
-        'all',
-        'alley',
-        'allow',
-        'almost',
-        'alone',
-        'alpha',
-        'already',
-        'also',
-        'alter',
-        'always',
-        'amateur',
-        'amazing',
-        'among',
-        'amount',
-        'amused',
-        'analyst',
-        'anchor',
-        'ancient',
-        'anger',
-        'angle',
-        'angry',
-        'animal',
-        'ankle',
-        'announce',
-        'annual',
-        'another',
-        'answer',
-        'antenna',
-        'antique',
-        'anxiety',
-        'any',
-        'apart',
-        'apology',
-        'appear',
-        'apple',
-        'approve',
-        'april',
-        'arch',
-        'arctic',
-        'area',
-        'arena',
-        'argue',
-        'arm',
-        'armed',
-        'armor',
-        'army',
-        'around',
-        'arrange',
-        'arrest',
-        'arrive',
-        'arrow',
-        'art',
-        'arte',
-        'article',
-        'aside',
-        'ask',
-        'aspect',
-        'assault',
-        'asset',
-        'assist',
-      ]
-
-      // Use the seed hex to select 12 words deterministically
-      const seedPhrase = []
-      for (let i = 0; i < 12; i++) {
-        const start = i * 4
-        const end = start + 4
-        const hexSlice = seedHex.slice(start, end)
-        const wordIndex = parseInt(hexSlice, 16) % words.length
-        seedPhrase.push(words[wordIndex])
-      }
-      const finalSeedPhrase = seedPhrase.join(' ')
-      console.log('Generated seed phrase:', finalSeedPhrase)
+      // Generate proper BIP39 mnemonic from the seed
+      const finalSeedPhrase = bip39.entropyToMnemonic(Buffer.from(seed))
+      console.log('Generated BIP39 seed phrase:', finalSeedPhrase)
 
       // Handle login flow (this creates the identity)
       console.log('Calling handleLoginFlow...')
@@ -1039,145 +529,15 @@
 
       console.log('Internet Identity Principal:', principalText)
 
-      // Generate a seed phrase from the principal ID for compatibility with existing auth flow
+      // Generate a seed phrase from the principal ID using proper bip39
       const encoder = new TextEncoder()
       const encoded = encoder.encode(principalText)
       const hashBuffer = await crypto.subtle.digest('SHA-256', encoded)
       const seed = new Uint8Array(hashBuffer.slice(0, 32))
 
-      // Generate a deterministic seed phrase from the principal
-      const seedHex = Array.from(seed)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('')
-
-      // Use a simple word list to create a seed phrase (12 words)
-      const words = [
-        'abandon',
-        'ability',
-        'able',
-        'about',
-        'above',
-        'absent',
-        'absorb',
-        'abstract',
-        'absurd',
-        'abuse',
-        'access',
-        'accident',
-        'account',
-        'accuse',
-        'achieve',
-        'acid',
-        'acoustic',
-        'acquire',
-        'across',
-        'act',
-        'action',
-        'actor',
-        'actual',
-        'adapt',
-        'add',
-        'addict',
-        'address',
-        'adjust',
-        'admit',
-        'adult',
-        'advance',
-        'advice',
-        'aerobic',
-        'affair',
-        'afford',
-        'afraid',
-        'again',
-        'age',
-        'agent',
-        'agree',
-        'ahead',
-        'aim',
-        'air',
-        'airport',
-        'aisle',
-        'alarm',
-        'album',
-        'alcohol',
-        'alert',
-        'alien',
-        'all',
-        'alley',
-        'allow',
-        'almost',
-        'alone',
-        'alpha',
-        'already',
-        'also',
-        'alter',
-        'always',
-        'amateur',
-        'amazing',
-        'among',
-        'amount',
-        'amused',
-        'analyst',
-        'anchor',
-        'ancient',
-        'anger',
-        'angle',
-        'angry',
-        'animal',
-        'ankle',
-        'announce',
-        'annual',
-        'another',
-        'answer',
-        'antenna',
-        'antique',
-        'anxiety',
-        'any',
-        'apart',
-        'apology',
-        'appear',
-        'apple',
-        'approve',
-        'april',
-        'arch',
-        'arctic',
-        'area',
-        'arena',
-        'argue',
-        'arm',
-        'armed',
-        'armor',
-        'army',
-        'around',
-        'arrange',
-        'arrest',
-        'arrive',
-        'arrow',
-        'art',
-        'arte',
-        'article',
-        'aside',
-        'ask',
-        'aspect',
-        'assault',
-        'asset',
-        'assist',
-      ]
-
-      // Use the seed hex to select 12 words deterministically
-      const seedPhrase = []
-      for (let i = 0; i < 12; i++) {
-        const start = i * 4
-        const end = start + 4
-        const hexSlice = seedHex.slice(start, end)
-        const wordIndex = parseInt(hexSlice, 16) % words.length
-        seedPhrase.push(words[wordIndex])
-      }
-      const finalSeedPhrase = seedPhrase.join(' ')
-      console.log(
-        'Generated seed phrase for Internet Identity:',
-        finalSeedPhrase
-      )
+      // Generate proper BIP39 mnemonic from the seed
+      const finalSeedPhrase = bip39.entropyToMnemonic(Buffer.from(seed))
+      console.log('Generated BIP39 seed phrase for Internet Identity:', finalSeedPhrase)
 
       // Handle login flow using the existing auth store method
       console.log('Calling handleLoginFlow...')

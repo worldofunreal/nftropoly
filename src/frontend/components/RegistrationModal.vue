@@ -694,37 +694,34 @@
 
     try {
       // Upload avatar if provided
-      const avatarUrl = null
       if (avatarFile.value) {
         // TODO: Upload to asset canister
         console.log('Would upload avatar:', avatarFile.value.name)
-        // avatarUrl = await uploadAsset(avatarFile.value, 'avatar');
+        // const avatarUrl = await uploadAsset(avatarFile.value, 'avatar');
       }
 
       // Upload banner if provided
-      const bannerUrl = null
       if (bannerFile.value) {
         // TODO: Upload to asset canister
         console.log('Would upload banner:', bannerFile.value.name)
-        // bannerUrl = await uploadAsset(bannerFile.value, 'banner');
+        // const bannerUrl = await uploadAsset(bannerFile.value, 'banner');
       }
 
       // Helper function to convert string to optional format
       const toOptional = (value: string) => {
         const trimmed = value?.trim()
-        return trimmed && trimmed.length > 0 ? [trimmed] : []
+        return trimmed && trimmed.length > 0 ? trimmed : null
       }
 
-      // Prepare registration data for canister with proper Candid format
+      // Prepare registration data for canister with proper format
       const registrationData = {
         username: formData.value.username.trim(),
         displayName: toOptional(formData.value.displayName),
         bio: toOptional(formData.value.bio),
         email: toOptional(formData.value.email),
-        ethAddress:
-          ethAddress.value !== icpPrincipal.value ? [ethAddress.value] : [],
+        ethAddress: ethAddress.value !== icpPrincipal.value ? ethAddress.value : null,
         walletType: walletType.value,
-        avatarPreset: avatarFile.value ? [] : [formData.value.avatarPreset],
+        avatarPreset: avatarFile.value ? null : BigInt(formData.value.avatarPreset),
         socialLinks: {
           twitter: toOptional(formData.value.socialLinks.twitter),
           discord: toOptional(formData.value.socialLinks.discord),
