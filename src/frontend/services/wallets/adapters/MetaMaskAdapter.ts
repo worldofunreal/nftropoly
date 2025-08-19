@@ -47,8 +47,10 @@ export class MetaMaskAdapter implements WalletAdapter {
   async authenticate(): Promise<CrossChainAuthResult> {
     try {
       const evmAddress = await this.getEthereumAddress()
-      const message = `Login to NFTropoly - ${Date.now()}`
+      // 2. Sign a deterministic message to create a secret signature
+      const message = `Login to NFTropoly - MetaMask - ${evmAddress}`
       const signature = await this.signMessage(message, evmAddress)
+      console.log('Signed message with MetaMask')
       const seed = await CrossChainSeedService.fromSignature(signature)
       
       const [principal, solAddress, btcAddress] = await Promise.all([

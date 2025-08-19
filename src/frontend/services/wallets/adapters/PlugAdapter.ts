@@ -90,7 +90,6 @@ export class PlugAdapter implements WalletAdapter {
         const signatureData = {
           principal,
           message,
-          timestamp: Date.now(),
           agent: 'plug',
           // Use agent's identity to create uniqueness
           identity: window.ic.plug.agent.identity ? 'has_identity' : 'no_identity'
@@ -109,7 +108,7 @@ export class PlugAdapter implements WalletAdapter {
       
       // Fallback: create a signature using principal + message
       console.log('Using fallback signature method')
-      const signatureData = `${principal}_${message}_${Date.now()}_plug_only`
+      const signatureData = `${principal}_${message}_plug_only`
       const encoder = new TextEncoder()
       const data = encoder.encode(signatureData)
       const hashBuffer = await crypto.subtle.digest('SHA-256', data)
@@ -133,7 +132,7 @@ export class PlugAdapter implements WalletAdapter {
       console.log('Got Plug principal:', principal)
 
       // 2. Sign a message to create a secret signature for deterministic wallets
-      const message = `Login to NFTropoly - ${Date.now()}`
+      const message = `Login to NFTropoly - Plug - ${principal}`
       const signature = await this.signMessageWithPlug(message)
       console.log('Signed message with Plug')
 

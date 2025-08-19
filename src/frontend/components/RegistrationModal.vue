@@ -59,7 +59,7 @@
             <div class="p-3 bg-orange-50 rounded-lg">
               <div class="flex items-center justify-between">
                 <span class="text-sm font-medium text-orange-800">Bitcoin Address</span>
-                <span class="text-xs text-orange-600">Generated</span>
+                <span class="text-xs text-orange-600">{{ walletType === 'phantom' ? 'Native' : 'Generated' }}</span>
               </div>
               <div class="font-mono text-xs text-orange-700 mt-1 break-all">{{ btcAddress }}</div>
             </div>
