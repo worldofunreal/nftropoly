@@ -188,8 +188,10 @@ async function login(walletType: WalletType) {
       if (registrationModalRef.value) {
         console.log('Opening registration modal with cross-chain addresses')
         registrationModalRef.value.open(
-          auth.evmAddress,
           auth.principal,
+          auth.evmAddress || '',
+          auth.solAddress || '',
+          auth.btcAddress || '',
           auth.nativeWallet
         )
       } else {

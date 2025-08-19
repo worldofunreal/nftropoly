@@ -16,6 +16,7 @@ export const useAuthStore = defineStore('auth', {
     principal: '',
     evmAddress: '',
     solAddress: '',
+    btcAddress: '',
     nativeWallet: '',
     canisterInitialized: false,
   }),
@@ -65,6 +66,7 @@ export const useAuthStore = defineStore('auth', {
           this.principal = authResult.principal
           this.evmAddress = authResult.evmAddress || ''
           this.solAddress = authResult.solAddress || ''
+          this.btcAddress = authResult.btcAddress || ''
           this.nativeWallet = authResult.nativeWallet
           
           // Legacy player object for compatibility
@@ -92,6 +94,7 @@ export const useAuthStore = defineStore('auth', {
           this.principal = authResult.principal
           this.evmAddress = authResult.evmAddress || ''
           this.solAddress = authResult.solAddress || ''
+          this.btcAddress = authResult.btcAddress || ''
           this.nativeWallet = authResult.nativeWallet
           
           this.saveStateToLocalStorage()

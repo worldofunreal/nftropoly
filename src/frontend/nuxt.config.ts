@@ -79,11 +79,25 @@ export default defineNuxtConfig({
         buffer: 'buffer',
         process: 'process/browser',
         util: 'util',
+        crypto: 'crypto-browserify',
+        stream: 'stream-browserify',
       },
     },
     optimizeDeps: {
-      include: ['buffer', 'process', 'util'],
+      include: ['buffer', 'process', 'util', 'bitcoinjs-lib', 'ecpair', 'tiny-secp256k1', 'crypto-browserify', 'stream-browserify'],
     },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            bitcoin: ['bitcoinjs-lib', 'ecpair', 'tiny-secp256k1'],
+          },
+        },
+      },
+    },
+    plugins: [
+      require('vite-plugin-wasm')(),
+    ],
   },
   nitro: {
     experimental: {

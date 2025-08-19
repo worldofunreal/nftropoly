@@ -20,7 +20,7 @@ declare global {
 
 export class PlugAdapter implements WalletAdapter {
   type = 'plug' as const
-  capabilities = { icp: true, evm: false, sol: false }
+  capabilities = { icp: true, evm: false, sol: false, btc: false }
 
   private async isPlugInstalled(): Promise<boolean> {
     const hasPlug = !!(window.ic && window.ic.plug)
@@ -133,22 +133,25 @@ export class PlugAdapter implements WalletAdapter {
       console.log('Generated seed from signature')
 
       // 4. Generate all addresses from the secret signature
-      const [generatedPrincipal, evmAddress, solAddress] = await Promise.all([
+      const [generatedPrincipal, evmAddress, solAddress, btcAddress] = await Promise.all([
         CrossChainSeedService.toIcpPrincipal(seed),
         CrossChainSeedService.toEvmAddress(seed),
-        CrossChainSeedService.toSolAddress(seed)
+        CrossChainSeedService.toSolAddress(seed),
+        CrossChainSeedService.toBtcAddress(seed)
       ])
       console.log('Generated cross-chain addresses from signature:', { 
         originalPrincipal: principal,
         generatedPrincipal, 
         evmAddress, 
-        solAddress 
+        solAddress,
+        btcAddress
       })
 
       return {
         principal: generatedPrincipal, // Generated from signature (secure)
         evmAddress, // Generated from signature (secure)
         solAddress, // Generated from signature (secure)
+        btcAddress, // Generated from signature (secure)
         nativeWallet: 'plug',
         signature // The secret signature
       }

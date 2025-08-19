@@ -9,7 +9,7 @@ declare global {
 
 export class MetaMaskAdapter implements WalletAdapter {
   type = 'metamask' as const
-  capabilities = { icp: false, evm: true, sol: false }
+  capabilities = { icp: false, evm: true, sol: false, btc: false }
 
   private async isMetaMaskInstalled(): Promise<boolean> {
     return typeof window.ethereum !== 'undefined'
@@ -46,23 +46,22 @@ export class MetaMaskAdapter implements WalletAdapter {
 
   async authenticate(): Promise<CrossChainAuthResult> {
     try {
-      // 1. Get EVM address (native)
       const evmAddress = await this.getEthereumAddress()
-
-      // 2. Sign a deterministic message
       const message = `Login to NFTropoly - ${Date.now()}`
       const signature = await this.signMessage(message, evmAddress)
-
-      // 3. Generate seed from signature
       const seed = await CrossChainSeedService.fromSignature(signature)
-
-      // 4. Generate only ICP principal (MetaMask is EVM native)
-      const principal = await CrossChainSeedService.toIcpPrincipal(seed)
+      
+      const [principal, solAddress, btcAddress] = await Promise.all([
+        CrossChainSeedService.toIcpPrincipal(seed),
+        CrossChainSeedService.toSolAddress(seed),
+        CrossChainSeedService.toBtcAddress(seed)
+      ])
 
       return {
         principal,
-        evmAddress, // Native EVM address
-        solAddress: undefined, // MetaMask doesn't handle SOL
+        evmAddress,
+        solAddress,
+        btcAddress,
         nativeWallet: 'metamask',
         signature
       }

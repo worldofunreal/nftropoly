@@ -105,7 +105,7 @@
                 class="absolute -bottom-1 -right-1 w-5 h-5 bg-white dark:bg-neutral-800 rounded-full border-2 border-white dark:border-neutral-800 flex items-center justify-center"
               >
                 <UIcon
-                  :name="getWalletIcon(authStore.walletType)"
+                  :name="getWalletIcon(authStore.nativeWallet)"
                   class="w-3 h-3 text-gray-700 dark:text-gray-300"
                 />
               </div>
@@ -151,7 +151,7 @@
                     {{ authStore.player?.username || 'User' }}
                   </div>
                   <div class="text-sm text-gray-500 dark:text-gray-400">
-                    {{ authStore.walletType.toUpperCase() }}
+                    {{ authStore.nativeWallet.toUpperCase() }}
                   </div>
                 </div>
               </div>
@@ -169,18 +169,18 @@
                   <span
                     class="text-sm font-mono text-gray-900 dark:text-white truncate"
                   >
-                    {{ authStore.walletAddress }}
+                    {{ authStore.evmAddress || authStore.principal }}
                   </span>
                   <UIcon
                     name="i-heroicons-document-duplicate-20-solid"
                     class="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
-                    @click="copyToClipboard(authStore.walletAddress)"
+                    @click="copyToClipboard(authStore.evmAddress || authStore.principal)"
                   />
                 </div>
               </div>
 
               <!-- ICP Principal -->
-              <div v-if="authStore.icpPrincipal" class="mb-4">
+              <div v-if="authStore.principal" class="mb-4">
                 <div
                   class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1"
                 >
@@ -192,12 +192,12 @@
                   <span
                     class="text-sm font-mono text-gray-900 dark:text-white truncate"
                   >
-                    {{ authStore.icpPrincipal }}
+                    {{ authStore.principal }}
                   </span>
                   <UIcon
                     name="i-heroicons-document-duplicate-20-solid"
                     class="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
-                    @click="copyToClipboard(authStore.icpPrincipal)"
+                    @click="copyToClipboard(authStore.principal)"
                   />
                 </div>
               </div>
@@ -345,12 +345,14 @@
     showUserMenu.value = false
     $trackButtonClick('Logout', {
       username: authStore.player?.username,
-      walletType: authStore.walletType,
+      walletType: authStore.nativeWallet,
     })
     authStore.logout()
   }
 
-  function getWalletIcon(walletType: string) {
+  function getWalletIcon(walletType?: string) {
+    if (!walletType) return 'solar:wallet-bold'
+    
     switch (walletType.toLowerCase()) {
       case 'metamask':
         return 'token-branded:metamask'

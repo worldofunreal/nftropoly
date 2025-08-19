@@ -1,17 +1,19 @@
-export type WalletType = 'metamask' | 'phantom' | 'internet-identity' | 'plug'
+export type WalletType = 'metamask' | 'phantom' | 'internet-identity' | 'plug' | 'unisat' | 'xverse' | 'hiro' | 'leather'
 
 export interface WalletCapabilities {
-  icp: boolean    // Can sign ICP transactions
-  evm: boolean    // Can sign EVM transactions  
-  sol: boolean    // Can sign Solana transactions
+  icp: boolean
+  evm: boolean
+  sol: boolean
+  btc: boolean
 }
 
 export interface CrossChainAuthResult {
-  principal: string        // ICP principal (always generated)
-  evmAddress?: string      // 0x address (generated or native)
-  solAddress?: string      // Solana address (generated or native)
-  nativeWallet: string     // Which wallet was used for auth
-  signature?: string       // Original signature for verification
+  principal: string
+  evmAddress?: string
+  solAddress?: string
+  btcAddress?: string
+  nativeWallet: string
+  signature?: string
 }
 
 export interface WalletAdapter {

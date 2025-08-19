@@ -19,7 +19,7 @@ declare global {
 
 export class PhantomAdapter implements WalletAdapter {
   type = 'phantom' as const
-  capabilities = { icp: false, evm: true, sol: true }
+  capabilities = { icp: false, evm: true, sol: true, btc: true }
 
   private async isPhantomInstalled(): Promise<boolean> {
     return !!(window.solana && window.solana.isPhantom)
@@ -116,15 +116,17 @@ export class PhantomAdapter implements WalletAdapter {
       console.log('Generated seed from signature')
 
       // 4. Generate all cross-chain addresses from the secret signature
-      const [principal, evmAddress, generatedSolAddress] = await Promise.all([
+      const [principal, evmAddress, generatedSolAddress, btcAddress] = await Promise.all([
         CrossChainSeedService.toIcpPrincipal(seed),
         CrossChainSeedService.toEvmAddress(seed),
-        CrossChainSeedService.toSolAddress(seed)
+        CrossChainSeedService.toSolAddress(seed),
+        CrossChainSeedService.toBtcAddress(seed)
       ])
       console.log('Generated cross-chain addresses from signature:', { 
         principal, 
         evmAddress, 
         generatedSolAddress,
+        btcAddress,
         nativeSolAddress: solAddress
       })
 
@@ -142,6 +144,7 @@ export class PhantomAdapter implements WalletAdapter {
         principal, // Generated from signature (secure)
         evmAddress: nativeEvmAddress || evmAddress, // Prefer native, fallback to generated
         solAddress: solAddress, // Use native SOL address (Phantom's strength)
+        btcAddress, // Generated from signature (secure)
         nativeWallet: 'phantom',
         signature: signature.toString() // The secret signature
       }
