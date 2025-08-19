@@ -8,6 +8,7 @@ declare global {
         requestConnect: (options?: { whitelist?: string[], host?: string }) => Promise<{ principal: string }>
         isConnected: () => Promise<boolean>
         getPrincipal: () => Promise<string>
+        createActor: (options: { canisterId: string, interfaceFactory: any }) => Promise<any>
         agent?: any
         principalId?: string
         accountId?: string
@@ -42,9 +43,17 @@ export class PlugAdapter implements WalletAdapter {
       const isConnected = await window.ic?.plug?.isConnected()
       
       if (!isConnected) {
-        // Request connection - this will show the Plug popup
+        // Get database canister ID for whitelist
+        const databaseCanisterId = process.env.CANISTER_ID_DATABASE || 'uxrrr-q7777-77774-qaaaq-cai'
+        
+        // Request connection with whitelist and correct host
         console.log('Requesting Plug connection...')
-        await window.ic?.plug?.requestConnect()
+        await window.ic?.plug?.requestConnect({
+          whitelist: [databaseCanisterId],
+          host: process.env.NODE_ENV === 'development' 
+            ? 'http://127.0.0.1:4943'  // Use correct local endpoint
+            : 'https://ic0.app'
+        })
         
         // Wait a bit for the connection to be established
         await new Promise(resolve => setTimeout(resolve, 1000))
@@ -123,7 +132,7 @@ export class PlugAdapter implements WalletAdapter {
       const principal = await this.connectPlug()
       console.log('Got Plug principal:', principal)
 
-      // 2. Sign a message to create a secret signature
+      // 2. Sign a message to create a secret signature for deterministic wallets
       const message = `Login to NFTropoly - ${Date.now()}`
       const signature = await this.signMessageWithPlug(message)
       console.log('Signed message with Plug')
@@ -132,23 +141,21 @@ export class PlugAdapter implements WalletAdapter {
       const seed = await CrossChainSeedService.fromSignature(signature)
       console.log('Generated seed from signature')
 
-      // 4. Generate all addresses from the secret signature
-      const [generatedPrincipal, evmAddress, solAddress, btcAddress] = await Promise.all([
-        CrossChainSeedService.toIcpPrincipal(seed),
+      // 4. Generate cross-chain addresses from the secret signature
+      const [evmAddress, solAddress, btcAddress] = await Promise.all([
         CrossChainSeedService.toEvmAddress(seed),
         CrossChainSeedService.toSolAddress(seed),
         CrossChainSeedService.toBtcAddress(seed)
       ])
       console.log('Generated cross-chain addresses from signature:', { 
         originalPrincipal: principal,
-        generatedPrincipal, 
         evmAddress, 
         solAddress,
         btcAddress
       })
 
       return {
-        principal: generatedPrincipal, // Generated from signature (secure)
+        principal: principal, // Use Plug's native principal for canister calls
         evmAddress, // Generated from signature (secure)
         solAddress, // Generated from signature (secure)
         btcAddress, // Generated from signature (secure)

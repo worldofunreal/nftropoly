@@ -239,7 +239,7 @@ export interface ApiError {
 export type ApiResult<T> = { ok: T } | { err: ApiError }
 
 class CanisterService {
-  private agent: HttpAgent | null = null
+  private agent: HttpAgent | any = null
   private databaseActor: any = null
   private identity: Identity | null = null
 
@@ -272,6 +272,34 @@ class CanisterService {
       return true
     } catch (error) {
       console.error('Failed to initialize CanisterService:', error)
+      throw error
+    }
+  }
+
+  // Initialize the service with Plug's createActor method
+  async initializeWithPlug() {
+    try {
+      // Check if Plug is available and connected
+      if (!window.ic?.plug?.createActor) {
+        throw new Error('Plug createActor not available')
+      }
+
+      // Debug: Check what agent Plug is using
+      if (window.ic?.plug?.agent) {
+        console.log('Plug agent host:', window.ic.plug.agent._host)
+        console.log('Plug agent identity:', window.ic.plug.agent._identity)
+      }
+
+      // Use Plug's createActor method to create the database actor
+      this.databaseActor = await window.ic.plug.createActor({
+        canisterId: getDatabaseCanisterId(),
+        interfaceFactory: databaseIdlFactory,
+      })
+
+      console.log('CanisterService initialized with Plug createActor')
+      return true
+    } catch (error) {
+      console.error('Failed to initialize CanisterService with Plug:', error)
       throw error
     }
   }

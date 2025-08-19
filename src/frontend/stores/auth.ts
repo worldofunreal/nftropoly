@@ -50,7 +50,13 @@ export const useAuthStore = defineStore('auth', {
         identity = await CrossChainSeedService.toIdentity(seed)
         
         // 4. Initialize canister service
-        await canisterService.initialize(identity)
+        if (walletType === 'plug') {
+          // Use Plug's native agent for canister calls
+          await canisterService.initializeWithPlug()
+        } else {
+          // Use generated identity for other wallets
+          await canisterService.initialize(identity)
+        }
         this.canisterInitialized = true
         
         // 5. Check if user exists in database

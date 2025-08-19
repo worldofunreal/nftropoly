@@ -202,7 +202,8 @@
   // Format ICP principal for display
   const displayIcpPrincipal = computed(() => {
     if (!auth.principal) return ''
-    return `${auth.principal.slice(0, 8)}...${auth.principal.slice(-4)}`
+    const principalStr = typeof auth.principal === 'string' ? auth.principal : String(auth.principal)
+    return `${principalStr.slice(0, 8)}...${principalStr.slice(-4)}`
   })
 
   // Copy to clipboard function
