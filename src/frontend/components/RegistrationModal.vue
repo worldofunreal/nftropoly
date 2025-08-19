@@ -247,18 +247,18 @@
       // Prepare simplified registration data
       const registrationData = {
         username: username.value.trim(),
-        displayName: null,
-        bio: null,
-        email: null,
-        ethAddress: evmAddress.value,
+        displayName: [], // Empty array for "none"
+        bio: [], // Empty array for "none"
+        email: [], // Empty array for "none"
+        ethAddress: evmAddress.value ? [evmAddress.value] : [], // Array with value or empty
         walletType: walletType.value,
-        avatarPreset: BigInt(1), // Default avatar
+        avatarPreset: [BigInt(1)], // Array with default avatar
         socialLinks: {
-          twitter: null,
-          discord: null,
-          instagram: null,
-          website: null,
-          telegram: null,
+          twitter: [],
+          discord: [],
+          instagram: [],
+          website: [],
+          telegram: [],
         },
         privacy: {
           profilePublic: true,

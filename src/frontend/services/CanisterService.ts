@@ -3,12 +3,8 @@ import type { Identity } from '@dfinity/agent'
 
 // Get canister ID from runtime config
 const getDatabaseCanisterId = () => {
-  // In development, use local canister ID
-  if (process.env.NODE_ENV === 'development') {
-    return 'uxrrr-q7777-77774-qaaaq-cai'
-  }
-  // In production, use mainnet canister ID
-  return 'your-mainnet-database-id'
+  // Get canister ID from environment
+  return process.env.CANISTER_ID_DATABASE || 'uxrrr-q7777-77774-qaaaq-cai'
 }
 
 // Inline IDL factory for database canister (copied from generated declarations)
@@ -153,15 +149,15 @@ const databaseIdlFactory = ({ IDL }: any) => {
 
 // Types from the canister interface
 export interface UserProfile {
-  bio: string | null
+  bio: [] | [string]
   portfolio: PortfolioStats
   username: string
   totalVolume: number
-  displayName: string | null
+  displayName: [] | [string]
   socialLinks: SocialLinks
   followersCount: bigint
   lastActiveAt: bigint
-  email: string | null
+  email: [] | [string]
   followingCount: bigint
   wallet: WalletInfo
   totalTransactions: bigint
@@ -169,7 +165,7 @@ export interface UserProfile {
   assets: ProfileAssets
   createdAt: bigint
   experience: UserExperience
-  location: string | null
+  location: [] | [string]
   isVerified: boolean
 }
 
@@ -184,17 +180,17 @@ export interface PortfolioStats {
 }
 
 export interface SocialLinks {
-  twitter: string | null
-  instagram: string | null
-  website: string | null
-  discord: string | null
-  telegram: string | null
+  twitter: [] | [string]
+  instagram: [] | [string]
+  website: [] | [string]
+  discord: [] | [string]
+  telegram: [] | [string]
 }
 
 export interface ProfileAssets {
-  avatarUrl: string | null
-  bannerUrl: string | null
-  avatarPreset: bigint | null
+  avatarUrl: [] | [string]
+  bannerUrl: [] | [string]
+  avatarPreset: [] | [bigint]
 }
 
 export interface UserExperience {
@@ -212,22 +208,22 @@ export interface PrivacySettings {
 }
 
 export interface WalletInfo {
-  ethAddress: string | null
+  ethAddress: [] | [string]
   walletType: string
   connectedAt: bigint
   icpPrincipal: string
 }
 
 export interface RegistrationData {
-  bio: string | null
-  displayName: string | null
+  bio: [] | [string]
+  displayName: [] | [string]
   socialLinks: SocialLinks
   walletType: string
-  email: string | null
+  email: [] | [string]
   privacy: PrivacySettings
-  avatarPreset: bigint | null
+  avatarPreset: [] | [bigint]
   username: string
-  ethAddress: string | null
+  ethAddress: [] | [string]
 }
 
 export interface ApiError {
@@ -252,19 +248,19 @@ class CanisterService {
     try {
       this.identity = identity || null
 
-      // Create HTTP agent
+      // Create HTTP agent with proper configuration
       this.agent = new HttpAgent({
-        host:
-          process.env.NODE_ENV === 'development'
-            ? 'http://localhost:4943'
-            : 'https://ic0.app',
+        host: process.env.NODE_ENV === 'development' 
+          ? 'http://127.0.0.1:4943'  // Use 127.0.0.1:4943 for local development
+          : 'https://ic0.app',
         identity: this.identity || undefined,
-        // Disable certificate verification in development
-        ...(process.env.NODE_ENV === 'development' && {
-          fetchRootKey: false,
-          verifyQuerySignatures: false,
-        }),
       })
+
+      // Fetch root key for local development
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Fetching root key for local development...')
+        await this.agent.fetchRootKey()
+      }
 
       // Create database actor
       this.databaseActor = Actor.createActor(databaseIdlFactory, {

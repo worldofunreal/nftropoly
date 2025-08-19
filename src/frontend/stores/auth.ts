@@ -72,12 +72,12 @@ export const useAuthStore = defineStore('auth', {
           // Legacy player object for compatibility
           this.player = {
             username: existingProfile.username,
-            displayName: existingProfile.displayName,
-            avatarPreset: existingProfile.assets?.avatarPreset
-              ? Number(existingProfile.assets.avatarPreset)
+            displayName: existingProfile.displayName.length > 0 ? existingProfile.displayName[0] : null,
+            avatarPreset: existingProfile.assets?.avatarPreset.length > 0
+              ? Number(existingProfile.assets.avatarPreset[0])
               : 1,
-            avatarUrl: existingProfile.assets?.avatarUrl,
-            bannerUrl: existingProfile.assets?.bannerUrl,
+            avatarUrl: existingProfile.assets?.avatarUrl.length > 0 ? existingProfile.assets.avatarUrl[0] : null,
+            bannerUrl: existingProfile.assets?.bannerUrl.length > 0 ? existingProfile.assets.bannerUrl[0] : null,
             ethAddress: authResult.evmAddress,
             principal: authResult.principal,
             walletType: authResult.nativeWallet,
@@ -134,12 +134,12 @@ export const useAuthStore = defineStore('auth', {
           // Legacy player object
           this.player = {
             username: existingProfile.username,
-            displayName: existingProfile.displayName,
-            avatarPreset: existingProfile.assets?.avatarPreset
-              ? Number(existingProfile.assets.avatarPreset)
+            displayName: existingProfile.displayName.length > 0 ? existingProfile.displayName[0] : null,
+            avatarPreset: existingProfile.assets?.avatarPreset.length > 0
+              ? Number(existingProfile.assets.avatarPreset[0])
               : 1,
-            avatarUrl: existingProfile.assets?.avatarUrl,
-            bannerUrl: existingProfile.assets?.bannerUrl,
+            avatarUrl: existingProfile.assets?.avatarUrl.length > 0 ? existingProfile.assets.avatarUrl[0] : null,
+            bannerUrl: existingProfile.assets?.bannerUrl.length > 0 ? existingProfile.assets.bannerUrl[0] : null,
             ethAddress: recovered.evmAddress,
             principal: recovered.principal,
             walletType: 'recovered',
@@ -163,12 +163,12 @@ export const useAuthStore = defineStore('auth', {
       // Update legacy player object
       this.player = {
         username: profile.username,
-        displayName: profile.displayName,
-        avatarPreset: profile.assets?.avatarPreset
-          ? Number(profile.assets.avatarPreset)
+        displayName: profile.displayName.length > 0 ? profile.displayName[0] : null,
+        avatarPreset: profile.assets?.avatarPreset.length > 0
+          ? Number(profile.assets.avatarPreset[0])
           : 1,
-        avatarUrl: profile.assets?.avatarUrl,
-        bannerUrl: profile.assets?.bannerUrl,
+        avatarUrl: profile.assets?.avatarUrl.length > 0 ? profile.assets.avatarUrl[0] : null,
+        bannerUrl: profile.assets?.bannerUrl.length > 0 ? profile.assets.bannerUrl[0] : null,
         ethAddress: this.evmAddress,
         principal: this.principal,
         walletType: this.nativeWallet,

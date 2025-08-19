@@ -48,24 +48,24 @@
             <UIcon
               name="i-heroicons-document-duplicate-20-solid"
               class="text-gray-300 cursor-pointer hover:text-white transition"
-              @click="copyToClipboard(auth.walletAddress)"
+              @click="copyToClipboard(auth.evmAddress || auth.principal)"
             />
             <span
               class="ml-2 bg-primary-600 text-white text-xs font-semibold px-2 py-1 rounded-full"
-              >{{ auth.walletType.toUpperCase() }}</span
+              >{{ auth.nativeWallet?.toUpperCase() || 'WALLET' }}</span
             >
           </div>
 
           <!-- ICP Principal -->
           <div
-            v-if="auth.icpPrincipal"
+            v-if="auth.principal"
             class="flex items-center gap-2 text-xs text-gray-300 truncate"
           >
             <span class="truncate">{{ displayIcpPrincipal }}</span>
             <UIcon
               name="i-heroicons-document-duplicate-20-solid"
               class="text-gray-300 cursor-pointer hover:text-white transition"
-              @click="copyToClipboard(auth.icpPrincipal)"
+              @click="copyToClipboard(auth.principal)"
             />
             <span
               class="ml-2 bg-gray-700 text-white text-xs font-semibold px-2 py-1 rounded-full"
@@ -189,19 +189,20 @@
 
   // Format wallet address for display
   const displayWalletAddress = computed(() => {
-    if (!auth.walletAddress) return 'Not Connected'
-    if (auth.walletAddress.startsWith('0x')) {
-      return `${auth.walletAddress.slice(0, 6)}...${auth.walletAddress.slice(-4)}`
+    const address = auth.evmAddress || auth.principal
+    if (!address) return 'Not Connected'
+    if (address.startsWith('0x')) {
+      return `${address.slice(0, 6)}...${address.slice(-4)}`
     }
-    return auth.walletAddress.length > 20
-      ? `${auth.walletAddress.slice(0, 10)}...${auth.walletAddress.slice(-8)}`
-      : auth.walletAddress
+    return address.length > 20
+      ? `${address.slice(0, 10)}...${address.slice(-8)}`
+      : address
   })
 
   // Format ICP principal for display
   const displayIcpPrincipal = computed(() => {
-    if (!auth.icpPrincipal) return ''
-    return `${auth.icpPrincipal.slice(0, 8)}...${auth.icpPrincipal.slice(-4)}`
+    if (!auth.principal) return ''
+    return `${auth.principal.slice(0, 8)}...${auth.principal.slice(-4)}`
   })
 
   // Copy to clipboard function
