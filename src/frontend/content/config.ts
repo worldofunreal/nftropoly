@@ -6,9 +6,9 @@ module.exports = {
         fields: ['title', 'date', 'description', 'category', 'tags'],
         sort: [{ field: 'date', direction: 'desc' }],
         pagination: {
-          perPage: 10
-        }
-      }
-    }
-  }
-} 
+          perPage: 10,
+        },
+      },
+    },
+  },
+}

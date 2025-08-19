@@ -1,3 +1,5 @@
+import { useRuntimeConfig } from '#imports'
+
 const INITIAL_PROMPT_TEMPLATE = `You are an expert productivity assistant. Your job is to help me break down ideas into clear, actionable tasks.
 
 Here is a raw idea from my brainstorm:
@@ -55,8 +57,6 @@ Provide 2-3 specific, actionable tools, apps, or approaches that would help them
 
 Format as a simple list with brief explanations.`
 
-import { useRuntimeConfig } from '#imports'
-
 export async function useHuggingFaceAI(idea: string): Promise<string> {
   const config = useRuntimeConfig()
   const HF_TOKEN = config.public.HF_TOKEN
@@ -67,101 +67,114 @@ export async function useHuggingFaceAI(idea: string): Promise<string> {
 
   const prompt = INITIAL_PROMPT_TEMPLATE.replace('{{idea}}', idea)
 
-  const response = await fetch('https://router.huggingface.co/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${HF_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'meta-llama/Meta-Llama-3-8B-Instruct',
-      messages: [
-        { role: 'user', content: prompt }
-      ],
-      stream: false
-    })
-  })
-
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`Hugging Face API error: ${error}`)
-  }
-
-  const data = await response.json()
-  return data.choices?.[0]?.message?.content || data.generated_text || ''
-}
-
-export async function useHuggingFaceAIBreakdown(idea: string, answer: string): Promise<string> {
-  const config = useRuntimeConfig()
-  const HF_TOKEN = config.public.HF_TOKEN
-
-  if (!HF_TOKEN) {
-    throw new Error('Hugging Face token not configured')
-  }
-
-  const prompt = BREAKDOWN_PROMPT_TEMPLATE
-    .replace('{{idea}}', idea)
-    .replace('{{answer}}', answer)
-
-  const response = await fetch('https://router.huggingface.co/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${HF_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'meta-llama/Meta-Llama-3-8B-Instruct',
-      messages: [
-        { role: 'user', content: prompt }
-      ],
-      stream: false
-    })
-  })
-
-  if (!response.ok) {
-    const error = await response.text()
-    throw new Error(`Hugging Face API error: ${error}`)
-  }
-
-  const data = await response.json()
-  return data.choices?.[0]?.message?.content || data.generated_text || ''
-}
-
-export async function useHuggingFaceAIFiltering(tasks: { title: string, subtasks?: string[] }[], jsonOrder?: boolean): Promise<string> {
-  const config = useRuntimeConfig()
-  const HF_TOKEN = config.public.HF_TOKEN
-
-  if (!HF_TOKEN) {
-    throw new Error('Hugging Face token not configured')
-  }
-
-  const formattedTasks = tasks.map((t, i) => {
-    let s = `${i + 1}. ${t.title}`
-    if (t.subtasks && t.subtasks.length) {
-      s += `\n   - Subtasks: ${t.subtasks.join('; ')}`
+  const response = await fetch(
+    'https://router.huggingface.co/v1/chat/completions',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/Meta-Llama-3-8B-Instruct',
+        messages: [{ role: 'user', content: prompt }],
+        stream: false,
+      }),
     }
-    return s
-  }).join('\n')
+  )
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Hugging Face API error: ${error}`)
+  }
+
+  const data = await response.json()
+  return data.choices?.[0]?.message?.content || data.generated_text || ''
+}
+
+export async function useHuggingFaceAIBreakdown(
+  idea: string,
+  answer: string
+): Promise<string> {
+  const config = useRuntimeConfig()
+  const HF_TOKEN = config.public.HF_TOKEN
+
+  if (!HF_TOKEN) {
+    throw new Error('Hugging Face token not configured')
+  }
+
+  const prompt = BREAKDOWN_PROMPT_TEMPLATE.replace('{{idea}}', idea).replace(
+    '{{answer}}',
+    answer
+  )
+
+  const response = await fetch(
+    'https://router.huggingface.co/v1/chat/completions',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/Meta-Llama-3-8B-Instruct',
+        messages: [{ role: 'user', content: prompt }],
+        stream: false,
+      }),
+    }
+  )
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Hugging Face API error: ${error}`)
+  }
+
+  const data = await response.json()
+  return data.choices?.[0]?.message?.content || data.generated_text || ''
+}
+
+export async function useHuggingFaceAIFiltering(
+  tasks: { title: string; subtasks?: string[] }[],
+  jsonOrder?: boolean
+): Promise<string> {
+  const config = useRuntimeConfig()
+  const HF_TOKEN = config.public.HF_TOKEN
+
+  if (!HF_TOKEN) {
+    throw new Error('Hugging Face token not configured')
+  }
+
+  const formattedTasks = tasks
+    .map((t, i) => {
+      let s = `${i + 1}. ${t.title}`
+      if (t.subtasks && t.subtasks.length) {
+        s += `\n   - Subtasks: ${t.subtasks.join('; ')}`
+      }
+      return s
+    })
+    .join('\n')
 
   let prompt = FILTERING_PROMPT_TEMPLATE.replace('{{tasks}}', formattedTasks)
   if (jsonOrder) {
-    prompt += '\nAfter your explanation, output a JSON array of the subtask texts in the suggested order, e.g. ["subtask1", "subtask2", ...]';
+    prompt +=
+      '\nAfter your explanation, output a JSON array of the subtask texts in the suggested order, e.g. ["subtask1", "subtask2", ...]'
   }
 
-  const response = await fetch('https://router.huggingface.co/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${HF_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'meta-llama/Meta-Llama-3-8B-Instruct',
-      messages: [
-        { role: 'user', content: prompt }
-      ],
-      stream: false
-    })
-  })
+  const response = await fetch(
+    'https://router.huggingface.co/v1/chat/completions',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/Meta-Llama-3-8B-Instruct',
+        messages: [{ role: 'user', content: prompt }],
+        stream: false,
+      }),
+    }
+  )
 
   if (!response.ok) {
     const error = await response.text()
@@ -172,7 +185,9 @@ export async function useHuggingFaceAIFiltering(tasks: { title: string, subtasks
   return data.choices?.[0]?.message?.content || data.generated_text || ''
 }
 
-export async function useHuggingFaceTaskBreakdown(task: string): Promise<string> {
+export async function useHuggingFaceTaskBreakdown(
+  task: string
+): Promise<string> {
   const config = useRuntimeConfig()
   const HF_TOKEN = config.public.HF_TOKEN
 
@@ -182,20 +197,21 @@ export async function useHuggingFaceTaskBreakdown(task: string): Promise<string>
 
   const prompt = TASK_BREAKDOWN_PROMPT_TEMPLATE.replace('{{task}}', task)
 
-  const response = await fetch('https://router.huggingface.co/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${HF_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'meta-llama/Meta-Llama-3-8B-Instruct',
-      messages: [
-        { role: 'user', content: prompt }
-      ],
-      stream: false
-    })
-  })
+  const response = await fetch(
+    'https://router.huggingface.co/v1/chat/completions',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/Meta-Llama-3-8B-Instruct',
+        messages: [{ role: 'user', content: prompt }],
+        stream: false,
+      }),
+    }
+  )
 
   if (!response.ok) {
     const error = await response.text()
@@ -206,7 +222,10 @@ export async function useHuggingFaceTaskBreakdown(task: string): Promise<string>
   return data.choices?.[0]?.message?.content || data.generated_text || ''
 }
 
-export async function useHuggingFaceTaskTools(task: string, question: string): Promise<string> {
+export async function useHuggingFaceTaskTools(
+  task: string,
+  question: string
+): Promise<string> {
   const config = useRuntimeConfig()
   const HF_TOKEN = config.public.HF_TOKEN
 
@@ -214,24 +233,26 @@ export async function useHuggingFaceTaskTools(task: string, question: string): P
     throw new Error('Hugging Face token not configured')
   }
 
-  const prompt = TASK_TOOLS_PROMPT_TEMPLATE
-    .replace('{{task}}', task)
-    .replace('{{question}}', question)
+  const prompt = TASK_TOOLS_PROMPT_TEMPLATE.replace('{{task}}', task).replace(
+    '{{question}}',
+    question
+  )
 
-  const response = await fetch('https://router.huggingface.co/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${HF_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'meta-llama/Meta-Llama-3-8B-Instruct',
-      messages: [
-        { role: 'user', content: prompt }
-      ],
-      stream: false
-    })
-  })
+  const response = await fetch(
+    'https://router.huggingface.co/v1/chat/completions',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${HF_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/Meta-Llama-3-8B-Instruct',
+        messages: [{ role: 'user', content: prompt }],
+        stream: false,
+      }),
+    }
+  )
 
   if (!response.ok) {
     const error = await response.text()
@@ -240,4 +261,4 @@ export async function useHuggingFaceTaskTools(task: string, question: string): P
 
   const data = await response.json()
   return data.choices?.[0]?.message?.content || data.generated_text || ''
-} 
+}

@@ -1,5 +1,7 @@
 <template>
-  <div class="bg-white dark:bg-neutral-900 rounded-xl p-6 space-y-6 shadow-lg border border-gray-200 dark:border-gray-800">
+  <div
+    class="bg-white dark:bg-neutral-900 rounded-xl p-6 space-y-6 shadow-lg border border-gray-200 dark:border-gray-800"
+  >
     <!-- Header Tabs -->
     <div class="flex items-center justify-between">
       <div class="flex space-x-6">
@@ -21,7 +23,9 @@
 
     <!-- Sell Section -->
     <div class="space-y-3">
-      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Sell</label>
+      <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
+        >Sell</label
+      >
       <div class="space-y-2">
         <UInput
           v-model="sellAmount"
@@ -29,7 +33,9 @@
           placeholder="0"
           class="text-right"
         />
-        <div class="text-sm text-gray-600 dark:text-gray-400 text-right">$0.00</div>
+        <div class="text-sm text-gray-600 dark:text-gray-400 text-right">
+          $0.00
+        </div>
         <div class="flex items-center justify-between">
           <UButton
             variant="outline"
@@ -37,7 +43,9 @@
             size="sm"
             class="flex items-center space-x-2 shadow-sm"
           >
-            <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
+            <div
+              class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
+            >
               E
             </div>
             <span>ETH</span>
@@ -55,14 +63,21 @@
 
     <!-- Swap Direction Icon -->
     <div class="flex justify-center">
-      <div class="w-10 h-10 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center shadow-md border border-gray-200 dark:border-gray-700">
-        <UIcon name="i-heroicons-arrow-down" class="w-5 h-5 text-gray-600 dark:text-gray-400" />
+      <div
+        class="w-10 h-10 bg-gray-100 dark:bg-neutral-800 rounded-full flex items-center justify-center shadow-md border border-gray-200 dark:border-gray-700"
+      >
+        <UIcon
+          name="i-heroicons-arrow-down"
+          class="w-5 h-5 text-gray-600 dark:text-gray-400"
+        />
       </div>
     </div>
 
     <!-- Buy Section -->
     <div class="space-y-3">
-      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Buy</label>
+      <label class="text-sm font-medium text-gray-700 dark:text-gray-300"
+        >Buy</label
+      >
       <div class="space-y-2">
         <UInput
           v-model="buyAmount"
@@ -70,7 +85,9 @@
           placeholder="0"
           class="text-right"
         />
-        <div class="text-sm text-gray-600 dark:text-gray-400 text-right">$0.00</div>
+        <div class="text-sm text-gray-600 dark:text-gray-400 text-right">
+          $0.00
+        </div>
         <div class="flex items-center justify-between">
           <UButton
             variant="outline"
@@ -78,7 +95,9 @@
             size="sm"
             class="flex items-center space-x-2 shadow-sm"
           >
-            <div class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm">
+            <div
+              class="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
+            >
               N
             </div>
             <span>NYM</span>
@@ -92,17 +111,13 @@
     </div>
 
     <!-- Action Button -->
-    <UButton
-      color="primary"
-      size="lg"
-      class="w-full shadow-md"
-    >
+    <UButton color="primary" size="lg" class="w-full shadow-md">
       Connect Wallet
     </UButton>
   </div>
 </template>
 
 <script setup lang="ts">
-const sellAmount = ref('')
-const buyAmount = ref('')
-</script> 
+  const sellAmount = ref('')
+  const buyAmount = ref('')
+</script>

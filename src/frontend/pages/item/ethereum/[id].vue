@@ -3,7 +3,9 @@
     <div class="w-full">
       <div class="flex gap-8">
         <!-- Left Panel - NFT Artwork -->
-        <div class="sticky flex flex-col top-24 w-full h-[calc(100vh-6rem-4rem)] flex-1">
+        <div
+          class="sticky flex flex-col top-24 w-full h-[calc(100vh-6rem-4rem)] flex-1"
+        >
           <!-- Breadcrumb -->
           <div class="mb-6 text-sm text-gray-400">
             <span class="hover:text-white cursor-pointer">NFTs</span>
@@ -14,7 +16,9 @@
           </div>
 
           <!-- Outer Frame -->
-          <div class="p-4 bg-neutral-800 rounded-lg flex flex-1 flex-col min-h-0">
+          <div
+            class="p-4 bg-neutral-800 rounded-lg flex flex-1 flex-col min-h-0"
+          >
             <!-- Inner Frame -->
             <img
               src="https://placehold.co/600x600/3B82F6/FFFFFF?text=CryptoPunk+%238150"
@@ -37,7 +41,7 @@
                     src="https://placehold.co/32x32"
                     alt="Collection"
                     class="w-8 h-8 rounded-full"
-                  />
+                  >
                   <span class="font-semibold">CryptoPunks</span>
                   <UIcon
                     name="material-symbols:verified"
@@ -155,20 +159,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import NftDetailsTraits from "~/components/nft/NftDetailsTraits.vue";
-import NftDetailsPriceHistory from "~/components/nft/NftDetailsPriceHistory.vue";
-import NftDetailsAbout from "~/components/nft/NftDetailsAbout.vue";
-import NftDetailsBlockchain from "~/components/nft/NftDetailsBlockchain.vue";
-import NftDetailsMoreFromCollection from "~/components/nft/NftDetailsMoreFromCollection.vue";
-import NftOrdersTable from "~/components/nft/NftOrdersTable.vue";
-import NftActivityTable from "~/components/nft/NftActivityTable.vue";
+  import { ref } from 'vue'
+  import NftDetailsTraits from '~/components/nft/NftDetailsTraits.vue'
+  import NftDetailsPriceHistory from '~/components/nft/NftDetailsPriceHistory.vue'
+  import NftDetailsAbout from '~/components/nft/NftDetailsAbout.vue'
+  import NftDetailsBlockchain from '~/components/nft/NftDetailsBlockchain.vue'
+  import NftDetailsMoreFromCollection from '~/components/nft/NftDetailsMoreFromCollection.vue'
+  import NftOrdersTable from '~/components/nft/NftOrdersTable.vue'
+  import NftActivityTable from '~/components/nft/NftActivityTable.vue'
 
-const activeTab = ref("details");
+  const activeTab = ref('details')
 
-const tabs = [
-  { key: "details", label: "Details" },
-  { key: "orders", label: "Orders" },
-  { key: "activity", label: "Activity" },
-];
+  const tabs = [
+    { key: 'details', label: 'Details' },
+    { key: 'orders', label: 'Orders' },
+    { key: 'activity', label: 'Activity' },
+  ]
 </script>

@@ -10,4 +10,4 @@ tags:
   - ai
 ---
 
-Stay tuned for more on the Signal Productivity Revolution! 
+Stay tuned for more on the Signal Productivity Revolution!

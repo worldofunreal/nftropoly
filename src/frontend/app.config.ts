@@ -7,7 +7,7 @@ export default defineAppConfig({
       info: 'sky',
       warning: 'amber',
       error: 'rose',
-      neutral: 'zinc'
-    }
-  }
-}) 
+      neutral: 'zinc',
+    },
+  },
+})

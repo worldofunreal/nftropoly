@@ -2,12 +2,12 @@ import { defineNuxtPlugin, useRuntimeConfig } from '#imports'
 
 declare global {
   interface Window {
-    dataLayer: any[];
+    dataLayer: any[]
   }
 }
 
-export default defineNuxtPlugin((nuxtApp) => {
-  if (process.server) return
+export default defineNuxtPlugin(nuxtApp => {
+  if (import.meta.server) return
 
   const config = useRuntimeConfig()
   const gtmId = config.public.GTM_ID || 'GTM-MGJCRHQ3'
@@ -32,7 +32,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       window.dataLayer.push({
         event: 'page_view',
         page_title: document.title,
-        page_location: window.location.href
+        page_location: window.location.href,
       })
     }
   })
@@ -43,8 +43,8 @@ export default defineNuxtPlugin((nuxtApp) => {
       window.dataLayer.push({
         event: 'page_view',
         page_title: document.title,
-        page_location: window.location.href
+        page_location: window.location.href,
       })
     }
   })
-}) 
+})

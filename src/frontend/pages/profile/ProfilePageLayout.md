@@ -1,11 +1,13 @@
 # Profile Page UI Specification
 
 ## Overview
+
 The profile page displays a user's information and all their digital assets in a modern, dark-themed layout. The page is divided into two main components: a top section for user info and a bottom section for asset lists, navigable via 10 tabs. All tabs except "Galleries" include a sidebar with expandable filter sections.
 
 ---
 
 ## 1. Top Component – User Info Header
+
 - **Background**: Large, blurred banner image (user's cover photo or default gradient)
 - **Avatar**: Circular profile image (pixel art or user-uploaded)
 - **Username**: Large, bold text (e.g., `0x5737...b4e4`)
@@ -27,12 +29,14 @@ The profile page displays a user's information and all their digital assets in a
 ## 2. Bottom Component – Asset List Section
 
 ### **Tab Navigation**
+
 - 10 tabs, each showing a different asset view
 - Tabs: Galleries, NFTs, Tokens, Listings, Offers, Portfolio, Created, Watchlist, Favorites, Activity
 
 ---
 
 ### **A. Galleries Tab**
+
 - **No Sidebar**
 - **Main Area**:
   - If no galleries: Centered card with NFT image and message ("Feature your favorites")
@@ -42,6 +46,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ### **B. NFTs Tab**
+
 - **Sidebar** (left):
   - **Status** (expandable): All, Listed, Not Listed, Hidden
   - **Chains** (expandable): Search + chain filter pills
@@ -58,6 +63,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ### **C. Tokens Tab**
+
 - **Sidebar** (left):
   - **Chains** (expandable): Search + chain filter pills
   - **Market Cap** (expandable): Range filter pills
@@ -73,6 +79,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ### **D. Listings Tab**
+
 - **Sidebar** (left):
   - **Status** (expandable): All, Active, Inactive
   - **Chains** (expandable): Search for collections
@@ -87,6 +94,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ### **E. Offers Tab**
+
 - **Sidebar** (left):
   - **View** (expandable): Offers Made, Item Offers Received
   - **Status** (expandable): All, Active, Unfunded, Completed, Expired, Cancelled
@@ -104,6 +112,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ### **F. Portfolio Tab**
+
 - **Sidebar** (left):
   - **Category** (expandable): All, Art, Gaming, Memberships, etc. (pills)
   - **Chains** (expandable): Search + chain filter pills
@@ -118,6 +127,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ### **G. Created Tab**
+
 - **Sidebar** (left):
   - **Category** (expandable): All, Art, Gaming, etc. (pills)
   - **Chains** (expandable): Search + chain filter pills
@@ -132,6 +142,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ### **H. Watchlist Tab**
+
 - **Sidebar** (left):
   - **Category** (expandable): All, Art, Gaming, etc. (pills)
   - **Chains** (expandable): Search + chain filter pills
@@ -147,6 +158,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ### **I. Favorites Tab**
+
 - **Sidebar** (left):
   - **Category** (expandable): All, Art, Gaming, etc. (pills)
   - **Chains** (expandable): Search + chain filter pills
@@ -160,6 +172,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ### **J. Activity Tab**
+
 - **Sidebar** (left):
   - **Status** (expandable): All, Sale, Mint, Transfer, Listing, Item Offer, Collection Offer, Trait Offer
   - **Marketplaces** (expandable): OpenSea, Blur, MagicEden, CryptoPunks (checkboxes)
@@ -174,6 +187,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ## Sidebar Expandable Component
+
 - Each sidebar section is an expandable/collapsible panel
 - Chevron icon indicates open/closed state
 - Smooth animation for expand/collapse
@@ -182,6 +196,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ## Visual Design Specifications
+
 - **Theme**: Dark mode, high contrast
 - **Typography**: Modern sans-serif, bold for headers, regular for body
 - **Buttons**: Pill-shaped, clear active/hover states
@@ -193,6 +208,7 @@ The profile page displays a user's information and all their digital assets in a
 ---
 
 ## Data Requirements
+
 - **User Info**: Address, avatar, XP, portfolio stats
 - **NFTs**: Image, name, price, rarity, etc.
 - **Tokens**: Logo, name, price, market cap, etc.
@@ -202,4 +218,4 @@ The profile page displays a user's information and all their digital assets in a
 
 ---
 
-This specification provides a complete blueprint for implementing a comprehensive, user-friendly profile page with all the features and interactions described in the reference images. 
+This specification provides a complete blueprint for implementing a comprehensive, user-friendly profile page with all the features and interactions described in the reference images.

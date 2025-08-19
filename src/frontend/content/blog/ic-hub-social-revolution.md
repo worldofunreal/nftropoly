@@ -10,4 +10,4 @@ tags:
   - revolution
 ---
 
-More details about the IC Hub Social Revolution coming soon! 
+More details about the IC Hub Social Revolution coming soon!

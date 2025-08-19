@@ -1,13 +1,13 @@
 import { useNuxtApp } from '#imports'
 
 export const useTracking = () => {
-  const { 
-    $trackInteraction, 
-    $trackButtonClick, 
-    $trackFormSubmit, 
-    $trackWalletConnect, 
-    $trackNavigation, 
-    $trackError 
+  const {
+    $trackInteraction,
+    $trackButtonClick,
+    $trackFormSubmit,
+    $trackWalletConnect,
+    $trackNavigation,
+    $trackError,
   } = useNuxtApp()
 
   // Hackathon-specific tracking functions
@@ -15,7 +15,7 @@ export const useTracking = () => {
     $trackInteraction(`Hackathon: ${eventName}`, {
       ...data,
       hackathonPhase: 'development',
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
@@ -23,7 +23,7 @@ export const useTracking = () => {
     $trackInteraction('User Journey', {
       step,
       ...data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
@@ -32,7 +32,7 @@ export const useTracking = () => {
       feature,
       action,
       ...data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
@@ -41,45 +41,61 @@ export const useTracking = () => {
       metric,
       value,
       ...data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
   const trackError = (error: string, context?: any) => {
     $trackError(error, {
       context,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
-  const trackWalletAction = (action: string, walletType: string, data?: any) => {
+  const trackWalletAction = (
+    action: string,
+    walletType: string,
+    data?: any
+  ) => {
     $trackWalletConnect(walletType, {
       action,
       ...data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
-  const trackNavigation = (from: string, to: string, method: string = 'click') => {
+  const trackNavigation = (
+    from: string,
+    to: string,
+    method: string = 'click'
+  ) => {
     $trackNavigation(from, to, {
       method,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
-  const trackButtonClick = (buttonName: string, location: string, data?: any) => {
+  const trackButtonClick = (
+    buttonName: string,
+    location: string,
+    data?: any
+  ) => {
     $trackButtonClick(buttonName, {
       location,
       ...data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
-  const trackFormAction = (formName: string, action: 'submit' | 'start' | 'abandon', data?: any) => {
+  const trackFormAction = (
+    formName: string,
+    action: 'submit' | 'start' | 'abandon',
+    data?: any
+  ) => {
     $trackFormSubmit(formName, {
       action,
       ...data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
@@ -87,23 +103,26 @@ export const useTracking = () => {
   const trackSessionStart = () => {
     $trackInteraction('Session Start', {
       sessionId: Date.now().toString(),
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
   const trackSessionEnd = (duration: number) => {
     $trackInteraction('Session End', {
       duration,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
   // User engagement tracking
-  const trackEngagement = (type: 'scroll' | 'click' | 'hover' | 'focus', data?: any) => {
+  const trackEngagement = (
+    type: 'scroll' | 'click' | 'hover' | 'focus',
+    data?: any
+  ) => {
     $trackInteraction('User Engagement', {
       type,
       ...data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
@@ -113,7 +132,7 @@ export const useTracking = () => {
       goal,
       value,
       ...data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     })
   }
 
@@ -125,21 +144,21 @@ export const useTracking = () => {
     trackWalletAction,
     trackNavigation,
     trackError,
-    
+
     // Hackathon-specific
     trackHackathonEvent,
     trackUserJourney,
     trackFeatureUsage,
     trackPerformance,
-    
+
     // Session tracking
     trackSessionStart,
     trackSessionEnd,
-    
+
     // Engagement tracking
     trackEngagement,
-    
+
     // Conversion tracking
-    trackConversion
+    trackConversion,
   }
 }
