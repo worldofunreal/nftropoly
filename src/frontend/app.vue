@@ -1,14 +1,16 @@
 <template>
   <UApp>
     <!-- Google Tag Manager (noscript) -->
-    <noscript>
-      <iframe
-        src="https://www.googletagmanager.com/ns.html?id=GTM-MGJCRHQ3"
-        height="0"
-        width="0"
-        style="display: none; visibility: hidden"
-      />
-    </noscript>
+    <ClientOnly>
+      <noscript>
+        <iframe
+          src="https://www.googletagmanager.com/ns.html?id=GTM-MGJCRHQ3"
+          height="0"
+          width="0"
+          style="display: none; visibility: hidden"
+        />
+      </noscript>
+    </ClientOnly>
     <!-- End Google Tag Manager (noscript) -->
 
     <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-950">
@@ -33,9 +35,15 @@
       </div>
     </div>
     <LoginPanel ref="loginPanelRef" />
-    <DisclaimerModal ref="disclaimerModalRef" @close="onDisclaimerClose" />
-    <OnboardingTour ref="onboardingTourRef" />
-    <OnboardingTrigger />
+    <ClientOnly>
+      <DisclaimerModal ref="disclaimerModalRef" @close="onDisclaimerClose" />
+    </ClientOnly>
+    <ClientOnly>
+      <OnboardingTour ref="onboardingTourRef" />
+    </ClientOnly>
+    <ClientOnly>
+      <OnboardingTrigger />
+    </ClientOnly>
   </UApp>
 </template>
 

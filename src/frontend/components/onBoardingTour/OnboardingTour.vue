@@ -166,7 +166,10 @@
 
   // Initialize intro.js
   const initTour = async () => {
-    if (import.meta.client) {
+    // Only run on client side
+    if (import.meta.server) return
+    
+    try {
       introInstance.value = introJs.tour()
 
       // Configure the tour
@@ -190,6 +193,9 @@
         }, 100)
         emit('start')
       })
+    } catch (error) {
+      console.error('Failed to initialize tour:', error)
+    }
 
       // Add step change listener to handle interactive elements
       /* introInstance.value.onchange((_targetElement: HTMLElement) => {
@@ -225,7 +231,6 @@
           break;
       }
     }); */
-    }
   }
 
   // Setup event forwarding from helper layer to highlighted element
