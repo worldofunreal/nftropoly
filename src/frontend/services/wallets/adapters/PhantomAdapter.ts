@@ -4,6 +4,16 @@ import { CrossChainSeedService } from '../../CrossChainSeedService'
 declare global {
   interface Window {
     solana?: any
+    phantom?: {
+      ethereum?: {
+        isPhantom: boolean
+        request: (args: { method: string; params?: any[] }) => Promise<any>
+        selectedAddress?: string
+        isConnected: () => boolean
+        on: (event: string, callback: (data: any) => void) => void
+      }
+    }
+    ethereum?: any
   }
 }
 
@@ -42,45 +52,101 @@ export class PhantomAdapter implements WalletAdapter {
     }
   }
 
-  private async getEvmAddress(): Promise<string | null> {
+  private async getEvmAddress(): Promise<string | undefined> {
     try {
-      // Phantom supports EVM through their API
-      if (window.solana && window.solana.evm) {
-        const evmAddress = await window.solana.evm.getAddress()
-        return evmAddress
+      console.log('Checking Phantom EVM capabilities...')
+      
+      // Check for Phantom's EVM provider
+      const phantomProvider = window.phantom?.ethereum
+      const ethereumProvider = window.ethereum
+      
+      console.log('window.phantom.ethereum:', phantomProvider)
+      console.log('window.ethereum:', ethereumProvider)
+      
+      // Try Phantom's dedicated EVM provider first
+      if (phantomProvider?.isPhantom) {
+        console.log('Found Phantom EVM provider')
+        try {
+          // Request accounts to get the EVM address
+          const accounts = await phantomProvider.request({ 
+            method: "eth_requestAccounts" 
+          })
+          console.log('Phantom EVM accounts:', accounts)
+          return accounts[0] || undefined
+        } catch (error) {
+          console.log('Phantom EVM connection failed:', error)
+        }
       }
-      return null
-    } catch {
-      return null
+      
+      // Try window.ethereum if it's Phantom
+      if (ethereumProvider?.isPhantom) {
+        console.log('Found Phantom as default EVM provider')
+        try {
+          const accounts = await ethereumProvider.request({ 
+            method: "eth_requestAccounts" 
+          })
+          console.log('Default EVM accounts:', accounts)
+          return accounts[0] || undefined
+        } catch (error) {
+          console.log('Default EVM connection failed:', error)
+        }
+      }
+      
+      console.log('No Phantom EVM provider found')
+      return undefined
+    } catch (error) {
+      console.error('Error getting Phantom EVM address:', error)
+      return undefined
     }
   }
 
   async authenticate(): Promise<CrossChainAuthResult> {
     try {
-      // 1. Get SOL address (native)
+      // 1. Connect to Phantom and get native SOL address
       const solAddress = await this.connectWallet()
+      console.log('Got Phantom SOL address:', solAddress)
 
-      // 2. Get EVM address (if available)
-      const evmAddress = await this.getEvmAddress()
-
-      // 3. Sign a deterministic message
+      // 2. Sign a deterministic message to create a secret signature
       const message = `Login to NFTropoly - ${Date.now()}`
       const signature = await this.signMessage(message)
+      console.log('Signed message with Phantom')
 
-      // 4. Generate seed from signature
+      // 3. Generate seed from signature (SECURE - only Phantom can create this)
       const seed = await CrossChainSeedService.fromSignature(signature.toString())
+      console.log('Generated seed from signature')
 
-      // 5. Generate only ICP principal (Phantom handles SOL/EVM natively)
-      const principal = await CrossChainSeedService.toIcpPrincipal(seed)
+      // 4. Generate all cross-chain addresses from the secret signature
+      const [principal, evmAddress, generatedSolAddress] = await Promise.all([
+        CrossChainSeedService.toIcpPrincipal(seed),
+        CrossChainSeedService.toEvmAddress(seed),
+        CrossChainSeedService.toSolAddress(seed)
+      ])
+      console.log('Generated cross-chain addresses from signature:', { 
+        principal, 
+        evmAddress, 
+        generatedSolAddress,
+        nativeSolAddress: solAddress
+      })
+
+      // 5. Try to get native EVM address if Phantom supports it
+      let nativeEvmAddress: string | undefined
+      try {
+        const evmResult = await this.getEvmAddress()
+        nativeEvmAddress = evmResult || undefined
+        console.log('Got native Phantom EVM address:', nativeEvmAddress)
+      } catch (error) {
+        console.log('Phantom EVM not available, using generated EVM address')
+      }
 
       return {
-        principal,
-        evmAddress: evmAddress || undefined, // Native EVM address if available
-        solAddress, // Native SOL address
+        principal, // Generated from signature (secure)
+        evmAddress: nativeEvmAddress || evmAddress, // Prefer native, fallback to generated
+        solAddress: solAddress, // Use native SOL address (Phantom's strength)
         nativeWallet: 'phantom',
-        signature: signature.toString()
+        signature: signature.toString() // The secret signature
       }
     } catch (error) {
+      console.error('Phantom authentication error:', error)
       throw new Error(`Phantom authentication failed: ${error}`)
     }
   }
