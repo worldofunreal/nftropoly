@@ -1,6 +1,5 @@
 import { Actor, HttpAgent } from '@dfinity/agent'
 import type { Identity } from '@dfinity/agent'
-import { AuthClient } from '@dfinity/auth-client'
 
 // Get canister ID from runtime config
 const getDatabaseCanisterId = () => {
@@ -260,6 +259,11 @@ class CanisterService {
             ? 'http://localhost:4943'
             : 'https://ic0.app',
         identity: this.identity || undefined,
+        // Disable certificate verification in development
+        ...(process.env.NODE_ENV === 'development' && {
+          fetchRootKey: false,
+          verifyQuerySignatures: false,
+        }),
       })
 
       // Create database actor
