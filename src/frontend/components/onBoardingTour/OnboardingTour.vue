@@ -189,40 +189,21 @@ const initTour = async () => {
       emit("start");
     });
 
-    // Add step change listener to handle interactive elements
-    /* introInstance.value.onchange((_targetElement: HTMLElement) => {
-      console.log(introInstance.value?.getCurrentStep());
-      const currentStep = introInstance.value?.getCurrentStep();
-      console.log("Tour step changed to:", currentStep);
-
-      // Remove all existing listeners first
-      removeAllInteractiveListeners();
-
-      // Setup event forwarding from helper layer to highlighted element
-      // setupEventForwarding(tourSteps.value[currentStep || 0]?.element || "");
-
-      // Add listeners based on current step
-      switch (currentStep) {
-        case 1: // connect-wallet-btn step
-          addConnectWalletListener();
-          break;
-        case 3: // metamask-btn step
-          addMetaMaskListener();
-          break;
-        case 4: // phantom-btn step
-          addPhantomListener();
-          break;
-        case 5: // plug-btn step
-          addPlugListener();
-          break;
-        case 6: // google-btn step
-          addGoogleListener();
-          break;
-        case 7: // internet-identity-btn step
-          addInternetIdentityListener();
-          break;
-      }
-    }); */
+    // introInstance.value.onChange((_targetElement: HTMLElement) => {
+    //   const helper = document.querySelector(".introjs-helperLayer");
+    //   const cloned = _targetElement.cloneNode(true)
+    //   helper?.setAttribute("style", "box-sizing: border-box; padding: 5px");
+    //   helper?.childNodes.forEach((child) => helper.removeChild(child));
+    //   helper?.appendChild(cloned);
+    //   cloned.addEventListener("click", () => {
+    //     _targetElement.dispatchEvent(new MouseEvent("click", {
+    //       bubbles: true,
+    //       cancelable: true,
+    //       view: window,
+    //     }));
+    //     introInstance.value?.nextStep();
+    //   });
+    // });
   }
 };
 

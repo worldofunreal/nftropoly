@@ -1,27 +1,27 @@
 <template>
   <!-- Simple Modal Overlay -->
-  <div v-if="show" class="fixed inset-0 z-[9999] flex items-center justify-center">
+  <div :class="['fixed inset-0 z-[9999] flex items-center justify-center', show ? '' : 'hidden']">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-white/80 dark:bg-black/90" @click="show = false"></div>
+    <div class="absolute inset-0 bg-white/80 dark:bg-black/90" @click="show = false"/>
     <!-- Modal Content -->
-    <div class="relative bg-white dark:bg-neutral-900 rounded-lg shadow-xl max-w-md w-full mx-4">
+    <div class="relative bg-white dark:bg-neutral-900 rounded-lg shadow-xl max-w-md w-full mx-4 login-panel">
       <div class="p-8">
         <!-- Logo Section -->
         <div class="flex flex-col items-center mb-8">
-          <img src="/logo.svg" alt="NFTropoly Logo" class="w-12 h-12 mb-2" />
-          <img src="/logo-text.svg" alt="NFTropoly" class="h-6 light:invert" />
+          <img src="/logo.svg" alt="NFTropoly Logo" class="w-12 h-12 mb-2" >
+          <img src="/logo-text.svg" alt="NFTropoly" class="h-6 light:invert" >
         </div>
         
         <h2 class="text-2xl font-bold mb-6 text-center ">Sign in to Nftropoly</h2>
-        <div class="space-y-4 ">
-          <UButton 
+        <div class="login-panel-buttons space-y-4 ">
+          <UButton
             block 
             size="xl"
             color="neutral" 
             variant="soft"
-            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
-            @click="loginWithInternetIdentity"
+            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start internet-identity-btn" 
             :loading="loading && loginMethod === 'internet-identity'"
+            @click="loginWithInternetIdentity"
           >
             <div class="flex items-center gap-3">
               <UIcon name="token-branded:icp" class="text-2xl" />
@@ -34,9 +34,9 @@
             size="xl"
             color="neutral" 
             variant="soft"
-            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
-            @click="loginWithMetaMask" 
-            :loading="loading && loginMethod === 'metamask'"
+            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start metamask-btn" 
+            :loading="loading && loginMethod === 'metamask'" 
+            @click="loginWithMetaMask"
           >
             <div class="flex items-center gap-3">
               <UIcon name="token-branded:metamask" class="text-2xl" />
@@ -48,9 +48,9 @@
             size="xl"
             color="neutral" 
             variant="soft"
-            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
-            @click="loginWithPhantom" 
-            :loading="loading && loginMethod === 'phantom'"
+            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start phantom-btn" 
+            :loading="loading && loginMethod === 'phantom'" 
+            @click="loginWithPhantom"
           >
             <div class="flex items-center gap-3">
               <UIcon name="token-branded:phantom" class="text-2xl" />
@@ -62,9 +62,9 @@
             size="xl"
             color="neutral" 
             variant="soft"
-            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
-            @click="loginWithPlug" 
-            :loading="loading && loginMethod === 'plug'"
+            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start plug-btn" 
+            :loading="loading && loginMethod === 'plug'" 
+            @click="loginWithPlug"
           >
             <div class="flex items-center gap-3">
               <UIcon name="fa6-solid:plug" class="text-2xl" />
@@ -72,13 +72,14 @@
             </div>
           </UButton>
           <UButton 
+            id="google-btn"
             block 
             size="xl"
             color="neutral" 
             variant="soft"
-            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start" 
-            @click="loginWithGoogle" 
-            :loading="loading && loginMethod === 'google'"
+            class="h-12 text-sm font-normal bg-gray-200 dark:bg-neutral-800 hover:bg-primary-400 dark:hover:bg-primary-600 text-gray-800 dark:text-gray-200 justify-start google-btn" 
+            :loading="loading && loginMethod === 'google'" 
+            @click="loginWithGoogle"
           >
             <div class="flex items-center gap-3">
               <UIcon name="logos:google-icon" class="text-2xl" />
@@ -87,7 +88,7 @@
           </UButton>
 
         </div>
-        <hr class="my-6 border-gray-200 dark:border-gray-700" />
+        <hr class="my-6 border-gray-200 dark:border-gray-700" >
         <UButton 
           block 
           color="neutral" 
@@ -114,13 +115,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue';
+import { ref, watch, nextTick, inject } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import metaMaskService from '@/services/MetaMaskService';
 import phantomService from '@/services/PhantomService';
 import RegistrationModal from './RegistrationModal.vue';
 import { AuthClient } from '@dfinity/auth-client';
-import * as bip39 from 'bip39';
+// import * as bip39 from 'bip39';
 
 // TypeScript declarations for wallet extensions
 declare global {
@@ -145,6 +146,9 @@ const loginMethod = ref('');
 const showRegistrationModal = ref(false);
 const registrationModalRef = ref<any>(null);
 const toast = useToast();
+
+// Inject the onboarding tour ref from the app
+const onboardingTourRef = inject('onboardingTourRef') as any;
 
 // Watch for changes to show value
 watch(show, (newVal) => {
@@ -252,6 +256,13 @@ async function loginWithMetaMask() {
         console.log('Calling registrationModalRef.value.open with:', ethAddress, icpPrincipal, 'metamask');
         registrationModalRef.value.open(ethAddress, icpPrincipal, 'metamask');
         console.log('Registration modal open() called successfully');
+        
+        // Trigger onboarding tour update for registration step
+        setTimeout(() => {
+          if (onboardingTourRef?.value?.updateTourForRegistration) {
+            onboardingTourRef.value.updateTourForRegistration();
+          }
+        }, 100);
       } else {
         console.error('registrationModalRef.value is null/undefined!');
       }
@@ -357,6 +368,13 @@ async function loginWithPhantom() {
       showRegistrationModal.value = true;
       await nextTick();
       registrationModalRef.value?.open(phantomAddress, icpPrincipal, 'phantom');
+      
+      // Trigger onboarding tour update for registration step
+      setTimeout(() => {
+        if (onboardingTourRef?.value?.updateTourForRegistration) {
+          onboardingTourRef.value.updateTourForRegistration();
+        }
+      }, 100);
       console.log('Registration modal opened');
     }
     
@@ -452,6 +470,13 @@ async function loginWithPlug() {
     showRegistrationModal.value = true;
     await nextTick();
     registrationModalRef.value?.open(plugAddress, icpPrincipal, 'plug');
+    
+    // Trigger onboarding tour update for registration step
+    setTimeout(() => {
+      if (onboardingTourRef?.value?.updateTourForRegistration) {
+        onboardingTourRef.value.updateTourForRegistration();
+      }
+    }, 100);
     console.log('Registration modal opened');
     
   } catch (err: any) {
@@ -536,6 +561,13 @@ async function loginWithGoogle() {
     showRegistrationModal.value = true;
     await nextTick();
     registrationModalRef.value?.open(googleAddress, icpPrincipal, 'google');
+    
+    // Trigger onboarding tour update for registration step
+    setTimeout(() => {
+      if (onboardingTourRef?.value?.updateTourForRegistration) {
+        onboardingTourRef.value.updateTourForRegistration();
+      }
+    }, 100);
     console.log('Registration modal opened');
     
   } catch (err: any) {
@@ -642,6 +674,13 @@ async function loginWithInternetIdentity() {
     showRegistrationModal.value = true;
     await nextTick();
     registrationModalRef.value?.open(principalText, principalText, 'internet-identity');
+    
+    // Trigger onboarding tour update for registration step
+    setTimeout(() => {
+      if (onboardingTourRef?.value?.updateTourForRegistration) {
+        onboardingTourRef.value.updateTourForRegistration();
+      }
+    }, 100);
     console.log('Registration modal opened');
     
     // Show success toast
