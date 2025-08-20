@@ -3,14 +3,23 @@ import nacl from 'tweetnacl'
 import * as bip39 from 'bip39'
 import { ethers } from 'ethers'
 import { Keypair } from '@solana/web3.js'
-import * as bitcoin from 'bitcoinjs-lib'
-import { ECPairFactory } from 'ecpair'
-import * as ecc from 'tiny-secp256k1'
 
-// Initialize ECC library for bitcoinjs-lib
-bitcoin.initEccLib(ecc)
+// Lazy load Bitcoin dependencies to avoid SSR issues
+let bitcoin: any = null
+let ECPair: any = null
 
-const ECPair = ECPairFactory(ecc)
+const getBitcoinDeps = async () => {
+  if (!bitcoin) {
+    const bitcoinModule = await import('bitcoinjs-lib')
+    const { ECPairFactory } = await import('ecpair')
+    const ecc = await import('tiny-secp256k1')
+    
+    bitcoin = bitcoinModule.default
+    bitcoin.initEccLib(ecc)
+    ECPair = ECPairFactory(ecc)
+  }
+  return { bitcoin, ECPair }
+}
 
 export const CrossChainSeedService = {
   async fromSignature(signature: string): Promise<Uint8Array> {
@@ -69,6 +78,9 @@ export const CrossChainSeedService = {
       const hdNode = ethers.HDNodeWallet.fromPhrase(mnemonic)
       const account = hdNode.derivePath("44'/0'/0'/0/0")
       console.log('Derived Bitcoin account:', account.address)
+      
+      // Lazy load Bitcoin dependencies
+      const { bitcoin, ECPair } = await getBitcoinDeps()
       
       // Convert private key to Bitcoin format
       const privateKeyBuffer = Buffer.from(ethers.getBytes(account.privateKey) as Uint8Array)
