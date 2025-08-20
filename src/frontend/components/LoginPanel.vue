@@ -1,8 +1,10 @@
 <template>
   <!-- Simple Modal Overlay -->
   <div
-    v-if="show"
-    class="fixed inset-0 z-[9999] flex items-center justify-center"
+    :class="[
+      'fixed inset-0 z-[9999] flex items-center justify-center',
+      show ? '' : 'hidden',
+    ]"
   >
     <!-- Backdrop -->
     <div
@@ -16,15 +18,16 @@
       <div class="p-8">
         <!-- Logo Section -->
         <div class="flex flex-col items-center mb-8">
-          <img src="/logo.svg" alt="NFTropoly Logo" class="w-12 h-12 mb-2" >
-          <img src="/logo-text.svg" alt="NFTropoly" class="h-6 light:invert" >
+          <img src="/logo.svg" alt="NFTropoly Logo" class="w-12 h-12 mb-2" />
+          <img src="/logo-text.svg" alt="NFTropoly" class="h-6 light:invert" />
         </div>
 
         <h2 class="text-2xl font-bold mb-6 text-center">
           Sign in to Nftropoly
         </h2>
-        <div class="space-y-4">
+        <div class="login-panel-buttons space-y-4">
           <UButton
+            id="internet-identity-btn"
             block
             size="xl"
             color="neutral"
@@ -40,6 +43,7 @@
           </UButton>
 
           <UButton
+            id="metamask-btn"
             block
             size="xl"
             color="neutral"
@@ -54,6 +58,7 @@
             </div>
           </UButton>
           <UButton
+            id="phantom-btn"
             block
             size="xl"
             color="neutral"
@@ -68,6 +73,7 @@
             </div>
           </UButton>
           <UButton
+            id="plug-btn"
             block
             size="xl"
             color="neutral"
@@ -82,7 +88,7 @@
             </div>
           </UButton>
         </div>
-        <hr class="my-6 border-gray-200 dark:border-gray-700" >
+        <hr class="my-6 border-gray-200 dark:border-gray-700" />
         <UButton
           block
           color="neutral"
@@ -113,42 +119,61 @@
       </div>
     </div>
   </div>
-  <RegistrationModal v-if="showRegistrationModal" ref="registrationModalRef" />
+  <RegistrationModal ref="registrationModalRef" :class="[showRegistrationModal ? '' : 'hidden']" />
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, inject } from 'vue';
-import { useAuthStore } from '@/stores/auth';
-import RegistrationModal from './RegistrationModal.vue';
-import type { WalletType } from '@/services/wallets/types'
-// import * as bip39 from 'bip39';
+  import { ref, watch, nextTick, inject } from 'vue'
+  import { useAuthStore } from '@/stores/auth'
+  import RegistrationModal from './RegistrationModal.vue'
+  import type { WalletType } from '@/services/wallets/types'
 
-// TypeScript declarations for wallet extensions
-declare global {
-  interface Window {
-    ic?: {
-      plug?: {
-        isConnected(): Promise<boolean>;
-        requestConnect(options?: any): Promise<any>;
-        agent: {
-          getPrincipal(): Promise<any>;
-        };
-      };
-    };
+  // TypeScript declarations for wallet extensions
+  declare global {
+    interface Window {
+      ic?: {
+        plug?: {
+          isConnected(): Promise<boolean>
+          requestConnect(options?: any): Promise<any>
+          agent: {
+            getPrincipal(): Promise<any>
+          }
+        }
+      }
+    }
   }
-}
 
-const show = ref(false);
-const loading = ref(false);
-const error = ref('');
-const loginMethod = ref('');
+  const show = ref(false)
+  const loading = ref(false)
+  const error = ref('')
+  const loginMethod = ref('')
 
-const showRegistrationModal = ref(false);
-const registrationModalRef = ref<any>(null);
-const toast = useToast();
+  const showRegistrationModal = ref(false)
+  const registrationModalRef = ref<{
+    open: (
+      principalValue: string,
+      evmAddressValue: string,
+      solAddressValue: string,
+      btcAddressValue: string,
+      walletTypeValue: string
+    ) => void
+    close: () => void
+  } | null>(null)
+  const toast = useToast()
 
-// Inject the onboarding tour ref from the app
-const onboardingTourRef = inject('onboardingTourRef') as any;
+  // Inject onboarding tour reference
+  const onboardingTourRef = inject('onboardingTourRef') as Ref<{
+    startTour: () => void
+    stopTour: () => void
+    registrationModalTour: () => void
+  } | null>
+
+  // Registration modal tour function
+  const registrationModalTour = () => {
+    if (onboardingTourRef?.value?.registrationModalTour) {
+      onboardingTourRef.value.registrationModalTour()
+    }
+  }
 
   // Watch for changes to show value
   watch(show, newVal => {
@@ -170,17 +195,17 @@ const onboardingTourRef = inject('onboardingTourRef') as any;
 
   const auth = useAuthStore()
 
-async function login(walletType: WalletType) {
+  async function login(walletType: WalletType) {
     error.value = ''
     loading.value = true
-  loginMethod.value = walletType
-  
-  try {
-    console.log(`Starting ${walletType} login...`)
-    
-    // Use the new simplified auth system
-    const loginResult = await auth.login(walletType)
-    console.log('Login completed:', loginResult)
+    loginMethod.value = walletType
+
+    try {
+      console.log(`Starting ${walletType} login...`)
+
+      // Use the new simplified auth system
+      const loginResult = await auth.login(walletType)
+      console.log('Login completed:', loginResult)
 
       if (loginResult.existing) {
         // User already exists, redirect to profile
@@ -201,37 +226,32 @@ async function login(walletType: WalletType) {
         console.log('New user, opening registration modal...')
         show.value = false
         showRegistrationModal.value = true
-      
-      await nextTick()
-      
-      if (registrationModalRef.value) {
-        console.log('Opening registration modal with cross-chain addresses')
-        registrationModalRef.value.open(
-          auth.principal,
-          auth.evmAddress || '',
-          auth.solAddress || '',
-          auth.btcAddress || '',
-          auth.nativeWallet
-        )
-        
-        // Trigger onboarding tour update for registration step
-        setTimeout(() => {
-          if (onboardingTourRef?.value?.updateTourForRegistration) {
-            onboardingTourRef.value.updateTourForRegistration();
-          }
-        }, 100);
-      } else {
-        console.error('registrationModalRef.value is null/undefined!')
+
+        await nextTick()
+
+        if (registrationModalRef.value) {
+          console.log('Opening registration modal with cross-chain addresses')
+          registrationModalRef.value.open(
+            auth.principal,
+            auth.evmAddress || '',
+            auth.solAddress || '',
+            auth.btcAddress || '',
+            auth.nativeWallet
+          )
+
+          registrationModalTour()
+        } else {
+          console.error('registrationModalRef.value is null/undefined!')
+        }
       }
-    }
-    } catch (err: any) {
-    console.error(`${walletType} login error:`, err)
-    error.value = err?.message || `${walletType} login failed.`
+    } catch (err: unknown) {
+      console.error(`${walletType} login error:`, err)
+      error.value = err?.message || `${walletType} login failed.`
 
       // Show error toast
       toast.add({
         title: 'Login Failed',
-      description: err?.message || `${walletType} login failed`,
+        description: err?.message || `${walletType} login failed`,
         color: 'error',
       })
     } finally {

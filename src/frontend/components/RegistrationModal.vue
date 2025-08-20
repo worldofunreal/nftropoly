@@ -1,7 +1,9 @@
 <template>
   <div
-    v-if="show"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    :class="[
+      show ? '' : 'hidden',
+      'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 registration-modal',
+    ]"
   >
     <div
       class="bg-white rounded-lg shadow-lg w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
@@ -32,36 +34,64 @@
         <div class="mb-6">
           <h3 class="text-lg font-semibold mb-4">Your Cross-Chain Addresses</h3>
           <div class="space-y-3">
-            <div class="p-3 bg-blue-50 rounded-lg">
+            <div id="icp-principal" class="p-3 bg-blue-50 rounded-lg">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-blue-800">ICP Principal</span>
-                <span class="text-xs text-blue-600">{{ walletType === 'internet-identity' || walletType === 'plug' ? 'Native' : 'Generated' }}</span>
+                <span class="text-sm font-medium text-blue-800"
+                  >ICP Principal</span
+                >
+                <span class="text-xs text-blue-600">{{
+                  walletType === 'internet-identity' || walletType === 'plug'
+                    ? 'Native'
+                    : 'Generated'
+                }}</span>
               </div>
-              <div class="font-mono text-xs text-blue-700 mt-1 break-all">{{ principal }}</div>
+              <div class="font-mono text-xs text-blue-700 mt-1 break-all">
+                {{ principal }}
+              </div>
             </div>
-            
-            <div class="p-3 bg-green-50 rounded-lg">
+
+            <div id="evm-address" class="p-3 bg-green-50 rounded-lg">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-green-800">EVM Address</span>
-                <span class="text-xs text-green-600">{{ walletType === 'metamask' || walletType === 'phantom' ? 'Native' : 'Generated' }}</span>
+                <span class="text-sm font-medium text-green-800"
+                  >EVM Address</span
+                >
+                <span class="text-xs text-green-600">{{
+                  walletType === 'metamask' || walletType === 'phantom'
+                    ? 'Native'
+                    : 'Generated'
+                }}</span>
               </div>
-              <div class="font-mono text-xs text-green-700 mt-1 break-all">{{ evmAddress }}</div>
+              <div class="font-mono text-xs text-green-700 mt-1 break-all">
+                {{ evmAddress }}
+              </div>
             </div>
-            
-            <div class="p-3 bg-purple-50 rounded-lg">
+
+            <div id="sol-address" class="p-3 bg-purple-50 rounded-lg">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-purple-800">Solana Address</span>
-                <span class="text-xs text-purple-600">{{ walletType === 'phantom' ? 'Native' : 'Generated' }}</span>
+                <span class="text-sm font-medium text-purple-800"
+                  >Solana Address</span
+                >
+                <span class="text-xs text-purple-600">{{
+                  walletType === 'phantom' ? 'Native' : 'Generated'
+                }}</span>
               </div>
-              <div class="font-mono text-xs text-purple-700 mt-1 break-all">{{ solAddress }}</div>
+              <div class="font-mono text-xs text-purple-700 mt-1 break-all">
+                {{ solAddress }}
+              </div>
             </div>
-            
-            <div class="p-3 bg-orange-50 rounded-lg">
+
+            <div id="btc-address" class="p-3 bg-orange-50 rounded-lg">
               <div class="flex items-center justify-between">
-                <span class="text-sm font-medium text-orange-800">Bitcoin Address</span>
-                <span class="text-xs text-orange-600">{{ walletType === 'phantom' ? 'Native' : 'Generated' }}</span>
+                <span class="text-sm font-medium text-orange-800"
+                  >Bitcoin Address</span
+                >
+                <span class="text-xs text-orange-600">{{
+                  walletType === 'phantom' ? 'Native' : 'Generated'
+                }}</span>
               </div>
-              <div class="font-mono text-xs text-orange-700 mt-1 break-all">{{ btcAddress }}</div>
+              <div class="font-mono text-xs text-orange-700 mt-1 break-all">
+                {{ btcAddress }}
+              </div>
             </div>
           </div>
         </div>
@@ -70,6 +100,7 @@
         <div class="mb-6">
           <label class="block text-sm font-medium mb-2">Username *</label>
           <input
+            id="username-input"
             v-model="username"
             type="text"
             placeholder="Enter your username"
@@ -80,6 +111,7 @@
           >
           <p
             v-if="usernameStatus"
+            id="username-status"
             :class="[
               'text-xs mt-1',
               usernameStatus === 'available'
@@ -105,7 +137,7 @@
           <button
             type="button"
             :disabled="!canComplete || loading"
-            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed create-profile-btn"
             @click="handleRegistration"
           >
             {{ loading ? 'Creating...' : 'Create Profile' }}
@@ -308,9 +340,10 @@
 
         throw new Error(errorText)
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Registration error:', err)
-      error.value = err?.message || 'Registration failed. Please try again.'
+      const errorMessage = err instanceof Error ? err.message : 'Registration failed. Please try again.'
+      error.value = errorMessage
 
       toast.add({
         title: 'Registration Failed',
