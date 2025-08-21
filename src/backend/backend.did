@@ -4,6 +4,8 @@ type User = record {
     display_name: opt text;
     bio: opt text;
     avatar_url: opt text;
+    location: opt text;
+    website: opt text;
     created_at: nat64;
     updated_at: nat64;
     is_verified: bool;
@@ -15,6 +17,8 @@ type UserUpdate = record {
     display_name: opt text;
     bio: opt text;
     avatar_url: opt text;
+    location: opt text;
+    website: opt text;
     wallet_address: opt text;
     wallet_type: opt text;
 };
@@ -54,6 +58,8 @@ service : {
     update_display_name: (text) -> (UserResult);
     update_bio: (text) -> (UserResult);
     update_avatar: (text) -> (UserResult);
+    update_location: (text) -> (UserResult);
+    update_website: (text) -> (UserResult);
     update_wallet: (text, text) -> (UserResult); // address, type
     
     // Search users

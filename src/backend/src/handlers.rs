@@ -6,8 +6,8 @@ use crate::types::{User, UserUpdate};
 
 // Validation functions
 fn validate_username(username: &str) -> Result<(), Error> {
-    if username.len() < 3 || username.len() > 20 {
-        return Err(Error::InvalidInput("Username must be between 3 and 20 characters".to_string()));
+    if username.len() < 3 || username.len() > 12 {
+        return Err(Error::InvalidInput("Username must be between 3 and 12 characters".to_string()));
     }
     
     if !username.chars().all(|c| c.is_alphanumeric() || c == '_') {
@@ -25,9 +25,28 @@ fn validate_display_name(display_name: &str) -> Result<(), Error> {
 }
 
 fn validate_bio(bio: &str) -> Result<(), Error> {
-    if bio.len() > 500 {
-        return Err(Error::InvalidInput("Bio must be 500 characters or less".to_string()));
+    if bio.len() > 160 {
+        return Err(Error::InvalidInput("Bio must be 160 characters or less".to_string()));
     }
+    Ok(())
+}
+
+fn validate_location(location: &str) -> Result<(), Error> {
+    if location.len() > 30 {
+        return Err(Error::InvalidInput("Location must be 30 characters or less".to_string()));
+    }
+    Ok(())
+}
+
+fn validate_website(website: &str) -> Result<(), Error> {
+    if website.len() > 100 {
+        return Err(Error::InvalidInput("Website must be 100 characters or less".to_string()));
+    }
+    
+    if !website.starts_with("https://") {
+        return Err(Error::InvalidInput("Website must start with https://".to_string()));
+    }
+    
     Ok(())
 }
 
@@ -76,6 +95,14 @@ pub async fn update_profile(caller: Principal, update: UserUpdate) -> Result<Use
         validate_bio(bio)?;
     }
     
+    if let Some(ref location) = update.location {
+        validate_location(location)?;
+    }
+    
+    if let Some(ref website) = update.website {
+        validate_website(website)?;
+    }
+    
     // Apply updates
     user.update(update);
     Database::update_user(user.clone());
@@ -114,6 +141,32 @@ pub async fn update_avatar(caller: Principal, avatar_url: String) -> Result<User
         .ok_or(Error::UserNotFound)?;
     
     user.avatar_url = Some(avatar_url);
+    user.updated_at = ic_cdk::api::time();
+    Database::update_user(user.clone());
+    
+    Ok(user)
+}
+
+pub async fn update_location(caller: Principal, location: String) -> Result<User, Error> {
+    validate_location(&location)?;
+    
+    let mut user = Database::get_user(caller)
+        .ok_or(Error::UserNotFound)?;
+    
+    user.location = Some(location);
+    user.updated_at = ic_cdk::api::time();
+    Database::update_user(user.clone());
+    
+    Ok(user)
+}
+
+pub async fn update_website(caller: Principal, website: String) -> Result<User, Error> {
+    validate_website(&website)?;
+    
+    let mut user = Database::get_user(caller)
+        .ok_or(Error::UserNotFound)?;
+    
+    user.website = Some(website);
     user.updated_at = ic_cdk::api::time();
     Database::update_user(user.clone());
     

@@ -110,6 +110,26 @@ async fn update_avatar(avatar_url: String) -> Result<User, Error> {
 }
 
 #[update]
+async fn update_location(location: String) -> Result<User, Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::update_location(caller, location).await
+}
+
+#[update]
+async fn update_website(website: String) -> Result<User, Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::update_website(caller, website).await
+}
+
+#[update]
 async fn update_wallet(address: String, wallet_type: String) -> Result<User, Error> {
     let caller = msg_caller();
     if caller == Principal::anonymous() {

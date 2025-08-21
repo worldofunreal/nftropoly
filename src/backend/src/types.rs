@@ -10,6 +10,8 @@ pub struct User {
     pub display_name: Option<String>,
     pub bio: Option<String>,
     pub avatar_url: Option<String>,
+    pub location: Option<String>,
+    pub website: Option<String>,
     pub created_at: u64,
     pub updated_at: u64,
     pub is_verified: bool,
@@ -38,6 +40,8 @@ pub struct UserUpdate {
     pub display_name: Option<String>,
     pub bio: Option<String>,
     pub avatar_url: Option<String>,
+    pub location: Option<String>,
+    pub website: Option<String>,
     pub wallet_address: Option<String>,
     pub wallet_type: Option<String>,
 }
@@ -51,6 +55,8 @@ impl User {
             display_name: None,
             bio: None,
             avatar_url: None,
+            location: None,
+            website: None,
             created_at: now,
             updated_at: now,
             is_verified: false,
@@ -68,6 +74,12 @@ impl User {
         }
         if let Some(avatar_url) = update.avatar_url {
             self.avatar_url = Some(avatar_url);
+        }
+        if let Some(location) = update.location {
+            self.location = Some(location);
+        }
+        if let Some(website) = update.website {
+            self.website = Some(website);
         }
         if let Some(wallet_address) = update.wallet_address {
             self.wallet_address = Some(wallet_address);
