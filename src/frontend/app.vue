@@ -35,15 +35,16 @@
       </div>
     </div>
     <LoginPanel ref="loginPanelRef" />
-    <ClientOnly>
+    <!-- Temporarily disabled for performance optimization -->
+    <!-- <ClientOnly>
       <DisclaimerModal ref="disclaimerModalRef" @close="onDisclaimerClose" />
-    </ClientOnly>
-    <ClientOnly>
+    </ClientOnly> -->
+    <!-- <ClientOnly>
       <OnboardingTour ref="onboardingTourRef" />
-    </ClientOnly>
-    <ClientOnly>
+    </ClientOnly> -->
+    <!-- <ClientOnly>
       <OnboardingTrigger />
-    </ClientOnly>
+    </ClientOnly> -->
   </UApp>
 </template>
 
@@ -55,37 +56,42 @@
   import Header from './components/Header.vue'
   import AppFooter from './components/AppFooter.vue'
   import LoginPanel from './components/LoginPanel.vue'
-  import DisclaimerModal from './components/DisclaimerModal.vue'
-  import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
-  import OnboardingTrigger from './components/OnboardingTrigger.vue'
+  // Temporarily disabled for performance optimization
+  // import DisclaimerModal from './components/DisclaimerModal.vue'
+  // import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
+  // import OnboardingTrigger from './components/OnboardingTrigger.vue'
 
   const loginPanelRef = ref<{ open: () => void } | null>(null)
-  const disclaimerModalRef = ref<{
-    open: () => void
-    close: () => void
-  } | null>(null)
+  // Temporarily disabled for performance optimization
+  // const disclaimerModalRef = ref<{
+  //   open: () => void
+  //   close: () => void
+  // } | null>(null)
   const mobileSidebarOpen = ref(false)
   const { $trackInteraction } = useNuxtApp()
-  const onboardingTourRef = ref<{
-    startTour: () => void
-    stopTour: () => void
-    updateTourForRegistration: () => void
-  } | null>(null)
+  // Temporarily disabled for performance optimization
+  // const onboardingTourRef = ref<{
+  //   startTour: () => void
+  //   stopTour: () => void
+  //   updateTourForRegistration: () => void
+  // } | null>(null)
 
-  // Handle disclaimer close event
-  const onDisclaimerClose = () => {
-    // Start the onboarding tour after disclaimer is closed
-    setTimeout(() => {
-      if (onboardingTourRef?.value?.startTour) {
-        onboardingTourRef.value.startTour()
-      }
-    }, 500) // Small delay to ensure smooth transition
-  }
+  // Temporarily disabled for performance optimization
+  // // Handle disclaimer close event
+  // const onDisclaimerClose = () => {
+  //   // Start the onboarding tour after disclaimer is closed
+  //   setTimeout(() => {
+  //     if (onboardingTourRef?.value?.startTour) {
+  //       onboardingTourRef.value.startTour()
+  //     }
+  //   }, 500) // Small delay to ensure smooth transition
+  // }
 
   // Provide the login panel ref so other components can access it
   provide('loginPanelRef', loginPanelRef)
-  // Provide the onboarding tour ref for manual triggering
-  provide('onboardingTourRef', onboardingTourRef)
+  // Temporarily disabled for performance optimization
+  // // Provide the onboarding tour ref for manual triggering
+  // provide('onboardingTourRef', onboardingTourRef)
 
   // Track app initialization and key metrics
   onMounted(() => {
@@ -100,5 +106,6 @@
 
 <style>
   /* Add any global styles or layout styles here if needed */
-  @import 'intro.js/minified/introjs.min.css';
+  /* Temporarily disabled for performance optimization */
+  /* @import 'intro.js/minified/introjs.min.css'; */
 </style>

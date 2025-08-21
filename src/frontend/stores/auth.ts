@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import type { Ed25519KeyIdentity } from '@dfinity/identity'
-import { canisterService, type UserProfile } from '@/services/CanisterService'
+import { canisterService, type User } from '@/services/CanisterService'
 import { WalletRegistry } from '@/services/wallets/WalletRegistry'
 import { CrossChainSeedService } from '@/services/CrossChainSeedService'
 import type { WalletType } from '@/services/wallets/types'
@@ -12,7 +12,7 @@ export const useAuthStore = defineStore('auth', {
     authenticated: false,
     registered: false,
     player: null as unknown as any,
-    userProfile: null as UserProfile | null,
+    userProfile: null as User | null,
     principal: '',
     evmAddress: '',
     solAddress: '',
@@ -78,12 +78,10 @@ export const useAuthStore = defineStore('auth', {
           // Legacy player object for compatibility
           this.player = {
             username: existingProfile.username,
-            displayName: existingProfile.displayName.length > 0 ? existingProfile.displayName[0] : null,
-            avatarPreset: existingProfile.assets?.avatarPreset.length > 0
-              ? Number(existingProfile.assets.avatarPreset[0])
-              : 1,
-            avatarUrl: existingProfile.assets?.avatarUrl.length > 0 ? existingProfile.assets.avatarUrl[0] : null,
-            bannerUrl: existingProfile.assets?.bannerUrl.length > 0 ? existingProfile.assets.bannerUrl[0] : null,
+            displayName: existingProfile.display_name.length > 0 ? existingProfile.display_name[0] : null,
+            avatarPreset: 1, // Default avatar preset
+            avatarUrl: existingProfile.avatar_url.length > 0 ? existingProfile.avatar_url[0] : null,
+            bannerUrl: null, // Not available in new User type
             ethAddress: authResult.evmAddress,
             principal: authResult.principal,
             walletType: authResult.nativeWallet,
@@ -162,19 +160,17 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
-    async completeRegistration(profile: UserProfile) {
+    async completeRegistration(profile: User) {
       this.userProfile = profile
       this.registered = true
 
       // Update legacy player object
       this.player = {
         username: profile.username,
-        displayName: profile.displayName.length > 0 ? profile.displayName[0] : null,
-        avatarPreset: profile.assets?.avatarPreset.length > 0
-          ? Number(profile.assets.avatarPreset[0])
-          : 1,
-        avatarUrl: profile.assets?.avatarUrl.length > 0 ? profile.assets.avatarUrl[0] : null,
-        bannerUrl: profile.assets?.bannerUrl.length > 0 ? profile.assets.bannerUrl[0] : null,
+        displayName: profile.display_name.length > 0 ? profile.display_name[0] : null,
+        avatarPreset: 1, // Default avatar preset
+        avatarUrl: profile.avatar_url.length > 0 ? profile.avatar_url[0] : null,
+        bannerUrl: null, // Not available in new User type
         ethAddress: this.evmAddress,
         principal: this.principal,
         walletType: this.nativeWallet,
