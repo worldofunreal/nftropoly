@@ -178,3 +178,33 @@ fn is_username_available(username: String) -> bool {
 fn get_user_count() -> u64 {
     handlers::get_user_count()
 }
+
+#[update]
+async fn follow_user(target: Principal) -> Result<User, Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::follow_user(caller, target).await
+}
+
+#[update]
+async fn unfollow_user(target: Principal) -> Result<User, Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::unfollow_user(caller, target).await
+}
+
+#[query]
+fn get_following(user: Principal) -> Vec<CompactProfile> {
+    handlers::get_following(user)
+}
+
+#[query]
+fn get_followers(user: Principal) -> Vec<CompactProfile> {
+    handlers::get_followers(user)
+}

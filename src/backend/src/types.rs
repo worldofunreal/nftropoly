@@ -3,6 +3,26 @@ use ic_stable_structures::{storable::Bound, Storable};
 use serde::Serialize;
 use std::borrow::Cow;
 
+// Newtype wrapper for Vec<Principal> to implement Storable
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
+pub struct PrincipalList(pub Vec<Principal>);
+
+impl Storable for PrincipalList {
+    const BOUND: Bound = Bound::Unbounded;
+    
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(candid::encode_one(self).unwrap())
+    }
+    
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(&self).unwrap()
+    }
+    
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        candid::decode_one(&bytes).unwrap()
+    }
+}
+
 #[derive(CandidType, Deserialize, Clone, Debug, Serialize)]
 pub struct User {
     pub id: Principal,
@@ -18,6 +38,8 @@ pub struct User {
     pub evm_address: Option<String>,
     pub bitcoin_address: Option<String>,
     pub solana_address: Option<String>,
+    pub following_count: u32,
+    pub followers_count: u32,
 }
 
 impl Storable for User {
@@ -48,6 +70,17 @@ pub struct UserUpdate {
     pub solana_address: Option<String>,
 }
 
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub struct CompactProfile {
+    pub id: Principal,
+    pub username: String,
+    pub display_name: Option<String>,
+    pub bio: Option<String>,
+    pub is_verified: bool,
+    pub is_following_me: bool,
+    pub am_following_them: bool,
+}
+
 impl User {
     pub fn new(
         id: Principal, 
@@ -71,6 +104,8 @@ impl User {
             evm_address,
             bitcoin_address,
             solana_address,
+            following_count: 0,
+            followers_count: 0,
         }
     }
 

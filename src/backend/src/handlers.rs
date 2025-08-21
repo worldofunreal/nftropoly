@@ -2,7 +2,7 @@ use candid::Principal;
 
 use crate::errors::Error;
 use crate::storage::Database;
-use crate::types::{User, UserUpdate};
+use crate::types::{User, UserUpdate, CompactProfile};
 
 // Validation functions
 fn validate_username(username: &str) -> Result<(), Error> {
@@ -312,4 +312,115 @@ pub fn is_username_available(username: String) -> bool {
 
 pub fn get_user_count() -> u64 {
     Database::get_user_count()
+}
+
+// Following/Followers functions
+pub async fn follow_user(caller: Principal, target: Principal) -> Result<User, Error> {
+    // Check if caller exists
+    let mut caller_user = Database::get_user(caller)
+        .ok_or(Error::UserNotFound)?;
+    
+    // Check if target exists
+    let target_user = Database::get_user(target)
+        .ok_or(Error::UserNotFound)?;
+    
+    // Can't follow yourself
+    if caller == target {
+        return Err(Error::InvalidInput("Cannot follow yourself".to_string()));
+    }
+    
+    // Follow the user
+    let followed = Database::follow_user(caller, target);
+    if !followed {
+        return Err(Error::InvalidInput("Already following this user".to_string()));
+    }
+    
+    // Update counts
+    caller_user.following_count += 1;
+    Database::update_user(caller_user.clone());
+    
+    // Update target's followers count
+    let mut updated_target = target_user;
+    updated_target.followers_count += 1;
+    Database::update_user(updated_target);
+    
+    Ok(caller_user)
+}
+
+pub async fn unfollow_user(caller: Principal, target: Principal) -> Result<User, Error> {
+    // Check if caller exists
+    let mut caller_user = Database::get_user(caller)
+        .ok_or(Error::UserNotFound)?;
+    
+    // Check if target exists
+    let target_user = Database::get_user(target)
+        .ok_or(Error::UserNotFound)?;
+    
+    // Can't unfollow yourself
+    if caller == target {
+        return Err(Error::InvalidInput("Cannot unfollow yourself".to_string()));
+    }
+    
+    // Unfollow the user
+    let unfollowed = Database::unfollow_user(caller, target);
+    if !unfollowed {
+        return Err(Error::InvalidInput("Not following this user".to_string()));
+    }
+    
+    // Update counts
+    caller_user.following_count -= 1;
+    Database::update_user(caller_user.clone());
+    
+    // Update target's followers count
+    let mut updated_target = target_user;
+    updated_target.followers_count -= 1;
+    Database::update_user(updated_target);
+    
+    Ok(caller_user)
+}
+
+pub fn get_following(user: Principal) -> Vec<CompactProfile> {
+    let following_list = Database::get_following_list(user);
+    let mut profiles = Vec::new();
+    
+    for following_id in following_list {
+        if let Some(following_user) = Database::get_user(following_id) {
+            let is_following_me = Database::is_following(following_id, user);
+            
+            profiles.push(CompactProfile {
+                id: following_user.id,
+                username: following_user.username,
+                display_name: following_user.display_name,
+                bio: following_user.bio,
+                is_verified: following_user.is_verified,
+                is_following_me,
+                am_following_them: true, // This is the following list, so we're following them
+            });
+        }
+    }
+    
+    profiles
+}
+
+pub fn get_followers(user: Principal) -> Vec<CompactProfile> {
+    let followers_list = Database::get_followers_list(user);
+    let mut profiles = Vec::new();
+    
+    for follower_id in followers_list {
+        if let Some(follower_user) = Database::get_user(follower_id) {
+            let am_following_them = Database::is_following(user, follower_id);
+            
+            profiles.push(CompactProfile {
+                id: follower_user.id,
+                username: follower_user.username,
+                display_name: follower_user.display_name,
+                bio: follower_user.bio,
+                is_verified: follower_user.is_verified,
+                is_following_me: true, // This is the followers list, so they're following us
+                am_following_them,
+            });
+        }
+    }
+    
+    profiles
 }

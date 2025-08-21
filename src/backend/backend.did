@@ -12,6 +12,18 @@ type User = record {
     evm_address: opt text;
     bitcoin_address: opt text;
     solana_address: opt text;
+    following_count: nat32;
+    followers_count: nat32;
+};
+
+type CompactProfile = record {
+    id: principal;
+    username: text;
+    display_name: opt text;
+    bio: opt text;
+    is_verified: bool;
+    is_following_me: bool;
+    am_following_them: bool;
 };
 
 type UserUpdate = record {
@@ -74,4 +86,12 @@ service : {
     
     // Get total user count
     get_user_count: () -> (nat64);
+    
+    // Follow/Unfollow functionality
+    follow_user: (principal) -> (UserResult);
+    unfollow_user: (principal) -> (UserResult);
+    
+    // Get following and followers lists
+    get_following: (principal) -> (vec CompactProfile);
+    get_followers: (principal) -> (vec CompactProfile);
 };
