@@ -1,8 +1,9 @@
 {
   "canisters": {
-    "database": {
-      "main": "src/database/main.mo",
-      "type": "motoko"
+    "backend": {
+      "candid": "src/backend/backend.did",
+      "package": "backend",
+      "type": "rust"
     },
     "marketplace": {
       "candid": "src/marketplace/marketplace.did",

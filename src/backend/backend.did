@@ -1,0 +1,67 @@
+type User = record {
+    id: principal;
+    username: text;
+    display_name: opt text;
+    bio: opt text;
+    avatar_url: opt text;
+    created_at: nat64;
+    updated_at: nat64;
+    is_verified: bool;
+    wallet_address: opt text;
+    wallet_type: text;
+};
+
+type UserUpdate = record {
+    display_name: opt text;
+    bio: opt text;
+    avatar_url: opt text;
+    wallet_address: opt text;
+    wallet_type: opt text;
+};
+
+type Error = variant {
+    UserNotFound;
+    UsernameTaken;
+    InvalidInput: text;
+    Unauthorized;
+    InternalError: text;
+};
+
+type UserResult = variant {
+    Ok: User;
+    Err: Error;
+};
+
+type UsersResult = variant {
+    Ok: vec User;
+    Err: Error;
+};
+
+service : {
+    // User registration (requires signed call)
+    signup: (text) -> (UserResult);
+    
+    // Get user by principal
+    get_user: (principal) -> (UserResult);
+    
+    // Get user by username
+    get_user_by_username: (text) -> (UserResult);
+    
+    // Update user profile (requires signed call, owner only)
+    update_profile: (UserUpdate) -> (UserResult);
+    
+    // Individual field updates (requires signed call, owner only)
+    update_display_name: (text) -> (UserResult);
+    update_bio: (text) -> (UserResult);
+    update_avatar: (text) -> (UserResult);
+    update_wallet: (text, text) -> (UserResult); // address, type
+    
+    // Search users
+    search_users: (text, nat32) -> (UsersResult);
+    
+    // Check if username is available
+    is_username_available: (text) -> (bool);
+    
+    // Get total user count
+    get_user_count: () -> (nat64);
+};
