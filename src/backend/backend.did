@@ -9,8 +9,9 @@ type User = record {
     created_at: nat64;
     updated_at: nat64;
     is_verified: bool;
-    wallet_address: opt text;
-    wallet_type: text;
+    evm_address: opt text;
+    bitcoin_address: opt text;
+    solana_address: opt text;
 };
 
 type UserUpdate = record {
@@ -19,8 +20,9 @@ type UserUpdate = record {
     avatar_url: opt text;
     location: opt text;
     website: opt text;
-    wallet_address: opt text;
-    wallet_type: opt text;
+    evm_address: opt text;
+    bitcoin_address: opt text;
+    solana_address: opt text;
 };
 
 type Error = variant {
@@ -43,7 +45,7 @@ type UsersResult = variant {
 
 service : {
     // User registration (requires signed call)
-    signup: (text) -> (UserResult);
+    signup: (text, opt text, opt text, opt text) -> (UserResult); // username, evm_address, bitcoin_address, solana_address
     
     // Get user by principal
     get_user: (principal) -> (UserResult);
@@ -60,7 +62,9 @@ service : {
     update_avatar: (text) -> (UserResult);
     update_location: (text) -> (UserResult);
     update_website: (text) -> (UserResult);
-    update_wallet: (text, text) -> (UserResult); // address, type
+    update_evm_address: (text) -> (UserResult);
+    update_bitcoin_address: (text) -> (UserResult);
+    update_solana_address: (text) -> (UserResult);
     
     // Search users
     search_users: (text, nat32) -> (UsersResult);

@@ -15,8 +15,9 @@ pub struct User {
     pub created_at: u64,
     pub updated_at: u64,
     pub is_verified: bool,
-    pub wallet_address: Option<String>,
-    pub wallet_type: String,
+    pub evm_address: Option<String>,
+    pub bitcoin_address: Option<String>,
+    pub solana_address: Option<String>,
 }
 
 impl Storable for User {
@@ -42,12 +43,19 @@ pub struct UserUpdate {
     pub avatar_url: Option<String>,
     pub location: Option<String>,
     pub website: Option<String>,
-    pub wallet_address: Option<String>,
-    pub wallet_type: Option<String>,
+    pub evm_address: Option<String>,
+    pub bitcoin_address: Option<String>,
+    pub solana_address: Option<String>,
 }
 
 impl User {
-    pub fn new(id: Principal, username: String) -> Self {
+    pub fn new(
+        id: Principal, 
+        username: String, 
+        evm_address: Option<String>,
+        bitcoin_address: Option<String>,
+        solana_address: Option<String>
+    ) -> Self {
         let now = ic_cdk::api::time();
         Self {
             id,
@@ -60,8 +68,9 @@ impl User {
             created_at: now,
             updated_at: now,
             is_verified: false,
-            wallet_address: None,
-            wallet_type: "unknown".to_string(),
+            evm_address,
+            bitcoin_address,
+            solana_address,
         }
     }
 
@@ -81,11 +90,14 @@ impl User {
         if let Some(website) = update.website {
             self.website = Some(website);
         }
-        if let Some(wallet_address) = update.wallet_address {
-            self.wallet_address = Some(wallet_address);
+        if let Some(evm_address) = update.evm_address {
+            self.evm_address = Some(evm_address);
         }
-        if let Some(wallet_type) = update.wallet_type {
-            self.wallet_type = wallet_type;
+        if let Some(bitcoin_address) = update.bitcoin_address {
+            self.bitcoin_address = Some(bitcoin_address);
+        }
+        if let Some(solana_address) = update.solana_address {
+            self.solana_address = Some(solana_address);
         }
         self.updated_at = ic_cdk::api::time();
     }

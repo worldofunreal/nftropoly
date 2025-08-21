@@ -50,10 +50,77 @@ fn validate_website(website: &str) -> Result<(), Error> {
     Ok(())
 }
 
+fn validate_evm_address(address: &str) -> Result<(), Error> {
+    if !address.starts_with("0x") {
+        return Err(Error::InvalidInput("EVM address must start with 0x".to_string()));
+    }
+    
+    if address.len() != 42 {
+        return Err(Error::InvalidInput("EVM address must be 42 characters long (0x + 40 hex chars)".to_string()));
+    }
+    
+    // Check if all characters after 0x are valid hex
+    if !address[2..].chars().all(|c| c.is_ascii_hexdigit()) {
+        return Err(Error::InvalidInput("EVM address must contain only valid hex characters".to_string()));
+    }
+    
+    Ok(())
+}
+
+fn validate_bitcoin_address(address: &str) -> Result<(), Error> {
+    if !address.starts_with("bc1") {
+        return Err(Error::InvalidInput("Bitcoin address must start with bc1 (Taproot/Bech32)".to_string()));
+    }
+    
+    if address.len() < 42 || address.len() > 62 {
+        return Err(Error::InvalidInput("Bitcoin address length must be between 42-62 characters".to_string()));
+    }
+    
+    // Basic alphanumeric check (more detailed validation could be added)
+    if !address.chars().all(|c| c.is_ascii_alphanumeric()) {
+        return Err(Error::InvalidInput("Bitcoin address must contain only alphanumeric characters".to_string()));
+    }
+    
+    Ok(())
+}
+
+fn validate_solana_address(address: &str) -> Result<(), Error> {
+    if address.len() < 32 || address.len() > 44 {
+        return Err(Error::InvalidInput("Solana address must be between 32-44 characters".to_string()));
+    }
+    
+    // Solana addresses are base58 encoded
+    let valid_chars = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    if !address.chars().all(|c| valid_chars.contains(c)) {
+        return Err(Error::InvalidInput("Solana address must contain only valid base58 characters".to_string()));
+    }
+    
+    Ok(())
+}
+
 // Handler functions
-pub async fn signup(caller: Principal, username: String) -> Result<User, Error> {
+pub async fn signup(
+    caller: Principal, 
+    username: String,
+    evm_address: Option<String>,
+    bitcoin_address: Option<String>,
+    solana_address: Option<String>
+) -> Result<User, Error> {
     // Validate username
     validate_username(&username)?;
+    
+    // Validate wallet addresses if provided
+    if let Some(ref addr) = evm_address {
+        validate_evm_address(addr)?;
+    }
+    
+    if let Some(ref addr) = bitcoin_address {
+        validate_bitcoin_address(addr)?;
+    }
+    
+    if let Some(ref addr) = solana_address {
+        validate_solana_address(addr)?;
+    }
     
     // Check if user already exists
     if let Some(_) = Database::get_user(caller) {
@@ -66,7 +133,7 @@ pub async fn signup(caller: Principal, username: String) -> Result<User, Error> 
     }
     
     // Create new user
-    let user = User::new(caller, username);
+    let user = User::new(caller, username, evm_address, bitcoin_address, solana_address);
     Database::insert_user(user.clone());
     
     Ok(user)
@@ -101,6 +168,18 @@ pub async fn update_profile(caller: Principal, update: UserUpdate) -> Result<Use
     
     if let Some(ref website) = update.website {
         validate_website(website)?;
+    }
+    
+    if let Some(ref evm_address) = update.evm_address {
+        validate_evm_address(evm_address)?;
+    }
+    
+    if let Some(ref bitcoin_address) = update.bitcoin_address {
+        validate_bitcoin_address(bitcoin_address)?;
+    }
+    
+    if let Some(ref solana_address) = update.solana_address {
+        validate_solana_address(solana_address)?;
     }
     
     // Apply updates
@@ -173,12 +252,39 @@ pub async fn update_website(caller: Principal, website: String) -> Result<User, 
     Ok(user)
 }
 
-pub async fn update_wallet(caller: Principal, address: String, wallet_type: String) -> Result<User, Error> {
+pub async fn update_evm_address(caller: Principal, evm_address: String) -> Result<User, Error> {
+    validate_evm_address(&evm_address)?;
+    
     let mut user = Database::get_user(caller)
         .ok_or(Error::UserNotFound)?;
     
-    user.wallet_address = Some(address);
-    user.wallet_type = wallet_type;
+    user.evm_address = Some(evm_address);
+    user.updated_at = ic_cdk::api::time();
+    Database::update_user(user.clone());
+    
+    Ok(user)
+}
+
+pub async fn update_bitcoin_address(caller: Principal, bitcoin_address: String) -> Result<User, Error> {
+    validate_bitcoin_address(&bitcoin_address)?;
+    
+    let mut user = Database::get_user(caller)
+        .ok_or(Error::UserNotFound)?;
+    
+    user.bitcoin_address = Some(bitcoin_address);
+    user.updated_at = ic_cdk::api::time();
+    Database::update_user(user.clone());
+    
+    Ok(user)
+}
+
+pub async fn update_solana_address(caller: Principal, solana_address: String) -> Result<User, Error> {
+    validate_solana_address(&solana_address)?;
+    
+    let mut user = Database::get_user(caller)
+        .ok_or(Error::UserNotFound)?;
+    
+    user.solana_address = Some(solana_address);
     user.updated_at = ic_cdk::api::time();
     Database::update_user(user.clone());
     

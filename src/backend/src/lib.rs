@@ -50,13 +50,18 @@ fn post_upgrade() {
 // Public API functions
 
 #[update]
-async fn signup(username: String) -> Result<User, Error> {
+async fn signup(
+    username: String, 
+    evm_address: Option<String>, 
+    bitcoin_address: Option<String>, 
+    solana_address: Option<String>
+) -> Result<User, Error> {
     let caller = msg_caller();
     if caller == Principal::anonymous() {
         return Err(Error::Unauthorized);
     }
     
-    handlers::signup(caller, username).await
+    handlers::signup(caller, username, evm_address, bitcoin_address, solana_address).await
 }
 
 #[query]
@@ -130,13 +135,33 @@ async fn update_website(website: String) -> Result<User, Error> {
 }
 
 #[update]
-async fn update_wallet(address: String, wallet_type: String) -> Result<User, Error> {
+async fn update_evm_address(evm_address: String) -> Result<User, Error> {
     let caller = msg_caller();
     if caller == Principal::anonymous() {
         return Err(Error::Unauthorized);
     }
     
-    handlers::update_wallet(caller, address, wallet_type).await
+    handlers::update_evm_address(caller, evm_address).await
+}
+
+#[update]
+async fn update_bitcoin_address(bitcoin_address: String) -> Result<User, Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::update_bitcoin_address(caller, bitcoin_address).await
+}
+
+#[update]
+async fn update_solana_address(solana_address: String) -> Result<User, Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::update_solana_address(caller, solana_address).await
 }
 
 #[query]
