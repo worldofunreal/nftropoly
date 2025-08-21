@@ -256,7 +256,7 @@
         username.value.trim(),
         evmAddress.value || undefined,
         btcAddress.value || undefined,
-        solanaAddress.value || undefined
+        solAddress.value || undefined
       )
 
       console.log('Registration successful:', profile)

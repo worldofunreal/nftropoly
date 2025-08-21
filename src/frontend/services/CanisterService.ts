@@ -116,11 +116,13 @@ class CanisterService {
       const result = await this.backendActor.get_user(caller)
       return handleUserResult(result)
     } catch (error) {
-      console.error('Error getting user profile:', error)
-      // If user not found, return null
-      if (error instanceof Error && error.message.includes('UserNotFound')) {
+      // If user not found, return null (this is expected for new users)
+      if (error instanceof Error && (error.message.includes('UserNotFound') || error.message.includes('{"UserNotFound":null}'))) {
         return null
       }
+      
+      // Only log actual errors
+      console.error('Error getting user profile:', error)
       throw error
     }
   }
