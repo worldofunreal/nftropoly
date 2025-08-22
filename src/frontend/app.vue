@@ -56,23 +56,23 @@
   import Header from './components/Header.vue'
   import AppFooter from './components/AppFooter.vue'
   import LoginPanel from './components/LoginPanel.vue'
-  import DisclaimerModal from './components/DisclaimerModal.vue'
-  import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
-  import OnboardingTrigger from './components/onBoardingTour/OnboardingTrigger.vue'
+  // import DisclaimerModal from './components/DisclaimerModal.vue'
+  // import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
+  // import OnboardingTrigger from './components/onBoardingTour/OnboardingTrigger.vue'
 
   const loginPanelRef = ref<{ open: () => void } | null>(null)
   const mobileSidebarOpen = ref(false)
   const { $trackInteraction } = useNuxtApp()
-  const { startTour } = useOnboarding()
+  // const { startTour } = useOnboarding()
 
   provide('loginPanelRef', loginPanelRef)
 
   // Handle disclaimer close event
-  const onDisclaimerClose = () => {
-    setTimeout(() => {
-      startTour('registration')
-    }, 500) // Small delay to ensure smooth transition
-  }
+  // const onDisclaimerClose = () => {
+  //   setTimeout(() => {
+  //     startTour('registration')
+  //   }, 500) // Small delay to ensure smooth transition
+  // }
 
   // Track app initialization and key metrics
   onMounted(() => {
