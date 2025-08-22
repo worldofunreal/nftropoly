@@ -174,17 +174,34 @@
       </div>
     </div>
   </div>
+  
+  <!-- Loading Overlay -->
+  <LoadingOverlay
+    :show="uploadLoading"
+    :title="uploadTitle"
+    :message="uploadMessage"
+    :show-progress="true"
+    :progress="uploadProgress"
+    :show-cancel="false"
+  />
 </template>
 
 <script setup lang="ts">
   import { ref, computed, watch } from 'vue'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
+  import LoadingOverlay from './LoadingOverlay.vue'
 
   const auth = useAuthStore()
   const show = ref(false)
   const loading = ref(false)
   const error = ref('')
+  
+  // Upload loading states
+  const uploadLoading = ref(false)
+  const uploadTitle = ref('')
+  const uploadMessage = ref('')
+  const uploadProgress = ref(0)
   
   // Upload modal states
   const showAvatarUploader = ref(false)
@@ -302,16 +319,28 @@
       return
     }
     
+    // Show loading overlay
+    uploadLoading.value = true
+    uploadTitle.value = 'Uploading Avatar'
+    uploadMessage.value = 'Processing and uploading your avatar...'
+    uploadProgress.value = 0
+    
     try {
       // Process image
+      uploadProgress.value = 10
+      uploadMessage.value = 'Processing image...'
       const imageService = await import('@/services/ImageProcessingService').then(m => m.getImageProcessingService())
       const processedImage = await imageService.processAvatar(file)
       
       // Convert to bytes
+      uploadProgress.value = 20
+      uploadMessage.value = 'Preparing upload...'
       const arrayBuffer = await processedImage.blob.arrayBuffer()
       const bytes = new Uint8Array(arrayBuffer)
       
       // Calculate hash
+      uploadProgress.value = 30
+      uploadMessage.value = 'Calculating file hash...'
       const hashBuffer = await crypto.subtle.digest('SHA-256', bytes)
       const hashArray = Array.from(new Uint8Array(hashBuffer))
       const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
@@ -319,7 +348,9 @@
       // Generate file path
       const filePath = `/assets/avatar/${auth.principal}.webp`
       
-      // Upload using canisterService
+      // Initialize upload
+      uploadProgress.value = 40
+      uploadMessage.value = 'Initializing upload...'
       await canisterService.initUpload(filePath, BigInt(bytes.length), BigInt(1024 * 1024), fileHash)
       
       // Upload chunks
@@ -335,10 +366,24 @@
       }
       
       // Finalize upload
+      uploadProgress.value = 80
+      uploadMessage.value = 'Finalizing upload...'
       const url = await canisterService.finalizeUpload(filePath)
+      
+      uploadProgress.value = 90
+      uploadMessage.value = 'Updating profile...'
       await handleAvatarUploadSuccess(url)
       
+      uploadProgress.value = 100
+      uploadMessage.value = 'Upload complete!'
+      
+      // Hide loading overlay after a brief delay
+      setTimeout(() => {
+        uploadLoading.value = false
+      }, 500)
+      
     } catch (error) {
+      uploadLoading.value = false
       handleUploadError(error instanceof Error ? error.message : 'Upload failed')
     }
     
@@ -360,16 +405,28 @@
       return
     }
     
+    // Show loading overlay
+    uploadLoading.value = true
+    uploadTitle.value = 'Uploading Banner'
+    uploadMessage.value = 'Processing and uploading your banner...'
+    uploadProgress.value = 0
+    
     try {
       // Process image
+      uploadProgress.value = 10
+      uploadMessage.value = 'Processing image...'
       const imageService = await import('@/services/ImageProcessingService').then(m => m.getImageProcessingService())
       const processedImage = await imageService.processBanner(file)
       
       // Convert to bytes
+      uploadProgress.value = 20
+      uploadMessage.value = 'Preparing upload...'
       const arrayBuffer = await processedImage.blob.arrayBuffer()
       const bytes = new Uint8Array(arrayBuffer)
       
       // Calculate hash
+      uploadProgress.value = 30
+      uploadMessage.value = 'Calculating file hash...'
       const hashBuffer = await crypto.subtle.digest('SHA-256', bytes)
       const hashArray = Array.from(new Uint8Array(hashBuffer))
       const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
@@ -377,10 +434,14 @@
       // Generate file path
       const filePath = `/assets/banner/${auth.principal}.webp`
       
-      // Upload using canisterService
+      // Initialize upload
+      uploadProgress.value = 40
+      uploadMessage.value = 'Initializing upload...'
       await canisterService.initUpload(filePath, BigInt(bytes.length), BigInt(1024 * 1024), fileHash)
       
       // Upload chunks
+      uploadProgress.value = 50
+      uploadMessage.value = 'Uploading chunks...'
       const chunkSize = 1024 * 1024
       const totalChunks = Math.ceil(bytes.length / chunkSize)
       
@@ -390,13 +451,31 @@
         const chunk = bytes.slice(start, end)
         
         await canisterService.storeChunk(BigInt(i), Array.from(chunk), filePath)
+        
+        // Update progress for each chunk
+        const chunkProgress = 50 + ((i + 1) / totalChunks) * 30
+        uploadProgress.value = Math.round(chunkProgress)
       }
       
       // Finalize upload
+      uploadProgress.value = 80
+      uploadMessage.value = 'Finalizing upload...'
       const url = await canisterService.finalizeUpload(filePath)
+      
+      uploadProgress.value = 90
+      uploadMessage.value = 'Updating profile...'
       await handleBannerUploadSuccess(url)
       
+      uploadProgress.value = 100
+      uploadMessage.value = 'Upload complete!'
+      
+      // Hide loading overlay after a brief delay
+      setTimeout(() => {
+        uploadLoading.value = false
+      }, 500)
+      
     } catch (error) {
+      uploadLoading.value = false
       handleUploadError(error instanceof Error ? error.message : 'Upload failed')
     }
     
