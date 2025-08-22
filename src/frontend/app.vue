@@ -39,12 +39,12 @@
     <!-- <ClientOnly>
       <DisclaimerModal ref="disclaimerModalRef" @close="onDisclaimerClose" />
     </ClientOnly> -->
-    <!-- <ClientOnly>
+    <ClientOnly>
       <OnboardingTour ref="onboardingTourRef" />
-    </ClientOnly> -->
-    <!-- <ClientOnly>
+    </ClientOnly>
+    <ClientOnly>
       <OnboardingTrigger />
-    </ClientOnly> -->
+    </ClientOnly>
   </UApp>
 </template>
 
@@ -57,8 +57,8 @@
   import AppFooter from './components/AppFooter.vue'
   import LoginPanel from './components/LoginPanel.vue'
   // import DisclaimerModal from './components/DisclaimerModal.vue'
-  // import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
-  // import OnboardingTrigger from './components/onBoardingTour/OnboardingTrigger.vue'
+  import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
+  import OnboardingTrigger from './components/onBoardingTour/OnboardingTrigger.vue'
 
   const loginPanelRef = ref<{ open: () => void } | null>(null)
   const mobileSidebarOpen = ref(false)
