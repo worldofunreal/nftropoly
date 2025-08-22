@@ -68,7 +68,6 @@ export const useOnboarding = () => {
             intro:
               "Welcome to NFTropoly! Your gateway to the world of NFTs on the Internet Computer. Let's explore the key features together.",
             // position: 'center',
-            tooltipClass: 'welcome-tooltip',
           },
           {
             element: '.connect-wallet-btn',
@@ -85,7 +84,6 @@ export const useOnboarding = () => {
             intro:
               'Connect with Internet Identity for secure, passwordless authentication on the Internet Computer.',
             // position: 'bottom',
-            tooltipClass: 'wallet-btn-tooltip',
             disableInteraction: true,
             onBeforeChange: async (_targetElement, direction) => {
               if (direction === 'forward') loginPanelElement.classList.remove('hidden')
@@ -97,21 +95,18 @@ export const useOnboarding = () => {
             intro:
               "Click here to connect with MetaMask. You'll need to sign a message to verify your wallet.",
             position: 'bottom',
-            tooltipClass: 'wallet-btn-tooltip',
             disableInteraction: true,
           },
           {
             element: '#phantom-btn',
             intro: 'Connect with Phantom wallet for Solana-based transactions.',
             // position: 'bottom',
-            tooltipClass: 'wallet-btn-tooltip',
             disableInteraction: true,
           },
           {
             element: '#plug-btn',
             intro: 'Use Plug wallet for Internet Computer (ICP) transactions.',
             // position: 'bottom',
-            tooltipClass: 'wallet-btn-tooltip',
             disableInteraction: true,
           },
           {
@@ -119,7 +114,6 @@ export const useOnboarding = () => {
             intro:
               "Let's start by connecting your wallet. We support multiple options for your convenience.",
             position: 'left',
-            tooltipClass: 'login-panel-tooltip',
             disableInteraction: false,
             onBeforeChange: async (_targetElement, direction) => {
               if (direction !== 'forward') return false
@@ -131,7 +125,6 @@ export const useOnboarding = () => {
             intro:
               'Complete your profile setup! Choose a username, customize your avatar, and set your privacy preferences to get started.',
             position: 'bottom',
-            tooltipClass: 'registration-tooltip',
             onBeforeChange: async () => {
               const checkLoginStatus = () => {
                 console.log(
@@ -159,34 +152,29 @@ export const useOnboarding = () => {
             intro:
               'This is your Internet Computer (ICP) principal address. It is used to send and receive ICP tokens.',
             position: 'bottom',
-            tooltipClass: 'registration-tooltip',
           },
           {
             element: '#evm-address',
             intro:
               'This is your Ethereum (EVM) address. It is used to send and receive Ethereum tokens.',
             position: 'bottom',
-            tooltipClass: 'registration-tooltip',
           },
           {
             element: '#sol-address',
             intro:
               'This is your Solana address. It is used to send and receive Solana tokens.',
             position: 'bottom',
-            tooltipClass: 'registration-tooltip',
           },
           {
             element: '#btc-address',
             intro:
               'This is your Bitcoin address. It is used to send and receive Bitcoin tokens.',
             position: 'bottom',
-            tooltipClass: 'registration-tooltip',
           },
           {
             element: '#username-input',
             intro: 'Enter your username to complete your registration.',
             position: 'bottom',
-            tooltipClass: 'registration-tooltip',
             disableInteraction: false,
           },
           {
@@ -194,7 +182,6 @@ export const useOnboarding = () => {
             intro:
               'Click "Create Profile" to complete your registration and start exploring NFTropoly!',
             position: 'top',
-            tooltipClass: 'create-profile-tooltip',
             onBeforeChange: async (_targetElement, direction) => {
               if (direction !== 'forward') return false
               const usernameStatus = document.getElementById('username-status')
@@ -208,7 +195,6 @@ export const useOnboarding = () => {
             intro:
               'Congratulations! You have successfully created your profile. You can now start exploring NFTropoly!',
             position: 'bottom',
-            tooltipClass: 'registration-tooltip',
           },
         ]
 

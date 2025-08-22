@@ -305,24 +305,9 @@
 
       show.value = false
 
-        // Navigate to profile page
-        await navigateTo('/profile')
-      } else {
-        // Registration failed
-        const errorMsg = result.err
-        console.error('Registration failed:', errorMsg)
-
-        let errorText = 'Registration failed. Please try again.'
-        if ('InvalidInput' in errorMsg && errorMsg.InvalidInput) {
-          errorText = errorMsg.InvalidInput
-        } else if ('UserAlreadyExists' in errorMsg) {
-          errorText = 'User already exists'
-        } else if ('InternalError' in errorMsg && errorMsg.InternalError) {
-          errorText = errorMsg.InternalError
-        }
-
-        throw new Error(errorText)
-      }
+      // Navigate to profile page
+      await navigateTo('/profile')
+      
     } catch (err: unknown) {
       console.error('Registration error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Registration failed. Please try again.'
