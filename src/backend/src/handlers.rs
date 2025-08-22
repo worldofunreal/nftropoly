@@ -1,8 +1,11 @@
 use candid::Principal;
+use ic_asset_certification::{Asset, AssetConfig, AssetRouter};
+use ic_http_certification::{HttpRequest, HttpResponse, StatusCode};
+use ic_cdk::api::{data_certificate, certified_data_set};
 
 use crate::errors::Error;
 use crate::storage::Database;
-use crate::types::{User, UserUpdate, CompactProfile};
+use crate::types::*;
 
 // Validation functions
 fn validate_username(username: &str) -> Result<(), Error> {
@@ -226,6 +229,17 @@ pub async fn update_avatar(caller: Principal, avatar_url: String) -> Result<User
     Ok(user)
 }
 
+pub async fn update_banner(caller: Principal, banner_url: String) -> Result<User, Error> {
+    let mut user = Database::get_user(caller)
+        .ok_or(Error::UserNotFound)?;
+    
+    user.banner_url = Some(banner_url);
+    user.updated_at = ic_cdk::api::time();
+    Database::update_user(user.clone());
+    
+    Ok(user)
+}
+
 pub async fn update_location(caller: Principal, location: String) -> Result<User, Error> {
     validate_location(&location)?;
     
@@ -423,4 +437,164 @@ pub fn get_followers(user: Principal) -> Vec<CompactProfile> {
     }
     
     profiles
+}
+
+// Asset upload handlers
+
+pub async fn init_upload(
+    caller: Principal,
+    file_path: String,
+    file_size: u64,
+    chunk_size: Option<u64>,
+    file_hash: String,
+) -> Result<(), Error> {
+    // Validate file path format
+    if !file_path.starts_with("/assets/") {
+        return Err(Error::InvalidInput("File path must start with /assets/".to_string()));
+    }
+    
+    // Validate file hash format (should be hex)
+    if !file_hash.chars().all(|c| c.is_ascii_hexdigit()) {
+        return Err(Error::InvalidInput("File hash must be valid hex string".to_string()));
+    }
+    
+    // Store upload metadata in database
+    Database::init_upload(caller, file_path.clone(), file_size, chunk_size, file_hash);
+    
+    Ok(())
+}
+
+pub async fn store_chunk(
+    caller: Principal,
+    chunk_id: u64,
+    chunk_data: Vec<u8>,
+    file_path: String,
+) -> Result<(), Error> {
+    // Validate chunk size (max 2MB per chunk)
+    const MAX_CHUNK_SIZE: usize = 2 * 1024 * 1024; // 2MB
+    if chunk_data.len() > MAX_CHUNK_SIZE {
+        return Err(Error::InvalidInput("Chunk size exceeds maximum allowed size (2MB)".to_string()));
+    }
+    
+    // Store chunk in database
+    Database::store_chunk(caller, chunk_id, chunk_data, file_path);
+    
+    Ok(())
+}
+
+pub async fn finalize_upload(caller: Principal, file_path: String) -> Result<String, Error> {
+    // Get the complete file from chunks
+    let file_data = Database::get_complete_file(caller, file_path.clone())?;
+    
+    // Store the complete file in our asset storage
+    Database::store_asset(file_path.clone(), file_data.clone());
+    
+    // Clean up chunks from database
+    Database::cleanup_upload(caller, file_path.clone());
+    
+    // Determine content type based on file extension
+    let content_type = if file_path.ends_with(".webp") {
+        "image/webp"
+    } else if file_path.ends_with(".jpg") || file_path.ends_with(".jpeg") {
+        "image/jpeg"
+    } else if file_path.ends_with(".png") {
+        "image/png"
+    } else if file_path.ends_with(".gif") {
+        "image/gif"
+    } else {
+        "application/octet-stream"
+    };
+    
+    // Format the path to ensure it starts with "/" (like Motoko Utils.format_key)
+    let formatted_path = if file_path.starts_with('/') {
+        file_path.clone()
+    } else {
+        format!("/{}", file_path)
+    };
+    
+    // Create asset and certify it with AssetRouter (using owned data to avoid lifetime issues)
+    let asset = Asset::new(&formatted_path, file_data);
+    
+    let asset_config = AssetConfig::File {
+        path: formatted_path.clone(),
+        content_type: Some(content_type.to_string()),
+        headers: vec![
+            ("Cache-Control".to_string(), "public, max-age=31536000".to_string()),
+        ],
+        fallback_for: vec![],
+        aliased_by: vec![],
+        encodings: vec![],
+    };
+    
+    // Certify the asset with AssetRouter
+    crate::ASSET_ROUTER.with_borrow_mut(|asset_router| {
+        if let Err(err) = asset_router.certify_assets(vec![asset], vec![asset_config]) {
+            ic_cdk::trap(&format!("Failed to certify assets: {}", err));
+        }
+        certified_data_set(&asset_router.root_hash());
+    });
+    
+    // Return just the file path, not a full URL
+    Ok(file_path)
+}
+
+pub fn http_request(req: HttpRequest) -> HttpResponse {
+    let path = req.get_path().expect("Failed to parse request path");
+    
+    // Format the path to ensure it starts with "/" (like Motoko Utils.format_key)
+    let formatted_path = if path.starts_with('/') {
+        path.clone()
+    } else {
+        format!("/{}", path)
+    };
+    
+    if formatted_path.starts_with("/assets/") {
+        // Try to serve asset using AssetRouter with proper certification
+        match crate::ASSET_ROUTER.with_borrow(|asset_router| {
+            asset_router.serve_asset(
+                &data_certificate().expect("No data certificate available"),
+                &req,
+            )
+        }) {
+            Ok(response) => response,
+            Err(_) => {
+                // Fallback to database lookup if AssetRouter fails
+                if let Some(asset_data) = Database::get_asset(&formatted_path) {
+                    // Determine content type based on file extension
+                    let content_type = if formatted_path.ends_with(".webp") {
+                        "image/webp"
+                    } else if formatted_path.ends_with(".jpg") || formatted_path.ends_with(".jpeg") {
+                        "image/jpeg"
+                    } else if formatted_path.ends_with(".png") {
+                        "image/png"
+                    } else if formatted_path.ends_with(".gif") {
+                        "image/gif"
+                    } else {
+                        "application/octet-stream"
+                    };
+                    
+                    HttpResponse::builder()
+                        .with_status_code(StatusCode::OK)
+                        .with_body(asset_data)
+                        .with_headers(vec![
+                            ("Content-Type".to_string(), content_type.to_string()),
+                            ("Cache-Control".to_string(), "public, max-age=31536000".to_string()),
+                        ])
+                        .build()
+                } else {
+                    HttpResponse::builder()
+                        .with_status_code(StatusCode::NOT_FOUND)
+                        .with_body(b"Asset not found".to_vec())
+                        .with_headers(vec![("Content-Type".to_string(), "text/plain".to_string())])
+                        .build()
+                }
+            }
+        }
+    } else {
+        HttpResponse::builder()
+            .with_status_code(StatusCode::NOT_FOUND)
+            .with_body(b"Not found".to_vec())
+            .with_headers(vec![("Content-Type".to_string(), "text/plain".to_string())])
+            .build()
+    }
 }

@@ -4,7 +4,8 @@
   "description": "Testing script for the backend canister with multiple identities",
   "main": "test_backend.ts",
   "scripts": {
-    "test": "ts-node test_backend.ts"
+    "test": "ts-node test_backend.ts",
+    "test-images": "ts-node test_images_mainnet.ts"
   },
   "dependencies": {
     "@dfinity/agent": "^3.0.2",

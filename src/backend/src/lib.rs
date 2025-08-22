@@ -1,4 +1,4 @@
-use candid::Principal;
+use candid::{CandidType, Deserialize, Principal};
 use ic_cdk::api::msg_caller;
 use ic_cdk_macros::*;
 use ic_stable_structures::{
@@ -6,6 +6,9 @@ use ic_stable_structures::{
     DefaultMemoryImpl,
 };
 use std::cell::RefCell;
+use std::rc::Rc;
+use ic_asset_certification::{Asset, AssetConfig, AssetRouter};
+use ic_http_certification::{HttpRequest, HttpResponse, HttpCertificationTree};
 
 mod errors;
 mod handlers;
@@ -22,6 +25,14 @@ thread_local! {
     );
 
     static DATABASE: RefCell<Database> = RefCell::new(Database::new());
+    
+    // HTTP certification tree for asset certification
+    static HTTP_TREE: Rc<RefCell<HttpCertificationTree>> = Default::default();
+    
+    // Asset router for serving certified assets
+    static ASSET_ROUTER: RefCell<AssetRouter<'static>> = RefCell::new(
+        AssetRouter::with_tree(HTTP_TREE.with(|tree| tree.clone()))
+    );
 }
 
 // Canister lifecycle
@@ -115,6 +126,16 @@ async fn update_avatar(avatar_url: String) -> Result<User, Error> {
 }
 
 #[update]
+async fn update_banner(banner_url: String) -> Result<User, Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::update_banner(caller, banner_url).await
+}
+
+#[update]
 async fn update_location(location: String) -> Result<User, Error> {
     let caller = msg_caller();
     if caller == Principal::anonymous() {
@@ -187,6 +208,59 @@ async fn follow_user(target: Principal) -> Result<User, Error> {
     }
     
     handlers::follow_user(caller, target).await
+}
+
+// Asset upload functions
+
+#[update]
+async fn init_upload(
+    file_path: String,
+    file_size: u64,
+    chunk_size: Option<u64>,
+    file_hash: String,
+) -> Result<(), Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    // Validate file size (max 1MB)
+    const MAX_FILE_SIZE: u64 = 1 * 1024 * 1024; // 1MB
+    if file_size > MAX_FILE_SIZE {
+        return Err(Error::InvalidInput("File size exceeds maximum allowed size (1MB)".to_string()));
+    }
+    
+    handlers::init_upload(caller, file_path, file_size, chunk_size, file_hash).await
+}
+
+#[update]
+async fn store_chunk(
+    chunk_id: u64,
+    chunk_data: Vec<u8>,
+    file_path: String,
+) -> Result<(), Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::store_chunk(caller, chunk_id, chunk_data, file_path).await
+}
+
+#[update]
+async fn finalize_upload(file_path: String) -> Result<String, Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::finalize_upload(caller, file_path).await
+}
+
+// HTTP request handler for serving assets
+#[query]
+fn http_request(req: HttpRequest) -> HttpResponse {
+    handlers::http_request(req)
 }
 
 #[update]

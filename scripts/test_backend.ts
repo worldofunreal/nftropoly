@@ -66,7 +66,7 @@ const generateIdentity = async (mnemonic: string): Promise<Omit<IdentityData, 'n
   
   return {
     identity,
-    principal: identity.getPrincipal().toText(),
+    principal: (identity as any).getPrincipal().toText(),
     evmAddress: evmAccount.address,
     solAddress: solKeypair.publicKey.toString(),
     btcAddress: `bc1${btcAccount.address.slice(2)}` // Simplified for testing
@@ -77,7 +77,7 @@ const generateIdentity = async (mnemonic: string): Promise<Omit<IdentityData, 'n
 const createBackendActor = async (identity: Ed25519KeyIdentity, canisterId: string): Promise<BackendService> => {
   const agent = new HttpAgent({
     host: 'http://127.0.0.1:4943',
-    identity
+    identity: identity as any
   })
   
   // Fetch root key for local development
@@ -216,8 +216,8 @@ const runTests = async (): Promise<void> => {
       const followers = await actor.get_followers(Principal.fromText(identity.principal))
       
       console.log(`${identity.name}:`)
-      console.log(`   Following: ${following.map(p => p.username).join(', ')}`)
-      console.log(`   Followers: ${followers.map(p => p.username).join(', ')}`)
+      console.log(`   Following: ${following.map((p: any) => p.username).join(', ')}`)
+      console.log(`   Followers: ${followers.map((p: any) => p.username).join(', ')}`)
     } catch (error) {
       console.log(`❌ Error getting lists for ${identity.name}: ${error instanceof Error ? error.message : String(error)}`)
     }
@@ -228,23 +228,23 @@ const runTests = async (): Promise<void> => {
   console.log('='.repeat(50))
   
   // Alice unfollows Bob
-  const alice = identities.find(id => id.name === 'Alice')
+  const aliceIdentity = identities.find(id => id.name === 'Alice')
   const bob = identities.find(id => id.name === 'Bob')
   
-  if (!alice || !bob) {
+  if (!aliceIdentity || !bob) {
     console.log('❌ Error: Could not find Alice or Bob identities')
     return
   }
   
   try {
-    const actor = await createBackendActor(alice.identity, backendCanisterId)
+    const actor = await createBackendActor(aliceIdentity.identity, backendCanisterId)
     const result = await actor.unfollow_user(Principal.fromText(bob.principal))
     
     if ('Ok' in result) {
       console.log(`✅ Alice unfollowed Bob`)
       
       // Check updated counts
-      const aliceResult = await actor.get_user(Principal.fromText(alice.principal))
+      const aliceResult = await actor.get_user(Principal.fromText(aliceIdentity.principal))
       const bobResult = await actor.get_user(Principal.fromText(bob.principal))
       
       if ('Ok' in aliceResult && 'Ok' in bobResult) {
@@ -256,6 +256,89 @@ const runTests = async (): Promise<void> => {
     }
   } catch (error) {
     console.log(`❌ Unfollow error: ${error instanceof Error ? error.message : String(error)}`)
+  }
+  
+  // Test 6: Image upload test
+  console.log('\n🖼️ Test 6: Image Upload Test')
+  console.log('='.repeat(50))
+  
+  // Use Alice for the upload test
+  const aliceForUpload = identities.find(id => id.name === 'Alice')
+  if (!aliceForUpload) {
+    console.log('❌ Error: Could not find Alice identity')
+    return
+  }
+  
+  try {
+    const actor = await createBackendActor(aliceForUpload.identity, backendCanisterId)
+    
+    // Read the logo.png file
+    const fs = require('fs')
+    const path = require('path')
+    const logoPath = path.join(__dirname, '..', 'src', 'frontend', 'public', 'logo.png')
+    
+    if (!fs.existsSync(logoPath)) {
+      console.log('❌ Error: logo.png not found at', logoPath)
+      return
+    }
+    
+    const fileData = fs.readFileSync(logoPath)
+    const fileSize = fileData.length
+    const filePath = `/assets/avatar/${aliceForUpload.principal}.png`
+    
+    console.log(`📁 Uploading logo.png as ${filePath}`)
+    console.log(`   File size: ${fileSize} bytes`)
+    
+    // Calculate SHA-256 hash
+    const crypto = require('crypto')
+    const fileHash = crypto.createHash('sha256').update(fileData).digest('hex')
+    
+    // Initialize upload
+    console.log('🔄 Initializing upload...')
+    await actor.init_upload(filePath, BigInt(fileSize), [BigInt(1024 * 1024)], fileHash)
+    
+    // Upload in chunks
+    const chunkSize = 1024 * 1024 // 1MB chunks
+    const totalChunks = Math.ceil(fileSize / chunkSize)
+    
+    console.log(`📦 Uploading ${totalChunks} chunks...`)
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * chunkSize
+      const end = Math.min(start + chunkSize, fileSize)
+      const chunk = fileData.slice(start, end)
+      
+      await actor.store_chunk(BigInt(i), Array.from(chunk), filePath)
+      console.log(`   Chunk ${i + 1}/${totalChunks} uploaded`)
+    }
+    
+    // Finalize upload
+    console.log('✅ Finalizing upload...')
+    const result = await actor.finalize_upload(filePath)
+    
+    if ('Ok' in result) {
+      console.log(`🎉 Upload successful!`)
+      console.log(`   File path: ${result.Ok}`)
+      
+      // Test the URL with correct format
+      const testUrl = `http://127.0.0.1:4943/?canisterId=uzt4z-lp777-77774-qaabq-cai&id=${backendCanisterId}${result.Ok}`
+      console.log(`   Test URL: ${testUrl}`)
+      
+      // Try to fetch the image
+      console.log('🔍 Testing image retrieval...')
+      const response = await fetch(testUrl)
+      if (response.ok) {
+        console.log(`✅ Image served successfully!`)
+        console.log(`   Content-Type: ${response.headers.get('content-type')}`)
+        console.log(`   Content-Length: ${response.headers.get('content-length')}`)
+      } else {
+        console.log(`❌ Failed to retrieve image: ${response.status} ${response.statusText}`)
+      }
+    } else {
+      console.log(`❌ Upload failed:`, result.Err)
+    }
+    
+  } catch (error) {
+    console.log(`❌ Upload error: ${error instanceof Error ? error.message : String(error)}`)
   }
   
   console.log('\n🎉 Testing completed!')

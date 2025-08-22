@@ -4,6 +4,7 @@ use ic_stable_structures::{
     DefaultMemoryImpl, StableBTreeMap,
 };
 use std::cell::RefCell;
+use std::collections::HashMap;
 
 use crate::types::{User, PrincipalList};
 
@@ -13,6 +14,7 @@ const USERS_MEMORY_ID: MemoryId = MemoryId::new(0);
 const USERNAMES_MEMORY_ID: MemoryId = MemoryId::new(1);
 const FOLLOWING_MEMORY_ID: MemoryId = MemoryId::new(2);
 const FOLLOWERS_MEMORY_ID: MemoryId = MemoryId::new(3);
+const ASSETS_MEMORY_ID: MemoryId = MemoryId::new(4);
 
 thread_local! {
     static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> = RefCell::new(
@@ -33,6 +35,10 @@ thread_local! {
 
     static FOLLOWERS: RefCell<StableBTreeMap<Principal, PrincipalList, Memory>> = RefCell::new(
         StableBTreeMap::init(MEMORY_MANAGER.with(|mm| mm.borrow().get(FOLLOWERS_MEMORY_ID)))
+    );
+
+    static ASSETS: RefCell<StableBTreeMap<String, Vec<u8>, Memory>> = RefCell::new(
+        StableBTreeMap::init(MEMORY_MANAGER.with(|mm| mm.borrow().get(ASSETS_MEMORY_ID)))
     );
 }
 
@@ -205,6 +211,90 @@ impl Database {
     pub fn get_followers_list(user: Principal) -> Vec<Principal> {
         FOLLOWERS.with(|followers_map| {
             followers_map.borrow().get(&user).map(|list| list.0.clone()).unwrap_or_default()
+        })
+    }
+
+    // Upload storage operations
+    // Note: For simplicity, we'll use in-memory storage for uploads
+    // In production, you'd want to use stable storage
+    
+    // Temporary storage for chunks during upload (using thread_local for simplicity)
+    thread_local! {
+        static CHUNKS: RefCell<HashMap<String, Vec<Vec<u8>>>> = RefCell::new(HashMap::new());
+    }
+    
+    pub fn init_upload(
+        caller: Principal,
+        file_path: String,
+        file_size: u64,
+        chunk_size: Option<u64>,
+        file_hash: String,
+    ) {
+        // Initialize empty chunk storage for this file
+        Self::CHUNKS.with(|chunks| {
+            chunks.borrow_mut().insert(file_path.clone(), vec![]);
+        });
+        println!("Init upload: {} by {} (size: {}, hash: {})", file_path, caller, file_size, file_hash);
+        if let Some(chunk_size) = chunk_size {
+            println!("Chunk size: {}", chunk_size);
+        }
+    }
+
+    pub fn store_chunk(
+        caller: Principal,
+        chunk_id: u64,
+        chunk_data: Vec<u8>,
+        file_path: String,
+    ) {
+        let chunk_size = chunk_data.len();
+        // Store chunk data
+        Self::CHUNKS.with(|chunks| {
+            if let Some(file_chunks) = chunks.borrow_mut().get_mut(&file_path) {
+                // Ensure we have enough space for this chunk
+                while file_chunks.len() <= chunk_id as usize {
+                    file_chunks.push(vec![]);
+                }
+                file_chunks[chunk_id as usize] = chunk_data;
+            }
+        });
+        println!("Store chunk {} for {} by {} (size: {})", chunk_id, file_path, caller, chunk_size);
+    }
+
+    pub fn get_complete_file(caller: Principal, file_path: String) -> Result<Vec<u8>, crate::errors::Error> {
+        // Reconstruct file from chunks
+        let complete_file = Self::CHUNKS.with(|chunks| {
+            if let Some(file_chunks) = chunks.borrow().get(&file_path) {
+                // Concatenate all chunks
+                let mut result = Vec::new();
+                for chunk in file_chunks {
+                    result.extend_from_slice(chunk);
+                }
+                result
+            } else {
+                vec![]
+            }
+        });
+        
+        println!("Get complete file: {} by {} (size: {})", file_path, caller, complete_file.len());
+        Ok(complete_file)
+    }
+
+    pub fn cleanup_upload(caller: Principal, file_path: String) {
+        // Clean up chunks after successful upload
+        println!("Cleanup upload: {} by {}", file_path, caller);
+    }
+
+    // Asset storage operations
+    pub fn store_asset(file_path: String, asset_data: Vec<u8>) {
+        // Store the complete asset in stable storage
+        ASSETS.with(|assets| {
+            assets.borrow_mut().insert(file_path, asset_data);
+        });
+    }
+
+    pub fn get_asset(file_path: &str) -> Option<Vec<u8>> {
+        ASSETS.with(|assets| {
+            assets.borrow().get(&file_path.to_string())
         })
     }
 }

@@ -6,7 +6,7 @@ import type { _SERVICE as BackendService, User, UserResult, UserUpdate, CompactP
 // Get canister ID from runtime config
 const getBackendCanisterId = () => {
   // Get canister ID from environment
-  return process.env.CANISTER_ID_BACKEND || 'uxrrr-q7777-77774-qaaaq-cai'
+  return process.env.CANISTER_ID_BACKEND || '3z2ve-waaaa-aaaab-qacmq-cai'
 }
 
 // Export types from the backend canister
@@ -42,17 +42,13 @@ class CanisterService {
 
       // Create HTTP agent with proper configuration
       this.agent = new HttpAgent({
-        host: process.env.NODE_ENV === 'development' 
-          ? 'http://127.0.0.1:4943'  // Use 127.0.0.1:4943 for local development
-          : 'https://ic0.app',
+        host: 'https://icp0.io',  // Use mainnet
         identity: this.identity || undefined,
       })
 
-      // Fetch root key for local development
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Fetching root key for local development...')
-        await this.agent.fetchRootKey()
-      }
+      // Fetch root key for mainnet
+      console.log('Fetching root key for mainnet...')
+      await this.agent.fetchRootKey()
 
       // Create backend actor
       this.backendActor = Actor.createActor(idlFactory, {
@@ -221,6 +217,20 @@ class CanisterService {
       return handleUserResult(result)
     } catch (error) {
       console.error('Error updating avatar:', error)
+      throw error
+    }
+  }
+
+  async updateBanner(bannerUrl: string): Promise<User> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.update_banner(bannerUrl)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error updating banner:', error)
       throw error
     }
   }
@@ -434,6 +444,71 @@ class CanisterService {
   async updateIdentity(identity: Identity) {
     this.identity = identity
     await this.initialize(identity)
+  }
+
+  // Asset upload methods - upload to backend canister
+  async initUpload(filePath: string, fileSize: bigint, chunkSize: bigint | null, fileHash: string): Promise<void> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.init_upload(
+        filePath,
+        fileSize,
+        chunkSize ? [chunkSize] : [],
+        fileHash
+      )
+      
+      if ('Err' in result) {
+        throw new Error(`Upload initialization failed: ${JSON.stringify(result.Err)}`)
+      }
+    } catch (error) {
+      console.error('Error initializing upload:', error)
+      throw error
+    }
+  }
+
+  async storeChunk(chunkId: bigint, chunkData: number[], filePath: string): Promise<void> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.store_chunk(chunkId, chunkData, filePath)
+      
+      if ('Err' in result) {
+        throw new Error(`Chunk upload failed: ${JSON.stringify(result.Err)}`)
+      }
+    } catch (error) {
+      console.error('Error storing chunk:', error)
+      throw error
+    }
+  }
+
+  async finalizeUpload(filePath: string): Promise<string> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.finalize_upload(filePath)
+      
+      if ('Err' in result) {
+        throw new Error(`Upload finalization failed: ${JSON.stringify(result.Err)}`)
+      }
+      
+      return result.Ok
+    } catch (error) {
+      console.error('Error finalizing upload:', error)
+      throw error
+    }
+  }
+
+  // Get asset URL
+  getAssetUrl(filePath: string): string {
+    const backendCanisterId = getBackendCanisterId()
+    return `https://${backendCanisterId}.raw.icp0.io${filePath}`
   }
 }
 

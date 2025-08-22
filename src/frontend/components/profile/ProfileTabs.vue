@@ -21,15 +21,14 @@
   import { defineProps } from 'vue'
   type Tab = string
   const tabs: Tab[] = [
-    'Galleries',
     'NFTs',
     'Tokens',
     'Listings',
     'Offers',
     'Portfolio',
     'Created',
-    'Watchlist',
-    'Favorites',
+    'Following',
+    'Followers',
     'Activity',
   ]
   defineProps<{ modelValue: Tab }>()

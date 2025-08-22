@@ -2,19 +2,16 @@
   <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-950 flex-col">
     <!-- Top User Info Header -->
     <UserProfileHeader />
-    <!-- <div class="absolute right-8 top-8 z-10 hidden md:block">
-      <ProfileStats />
-    </div> -->
     <!-- Navigation Tabs -->
     <div class="px-4 mt-4">
       <ProfileTabs v-model="activeTab" />
     </div>
     <!-- Bottom Section: Tabbed Content -->
     <div class="flex-1 flex w-full min-h-0">
-      <!-- Sidebar (except Galleries tab) - Hidden on mobile -->
+      <!-- Sidebar (except Following/Followers tabs) - Hidden on mobile -->
       <component
         :is="sidebarComponent"
-        v-if="activeTab !== 'Galleries'"
+        v-if="!['Following', 'Followers'].includes(activeTab)"
         :tab="activeTab"
         class="hidden md:block"
       />
@@ -29,7 +26,6 @@
 <script setup lang="ts">
   import { ref, computed } from 'vue'
   import UserProfileHeader from '~/components/profile/UserProfileHeader.vue'
-  import ProfileStats from '~/components/profile/ProfileStats.vue'
   import ProfileTabs from '~/components/profile/ProfileTabs.vue'
   // Sidebar components for each tab
   import NFTsSidebar from '@/components/profile/NFTsSidebar.vue'
@@ -38,27 +34,22 @@
   import OffersSidebar from '@/components/profile/OffersSidebar.vue'
   import PortfolioSidebar from '@/components/profile/PortfolioSidebar.vue'
   import CreatedSidebar from '@/components/profile/CreatedSidebar.vue'
-  import WatchlistSidebar from '@/components/profile/WatchlistSidebar.vue'
-  import FavoritesSidebar from '@/components/profile/FavoritesSidebar.vue'
   import ActivitySidebar from '@/components/profile/ActivitySidebar.vue'
-  // Placeholder main area components for each tab
-  import GalleriesMain from '@/components/profile/GalleriesMain.vue'
+  // Main area components for each tab
   import NFTsMain from '@/components/profile/NFTsMain.vue'
   import TokensMain from '@/components/profile/TokensMain.vue'
   import ListingsMain from '@/components/profile/ListingsMain.vue'
   import OffersMain from '@/components/profile/OffersMain.vue'
   import PortfolioMain from '@/components/profile/PortfolioMain.vue'
   import CreatedMain from '@/components/profile/CreatedMain.vue'
-  import WatchlistMain from '@/components/profile/WatchlistMain.vue'
-  import FavoritesMain from '@/components/profile/FavoritesMain.vue'
+  import FollowingMain from '@/components/profile/FollowingMain.vue'
+  import FollowersMain from '@/components/profile/FollowersMain.vue'
   import ActivityMain from '@/components/profile/ActivityMain.vue'
 
-  const activeTab = ref('Galleries')
+  const activeTab = ref('NFTs')
 
   const tabComponent = computed(() => {
     switch (activeTab.value) {
-      case 'Galleries':
-        return GalleriesMain
       case 'NFTs':
         return NFTsMain
       case 'Tokens':
@@ -71,14 +62,14 @@
         return PortfolioMain
       case 'Created':
         return CreatedMain
-      case 'Watchlist':
-        return WatchlistMain
-      case 'Favorites':
-        return FavoritesMain
+      case 'Following':
+        return FollowingMain
+      case 'Followers':
+        return FollowersMain
       case 'Activity':
         return ActivityMain
       default:
-        return GalleriesMain
+        return NFTsMain
     }
   })
 
@@ -96,10 +87,6 @@
         return PortfolioSidebar
       case 'Created':
         return CreatedSidebar
-      case 'Watchlist':
-        return WatchlistSidebar
-      case 'Favorites':
-        return FavoritesSidebar
       case 'Activity':
         return ActivitySidebar
       default:

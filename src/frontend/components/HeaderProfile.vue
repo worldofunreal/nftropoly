@@ -86,7 +86,7 @@
           <div v-if="authStore.principal" class="mb-3">
             <div class="flex items-center gap-2 mb-1">
               <UIcon name="token-branded:icp" class="w-4 h-4 text-orange-500" />
-              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">ICP Principal</span>
+              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">ICP</span>
             </div>
             <div
               class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-neutral-800 rounded-md"
@@ -108,7 +108,7 @@
           <div v-if="authStore.evmAddress" class="mb-3">
             <div class="flex items-center gap-2 mb-1">
               <UIcon name="cryptocurrency:eth" class="w-4 h-4 text-blue-500" />
-              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Ethereum Address</span>
+              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">EVM</span>
             </div>
             <div
               class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-neutral-800 rounded-md"
@@ -130,7 +130,7 @@
           <div v-if="authStore.solAddress" class="mb-3">
             <div class="flex items-center gap-2 mb-1">
               <UIcon name="cryptocurrency:sol" class="w-4 h-4 text-purple-500" />
-              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Solana Address</span>
+              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">SOL</span>
             </div>
             <div
               class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-neutral-800 rounded-md"
@@ -152,7 +152,7 @@
           <div v-if="authStore.btcAddress" class="mb-3">
             <div class="flex items-center gap-2 mb-1">
               <UIcon name="cryptocurrency:btc" class="w-4 h-4 text-orange-400" />
-              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Bitcoin Address</span>
+              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">BTC</span>
             </div>
             <div
               class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-neutral-800 rounded-md"
