@@ -1,6 +1,7 @@
 <template>
   <!-- Simple Modal Overlay -->
   <div
+    id="login-panel"
     :class="[
       'fixed inset-0 z-[9999] flex items-center justify-center',
       show ? '' : 'hidden',
@@ -123,7 +124,7 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, watch, nextTick, inject } from 'vue'
+  import { ref, watch, nextTick } from 'vue'
   import { useAuthStore } from '@/stores/auth'
   import RegistrationModal from './RegistrationModal.vue'
   import type { WalletType } from '@/services/wallets/types'
@@ -161,18 +162,10 @@
   } | null>(null)
   const toast = useToast()
 
-  // Inject onboarding tour reference
-  const onboardingTourRef = inject('onboardingTourRef') as Ref<{
-    startTour: () => void
-    stopTour: () => void
-    registrationModalTour: () => void
-  } | null>
-
-  // Registration modal tour function
-  const registrationModalTour = () => {
-    if (onboardingTourRef?.value?.registrationModalTour) {
-      onboardingTourRef.value.registrationModalTour()
-    }
+  // Function to signal successful login completion
+  const signalLoginSuccess = () => {
+    // Set a flag that the tour can check
+    ;(window as unknown as Record<string, unknown>).loginCompleted = true
   }
 
   // Watch for changes to show value
@@ -239,7 +232,8 @@
             auth.nativeWallet
           )
 
-          registrationModalTour()
+          // Signal successful login completion for the tour
+          signalLoginSuccess()
         } else {
           console.error('registrationModalRef.value is null/undefined!')
         }

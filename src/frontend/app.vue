@@ -36,7 +36,7 @@
     </div>
     <LoginPanel ref="loginPanelRef" />
     <ClientOnly>
-      <DisclaimerModal ref="disclaimerModalRef" @close="onDisclaimerClose" />
+      <DisclaimerModal @close="onDisclaimerClose" />
     </ClientOnly>
     <ClientOnly>
       <OnboardingTour ref="onboardingTourRef" />
@@ -57,35 +57,21 @@
   import LoginPanel from './components/LoginPanel.vue'
   import DisclaimerModal from './components/DisclaimerModal.vue'
   import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
-  import OnboardingTrigger from './components/OnboardingTrigger.vue'
+  import OnboardingTrigger from './components/onBoardingTour/OnboardingTrigger.vue'
 
   const loginPanelRef = ref<{ open: () => void } | null>(null)
-  const disclaimerModalRef = ref<{
-    open: () => void
-    close: () => void
-  } | null>(null)
   const mobileSidebarOpen = ref(false)
   const { $trackInteraction } = useNuxtApp()
-  const onboardingTourRef = ref<{
-    startTour: () => void
-    stopTour: () => void
-    updateTourForRegistration: () => void
-  } | null>(null)
+  const { startTour } = useOnboarding()
+
+  provide('loginPanelRef', loginPanelRef)
 
   // Handle disclaimer close event
   const onDisclaimerClose = () => {
-    // Start the onboarding tour after disclaimer is closed
     setTimeout(() => {
-      if (onboardingTourRef?.value?.startTour) {
-        onboardingTourRef.value.startTour()
-      }
+      startTour('registration')
     }, 500) // Small delay to ensure smooth transition
   }
-
-  // Provide the login panel ref so other components can access it
-  provide('loginPanelRef', loginPanelRef)
-  // Provide the onboarding tour ref for manual triggering
-  provide('onboardingTourRef', onboardingTourRef)
 
   // Track app initialization and key metrics
   onMounted(() => {
