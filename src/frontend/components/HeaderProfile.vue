@@ -10,13 +10,13 @@
           :src="userAvatar"
           size="md"
           class="hover:opacity-80 transition-opacity"
-          :alt="authStore.player?.username || 'User profile'"
+          :alt="authStore.userProfile?.username || 'User profile'"
         >
           <template #fallback>
             <div
               class="w-full h-full rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold text-sm"
             >
-              {{ authStore.player?.avatarId || 'U' }}
+              {{ authStore.userProfile?.username?.charAt(0).toUpperCase() || 'U' }}
             </div>
           </template>
         </UAvatar>
@@ -54,13 +54,13 @@
           <UAvatar
             :src="userAvatar"
             size="lg"
-            :alt="authStore.player?.username || 'User profile'"
+            :alt="authStore.userProfile?.username || 'User profile'"
           >
             <template #fallback>
               <div
                 class="w-full h-full rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold text-lg"
               >
-                {{ authStore.player?.avatarId || 'U' }}
+                {{ authStore.userProfile?.username?.charAt(0).toUpperCase() || 'U' }}
               </div>
             </template>
           </UAvatar>
@@ -68,7 +68,7 @@
             <div
               class="font-semibold text-gray-900 dark:text-white truncate"
             >
-              {{ authStore.player?.username || 'User' }}
+              {{ authStore.userProfile?.username || 'User' }}
             </div>
             <div class="text-sm text-gray-500 dark:text-gray-400">
               {{ authStore.nativeWallet.toUpperCase() }}
@@ -189,9 +189,10 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted } from 'vue'
+  import { ref, onMounted, onUnmounted, computed } from 'vue'
   import { useNuxtApp } from '#imports'
   import { useAuthStore } from '@/stores/auth'
+  import { canisterService } from '@/services/CanisterService'
 
   defineOptions({
     name: 'HeaderProfile',
@@ -200,7 +201,21 @@
   const authStore = useAuthStore()
   const { $trackInteraction, $trackButtonClick } = useNuxtApp()
 
-  const userAvatar = ref('') // Stub: replace with real avatar URL
+  // Avatar URL - convert file paths to full URLs with cache busting
+  const userAvatar = computed(() => {
+    const avatarPath = authStore.userProfile?.avatar_url?.[0]
+    if (!avatarPath) return ''
+    
+    // If it's already a full URL, return as is
+    if (avatarPath.startsWith('http')) {
+      return avatarPath
+    }
+    
+    // Convert file path to full URL with cache busting
+    const baseUrl = canisterService.getAssetUrl(avatarPath)
+    const timestamp = Date.now()
+    return `${baseUrl}?t=${timestamp}`
+  })
   const showUserMenu = ref(false)
 
   onMounted(() => {
