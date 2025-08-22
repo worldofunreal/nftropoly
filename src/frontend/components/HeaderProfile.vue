@@ -34,7 +34,7 @@
       <!-- Username and Arrow -->
       <div class="flex items-center gap-1">
         <span class="text-sm font-medium text-gray-900 dark:text-white">
-          {{ authStore.player?.username || 'User' }}
+          {{ authStore.userProfile?.username || 'User' }}
         </span>
         <UIcon
           :name="showUserMenu ? 'bxs:up-arrow' : 'bxs:down-arrow'"
@@ -229,10 +229,10 @@
 
   function toggleUserMenu() {
     showUserMenu.value = !showUserMenu.value
-    $trackButtonClick('User Menu Toggle', {
-      isOpen: showUserMenu.value,
-      username: authStore.player?.username,
-    })
+            $trackButtonClick('User Menu Toggle', {
+          isOpen: showUserMenu.value,
+          username: authStore.userProfile?.username,
+        })
   }
 
   function handleClickOutside(event: MouseEvent) {
@@ -275,7 +275,7 @@
   function logout() {
     showUserMenu.value = false
     $trackButtonClick('Logout', {
-      username: authStore.player?.username,
+      username: authStore.userProfile?.username,
       walletType: authStore.nativeWallet,
     })
     authStore.logout()
