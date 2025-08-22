@@ -242,13 +242,27 @@
   import { useRoute } from 'vue-router'
   import EditProfileModal from '../EditProfileModal.vue'
 
+  // Props
+  interface Props {
+    userProfile?: any
+    isOwnProfile?: boolean
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    userProfile: undefined,
+    isOwnProfile: undefined
+  })
+
   const auth = useAuthStore()
   const route = useRoute()
   const followLoading = ref(false)
   const editProfileModalRef = ref<any>(null)
 
-  // Check if viewing own profile or another user's profile
+  // Use props if provided, otherwise fall back to computed logic
   const isOwnProfile = computed(() => {
+    if (props.isOwnProfile !== undefined) {
+      return props.isOwnProfile
+    }
     const currentPrincipal = auth.principal
     const profilePrincipal = userProfile.value?.id
     return currentPrincipal === profilePrincipal?.toText()
@@ -261,8 +275,8 @@
     return false
   })
 
-  // User profile data
-  const userProfile = computed(() => auth.userProfile)
+  // User profile data - use props if provided, otherwise use auth store
+  const userProfile = computed(() => props.userProfile || auth.userProfile)
 
   // Avatar initial (first letter of username)
   const avatarInitial = computed(() => {

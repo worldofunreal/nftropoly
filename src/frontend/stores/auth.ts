@@ -3,6 +3,7 @@ import type { Ed25519KeyIdentity } from '@dfinity/identity'
 import { canisterService, type User } from '@/services/CanisterService'
 import { WalletRegistry } from '@/services/wallets/WalletRegistry'
 import { CrossChainSeedService } from '@/services/CrossChainSeedService'
+import { appCacheService } from '@/services/AppCacheService'
 import type { WalletType } from '@/services/wallets/types'
 
 let identity: Ed25519KeyIdentity | null = null
@@ -20,6 +21,25 @@ export const useAuthStore = defineStore('auth', {
     nativeWallet: '',
     canisterInitialized: false,
   }),
+  
+  getters: {
+    // Restore session from cache on store initialization
+    initSession() {
+      const session = appCacheService.getSession()
+      if (session) {
+        this.authenticated = session.authenticated
+        this.registered = session.registered
+        this.principal = session.principal
+        this.evmAddress = session.evmAddress
+        this.solAddress = session.solAddress
+        this.btcAddress = session.btcAddress
+        this.nativeWallet = session.nativeWallet
+        this.canisterInitialized = session.canisterInitialized
+        console.log('Session restored from cache')
+      }
+      return session
+    }
+  },
   
   actions: {
     getIdentity() {
@@ -86,6 +106,18 @@ export const useAuthStore = defineStore('auth', {
             principal: authResult.principal,
             walletType: authResult.nativeWallet,
           }
+          
+          // Save session to cache
+          appCacheService.saveSession({
+            authenticated: true,
+            registered: true,
+            principal: authResult.principal,
+            evmAddress: authResult.evmAddress || '',
+            solAddress: authResult.solAddress || '',
+            btcAddress: authResult.btcAddress || '',
+            nativeWallet: authResult.nativeWallet,
+            canisterInitialized: true
+          })
           
           this.saveStateToLocalStorage()
           return { existing: true, profile: existingProfile }

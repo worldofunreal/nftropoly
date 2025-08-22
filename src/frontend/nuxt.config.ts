@@ -81,6 +81,8 @@ export default defineNuxtConfig({
         util: 'util',
         crypto: 'crypto-browserify',
         stream: 'stream-browserify',
+        // Backend declarations (currently using client-side only)
+        'declarations/backend': require('path').resolve(__dirname, '../../declarations/backend'),
       },
     },
     optimizeDeps: {
@@ -111,6 +113,12 @@ export default defineNuxtConfig({
       buffer: 'buffer',
       process: 'process',
       util: 'util',
+      // Backend declarations (currently using client-side only)
+      'declarations/backend': require('path').resolve(__dirname, '../../declarations/backend'),
+    },
+    // Add @dfinity packages to server dependencies
+    externals: {
+      inline: ['@dfinity/agent', '@dfinity/principal', '@dfinity/candid'],
     },
   },
   runtimeConfig: {

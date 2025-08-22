@@ -2,6 +2,7 @@ import { Actor, HttpAgent } from '@dfinity/agent'
 import type { Identity } from '@dfinity/agent'
 import { idlFactory } from '../../declarations/backend'
 import type { _SERVICE as BackendService, User, UserResult, UserUpdate, CompactProfile, UsersResult } from '../../declarations/backend/backend.did'
+import { appCacheService } from './AppCacheService'
 
 // Get canister ID from runtime config
 const getBackendCanisterId = () => {
@@ -64,6 +65,32 @@ class CanisterService {
     }
   }
 
+  // Initialize the service anonymously for public access (SSR)
+  async initializeAnonymous(): Promise<boolean> {
+    try {
+      // Create HTTP agent without identity for anonymous access
+      this.agent = new HttpAgent({
+        host: 'https://icp0.io',  // Use mainnet
+      })
+
+      // Fetch root key for mainnet
+      console.log('Fetching root key for mainnet (anonymous)...')
+      await this.agent.fetchRootKey()
+
+      // Create backend actor for anonymous queries
+      this.backendActor = Actor.createActor(idlFactory, {
+        agent: this.agent,
+        canisterId: getBackendCanisterId(),
+      })
+
+      console.log('CanisterService initialized anonymously for public access')
+      return true
+    } catch (error) {
+      console.error('Failed to initialize CanisterService anonymously:', error)
+      throw error
+    }
+  }
+
   // Initialize the service with Plug's createActor method
   async initializeWithPlug() {
     try {
@@ -92,6 +119,58 @@ class CanisterService {
     }
   }
 
+  // Check if service is initialized
+  isInitialized(): boolean {
+    return this.backendActor !== null
+  }
+
+  // Check if service is initialized with identity (authenticated)
+  isAuthenticated(): boolean {
+    return this.backendActor !== null && this.identity !== null
+  }
+
+  // Get public profile by username (works without authentication)
+  async getPublicProfile(username: string): Promise<User | null> {
+    if (!this.backendActor) {
+      // Try to initialize anonymously if not initialized
+      try {
+        await this.initializeAnonymous()
+      } catch (error) {
+        console.error('Failed to initialize for public profile fetch:', error)
+        throw new Error('Service not available')
+      }
+    }
+
+    // Check cache first
+    const cached = appCacheService.getCachedProfile(username, 'username')
+    if (cached) {
+      console.log('Returning cached public profile for username:', username)
+      return cached
+    }
+
+    try {
+      // Fetch fresh data
+      console.log('Fetching fresh public profile for username:', username)
+      if (!this.backendActor) {
+        throw new Error('Service not available')
+      }
+      const result = await this.backendActor.get_user_by_username(username)
+      const user = handleUserResult(result)
+      
+      // Cache the result
+      appCacheService.setCachedProfile(username, user, 'username')
+      
+      return user
+    } catch (error) {
+      console.error('Error getting public profile:', error)
+      // If user not found, return null
+      if (error instanceof Error && error.message.includes('UserNotFound')) {
+        return null
+      }
+      throw error
+    }
+  }
+
   // Check if user exists by querying their profile
   async getMyProfile(): Promise<User | null> {
     if (!this.backendActor) {
@@ -108,9 +187,42 @@ class CanisterService {
         throw new Error('No principal available')
       }
 
-      console.log('Calling get_user with principal:', caller.toText())
-      const result = await this.backendActor.get_user(caller)
-      return handleUserResult(result)
+      // Ensure caller is a proper Principal object
+      const { Principal } = await import('@dfinity/principal')
+      let principal: any
+      
+      if (caller && typeof caller.toText === 'function') {
+        principal = caller
+      } else if (typeof caller === 'string') {
+        principal = Principal.fromText(caller)
+      } else {
+        throw new Error('Invalid principal format')
+      }
+
+      const principalText = principal.toText()
+      
+      // Check cache first
+      const cached = appCacheService.getCachedProfile(principalText, 'principal')
+      if (cached) {
+        console.log('Returning cached profile for principal:', principalText)
+        
+        // If cache is stale, refresh in background
+        if (appCacheService.isProfileStale(principalText, 'principal')) {
+          this.refreshProfileInBackground(principal, principalText)
+        }
+        
+        return cached
+      }
+
+      // Fetch fresh data
+      console.log('Fetching fresh profile for principal:', principalText)
+      const result = await this.backendActor.get_user(principal)
+      const user = handleUserResult(result)
+      
+      // Cache the result
+      appCacheService.setCachedProfile(principalText, user, 'principal')
+      
+      return user
     } catch (error) {
       // If user not found, return null (this is expected for new users)
       if (error instanceof Error && (error.message.includes('UserNotFound') || error.message.includes('{"UserNotFound":null}'))) {
@@ -120,6 +232,21 @@ class CanisterService {
       // Only log actual errors
       console.error('Error getting user profile:', error)
       throw error
+    }
+  }
+
+  // Background refresh method
+  private async refreshProfileInBackground(principal: any, principalText: string): Promise<void> {
+    if (!this.backendActor) return
+    
+    try {
+      console.log('Refreshing profile in background for:', principalText)
+      const result = await this.backendActor.get_user(principal)
+      const user = handleUserResult(result)
+      appCacheService.setCachedProfile(principalText, user, 'principal')
+      console.log('Background refresh completed for:', principalText)
+    } catch (error) {
+      console.warn('Background refresh failed for:', principalText, error)
     }
   }
 
@@ -141,11 +268,26 @@ class CanisterService {
         bitcoinAddress ? [bitcoinAddress] : [],
         solanaAddress ? [solanaAddress] : []
       )
-      return handleUserResult(result)
+      const user = handleUserResult(result)
+      
+      // Invalidate cache for this user
+      appCacheService.invalidateUserCache(user)
+      
+      return user
     } catch (error) {
       console.error('Error signing up user:', error)
       throw error
     }
+  }
+
+  // Public method to clear all cache
+  clearAllCache(): void {
+    appCacheService.clearAllCache()
+  }
+
+  // Public method to get cache stats (for debugging)
+  getCacheStats(): { profileSize: number; profileKeys: string[]; hasSession: boolean; sessionExpiresAt?: number } {
+    return appCacheService.getCacheStats()
   }
 
   // Check if username is available
@@ -171,7 +313,12 @@ class CanisterService {
 
     try {
       const result = await this.backendActor.update_profile(update)
-      return handleUserResult(result)
+      const user = handleUserResult(result)
+      
+      // Invalidate cache for this user
+      appCacheService.invalidateUserCache(user)
+      
+      return user
     } catch (error) {
       console.error('Error updating profile:', error)
       throw error
@@ -186,7 +333,12 @@ class CanisterService {
 
     try {
       const result = await this.backendActor.update_display_name(displayName)
-      return handleUserResult(result)
+      const user = handleUserResult(result)
+      
+      // Invalidate cache for this user
+      appCacheService.invalidateUserCache(user)
+      
+      return user
     } catch (error) {
       console.error('Error updating display name:', error)
       throw error
@@ -391,9 +543,29 @@ class CanisterService {
       throw new Error('CanisterService not initialized')
     }
 
+    // Check cache first
+    const cached = appCacheService.getCachedProfile(username, 'username')
+    if (cached) {
+      console.log('Returning cached profile for username:', username)
+      
+      // If cache is stale, refresh in background
+      if (appCacheService.isProfileStale(username, 'username')) {
+        this.refreshUserByUsernameInBackground(username)
+      }
+      
+      return cached
+    }
+
     try {
+      // Fetch fresh data
+      console.log('Fetching fresh profile for username:', username)
       const result = await this.backendActor.get_user_by_username(username)
-      return handleUserResult(result)
+      const user = handleUserResult(result)
+      
+      // Cache the result
+      appCacheService.setCachedProfile(username, user, 'username')
+      
+      return user
     } catch (error) {
       console.error('Error getting user by username:', error)
       // If user not found, return null
@@ -404,17 +576,52 @@ class CanisterService {
     }
   }
 
+  // Background refresh method for username lookup
+  private async refreshUserByUsernameInBackground(username: string): Promise<void> {
+    if (!this.backendActor) return
+    
+    try {
+      console.log('Refreshing profile in background for username:', username)
+      const result = await this.backendActor.get_user_by_username(username)
+      const user = handleUserResult(result)
+      appCacheService.setCachedProfile(username, user, 'username')
+      console.log('Background refresh completed for username:', username)
+    } catch (error) {
+      console.warn('Background refresh failed for username:', username, error)
+    }
+  }
+
   // Get user by principal
   async getUser(principal: string): Promise<User | null> {
     if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }
 
+    // Check cache first
+    const cached = appCacheService.getCachedProfile(principal, 'principal')
+    if (cached) {
+      console.log('Returning cached profile for principal:', principal)
+      
+      // If cache is stale, refresh in background
+      if (appCacheService.isProfileStale(principal, 'principal')) {
+        this.refreshUserByPrincipalInBackground(principal)
+      }
+      
+      return cached
+    }
+
     try {
+      // Fetch fresh data
+      console.log('Fetching fresh profile for principal:', principal)
       const { Principal } = await import('@dfinity/principal')
       const userPrincipal = Principal.fromText(principal)
       const result = await this.backendActor.get_user(userPrincipal)
-      return handleUserResult(result)
+      const user = handleUserResult(result)
+      
+      // Cache the result
+      appCacheService.setCachedProfile(principal, user, 'principal')
+      
+      return user
     } catch (error) {
       console.error('Error getting user:', error)
       // If user not found, return null
@@ -422,6 +629,23 @@ class CanisterService {
         return null
       }
       throw error
+    }
+  }
+
+  // Background refresh method for principal lookup
+  private async refreshUserByPrincipalInBackground(principal: string): Promise<void> {
+    if (!this.backendActor) return
+    
+    try {
+      console.log('Refreshing profile in background for principal:', principal)
+      const { Principal } = await import('@dfinity/principal')
+      const userPrincipal = Principal.fromText(principal)
+      const result = await this.backendActor.get_user(userPrincipal)
+      const user = handleUserResult(result)
+      appCacheService.setCachedProfile(principal, user, 'principal')
+      console.log('Background refresh completed for principal:', principal)
+    } catch (error) {
+      console.warn('Background refresh failed for principal:', principal, error)
     }
   }
 

@@ -39,24 +39,30 @@
 </template>
 
 <script setup lang="ts">
-  import { ref } from 'vue'
+  import { ref, computed } from 'vue'
   import SidebarItem from './SidebarItem.vue'
   import { useColorMode } from '#imports'
+  import { useAuthStore } from '@/stores/auth'
 
   const colorMode = useColorMode()
+  const auth = useAuthStore()
 
   const collapsed = ref(true)
 
-  const menuItems = [
+  const menuItems = computed(() => [
     { label: 'Discover', icon: 'eos-icons:compass', to: '/' },
     { label: 'NFTs', icon: 'icon-park-solid:game-ps', to: '/nfts' },
     { label: 'Tokens', icon: 'subway:coin', to: '/tokens' },
     { label: 'Activity', icon: 'tabler:activity', to: '/activity' },
-    { label: 'Profile', icon: 'iconamoon:profile-fill', to: '/profile' },
+    { 
+      label: 'Profile', 
+      icon: 'iconamoon:profile-fill', 
+      to: auth.userProfile?.username ? `/profile/@${auth.userProfile.username}` : '/profile/' 
+    },
     { hr: true },
     { label: 'Settings', icon: 'iconamoon:settings-fill', to: '/settings' },
     { label: 'Support', icon: 'ix:support', to: '/support' },
-  ]
+  ])
 </script>
 
 <style scoped>
