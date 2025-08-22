@@ -1,246 +1,38 @@
 import { Actor, HttpAgent } from '@dfinity/agent'
 import type { Identity } from '@dfinity/agent'
+import { idlFactory } from '../../declarations/backend'
+import type { _SERVICE as BackendService, User, UserResult, UserUpdate, CompactProfile, UsersResult } from '../../declarations/backend/backend.did'
 
 // Get canister ID from runtime config
-const getDatabaseCanisterId = () => {
+const getBackendCanisterId = () => {
   // Get canister ID from environment
-  return process.env.CANISTER_ID_DATABASE || 'uxrrr-q7777-77774-qaaaq-cai'
+  return process.env.CANISTER_ID_BACKEND || 'uxrrr-q7777-77774-qaaaq-cai'
 }
 
-// Inline IDL factory for database canister (copied from generated declarations)
-const databaseIdlFactory = ({ IDL }: any) => {
-  const Time = IDL.Int
-  const PortfolioStats = IDL.Record({
-    totalValueEth: IDL.Float64,
-    totalValueUsd: IDL.Float64,
-    tokenPercentage: IDL.Float64,
-    lastUpdated: Time,
-    nftCount: IDL.Nat,
-    nftPercentage: IDL.Float64,
-    tokenCount: IDL.Nat,
-  })
-  const SocialLinks = IDL.Record({
-    twitter: IDL.Opt(IDL.Text),
-    instagram: IDL.Opt(IDL.Text),
-    website: IDL.Opt(IDL.Text),
-    discord: IDL.Opt(IDL.Text),
-    telegram: IDL.Opt(IDL.Text),
-  })
-  const ProfileAssets = IDL.Record({
-    avatarUrl: IDL.Opt(IDL.Text),
-    bannerUrl: IDL.Opt(IDL.Text),
-    avatarPreset: IDL.Opt(IDL.Nat),
-  })
-  const UserExperience = IDL.Record({
-    xp: IDL.Nat,
-    badges: IDL.Vec(IDL.Text),
-    level: IDL.Nat,
-    achievements: IDL.Vec(IDL.Text),
-  })
-  const PrivacySettings = IDL.Record({
-    showActivity: IDL.Bool,
-    showEmail: IDL.Bool,
-    showPortfolio: IDL.Bool,
-    profilePublic: IDL.Bool,
-  })
-  const WalletInfo = IDL.Record({
-    ethAddress: IDL.Opt(IDL.Text),
-    walletType: IDL.Text,
-    connectedAt: Time,
-    icpPrincipal: IDL.Text,
-  })
-  const UserProfile = IDL.Record({
-    bio: IDL.Opt(IDL.Text),
-    portfolio: PortfolioStats,
-    username: IDL.Text,
-    totalVolume: IDL.Float64,
-    displayName: IDL.Opt(IDL.Text),
-    socialLinks: SocialLinks,
-    followersCount: IDL.Nat,
-    lastActiveAt: Time,
-    email: IDL.Opt(IDL.Text),
-    followingCount: IDL.Nat,
-    wallet: WalletInfo,
-    totalTransactions: IDL.Nat,
-    privacy: PrivacySettings,
-    assets: ProfileAssets,
-    createdAt: Time,
-    experience: UserExperience,
-    location: IDL.Opt(IDL.Text),
-    isVerified: IDL.Bool,
-  })
-  const UserSearchResult = IDL.Record({
-    principal: IDL.Principal,
-    username: IDL.Text,
-    displayName: IDL.Opt(IDL.Text),
-    followersCount: IDL.Nat,
-    avatarUrl: IDL.Opt(IDL.Text),
-    isVerified: IDL.Bool,
-    avatarPreset: IDL.Opt(IDL.Nat),
-  })
-  const RegistrationData = IDL.Record({
-    bio: IDL.Opt(IDL.Text),
-    displayName: IDL.Opt(IDL.Text),
-    socialLinks: SocialLinks,
-    walletType: IDL.Text,
-    email: IDL.Opt(IDL.Text),
-    privacy: PrivacySettings,
-    avatarPreset: IDL.Opt(IDL.Nat),
-    username: IDL.Text,
-    ethAddress: IDL.Opt(IDL.Text),
-  })
-  const ApiError = IDL.Variant({
-    UserAlreadyExists: IDL.Null,
-    InvalidInput: IDL.Text,
-    Unauthorized: IDL.Null,
-    RateLimited: IDL.Null,
-    InternalError: IDL.Text,
-    AssetUploadFailed: IDL.Text,
-    UserNotFound: IDL.Null,
-  })
-  const ApiResult = IDL.Variant({ ok: UserProfile, err: ApiError })
-  const Result = IDL.Variant({ ok: UserProfile, err: IDL.Text })
-  return IDL.Service({
-    getMyProfile: IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
-    getUser: IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
-    getUserByUsername: IDL.Func([IDL.Text], [IDL.Opt(UserProfile)], ['query']),
-    getUserCount: IDL.Func([], [IDL.Nat], ['query']),
-    getUserProfile: IDL.Func(
-      [IDL.Principal],
-      [IDL.Opt(UserProfile)],
-      ['query']
-    ),
-    getVerifiedUsers: IDL.Func(
-      [IDL.Nat],
-      [IDL.Vec(UserSearchResult)],
-      ['query']
-    ),
-    isUsernameAvailable: IDL.Func([IDL.Text], [IDL.Bool], ['query']),
-    registerUser: IDL.Func([RegistrationData], [ApiResult], []),
-    searchUsers: IDL.Func(
-      [IDL.Text, IDL.Nat],
-      [IDL.Vec(UserSearchResult)],
-      ['query']
-    ),
-    signup: IDL.Func([IDL.Text], [Result], []),
-    updatePortfolioStats: IDL.Func(
-      [IDL.Float64, IDL.Float64, IDL.Nat, IDL.Nat],
-      ['query']
-    ),
-    updateProfile: IDL.Func(
-      [
-        IDL.Record({
-          bio: IDL.Opt(IDL.Text),
-          displayName: IDL.Opt(IDL.Text),
-          socialLinks: IDL.Opt(SocialLinks),
-          email: IDL.Opt(IDL.Text),
-          privacy: IDL.Opt(PrivacySettings),
-          avatarUrl: IDL.Opt(IDL.Text),
-          bannerUrl: IDL.Opt(IDL.Text),
-          avatarPreset: IDL.Opt(IDL.Nat),
-          location: IDL.Opt(IDL.Text),
-        }),
-      ],
-      [ApiResult],
-      []
-    ),
-  })
+// Export types from the backend canister
+export type { User, UserResult, UserUpdate, CompactProfile, UsersResult } from '../../declarations/backend/backend.did'
+
+// Helper function to handle UserResult
+const handleUserResult = (result: UserResult): User => {
+  if ('Ok' in result) {
+    return result.Ok
+  } else {
+    throw new Error(`Backend error: ${JSON.stringify(result.Err)}`)
+  }
 }
 
-// Types from the canister interface
-export interface UserProfile {
-  bio: [] | [string]
-  portfolio: PortfolioStats
-  username: string
-  totalVolume: number
-  displayName: [] | [string]
-  socialLinks: SocialLinks
-  followersCount: bigint
-  lastActiveAt: bigint
-  email: [] | [string]
-  followingCount: bigint
-  wallet: WalletInfo
-  totalTransactions: bigint
-  privacy: PrivacySettings
-  assets: ProfileAssets
-  createdAt: bigint
-  experience: UserExperience
-  location: [] | [string]
-  isVerified: boolean
+// Helper function to handle UsersResult
+const handleUsersResult = (result: UsersResult): User[] => {
+  if ('Ok' in result) {
+    return result.Ok
+  } else {
+    throw new Error(`Backend error: ${JSON.stringify(result.Err)}`)
+  }
 }
-
-export interface PortfolioStats {
-  totalValueEth: number
-  totalValueUsd: number
-  tokenPercentage: number
-  lastUpdated: bigint
-  nftCount: bigint
-  nftPercentage: number
-  tokenCount: bigint
-}
-
-export interface SocialLinks {
-  twitter: [] | [string]
-  instagram: [] | [string]
-  website: [] | [string]
-  discord: [] | [string]
-  telegram: [] | [string]
-}
-
-export interface ProfileAssets {
-  avatarUrl: [] | [string]
-  bannerUrl: [] | [string]
-  avatarPreset: [] | [bigint]
-}
-
-export interface UserExperience {
-  xp: bigint
-  badges: string[]
-  level: bigint
-  achievements: string[]
-}
-
-export interface PrivacySettings {
-  showActivity: boolean
-  showEmail: boolean
-  showPortfolio: boolean
-  profilePublic: boolean
-}
-
-export interface WalletInfo {
-  ethAddress: [] | [string]
-  walletType: string
-  connectedAt: bigint
-  icpPrincipal: string
-}
-
-export interface RegistrationData {
-  bio: [] | [string]
-  displayName: [] | [string]
-  socialLinks: SocialLinks
-  walletType: string
-  email: [] | [string]
-  privacy: PrivacySettings
-  avatarPreset: [] | [bigint]
-  username: string
-  ethAddress: [] | [string]
-}
-
-export interface ApiError {
-  UserAlreadyExists?: null
-  InvalidInput?: string
-  Unauthorized?: null
-  RateLimited?: null
-  InternalError?: string
-  AssetUploadFailed?: string
-  UserNotFound?: null
-}
-
-export type ApiResult<T> = { ok: T } | { err: ApiError }
 
 class CanisterService {
   private agent: HttpAgent | any = null
-  private databaseActor: any = null
+  private backendActor: BackendService | null = null
   private identity: Identity | null = null
 
   // Initialize the service with an identity
@@ -262,10 +54,10 @@ class CanisterService {
         await this.agent.fetchRootKey()
       }
 
-      // Create database actor
-      this.databaseActor = Actor.createActor(databaseIdlFactory, {
+      // Create backend actor
+      this.backendActor = Actor.createActor(idlFactory, {
         agent: this.agent,
-        canisterId: getDatabaseCanisterId(),
+        canisterId: getBackendCanisterId(),
       })
 
       console.log('CanisterService initialized successfully')
@@ -290,10 +82,10 @@ class CanisterService {
         console.log('Plug agent identity:', window.ic.plug.agent._identity)
       }
 
-      // Use Plug's createActor method to create the database actor
-      this.databaseActor = await window.ic.plug.createActor({
-        canisterId: getDatabaseCanisterId(),
-        interfaceFactory: databaseIdlFactory,
+      // Use Plug's createActor method to create the backend actor
+      this.backendActor = await window.ic.plug.createActor({
+        canisterId: getBackendCanisterId(),
+        interfaceFactory: idlFactory,
       })
 
       console.log('CanisterService initialized with Plug createActor')
@@ -305,43 +97,69 @@ class CanisterService {
   }
 
   // Check if user exists by querying their profile
-  async getMyProfile(): Promise<UserProfile | null> {
-    if (!this.databaseActor) {
+  async getMyProfile(): Promise<User | null> {
+    if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }
 
     try {
-      const result = await this.databaseActor.getMyProfile()
-      return result.length > 0 ? result[0] : null
+      // Get the caller's principal
+      let caller = this.identity?.getPrincipal()
+      if (!caller && this.agent) {
+        caller = this.agent.getPrincipal()
+      }
+      if (!caller) {
+        throw new Error('No principal available')
+      }
+
+      console.log('Calling get_user with principal:', caller.toText())
+      const result = await this.backendActor.get_user(caller)
+      return handleUserResult(result)
     } catch (error) {
+      // If user not found, return null (this is expected for new users)
+      if (error instanceof Error && (error.message.includes('UserNotFound') || error.message.includes('{"UserNotFound":null}'))) {
+        return null
+      }
+      
+      // Only log actual errors
       console.error('Error getting user profile:', error)
       throw error
     }
   }
 
-  // Register a new user
-  async registerUser(data: RegistrationData): Promise<ApiResult<UserProfile>> {
-    if (!this.databaseActor) {
+  // Sign up a new user
+  async signup(
+    username: string,
+    evmAddress?: string,
+    bitcoinAddress?: string,
+    solanaAddress?: string
+  ): Promise<User> {
+    if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }
 
     try {
-      const result = await this.databaseActor.registerUser(data)
-      return result
+      const result = await this.backendActor.signup(
+        username,
+        evmAddress ? [evmAddress] : [],
+        bitcoinAddress ? [bitcoinAddress] : [],
+        solanaAddress ? [solanaAddress] : []
+      )
+      return handleUserResult(result)
     } catch (error) {
-      console.error('Error registering user:', error)
+      console.error('Error signing up user:', error)
       throw error
     }
   }
 
   // Check if username is available
   async isUsernameAvailable(username: string): Promise<boolean> {
-    if (!this.databaseActor) {
+    if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }
 
     try {
-      const result = await this.databaseActor.isUsernameAvailable(username)
+      const result = await this.backendActor.is_username_available(username)
       return result
     } catch (error) {
       console.error('Error checking username availability:', error)
@@ -350,29 +168,207 @@ class CanisterService {
   }
 
   // Update user profile
-  async updateProfile(update: any): Promise<ApiResult<UserProfile>> {
-    if (!this.databaseActor) {
+  async updateProfile(update: UserUpdate): Promise<User> {
+    if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }
 
     try {
-      const result = await this.databaseActor.updateProfile(update)
-      return result
+      const result = await this.backendActor.update_profile(update)
+      return handleUserResult(result)
     } catch (error) {
       console.error('Error updating profile:', error)
       throw error
     }
   }
 
-  // Search users
-  async searchUsers(searchTerm: string, limit: number = 10): Promise<any[]> {
-    if (!this.databaseActor) {
+  // Individual update methods
+  async updateDisplayName(displayName: string): Promise<User> {
+    if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }
 
     try {
-      const result = await this.databaseActor.searchUsers(searchTerm, limit)
+      const result = await this.backendActor.update_display_name(displayName)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error updating display name:', error)
+      throw error
+    }
+  }
+
+  async updateBio(bio: string): Promise<User> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.update_bio(bio)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error updating bio:', error)
+      throw error
+    }
+  }
+
+  async updateAvatar(avatarUrl: string): Promise<User> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.update_avatar(avatarUrl)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error updating avatar:', error)
+      throw error
+    }
+  }
+
+  async updateLocation(location: string): Promise<User> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.update_location(location)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error updating location:', error)
+      throw error
+    }
+  }
+
+  async updateWebsite(website: string): Promise<User> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.update_website(website)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error updating website:', error)
+      throw error
+    }
+  }
+
+  async updateEvmAddress(evmAddress: string): Promise<User> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.update_evm_address(evmAddress)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error updating EVM address:', error)
+      throw error
+    }
+  }
+
+  async updateBitcoinAddress(bitcoinAddress: string): Promise<User> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.update_bitcoin_address(bitcoinAddress)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error updating Bitcoin address:', error)
+      throw error
+    }
+  }
+
+  async updateSolanaAddress(solanaAddress: string): Promise<User> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.update_solana_address(solanaAddress)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error updating Solana address:', error)
+      throw error
+    }
+  }
+
+  // Following/Followers methods
+  async followUser(target: string): Promise<User> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const { Principal } = await import('@dfinity/principal')
+      const targetPrincipal = Principal.fromText(target)
+      const result = await this.backendActor.follow_user(targetPrincipal)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error following user:', error)
+      throw error
+    }
+  }
+
+  async unfollowUser(target: string): Promise<User> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const { Principal } = await import('@dfinity/principal')
+      const targetPrincipal = Principal.fromText(target)
+      const result = await this.backendActor.unfollow_user(targetPrincipal)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error unfollowing user:', error)
+      throw error
+    }
+  }
+
+  async getFollowing(user: string): Promise<CompactProfile[]> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const { Principal } = await import('@dfinity/principal')
+      const userPrincipal = Principal.fromText(user)
+      const result = await this.backendActor.get_following(userPrincipal)
       return result
+    } catch (error) {
+      console.error('Error getting following list:', error)
+      throw error
+    }
+  }
+
+  async getFollowers(user: string): Promise<CompactProfile[]> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const { Principal } = await import('@dfinity/principal')
+      const userPrincipal = Principal.fromText(user)
+      const result = await this.backendActor.get_followers(userPrincipal)
+      return result
+    } catch (error) {
+      console.error('Error getting followers list:', error)
+      throw error
+    }
+  }
+
+  // Search users
+  async searchUsers(searchTerm: string, limit: number = 10): Promise<User[]> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.search_users(searchTerm, limit)
+      return handleUsersResult(result)
     } catch (error) {
       console.error('Error searching users:', error)
       throw error
@@ -380,16 +376,56 @@ class CanisterService {
   }
 
   // Get user by username
-  async getUserByUsername(username: string): Promise<UserProfile | null> {
-    if (!this.databaseActor) {
+  async getUserByUsername(username: string): Promise<User | null> {
+    if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }
 
     try {
-      const result = await this.databaseActor.getUserByUsername(username)
-      return result.length > 0 ? result[0] : null
+      const result = await this.backendActor.get_user_by_username(username)
+      return handleUserResult(result)
     } catch (error) {
       console.error('Error getting user by username:', error)
+      // If user not found, return null
+      if (error instanceof Error && error.message.includes('UserNotFound')) {
+        return null
+      }
+      throw error
+    }
+  }
+
+  // Get user by principal
+  async getUser(principal: string): Promise<User | null> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const { Principal } = await import('@dfinity/principal')
+      const userPrincipal = Principal.fromText(principal)
+      const result = await this.backendActor.get_user(userPrincipal)
+      return handleUserResult(result)
+    } catch (error) {
+      console.error('Error getting user:', error)
+      // If user not found, return null
+      if (error instanceof Error && error.message.includes('UserNotFound')) {
+        return null
+      }
+      throw error
+    }
+  }
+
+  // Get user count
+  async getUserCount(): Promise<bigint> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.get_user_count()
+      return result
+    } catch (error) {
+      console.error('Error getting user count:', error)
       throw error
     }
   }

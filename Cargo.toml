@@ -1,5 +1,6 @@
 [workspace]
 members = [
-    "src/marketplace"
+    "src/marketplace",
+    "src/backend"
 ]
 resolver = "2"

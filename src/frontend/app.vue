@@ -35,15 +35,16 @@
       </div>
     </div>
     <LoginPanel ref="loginPanelRef" />
-    <ClientOnly>
-      <DisclaimerModal @close="onDisclaimerClose" />
-    </ClientOnly>
-    <ClientOnly>
+    <!-- Temporarily disabled for performance optimization -->
+    <!-- <ClientOnly>
+      <DisclaimerModal ref="disclaimerModalRef" @close="onDisclaimerClose" />
+    </ClientOnly> -->
+    <!-- <ClientOnly>
       <OnboardingTour ref="onboardingTourRef" />
-    </ClientOnly>
-    <ClientOnly>
+    </ClientOnly> -->
+    <!-- <ClientOnly>
       <OnboardingTrigger />
-    </ClientOnly>
+    </ClientOnly> -->
   </UApp>
 </template>
 
@@ -86,5 +87,6 @@
 
 <style>
   /* Add any global styles or layout styles here if needed */
-  @import 'intro.js/minified/introjs.min.css';
+  /* Temporarily disabled for performance optimization */
+  /* @import 'intro.js/minified/introjs.min.css'; */
 </style>

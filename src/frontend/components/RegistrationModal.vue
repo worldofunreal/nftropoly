@@ -276,51 +276,34 @@
     error.value = ''
 
     try {
-      // Prepare simplified registration data
-      const registrationData = {
+      console.log('Registration data:', {
         username: username.value.trim(),
-        displayName: [], // Empty array for "none"
-        bio: [], // Empty array for "none"
-        email: [], // Empty array for "none"
-        ethAddress: evmAddress.value ? [evmAddress.value] : [], // Array with value or empty
-        walletType: walletType.value,
-        avatarPreset: [BigInt(1)], // Array with default avatar
-        socialLinks: {
-          twitter: [],
-          discord: [],
-          instagram: [],
-          website: [],
-          telegram: [],
-        },
-        privacy: {
-          profilePublic: true,
-          showPortfolio: true,
-          showActivity: true,
-          showEmail: false,
-        },
-      }
+        evmAddress: evmAddress.value,
+        bitcoinAddress: btcAddress.value,
+        solanaAddress: solAddress.value
+      })
 
-      console.log('Registration data (simplified):', registrationData)
+      // Call the new signup method with wallet addresses
+      const profile = await canisterService.signup(
+        username.value.trim(),
+        evmAddress.value || undefined,
+        btcAddress.value || undefined,
+        solAddress.value || undefined
+      )
 
-      // Call canister registerUser method
-      const result = await canisterService.registerUser(registrationData)
+      console.log('Registration successful:', profile)
 
-      if ('ok' in result) {
-        // Registration successful
-        const profile = result.ok
-        console.log('Registration successful:', profile)
+      // Update auth store with the new profile
+      await auth.completeRegistration(profile)
 
-        // Update auth store with the new profile
-        await auth.completeRegistration(profile)
+      // Show success notification
+      toast.add({
+        title: 'Profile Created!',
+        description: `Welcome to NFTropoly, ${profile.username}! Your profile has been created successfully.`,
+        color: 'success',
+      })
 
-        // Show success notification
-        toast.add({
-          title: 'Profile Created!',
-          description: `Welcome to NFTropoly, ${profile.username}! Your profile has been created successfully.`,
-          color: 'success',
-        })
-
-        show.value = false
+      show.value = false
 
         // Navigate to profile page
         await navigateTo('/profile')
