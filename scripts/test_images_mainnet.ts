@@ -11,7 +11,7 @@ import { idlFactory } from '../src/declarations/backend/backend.did.js'
 import type { _SERVICE as BackendService } from '../src/declarations/backend/backend.did.d.ts'
 
 // Mainnet playground backend canister ID
-const MAINNET_BACKEND_CANISTER_ID = '3z2ve-waaaa-aaaab-qacmq-cai'
+const MAINNET_BACKEND_CANISTER_ID = 'bhhab-xyaaa-aaaap-qqchq-cai'
 
 // Generate a test identity
 const generateTestIdentity = async (): Promise<{

@@ -1,201 +1,233 @@
 <template>
-  <div
-    class="relative bg-gradient-to-r from-blue-500 to-purple-600 rounded-b-2xl shadow-lg overflow-hidden mb-8 h-80"
-  >
-    <!-- Background Banner -->
-    <div class="absolute inset-0 z-0">
+  <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg overflow-hidden mb-8">
+    <!-- Banner Section -->
+    <div class="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600">
       <img
         v-if="bannerUrl"
         :src="bannerUrl"
         alt="Banner"
-        class="w-full h-48 object-cover blur-sm opacity-60"
+        class="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
         crossorigin="anonymous"
-      >
-      <div v-else class="w-full h-48 bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+        @click="openImageModal(bannerUrl, 'Banner')"
+      />
+      <div v-else class="w-full h-full flex items-center justify-center">
         <span class="text-white text-4xl font-bold">RUSH</span>
       </div>
     </div>
-    <div
-      class="relative h-full justify-end md:justify-between z-10 flex md:items-end flex-col md:flex-row gap-6 px-8 py-8"
-    >
-      <!-- Avatar & User Info -->
-      <div class="flex items-center gap-6 min-w-0">
-        <img
-          v-if="avatarUrl"
-          :src="avatarUrl"
-          alt="Avatar"
-          class="w-24 h-24 rounded-2xl border-4 border-white dark:border-gray-900 shadow-lg bg-white object-cover"
-          crossorigin="anonymous"
-        >
-        <div
-          v-else
-          class="w-24 h-24 rounded-2xl border-4 border-white dark:border-gray-900 shadow-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"
-        >
-          <span class="text-white font-bold text-3xl">{{ avatarInitial }}</span>
-        </div>
-        <div class="flex flex-col gap-2 min-w-0">
-          <!-- Display Name / Username -->
+    
+    <!-- Profile Info Section -->
+    <div class="px-6 pb-6">
+      <!-- Avatar Section -->
+      <div class="flex justify-between items-start -mt-16 mb-4">
+        <div class="relative">
+          <img
+            v-if="avatarUrl"
+            :src="avatarUrl"
+            alt="Avatar"
+            class="w-32 h-32 rounded-full border-4 border-white dark:border-gray-900 shadow-lg bg-white object-cover cursor-pointer hover:opacity-90 transition-opacity"
+            crossorigin="anonymous"
+            @click="openImageModal(avatarUrl, 'Avatar')"
+          />
           <div
-            class="flex items-center gap-2 text-xl font-bold text-white truncate"
+            v-else
+            class="w-32 h-32 rounded-full border-4 border-white dark:border-gray-900 shadow-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"
           >
-            <span class="truncate">{{ displayName }}</span>
-            <span v-if="userProfile?.is_verified" class="text-blue-400">✓</span>
+            <span class="text-white font-bold text-5xl">{{ avatarInitial }}</span>
           </div>
-
-          <!-- Username -->
-          <div
-            v-if="userProfile?.username && displayName !== userProfile.username"
-            class="text-sm text-gray-200"
-          >
-            @{{ userProfile.username }}
-          </div>
-
-          <!-- Bio -->
-          <div v-if="bio" class="text-sm text-gray-200 max-w-md">
-            {{ bio }}
-          </div>
-
-          <!-- Location & Website -->
-          <div class="flex items-center gap-4 text-xs text-gray-300">
-            <div v-if="location" class="flex items-center gap-1">
-              <UIcon name="i-heroicons-map-pin-20-solid" class="w-3 h-3" />
-              <span>{{ location }}</span>
-            </div>
-            <div v-if="website" class="flex items-center gap-1">
-              <UIcon name="i-heroicons-link-20-solid" class="w-3 h-3" />
-              <a :href="website" target="_blank" class="hover:text-white transition">{{ formatWebsite(website) }}</a>
-            </div>
-          </div>
-
-          <!-- Follow Stats -->
-          <div class="flex items-center gap-4 text-sm text-gray-200">
-            <div class="flex items-center gap-1">
-              <span class="font-semibold">{{ userProfile?.following_count || 0 }}</span>
-              <span class="text-gray-300">Following</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <span class="font-semibold">{{ userProfile?.followers_count || 0 }}</span>
-              <span class="text-gray-300">Followers</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <span class="text-gray-300">Joined</span>
-              <span class="font-semibold">{{ userProfile?.created_at ? formatDate(userProfile.created_at) : '' }}</span>
-
-            </div>
-          </div>
-
-
         </div>
-      </div>
-      
-              <!-- Action Buttons & Stats Block (Top Right) -->
-        <div class="flex flex-col gap-4">
-          <!-- Action Buttons -->
-          <div class="flex gap-3">
-            <!-- Follow/Unfollow Button (only for other users) -->
-            <UButton
-              v-if="!isOwnProfile"
-              :color="isFollowing ? 'neutral' : 'primary'"
-              :variant="isFollowing ? 'soft' : 'solid'"
-              :loading="followLoading"
-              @click="toggleFollow"
-              class="follow-btn"
-            >
-              <UIcon 
-                :name="isFollowing ? 'i-heroicons-user-minus-20-solid' : 'i-heroicons-user-plus-20-solid'" 
-                class="w-4 h-4 mr-2" 
-              />
-              {{ isFollowing ? 'Unfollow' : 'Follow' }}
-            </UButton>
-            
-            <!-- Edit Profile Button (own profile only) -->
+        
+        <!-- Action Buttons -->
+        <div class="flex gap-3 mt-4 relative z-10">
+          <!-- Follow/Unfollow Button (only for other users) -->
+          <UButton
+            v-if="!isOwnProfile"
+            :color="isFollowing ? 'neutral' : 'primary'"
+            :variant="isFollowing ? 'soft' : 'solid'"
+            :loading="followLoading"
+            @click="toggleFollow"
+            class="follow-btn"
+          >
+            <UIcon 
+              :name="isFollowing ? 'i-heroicons-user-minus-20-solid' : 'i-heroicons-user-plus-20-solid'" 
+              class="w-4 h-4 mr-2" 
+            />
+            {{ isFollowing ? 'Unfollow' : 'Follow' }}
+          </UButton>
+          
+                      <!-- Edit Profile Button (own profile only) -->
             <UButton
               v-if="isOwnProfile"
-              color="neutral"
-              variant="soft"
+              color="primary"
+              variant="solid"
               @click="editProfile"
               class="edit-profile-btn"
             >
               <UIcon name="i-heroicons-pencil-square-20-solid" class="w-4 h-4 mr-2" />
               Edit Profile
             </UButton>
+        </div>
+      </div>
+      
+      <!-- User Info -->
+      <div class="space-y-6">
+        <!-- Row 1: Name/Username/Bio + Wallet Addresses -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <!-- Name, Username, and Bio -->
+          <div class="space-y-4 text-left justify-self-start">
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-bold text-gray-900 dark:text-white">
+                  {{ displayName }}
+                </h1>
+                <span v-if="userProfile?.is_verified" class="text-blue-500">
+                  <UIcon name="i-heroicons-check-badge-20-solid" class="w-5 h-5" />
+                </span>
+              </div>
+              <div
+                v-if="userProfile?.username && displayName !== userProfile.username"
+                class="text-gray-600 dark:text-gray-400"
+              >
+                @{{ userProfile.username }}
+              </div>
+            </div>
+            
+            <!-- Bio -->
+            <div v-if="bio" class="text-gray-900 dark:text-white">
+              {{ bio }}
+            </div>
           </div>
-          
-          <!-- Cross-Chain Addresses -->
-          <div class="space-y-2">
+
+          <!-- Wallet Addresses -->
+          <div class="grid grid-cols-2 gap-3 justify-self-end">
             <!-- EVM Address -->
-            <div v-if="userProfile?.evm_address?.[0]" class="flex items-center gap-2 text-xs text-gray-300 truncate">
-              <span class="truncate">{{ formatAddress(userProfile.evm_address[0]) }}</span>
-              <UIcon
-                name="i-heroicons-document-duplicate-20-solid"
-                class="text-gray-300 cursor-pointer hover:text-white transition flex-shrink-0"
-                @click="copyToClipboard(userProfile.evm_address[0])"
-              />
-              <span class="bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-full">EVM</span>
+            <div v-if="userProfile?.evm_address?.[0]" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span class="bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-semibold px-2 py-1 rounded-full">EVM</span>
+              <span class="truncate flex-1">{{ formatAddress(userProfile.evm_address[0]) }}</span>
+                              <UIcon
+                  name="i-heroicons-document-duplicate-20-solid"
+                  class="cursor-pointer hover:text-gray-900 dark:hover:text-white transition flex-shrink-0"
+                  @click="copyToClipboard(userProfile.evm_address[0], 'EVM')"
+                />
             </div>
 
             <!-- Bitcoin Address -->
-            <div v-if="userProfile?.bitcoin_address?.[0]" class="flex items-center gap-2 text-xs text-gray-300 truncate">
-              <span class="truncate">{{ formatAddress(userProfile.bitcoin_address[0]) }}</span>
-              <UIcon
-                name="i-heroicons-document-duplicate-20-solid"
-                class="text-gray-300 cursor-pointer hover:text-white transition flex-shrink-0"
-                @click="copyToClipboard(userProfile.bitcoin_address[0])"
-              />
-              <span class="bg-orange-600 text-white text-xs font-semibold px-2 py-1 rounded-full">BTC</span>
+            <div v-if="userProfile?.bitcoin_address?.[0]" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span class="bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 text-xs font-semibold px-2 py-1 rounded-full">BTC</span>
+              <span class="truncate flex-1">{{ formatAddress(userProfile.bitcoin_address[0]) }}</span>
+                              <UIcon
+                  name="i-heroicons-document-duplicate-20-solid"
+                  class="cursor-pointer hover:text-gray-900 dark:hover:text-white transition flex-shrink-0"
+                  @click="copyToClipboard(userProfile.bitcoin_address[0], 'Bitcoin')"
+                />
             </div>
 
             <!-- Solana Address -->
-            <div v-if="userProfile?.solana_address?.[0]" class="flex items-center gap-2 text-xs text-gray-300 truncate">
-              <span class="truncate">{{ formatAddress(userProfile.solana_address[0]) }}</span>
-              <UIcon
-                name="i-heroicons-document-duplicate-20-solid"
-                class="text-gray-300 cursor-pointer hover:text-white transition flex-shrink-0"
-                @click="copyToClipboard(userProfile.solana_address[0])"
-              />
-              <span class="bg-purple-600 text-white text-xs font-semibold px-2 py-1 rounded-full">SOL</span>
+            <div v-if="userProfile?.solana_address?.[0]" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span class="bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 text-xs font-semibold px-2 py-1 rounded-full">SOL</span>
+              <span class="truncate flex-1">{{ formatAddress(userProfile.solana_address[0]) }}</span>
+                              <UIcon
+                  name="i-heroicons-document-duplicate-20-solid"
+                  class="cursor-pointer hover:text-gray-900 dark:hover:text-white transition flex-shrink-0"
+                  @click="copyToClipboard(userProfile.solana_address[0], 'Solana')"
+                />
             </div>
 
             <!-- ICP Principal -->
-            <div v-if="userProfile?.id" class="flex items-center gap-2 text-xs text-gray-300 truncate">
-              <span class="truncate">{{ formatAddress(userProfile.id.toText()) }}</span>
-              <UIcon
-                name="i-heroicons-document-duplicate-20-solid"
-                class="text-gray-300 cursor-pointer hover:text-white transition flex-shrink-0"
-                @click="copyToClipboard(userProfile.id.toText())"
-              />
-              <span class="bg-gray-700 text-white text-xs font-semibold px-2 py-1 rounded-full">ICP</span>
-            </div>
-          </div>
-          
-          <!-- Stats Block -->
-          <div class="flex gap-x-8 gap-y-2">
-            <div class="flex flex-col items-start gap-1">
-              <span
-                class="uppercase text-xs text-gray-200 font-light flex items-center gap-1"
-                >Portfolio Value
-              <UIcon
-                name="i-heroicons-eye-20-solid"
-                class="text-gray-200 text-xs"
-            /></span>
-              <span class="text-base font-semibold text-white"
-                >{{ portfolioValueEth }} ETH</span
-              >
-            </div>
-            <div class="flex flex-col items-start gap-1">
-              <span class="uppercase text-xs text-gray-200 font-light">NFTs</span>
-              <span class="text-base font-semibold text-white"
-                >{{ nftPercentage }}%</span
-              >
-            </div>
-            <div class="flex flex-col items-start gap-1">
-              <span class="uppercase text-xs text-gray-200 font-light">Tokens</span>
-              <span class="text-base font-semibold text-white"
-                >{{ tokenPercentage }}%</span
-              >
+            <div v-if="userProfile?.id" class="flex items-center gap-2 text-xs text-gray-600 dark:text-gray-400 p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <span class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-xs font-semibold px-2 py-1 rounded-full">ICP</span>
+              <span class="truncate flex-1">{{ formatAddress(userProfile.id.toText()) }}</span>
+                              <UIcon
+                  name="i-heroicons-document-duplicate-20-solid"
+                  class="cursor-pointer hover:text-gray-900 dark:hover:text-white transition flex-shrink-0"
+                  @click="copyToClipboard(userProfile.id.toText(), 'ICP')"
+                />
             </div>
           </div>
         </div>
+
+        <!-- Row 2: Location/Website/Follow Stats + Portfolio Overview -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          <!-- Location, Website, Follow Stats -->
+          <div class="space-y-4 text-left justify-self-start">
+            <!-- Location & Website -->
+            <div class="flex items-center gap-4 text-sm text-gray-600 dark:text-gray-400">
+              <div v-if="location" class="flex items-center gap-1">
+                <UIcon name="i-heroicons-map-pin-20-solid" class="w-4 h-4" />
+                <span>{{ location }}</span>
+              </div>
+              <div v-if="website" class="flex items-center gap-1">
+                <UIcon name="i-heroicons-link-20-solid" class="w-4 h-4" />
+                <a :href="website" target="_blank" class="hover:text-blue-500 transition">
+                  {{ formatWebsite(website) }}
+                </a>
+              </div>
+              <div class="flex items-center gap-1">
+                <UIcon name="i-heroicons-calendar-20-solid" class="w-4 h-4" />
+                <span>Joined {{ userProfile?.created_at ? formatDate(userProfile.created_at) : '' }}</span>
+              </div>
+            </div>
+
+            <!-- Follow Stats -->
+            <div class="flex items-center gap-6 text-sm">
+              <button 
+                class="flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer"
+                @click="$emit('tabChange', 'Following')"
+              >
+                <span class="font-semibold text-gray-900 dark:text-white">{{ userProfile?.following_count || 0 }}</span>
+                <span class="text-gray-600 dark:text-gray-400">Following</span>
+              </button>
+              <button 
+                class="flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer"
+                @click="$emit('tabChange', 'Followers')"
+              >
+                <span class="font-semibold text-gray-900 dark:text-white">{{ userProfile?.followers_count || 0 }}</span>
+                <span class="text-gray-600 dark:text-gray-400">Followers</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Portfolio Overview -->
+          <div class="flex items-center gap-6 text-sm justify-self-end self-end">
+            <div class="flex items-center gap-1">
+              <span class="text-gray-600 dark:text-gray-400">Portfolio:</span>
+              <span class="font-semibold text-gray-900 dark:text-white">{{ portfolioValueEth }} ETH</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-gray-600 dark:text-gray-400">NFTs:</span>
+              <span class="font-semibold text-gray-900 dark:text-white">{{ nftPercentage }}%</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <span class="text-gray-600 dark:text-gray-400">Tokens:</span>
+              <span class="font-semibold text-gray-900 dark:text-white">{{ tokenPercentage }}%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Image Modal -->
+  <div 
+    v-if="imageModalOpen"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]"
+    @click="imageModalOpen = false"
+  >
+    <div 
+      class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-4xl mx-4"
+      @click.stop
+    >
+      <div class="text-center">
+        <img
+          v-if="selectedImage"
+          :src="selectedImage"
+          :alt="selectedImageTitle"
+          class="max-w-full max-h-[80vh] object-contain rounded-lg"
+          crossorigin="anonymous"
+        />
+        <div class="mt-4 text-sm text-gray-600 dark:text-gray-400">
+          {{ selectedImageTitle }}
+        </div>
+      </div>
     </div>
   </div>
   
@@ -328,14 +360,18 @@
   const formatAddress = (address: string) => {
     if (!address) return ''
     if (address.startsWith('0x')) {
+      // EVM: first 6, last 4
       return `${address.slice(0, 6)}...${address.slice(-4)}`
     }
     if (address.startsWith('bc1')) {
-      return `${address.slice(0, 8)}...${address.slice(-6)}`
+      // Bitcoin: first 4, last 4
+      return `${address.slice(0, 4)}...${address.slice(-4)}`
     }
-    return address.length > 20
-      ? `${address.slice(0, 10)}...${address.slice(-8)}`
-      : address
+    if (address.length > 20) {
+      // Solana and others: first 4, last 4
+      return `${address.slice(0, 4)}...${address.slice(-4)}`
+    }
+    return address
   }
 
   // Format website URL for display
@@ -358,13 +394,23 @@
   }
 
   // Copy to clipboard function
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = async (text: string, walletType: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      // You could add a toast notification here
-      console.log('Copied to clipboard:', text)
+      const toast = useToast()
+      toast.add({
+        title: `${walletType} Address Copied`,
+        description: text,
+        color: 'success',
+      })
     } catch (err) {
       console.error('Failed to copy to clipboard:', err)
+      const toast = useToast()
+      toast.add({
+        title: `${walletType} Copy Failed`,
+        description: 'Failed to copy address to clipboard.',
+        color: 'error',
+      })
     }
   }
 
@@ -394,4 +440,20 @@
       editProfileModalRef.value.open()
     }
   }
+
+  // Image modal functionality
+  const imageModalOpen = ref(false)
+  const selectedImage = ref<string | null>(null)
+  const selectedImageTitle = ref('')
+
+  const openImageModal = (imageUrl: string, title: string) => {
+    selectedImage.value = imageUrl
+    selectedImageTitle.value = title
+    imageModalOpen.value = true
+  }
+
+  // Define emits
+  defineEmits<{
+    tabChange: [tab: string]
+  }>()
 </script>

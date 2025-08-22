@@ -99,7 +99,7 @@
               <UIcon
                 name="i-heroicons-document-duplicate-20-solid"
                 class="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
-                @click="copyToClipboard(authStore.principal)"
+                @click="copyToClipboard(authStore.principal, 'ICP')"
               />
             </div>
           </div>
@@ -121,7 +121,7 @@
               <UIcon
                 name="i-heroicons-document-duplicate-20-solid"
                 class="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
-                @click="copyToClipboard(authStore.evmAddress)"
+                @click="copyToClipboard(authStore.evmAddress, 'EVM')"
               />
             </div>
           </div>
@@ -143,7 +143,7 @@
               <UIcon
                 name="i-heroicons-document-duplicate-20-solid"
                 class="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
-                @click="copyToClipboard(authStore.solAddress)"
+                @click="copyToClipboard(authStore.solAddress, 'Solana')"
               />
             </div>
           </div>
@@ -165,7 +165,7 @@
               <UIcon
                 name="i-heroicons-document-duplicate-20-solid"
                 class="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
-                @click="copyToClipboard(authStore.btcAddress)"
+                @click="copyToClipboard(authStore.btcAddress, 'Bitcoin')"
               />
             </div>
           </div>
@@ -227,12 +227,16 @@
     }
   }
 
-  function copyToClipboard(text: string) {
+  function copyToClipboard(text: string, walletType: string) {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        // You could add a toast notification here
-        console.log('Copied to clipboard:', text)
+        const toast = useToast()
+        toast.add({
+          title: `${walletType} Address Copied`,
+          description: text,
+          color: 'success',
+        })
         $trackButtonClick('Copy to Clipboard', {
           textType: text.includes('icp') ? 'ICP Principal' : 'Wallet Address',
           textLength: text.length,
@@ -240,6 +244,12 @@
       })
       .catch(err => {
         console.error('Failed to copy to clipboard:', err)
+        const toast = useToast()
+        toast.add({
+          title: `${walletType} Copy Failed`,
+          description: 'Failed to copy address to clipboard.',
+          color: 'error',
+        })
         $trackInteraction('Error', {
           error: 'Copy to clipboard failed',
           textType: text.includes('icp') ? 'ICP Principal' : 'Wallet Address',

@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-screen bg-neutral-50 dark:bg-neutral-950 flex-col">
     <!-- Top User Info Header -->
-    <UserProfileHeader />
+    <UserProfileHeader @tab-change="activeTab = $event" />
     <!-- Navigation Tabs -->
     <div class="px-4 mt-4">
       <ProfileTabs v-model="activeTab" />

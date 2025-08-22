@@ -6,7 +6,7 @@ import type { _SERVICE as BackendService, User, UserResult, UserUpdate, CompactP
 // Get canister ID from runtime config
 const getBackendCanisterId = () => {
   // Get canister ID from environment
-  return process.env.CANISTER_ID_BACKEND || '3z2ve-waaaa-aaaab-qacmq-cai'
+  return process.env.CANISTER_ID_BACKEND || 'bhhab-xyaaa-aaaap-qqchq-cai'
 }
 
 // Export types from the backend canister

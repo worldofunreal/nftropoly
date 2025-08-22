@@ -2,9 +2,11 @@
   <div
     v-if="show"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    @click="close"
   >
     <div
       class="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
+      @click.stop
     >
       <!-- Header -->
       <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
