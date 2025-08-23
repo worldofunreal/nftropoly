@@ -5,8 +5,9 @@
 </template>
 
 <script setup lang="ts">
+  import { onUnmounted } from 'vue'
   import { useOnboarding } from '@/composables/useOnboarding'
-  const { stopTour } = useOnboarding()
+  const { stopTour, startTour } = useOnboarding()
 
   // Cleanup on unmount
   onUnmounted(() => {
@@ -16,6 +17,7 @@
   // Expose methods for parent components
   defineExpose({
     stopTour,
+    startTour,
   })
 </script>
 

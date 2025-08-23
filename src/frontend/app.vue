@@ -39,12 +39,12 @@
     <!-- <ClientOnly>
       <DisclaimerModal ref="disclaimerModalRef" @close="onDisclaimerClose" />
     </ClientOnly> -->
-    <!-- <ClientOnly>
+    <ClientOnly>
       <OnboardingTour ref="onboardingTourRef" />
-    </ClientOnly> -->
-    <!-- <ClientOnly>
+    </ClientOnly>
+    <ClientOnly>
       <OnboardingTrigger />
-    </ClientOnly> -->
+    </ClientOnly>
   </UApp>
 </template>
 
@@ -59,8 +59,8 @@
   import LoginPanel from './components/LoginPanel.vue'
   // Temporarily disabled for performance optimization
   // import DisclaimerModal from './components/DisclaimerModal.vue'
-  // import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
-  // import OnboardingTrigger from './components/OnboardingTrigger.vue'
+  import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
+  import OnboardingTrigger from './components/onBoardingTour/OnboardingTrigger.vue'
 
   const loginPanelRef = ref<{ open: () => void; showRegistrationModal: () => void } | null>(null)
   // Temporarily disabled for performance optimization
@@ -71,11 +71,11 @@
   const mobileSidebarOpen = ref(false)
   const { $trackInteraction } = useNuxtApp()
   // Temporarily disabled for performance optimization
-  // const onboardingTourRef = ref<{
-  //   startTour: () => void
-  //   stopTour: () => void
-  //   updateTourForRegistration: () => void
-  // } | null>(null)
+  const onboardingTourRef = ref<{
+    startTour: () => void
+    stopTour: () => void
+    updateTourForRegistration: () => void
+  } | null>(null)
 
   // Temporarily disabled for performance optimization
   // // Handle disclaimer close event
@@ -91,11 +91,14 @@
   // Provide the login panel ref so other components can access it
   provide('loginPanelRef', loginPanelRef)
   // Temporarily disabled for performance optimization
-  // // Provide the onboarding tour ref for manual triggering
-  // provide('onboardingTourRef', onboardingTourRef)
+  // Provide the onboarding tour ref for manual triggering
+  provide('onboardingTourRef', onboardingTourRef)
 
   // Track app initialization and key metrics
   onMounted(async () => {
+    // Initialize onboarding
+    const { shouldShowOnboarding, startTour } = useOnboarding()
+    
     // Restore session if available
     const auth = useAuthStore()
     const toast = useToast()
@@ -141,11 +144,18 @@
       viewportSize: `${window.innerWidth}x${window.innerHeight}`,
       timestamp: Date.now(),
     })
+
+    // Auto-start onboarding tour for new users
+    if (shouldShowOnboarding.value) {
+      setTimeout(() => {
+        startTour('registration')
+      }, 2000) // Small delay to ensure everything is loaded
+    }
   })
 </script>
 
 <style>
   /* Add any global styles or layout styles here if needed */
   /* Temporarily disabled for performance optimization */
-  /* @import 'intro.js/minified/introjs.min.css'; */
+  @import 'intro.js/minified/introjs.min.css';
 </style>

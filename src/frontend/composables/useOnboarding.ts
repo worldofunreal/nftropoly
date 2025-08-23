@@ -20,18 +20,12 @@ export const useOnboarding = () => {
   // Mark onboarding as completed
   const completeOnboarding = () => {
     if (import.meta.client) {
-      // localStorage.setItem('nftropoly-onboarding-completed', 'true')
+      localStorage.setItem('nftropoly-onboarding-completed', 'true')
       hasCompletedOnboarding.value = true
     }
   }
 
-  // Reset onboarding (for testing purposes)
-  const resetOnboarding = () => {
-    if (import.meta.client) {
-      localStorage.removeItem('nftropoly-onboarding-completed')
-      hasCompletedOnboarding.value = false
-    }
-  }
+
 
   // Initialize onboarding state
   const initOnboarding = () => {
@@ -125,27 +119,6 @@ export const useOnboarding = () => {
             intro:
               'Complete your profile setup! Choose a username, customize your avatar, and set your privacy preferences to get started.',
             position: 'bottom',
-            onBeforeChange: async () => {
-              const checkLoginStatus = () => {
-                console.log(
-                  'checkLoginStatus',
-                  (window as unknown as Record<string, unknown>).loginCompleted
-                )
-                if (
-                  (window as unknown as Record<string, unknown>)
-                    .loginCompleted ??
-                  (false as boolean)
-                ) {
-                  loginPanelElement.classList.add('hidden')
-                  introInstance.value?.nextStep()
-                } else {
-                  // Check again in 100ms
-                  setTimeout(checkLoginStatus, 100)
-                }
-              }
-              checkLoginStatus()
-              return false
-            },
           },
           {
             element: '#icp-principal',
@@ -308,7 +281,6 @@ export const useOnboarding = () => {
     hasCompletedOnboarding,
     shouldShowOnboarding,
     completeOnboarding,
-    resetOnboarding,
     initOnboarding,
     startTour,
     stopTour,
