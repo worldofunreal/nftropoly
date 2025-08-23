@@ -1,4 +1,4 @@
-use candid::{CandidType, Deserialize, Principal};
+use candid::Principal;
 use ic_cdk::api::msg_caller;
 use ic_cdk_macros::*;
 use ic_stable_structures::{
@@ -7,7 +7,7 @@ use ic_stable_structures::{
 };
 use std::cell::RefCell;
 use std::rc::Rc;
-use ic_asset_certification::{Asset, AssetConfig, AssetRouter};
+use ic_asset_certification::AssetRouter;
 use ic_http_certification::{HttpRequest, HttpResponse, HttpCertificationTree};
 
 mod errors;
@@ -186,7 +186,7 @@ async fn update_solana_address(solana_address: String) -> Result<User, Error> {
 }
 
 #[query]
-fn search_users(query: String, limit: u32) -> Result<Vec<User>, Error> {
+fn search_users(query: String, limit: u32) -> Result<Vec<CompactProfile>, Error> {
     handlers::search_users(query, limit)
 }
 
@@ -196,7 +196,7 @@ fn search_users_personal(query: String, limit: u32, caller: Principal) -> Result
 }
 
 #[query]
-fn get_user_personal(target: Principal, caller: Principal) -> Result<CompactProfile, Error> {
+fn get_user_personal(target: Principal, caller: Principal) -> Result<PersonalUser, Error> {
     handlers::get_user_personal(target, caller)
 }
 

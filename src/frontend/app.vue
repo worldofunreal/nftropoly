@@ -127,6 +127,11 @@
         }
       } else {
         console.log('Session restoration failed, user needs to login again')
+        // Show connect wallet option when session restoration fails
+        await nextTick()
+        if (loginPanelRef.value) {
+          loginPanelRef.value.open()
+        }
       }
     }
 

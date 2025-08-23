@@ -1,5 +1,5 @@
 use candid::Principal;
-use ic_asset_certification::{Asset, AssetConfig, AssetRouter};
+use ic_asset_certification::{Asset, AssetConfig};
 use ic_http_certification::{HttpRequest, HttpResponse, StatusCode};
 use ic_cdk::api::{data_certificate, certified_data_set};
 
@@ -305,10 +305,25 @@ pub async fn update_solana_address(caller: Principal, solana_address: String) ->
     Ok(user)
 }
 
-pub fn search_users(query: String, limit: u32) -> Result<Vec<User>, Error> {
+pub fn search_users(query: String, limit: u32) -> Result<Vec<CompactProfile>, Error> {
     let max_limit = std::cmp::min(limit, 50); // Cap at 50 results
-    let results = Database::search_users(&query, max_limit);
-    Ok(results)
+    let users = Database::search_users(&query, max_limit);
+    let mut profiles = Vec::new();
+    
+    for user in users {
+        profiles.push(CompactProfile {
+            id: user.id,
+            username: user.username,
+            display_name: user.display_name,
+            bio: user.bio,
+            avatar_url: user.avatar_url,
+            is_verified: user.is_verified,
+            is_following_me: false, // Public endpoint, no follow state
+            am_following_them: false, // Public endpoint, no follow state
+        });
+    }
+    
+    Ok(profiles)
 }
 
 pub fn search_users_personal(query: String, limit: u32, caller: Principal) -> Result<Vec<CompactProfile>, Error> {
@@ -325,6 +340,7 @@ pub fn search_users_personal(query: String, limit: u32, caller: Principal) -> Re
             username: user.username,
             display_name: user.display_name,
             bio: user.bio,
+            avatar_url: user.avatar_url,
             is_verified: user.is_verified,
             is_following_me,
             am_following_them,
@@ -334,19 +350,30 @@ pub fn search_users_personal(query: String, limit: u32, caller: Principal) -> Re
     Ok(profiles)
 }
 
-pub fn get_user_personal(target: Principal, caller: Principal) -> Result<CompactProfile, Error> {
+pub fn get_user_personal(target: Principal, caller: Principal) -> Result<PersonalUser, Error> {
     let user = Database::get_user(target)
         .ok_or(Error::UserNotFound)?;
     
     let is_following_me = Database::is_following(target, caller);
     let am_following_them = Database::is_following(caller, target);
     
-    Ok(CompactProfile {
+    Ok(PersonalUser {
         id: user.id,
         username: user.username,
         display_name: user.display_name,
         bio: user.bio,
+        avatar_url: user.avatar_url,
+        banner_url: user.banner_url,
+        location: user.location,
+        website: user.website,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
         is_verified: user.is_verified,
+        evm_address: user.evm_address,
+        bitcoin_address: user.bitcoin_address,
+        solana_address: user.solana_address,
+        following_count: user.following_count,
+        followers_count: user.followers_count,
         is_following_me,
         am_following_them,
     })
@@ -442,6 +469,7 @@ pub fn get_following(user: Principal) -> Vec<CompactProfile> {
                 username: following_user.username,
                 display_name: following_user.display_name,
                 bio: following_user.bio,
+                avatar_url: following_user.avatar_url,
                 is_verified: following_user.is_verified,
                 is_following_me,
                 am_following_them: true, // This is the following list, so we're following them
@@ -465,6 +493,7 @@ pub fn get_followers(user: Principal) -> Vec<CompactProfile> {
                 username: follower_user.username,
                 display_name: follower_user.display_name,
                 bio: follower_user.bio,
+                avatar_url: follower_user.avatar_url,
                 is_verified: follower_user.is_verified,
                 is_following_me: true, // This is the followers list, so they're following us
                 am_following_them,

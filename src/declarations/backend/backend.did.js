@@ -29,10 +29,31 @@ export const idlFactory = ({ IDL }) => {
     'id' : IDL.Principal,
     'bio' : IDL.Opt(IDL.Text),
     'username' : IDL.Text,
+    'avatar_url' : IDL.Opt(IDL.Text),
     'is_following_me' : IDL.Bool,
     'display_name' : IDL.Opt(IDL.Text),
     'am_following_them' : IDL.Bool,
     'is_verified' : IDL.Bool,
+  });
+  const PersonalUser = IDL.Record({
+    'id' : IDL.Principal,
+    'bio' : IDL.Opt(IDL.Text),
+    'updated_at' : IDL.Nat64,
+    'username' : IDL.Text,
+    'evm_address' : IDL.Opt(IDL.Text),
+    'bitcoin_address' : IDL.Opt(IDL.Text),
+    'banner_url' : IDL.Opt(IDL.Text),
+    'avatar_url' : IDL.Opt(IDL.Text),
+    'following_count' : IDL.Nat32,
+    'is_following_me' : IDL.Bool,
+    'created_at' : IDL.Nat64,
+    'website' : IDL.Opt(IDL.Text),
+    'display_name' : IDL.Opt(IDL.Text),
+    'am_following_them' : IDL.Bool,
+    'is_verified' : IDL.Bool,
+    'solana_address' : IDL.Opt(IDL.Text),
+    'followers_count' : IDL.Nat32,
+    'location' : IDL.Opt(IDL.Text),
   });
   const HttpRequest = IDL.Record({
     'url' : IDL.Text,
@@ -45,7 +66,6 @@ export const idlFactory = ({ IDL }) => {
     'headers' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
     'status_code' : IDL.Nat16,
   });
-  const UsersResult = IDL.Variant({ 'Ok' : IDL.Vec(User), 'Err' : Error });
   const UserUpdate = IDL.Record({
     'bio' : IDL.Opt(IDL.Text),
     'evm_address' : IDL.Opt(IDL.Text),
@@ -71,7 +91,7 @@ export const idlFactory = ({ IDL }) => {
     'get_user_count' : IDL.Func([], [IDL.Nat64], []),
     'get_user_personal' : IDL.Func(
         [IDL.Principal, IDL.Principal],
-        [IDL.Variant({ 'Ok' : CompactProfile, 'Err' : Error })],
+        [IDL.Variant({ 'Ok' : PersonalUser, 'Err' : Error })],
         [],
       ),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], []),
@@ -82,7 +102,11 @@ export const idlFactory = ({ IDL }) => {
       ),
     'is_following' : IDL.Func([IDL.Principal, IDL.Principal], [IDL.Bool], []),
     'is_username_available' : IDL.Func([IDL.Text], [IDL.Bool], []),
-    'search_users' : IDL.Func([IDL.Text, IDL.Nat32], [UsersResult], []),
+    'search_users' : IDL.Func(
+        [IDL.Text, IDL.Nat32],
+        [IDL.Variant({ 'Ok' : IDL.Vec(CompactProfile), 'Err' : Error })],
+        [],
+      ),
     'search_users_personal' : IDL.Func(
         [IDL.Text, IDL.Nat32, IDL.Principal],
         [IDL.Variant({ 'Ok' : IDL.Vec(CompactProfile), 'Err' : Error })],

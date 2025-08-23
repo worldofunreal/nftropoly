@@ -1,7 +1,7 @@
 import { Actor, HttpAgent } from '@dfinity/agent'
 import type { Identity } from '@dfinity/agent'
 import { idlFactory } from '../../declarations/backend'
-import type { _SERVICE as BackendService, User, UserResult, UserUpdate, CompactProfile, UsersResult } from '../../declarations/backend/backend.did'
+import type { _SERVICE as BackendService, User, UserResult, UserUpdate, CompactProfile, PersonalUser } from '../../declarations/backend/backend.did'
 import { appCacheService } from './AppCacheService'
 
 // Get canister ID from runtime config
@@ -11,19 +11,10 @@ const getBackendCanisterId = () => {
 }
 
 // Export types from the backend canister
-export type { User, UserResult, UserUpdate, CompactProfile, UsersResult } from '../../declarations/backend/backend.did'
+export type { User, UserResult, UserUpdate, CompactProfile, PersonalUser } from '../../declarations/backend/backend.did'
 
 // Helper function to handle UserResult
 const handleUserResult = (result: UserResult): User => {
-  if ('Ok' in result) {
-    return result.Ok
-  } else {
-    throw new Error(`Backend error: ${JSON.stringify(result.Err)}`)
-  }
-}
-
-// Helper function to handle UsersResult
-const handleUsersResult = (result: UsersResult): User[] => {
   if ('Ok' in result) {
     return result.Ok
   } else {
@@ -309,6 +300,11 @@ class CanisterService {
     appCacheService.clearAllCache()
   }
 
+  // Clear all cache (useful when follow state changes)
+  clearCache(): void {
+    appCacheService.clearAllCache()
+  }
+
   // Public method to get cache stats (for debugging)
   getCacheStats(): { profileSize: number; profileKeys: string[]; hasSession: boolean; sessionExpiresAt?: number } {
     return appCacheService.getCacheStats()
@@ -482,32 +478,46 @@ class CanisterService {
   }
 
   // Following/Followers methods
-  async followUser(target: string): Promise<User> {
+  async followUser(targetPrincipal: string): Promise<User> {
     if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }
 
     try {
       const { Principal } = await import('@dfinity/principal')
-      const targetPrincipal = Principal.fromText(target)
-      const result = await this.backendActor.follow_user(targetPrincipal)
-      return handleUserResult(result)
+      const targetPrincipalObj = Principal.fromText(targetPrincipal)
+      const result = await this.backendActor.follow_user(targetPrincipalObj)
+      
+      if ('Ok' in result) {
+        // Clear cache for both users since follow state changed
+        appCacheService.invalidateUserCache(result.Ok)
+        return result.Ok
+      } else {
+        throw new Error(`Backend error: ${JSON.stringify(result.Err)}`)
+      }
     } catch (error) {
       console.error('Error following user:', error)
       throw error
     }
   }
 
-  async unfollowUser(target: string): Promise<User> {
+  async unfollowUser(targetPrincipal: string): Promise<User> {
     if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }
 
     try {
       const { Principal } = await import('@dfinity/principal')
-      const targetPrincipal = Principal.fromText(target)
-      const result = await this.backendActor.unfollow_user(targetPrincipal)
-      return handleUserResult(result)
+      const targetPrincipalObj = Principal.fromText(targetPrincipal)
+      const result = await this.backendActor.unfollow_user(targetPrincipalObj)
+      
+      if ('Ok' in result) {
+        // Clear cache for both users since follow state changed
+        appCacheService.invalidateUserCache(result.Ok)
+        return result.Ok
+      } else {
+        throw new Error(`Backend error: ${JSON.stringify(result.Err)}`)
+      }
     } catch (error) {
       console.error('Error unfollowing user:', error)
       throw error
@@ -563,22 +573,26 @@ class CanisterService {
     }
   }
 
-  // Search users
-  async searchUsers(searchTerm: string, limit: number = 10): Promise<User[]> {
+  // Search users (public - returns CompactProfile)
+  async searchUsers(searchTerm: string, limit: number = 10): Promise<CompactProfile[]> {
     if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }
 
     try {
       const result = await this.backendActor.search_users(searchTerm, limit)
-      return handleUsersResult(result)
+      if ('Ok' in result) {
+        return result.Ok
+      } else {
+        throw new Error(`Backend error: ${JSON.stringify(result.Err)}`)
+      }
     } catch (error) {
       console.error('Error searching users:', error)
       throw error
     }
   }
 
-  // Personal search with follow state
+  // Personal search with follow state (don't cache this data)
   async searchUsersPersonal(searchTerm: string, limit: number, callerPrincipal: string): Promise<CompactProfile[]> {
     if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
@@ -600,8 +614,8 @@ class CanisterService {
     }
   }
 
-  // Personal user lookup with follow state
-  async getUserPersonal(targetPrincipal: string, callerPrincipal: string): Promise<CompactProfile | null> {
+  // Personal user lookup with follow state (don't cache this data)
+  async getUserPersonal(targetPrincipal: string, callerPrincipal: string): Promise<PersonalUser | null> {
     if (!this.backendActor) {
       throw new Error('CanisterService not initialized')
     }

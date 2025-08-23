@@ -205,22 +205,19 @@
         await canisterService.initializeAnonymous()
       }
 
+      // Wait for auth store to be fully initialized
+      if (authStore.authenticated && !authStore.principal) {
+        // Wait a bit for session restoration to complete
+        await new Promise(resolve => setTimeout(resolve, 100))
+      }
+
       // Use personal search if authenticated, otherwise use public search
       if (authStore.authenticated && authStore.principal) {
         const results = await canisterService.searchUsersPersonal(search.value.trim(), 10, authStore.principal)
         searchResults.value = results
       } else {
         const results = await canisterService.searchUsers(search.value.trim(), 10)
-        // For public search, add default follow state
-        searchResults.value = results.map(user => ({
-          id: user.id,
-          username: user.username,
-          display_name: user.display_name,
-          bio: user.bio,
-          is_verified: user.is_verified,
-          is_following_me: false,
-          am_following_them: false,
-        }))
+        searchResults.value = results
       }
       
       searchError.value = ''

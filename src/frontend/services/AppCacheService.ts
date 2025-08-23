@@ -231,7 +231,7 @@ class AppCacheService {
   }
 
   // Get all cached profiles (for debugging)
-  getAllCachedProfiles(): User[] {
+  getAllCachedProfiles(): (User)[] {
     return Array.from(this.profileCache.values()).map(cache => cache.data)
   }
 

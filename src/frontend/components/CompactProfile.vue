@@ -105,17 +105,22 @@
   // Avatar URL - convert file paths to full URLs with cache busting
   const avatarUrl = computed(() => {
     const avatarPath = props.user?.avatar_url?.[0]
+    console.log('CompactProfile avatar debug - user:', props.user?.username, 'avatar_url:', props.user?.avatar_url, 'avatarPath:', avatarPath)
+    
     if (!avatarPath) return null
     
     // If it's already a full URL, return as is
     if (avatarPath.startsWith('http')) {
+      console.log('CompactProfile avatar is full URL:', avatarPath)
       return avatarPath
     }
     
     // Convert file path to full URL with cache busting
     const baseUrl = canisterService.getAssetUrl(avatarPath)
     const timestamp = Date.now()
-    return `${baseUrl}?t=${timestamp}`
+    const finalUrl = `${baseUrl}?t=${timestamp}`
+    console.log('CompactProfile avatar converted to URL:', finalUrl)
+    return finalUrl
   })
 
   // Check if we should show follow button
@@ -129,12 +134,17 @@
   })
 
   // Use the follow status from the user object (provided by parent)
-  // Don't check independently to avoid conflicts
+  // For public data, these will be false/undefined
+  // For personal data, these will have actual values
   const isFollowing = computed(() => {
+    // Only show following state if we have personal data (authenticated user)
+    if (!authStore.authenticated) return false
     return props.user?.am_following_them === true
   })
 
   const isFollowingMe = computed(() => {
+    // Only show following state if we have personal data (authenticated user)
+    if (!authStore.authenticated) return false
     return props.user?.is_following_me === true
   })
 
@@ -147,6 +157,9 @@
       
       // Update the user's following status
       props.user.am_following_them = true
+      
+      // Clear cache to ensure fresh data
+      canisterService.clearCache()
       
       const toast = useToast()
       toast.add({
@@ -196,6 +209,9 @@
       
       // Update the user's following status
       props.user.am_following_them = false
+      
+      // Clear cache to ensure fresh data
+      canisterService.clearCache()
       
       const toast = useToast()
       toast.add({

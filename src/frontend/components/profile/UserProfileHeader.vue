@@ -41,17 +41,17 @@
           <!-- Follow/Unfollow Button (only for other users) -->
           <UButton
             v-if="!isOwnProfile"
-            :color="isFollowing ? 'neutral' : 'primary'"
-            :variant="isFollowing ? 'soft' : 'solid'"
+            :color="!auth.authenticated ? 'primary' : (isFollowing ? 'neutral' : 'primary')"
+            :variant="!auth.authenticated ? 'solid' : (isFollowing ? 'soft' : 'solid')"
             :loading="followLoading"
             @click="toggleFollow"
             class="follow-btn"
           >
             <UIcon 
-              :name="isFollowing ? 'i-heroicons-user-minus-20-solid' : 'i-heroicons-user-plus-20-solid'" 
+              :name="!auth.authenticated ? 'i-heroicons-arrow-right-on-rectangle-20-solid' : (isFollowing ? 'i-heroicons-user-minus-20-solid' : 'i-heroicons-user-plus-20-solid')" 
               class="w-4 h-4 mr-2" 
             />
-            {{ isFollowing ? 'Unfollow' : 'Follow' }}
+            {{ !auth.authenticated ? 'Sign in to Follow' : (isFollowing ? 'Unfollow' : 'Follow') }}
           </UButton>
           
                       <!-- Edit Profile Button (own profile only) -->
@@ -236,11 +236,19 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref, onMounted, watch } from 'vue'
+  import { ref, computed, onMounted, watch, inject } from 'vue'
+  import type { Ref } from 'vue'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
+  import { useToast } from '#imports'
   import { useRoute } from 'vue-router'
   import EditProfileModal from '../EditProfileModal.vue'
+
+  // Inject login panel ref
+  const loginPanelRef = inject('loginPanelRef') as Ref<{
+    open: () => void
+    showRegistrationModal: () => void
+  } | null>
 
   // Props
   interface Props {
@@ -275,6 +283,12 @@
   // Check if current user is following this profile
   const checkFollowingStatus = async () => {
     if (!userProfile.value?.id || isOwnProfile.value) return
+    
+    // Only check following status if user is authenticated
+    if (!auth.authenticated || !auth.principal) {
+      console.log('User not authenticated, skipping follow status check')
+      return
+    }
     
     try {
       const personalProfile = await canisterService.getUserPersonal(userProfile.value.id.toText(), auth.principal)
@@ -448,6 +462,18 @@
   // Follow/Unfollow functionality
   const toggleFollow = async () => {
     if (!userProfile.value || isOwnProfile.value) return
+    
+    // Check if user is authenticated
+    if (!auth.authenticated) {
+      console.log('User not authenticated, showing login panel')
+      
+      // Show login panel
+      if (loginPanelRef?.value) {
+        loginPanelRef.value.open()
+      }
+      
+      return
+    }
     
     followLoading.value = true
     try {

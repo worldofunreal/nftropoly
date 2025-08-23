@@ -22,7 +22,29 @@ type CompactProfile = record {
     username: text;
     display_name: opt text;
     bio: opt text;
+    avatar_url: opt text;
     is_verified: bool;
+    is_following_me: bool;
+    am_following_them: bool;
+};
+
+type PersonalUser = record {
+    id: principal;
+    username: text;
+    display_name: opt text;
+    bio: opt text;
+    avatar_url: opt text;
+    banner_url: opt text;
+    location: opt text;
+    website: opt text;
+    created_at: nat64;
+    updated_at: nat64;
+    is_verified: bool;
+    evm_address: opt text;
+    bitcoin_address: opt text;
+    solana_address: opt text;
+    following_count: nat32;
+    followers_count: nat32;
     is_following_me: bool;
     am_following_them: bool;
 };
@@ -49,11 +71,6 @@ type Error = variant {
 
 type UserResult = variant {
     Ok: User;
-    Err: Error;
-};
-
-type UsersResult = variant {
-    Ok: vec User;
     Err: Error;
 };
 
@@ -95,13 +112,13 @@ service : {
     update_solana_address: (text) -> (UserResult);
     
     // Search users
-    search_users: (text, nat32) -> (UsersResult);
+    search_users: (text, nat32) -> (variant { Ok: vec CompactProfile; Err: Error });
     
     // Personal search with follow state
     search_users_personal: (text, nat32, principal) -> (variant { Ok: vec CompactProfile; Err: Error });
     
     // Personal user lookup with follow state
-    get_user_personal: (principal, principal) -> (variant { Ok: CompactProfile; Err: Error });
+    get_user_personal: (principal, principal) -> (variant { Ok: PersonalUser; Err: Error });
     
     // Check if username is available
     is_username_available: (text) -> (bool);

@@ -238,6 +238,7 @@ export const useAuthStore = defineStore('auth', {
       const session = appCacheService.getSession()
       if (session && session.authenticated) {
         console.log('Restoring session from cache...')
+        console.log('Session data:', session)
         
         try {
           // Restore basic auth state first
@@ -249,6 +250,8 @@ export const useAuthStore = defineStore('auth', {
           this.btcAddress = session.btcAddress
           this.nativeWallet = session.nativeWallet
           this.canisterInitialized = session.canisterInitialized
+          
+          console.log('Auth state restored - authenticated:', this.authenticated, 'principal:', this.principal)
           
           // Recreate authentication data based on wallet type
           if (session.originalSignature) {

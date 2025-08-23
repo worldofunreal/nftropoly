@@ -78,7 +78,30 @@ pub struct CompactProfile {
     pub username: String,
     pub display_name: Option<String>,
     pub bio: Option<String>,
+    pub avatar_url: Option<String>,
     pub is_verified: bool,
+    pub is_following_me: bool,
+    pub am_following_them: bool,
+}
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub struct PersonalUser {
+    pub id: Principal,
+    pub username: String,
+    pub display_name: Option<String>,
+    pub bio: Option<String>,
+    pub avatar_url: Option<String>,
+    pub banner_url: Option<String>,
+    pub location: Option<String>,
+    pub website: Option<String>,
+    pub created_at: u64,
+    pub updated_at: u64,
+    pub is_verified: bool,
+    pub evm_address: Option<String>,
+    pub bitcoin_address: Option<String>,
+    pub solana_address: Option<String>,
+    pub following_count: u32,
+    pub followers_count: u32,
     pub is_following_me: bool,
     pub am_following_them: bool,
 }
