@@ -49,8 +49,9 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, provide, onMounted } from 'vue'
+  import { ref, provide, onMounted, nextTick } from 'vue'
   import { useNuxtApp } from '#imports'
+  import { useAuthStore } from '@/stores/auth'
   import SidebarNav from './components/SidebarNav.vue'
   import MobileSidebar from './components/MobileSidebar.vue'
   import Header from './components/Header.vue'
@@ -94,7 +95,40 @@
   // provide('onboardingTourRef', onboardingTourRef)
 
   // Track app initialization and key metrics
-  onMounted(() => {
+  onMounted(async () => {
+    // Restore session if available
+    const auth = useAuthStore()
+    const toast = useToast()
+    
+    if (auth.hasValidSession) {
+      console.log('Valid session found, attempting to restore...')
+      const restored = await auth.restoreSession()
+      if (restored) {
+        if (auth.registered) {
+          console.log('Session restored successfully')
+          toast.add({
+            title: 'Welcome Back!',
+            description: 'Your session has been restored.',
+            color: 'success',
+          })
+        } else {
+          console.log('User authenticated but needs to complete registration')
+          toast.add({
+            title: 'Complete Registration',
+            description: 'Please complete your profile registration.',
+            color: 'warning',
+          })
+          // Show registration modal
+          await nextTick()
+          if (loginPanelRef.value) {
+            loginPanelRef.value.showRegistrationModal()
+          }
+        }
+      } else {
+        console.log('Session restoration failed, user needs to login again')
+      }
+    }
+
     $trackInteraction('App Mounted', {
       userAgent: navigator.userAgent,
       screenSize: `${window.screen.width}x${window.screen.height}`,

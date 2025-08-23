@@ -147,6 +147,24 @@ import type { WalletType } from '@/services/wallets/types'
       error.value = ''
       showRegistrationModal.value = false
     },
+    showRegistrationModal: () => {
+      console.log('LoginPanel showRegistrationModal() called')
+      showRegistrationModal.value = true
+      nextTick(() => {
+        if (registrationModalRef.value) {
+          console.log('Opening registration modal with cross-chain addresses')
+          registrationModalRef.value.open(
+            auth.principal,
+            auth.evmAddress || '',
+            auth.solAddress || '',
+            auth.btcAddress || '',
+            auth.nativeWallet
+          )
+        } else {
+          console.error('registrationModalRef.value is null/undefined!')
+        }
+      })
+    },
   })
 
   const auth = useAuthStore()

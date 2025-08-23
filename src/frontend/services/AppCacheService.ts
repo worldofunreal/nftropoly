@@ -17,6 +17,9 @@ interface SessionCache {
   btcAddress: string
   nativeWallet: string
   canisterInitialized: boolean
+  mnemonic?: string // Optional mnemonic for session restoration
+  originalSignature?: string // Original signature for wallet-specific restoration
+  originalWalletType?: string // Original wallet type used for authentication
   timestamp: number
   expiresAt: number
 }
