@@ -1,11 +1,11 @@
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    class="fixed inset-0 bg-black bg-opacity-50 dark:bg-black/50 flex items-center justify-center z-50"
     @click="close"
   >
     <div
-      class="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
+      class="bg-white dark:bg-neutral-900 rounded-lg shadow-lg w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
       @click.stop
     >
       <!-- Header -->
@@ -30,9 +30,9 @@
         <!-- Banner and Avatar Section -->
         <div class="relative">
           <!-- Banner -->
-          <div class="relative h-32 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg overflow-hidden">
+          <div class="relative h-32 bg-gray-100 dark:bg-gray-900 rounded-lg overflow-hidden">
             <button
-              class="w-full h-full flex items-center justify-center hover:bg-black hover:bg-opacity-20 transition cursor-pointer"
+              class="w-full h-full flex items-center justify-center group cursor-pointer"
               @click="triggerBannerUpload"
             >
             <img
@@ -43,8 +43,10 @@
               crossorigin="anonymous"
             />
             <div v-else class="w-full h-full flex items-center justify-center">
-              <span class="text-white text-lg font-bold">RUSH</span>
+              <!-- Removed RUSH text -->
             </div>
+            <!-- Hover overlay -->
+            <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-200"></div>
             </button>
             <button
               class="absolute top-2 right-2 w-8 h-8 bg-black bg-opacity-50 rounded-full flex items-center justify-center hover:bg-opacity-70 transition"
@@ -58,7 +60,7 @@
           <div class="absolute -bottom-8 left-4">
             <div class="relative">
               <button
-                class="w-16 h-16 rounded-full border-4 border-white dark:border-gray-900 overflow-hidden hover:opacity-80 transition cursor-pointer"
+                class="w-16 h-16 rounded-full border-4 border-white dark:border-gray-900 overflow-hidden group cursor-pointer"
                 @click="triggerAvatarUpload"
               >
               <img
@@ -70,10 +72,12 @@
               />
               <div
                 v-else
-                  class="w-full h-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center"
+                  class="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"
               >
-                <UIcon name="i-heroicons-user-20-solid" class="w-8 h-8 text-gray-500" />
+                <span class="text-white font-bold text-xl">{{ avatarInitial }}</span>
               </div>
+              <!-- Hover overlay -->
+              <div class="absolute inset-0 bg-black opacity-0 group-hover:opacity-20 transition-opacity duration-200 rounded-full"></div>
               </button>
               <button
                 class="absolute -bottom-1 -right-1 w-6 h-6 bg-black bg-opacity-50 rounded-full flex items-center justify-center hover:bg-opacity-70 transition"
@@ -192,6 +196,7 @@
   import { ref, computed, watch } from 'vue'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
+  import { appCacheService } from '@/services/AppCacheService'
   import LoadingOverlay from './LoadingOverlay.vue'
 
   const auth = useAuthStore()
@@ -209,6 +214,9 @@
   const showAvatarUploader = ref(false)
   const showBannerUploader = ref(false)
   
+  // Force recomputation of avatar/banner URLs when profile updates
+  const profileUpdateTrigger = ref(0)
+  
 
 
   // Form data
@@ -224,8 +232,17 @@
   // User profile data
   const userProfile = computed(() => auth.userProfile)
 
+  // Avatar initial (first letter of username)
+  const avatarInitial = computed(() => {
+    if (!userProfile.value?.username) return 'U'
+    return userProfile.value.username.charAt(0).toUpperCase()
+  })
+
   // Avatar and banner URLs - convert file paths to full URLs with cache busting
   const avatarUrl = computed(() => {
+    // Force recomputation when profile updates
+    profileUpdateTrigger.value
+    
     const avatarPath = userProfile.value?.avatar_url?.[0]
     if (!avatarPath) return null
     
@@ -237,10 +254,13 @@
     // Convert file path to full URL with cache busting
     const baseUrl = canisterService.getAssetUrl(avatarPath)
     const timestamp = Date.now()
-    return `${baseUrl}?t=${timestamp}`
+    return `${baseUrl}?t=${timestamp}&v=${profileUpdateTrigger.value}&trigger=${Date.now()}`
   })
 
   const bannerUrl = computed(() => {
+    // Force recomputation when profile updates
+    profileUpdateTrigger.value
+    
     const bannerPath = userProfile.value?.banner_url?.[0]
     if (!bannerPath) return null
     
@@ -252,7 +272,7 @@
     // Convert file path to full URL with cache busting
     const baseUrl = canisterService.getAssetUrl(bannerPath)
     const timestamp = Date.now()
-    return `${baseUrl}?t=${timestamp}`
+    return `${baseUrl}?t=${timestamp}&v=${profileUpdateTrigger.value}&trigger=${Date.now()}`
   })
 
   // Check if form has changes
@@ -496,14 +516,22 @@
       console.log('Generated asset URL:', assetUrl)
       
       // Update backend with new avatar URL (store the file path, not the full URL)
-      await canisterService.updateAvatar(filePath)
+      const updatedProfile = await canisterService.updateAvatar(filePath)
       
       showAvatarUploader.value = false
       
       // Update auth store with latest profile
-      const updatedProfile = await canisterService.getMyProfile()
       if (updatedProfile) {
         auth.userProfile = updatedProfile
+        
+        // Invalidate cache for this user to ensure real-time updates
+        appCacheService.invalidateUserCache(updatedProfile)
+        
+        // Force recomputation of avatar/banner URLs
+        profileUpdateTrigger.value++
+        
+        // Re-initialize form with updated profile data
+        initializeForm()
       }
       
       // Show success message
@@ -533,14 +561,22 @@
       console.log('Generated asset URL:', assetUrl)
       
       // Update backend with new banner URL (store the file path, not the full URL)
-      await canisterService.updateBanner(filePath)
+      const updatedProfile = await canisterService.updateBanner(filePath)
       
       showBannerUploader.value = false
       
       // Update auth store with latest profile
-      const updatedProfile = await canisterService.getMyProfile()
       if (updatedProfile) {
         auth.userProfile = updatedProfile
+        
+        // Invalidate cache for this user to ensure real-time updates
+        appCacheService.invalidateUserCache(updatedProfile)
+        
+        // Force recomputation of avatar/banner URLs
+        profileUpdateTrigger.value++
+        
+        // Re-initialize form with updated profile data
+        initializeForm()
       }
       
       // Show success message
@@ -598,6 +634,15 @@
       
       // Update auth store
       auth.userProfile = updatedProfile
+      
+      // Invalidate cache for this user to ensure real-time updates
+      appCacheService.invalidateUserCache(updatedProfile)
+      
+      // Force recomputation of avatar/banner URLs
+      profileUpdateTrigger.value++
+      
+      // Re-initialize form with updated profile data
+      initializeForm()
       
       // Close modal
       close()

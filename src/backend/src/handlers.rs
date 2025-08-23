@@ -9,8 +9,8 @@ use crate::types::*;
 
 // Validation functions
 fn validate_username(username: &str) -> Result<(), Error> {
-    if username.len() < 3 || username.len() > 12 {
-        return Err(Error::InvalidInput("Username must be between 3 and 12 characters".to_string()));
+    if username.len() > 16 {
+        return Err(Error::InvalidInput("Username must be 16 characters or less".to_string()));
     }
     
     // Allow any Unicode characters except whitespace and problematic characters
@@ -131,7 +131,7 @@ pub async fn signup(
         return Err(Error::InvalidInput("User already exists".to_string()));
     }
     
-    // Check if username is taken
+    // Check if username is taken (case-insensitive)
     if Database::username_exists(&username) {
         return Err(Error::UsernameTaken);
     }

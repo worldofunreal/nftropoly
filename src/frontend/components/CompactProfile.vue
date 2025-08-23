@@ -60,9 +60,11 @@
         color="neutral"
         variant="soft"
         @click.stop="handleUnfollow"
+        @mouseenter="isHoveringFollowButton = true"
+        @mouseleave="isHoveringFollowButton = false"
         :loading="followLoading"
       >
-        Following
+        {{ isHoveringFollowButton ? 'Unfollow' : 'Following' }}
       </UButton>
     </div>
   </div>
@@ -94,6 +96,7 @@
   const authStore = useAuthStore()
   const router = useRouter()
   const followLoading = ref(false)
+  const isHoveringFollowButton = ref(false)
 
   // Display name (prefer display_name, fallback to username)
   const displayName = computed(() => {
@@ -117,7 +120,9 @@
     // Convert file path to full URL with cache busting
     const baseUrl = canisterService.getAssetUrl(avatarPath)
     const timestamp = Date.now()
-    return `${baseUrl}?t=${timestamp}`
+    // Use a combination of timestamp and profile update trigger for better cache busting
+    const cacheBuster = props.user?.updated_at ? Number(props.user.updated_at) : timestamp
+    return `${baseUrl}?t=${timestamp}&v=${cacheBuster}&trigger=${Date.now()}`
   })
 
   // Check if we should show follow button

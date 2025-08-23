@@ -39,6 +39,7 @@
           <div
             v-if="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
             class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto z-50"
+            @mousedown.prevent
           >
             <!-- Loading State -->
             <div v-if="searchLoading" class="p-4 text-center">
@@ -80,25 +81,25 @@
         <ClientOnly>
           <button
             class="relative w-12.5 h-7.5 rounded-full transition-colors duration-300 focus:outline-none border border-gray-300 dark:border-gray-700 flex mr-2"
-            :class="colorMode.value === 'dark' ? 'bg-pink-500' : 'bg-stone-600'"
+            :class="theme === 'dark' ? 'bg-pink-500' : 'bg-stone-600'"
             aria-label="Toggle theme"
             @click="toggleTheme"
           >
             <span
               class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-all duration-300 flex items-center justify-center"
               :class="
-                colorMode.value === 'dark' ? 'translate-x-5' : 'translate-x-0'
+                theme === 'dark' ? 'translate-x-5' : 'translate-x-0'
               "
             >
               <UIcon
                 :name="
-                  colorMode.value === 'dark'
+                  theme === 'dark'
                     ? 'ix:sun-filled'
                     : 'tabler:moon-filled'
                 "
                 class="w-5 h-5 transition-colors duration-300"
                 :class="
-                  colorMode.value === 'dark'
+                  theme === 'dark'
                     ? 'text-pink-500'
                     : 'text-stone-600'
                 "
@@ -125,16 +126,17 @@
 
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted, watch, inject, type Ref } from 'vue'
-  import { useColorMode, useNuxtApp } from '#imports'
+  import { useNuxtApp } from '#imports'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
   import CompactProfile from '@/components/CompactProfile.vue'
+  import { useTheme } from '@/composables/useTheme'
 
   defineOptions({
     name: 'AppHeader',
   })
 
-  const colorMode = useColorMode()
+  const { theme, toggleTheme: toggleThemeComposable } = useTheme()
   const authStore = useAuthStore()
   const { $trackInteraction, $trackButtonClick } = useNuxtApp()
 
@@ -156,15 +158,15 @@
     scrolled.value = window.scrollY > 10
   }
 
-  function toggleTheme() {
-    colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
+  const toggleTheme = (): void => {
+    toggleThemeComposable()
     $trackButtonClick('Theme Toggle', {
-      newTheme: colorMode.value,
+      newTheme: theme,
       location: 'header',
     })
   }
 
-  function toggleMobileSidebar() {
+  const toggleMobileSidebar = (): void => {
     // Emit event to parent component to control mobile sidebar visibility
     emit('toggle-mobile-sidebar')
   }
@@ -230,7 +232,16 @@
     }
   }
 
-  const handleSearchBlur = () => {
+  const handleSearchBlur = (event: FocusEvent) => {
+    // Check if the related target (what we're focusing on) is within the search results
+    const relatedTarget = event.relatedTarget as HTMLElement
+    const searchResultsContainer = document.querySelector('.search-nfts-section')
+    
+    if (relatedTarget && searchResultsContainer?.contains(relatedTarget)) {
+      // Don't close if clicking within search results
+      return
+    }
+    
     // Delay hiding results to allow for clicks
     setTimeout(() => {
       showSearchResults.value = false
@@ -290,7 +301,7 @@
     window.addEventListener('scroll', onScroll)
     onScroll() // Initialize scroll state
     // Set logo based on theme
-    if (colorMode.value === 'light') {
+    if (theme.value === 'light') {
       logoSrc.value = '/logo-dark.svg'
     } else {
       logoSrc.value = '/logo.svg'
@@ -298,7 +309,7 @@
   })
 
   watch(
-    () => colorMode.value,
+    () => theme.value,
     val => {
       logoSrc.value = val === 'light' ? '/logo-dark.svg' : '/logo.svg'
     }
@@ -312,7 +323,7 @@
     }
   })
 
-  function openLoginPanel() {
+  const openLoginPanel = (): void => {
     console.log('openLoginPanel called')
     console.log('loginPanelRef:', loginPanelRef)
     $trackButtonClick('Connect Wallet', {

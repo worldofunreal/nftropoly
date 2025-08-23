@@ -1,9 +1,9 @@
 <template>
   <div
     v-if="show"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]"
+    class="fixed inset-0 bg-black bg-opacity-10 dark:bg-black/10 flex items-center justify-center z-[9999]"
   >
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 max-w-sm mx-4 text-center">
+    <div class="bg-white dark:bg-neutral-950 rounded-lg shadow-lg p-6 max-w-sm mx-4 text-center">
       <!-- Spinner -->
       <div class="flex justify-center mb-4">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>

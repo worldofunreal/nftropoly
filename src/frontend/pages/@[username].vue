@@ -139,7 +139,12 @@
       return avatarPath
     }
     
-    return canisterService.getAssetUrl(avatarPath)
+    // Convert file path to full URL with cache busting
+    const baseUrl = canisterService.getAssetUrl(avatarPath)
+    const timestamp = Date.now()
+    // Use a combination of timestamp and profile update trigger for better cache busting
+    const cacheBuster = userProfile.value?.updated_at ? Number(userProfile.value.updated_at) : timestamp
+    return `${baseUrl}?t=${timestamp}&v=${cacheBuster}&trigger=${Date.now()}`
   })
 
   // Set page meta tags for SEO
@@ -352,4 +357,12 @@
     userProfile.value = null
     loadUserProfile()
   })
+
+  // Watch for auth store profile updates and sync if it's the same user
+  watch(() => auth.userProfile, (newAuthProfile) => {
+    if (newAuthProfile && userProfile.value && isOwnProfile.value) {
+      // Update the local userProfile ref with the latest data from auth store
+      userProfile.value = newAuthProfile
+    }
+  }, { deep: true })
 </script>

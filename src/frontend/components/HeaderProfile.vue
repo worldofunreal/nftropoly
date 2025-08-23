@@ -247,7 +247,9 @@
     // Convert file path to full URL with cache busting
     const baseUrl = canisterService.getAssetUrl(avatarPath)
     const timestamp = Date.now()
-    return `${baseUrl}?t=${timestamp}`
+    // Use a combination of timestamp and profile update trigger for better cache busting
+    const cacheBuster = authStore.userProfile?.updated_at ? Number(authStore.userProfile.updated_at) : timestamp
+    return `${baseUrl}?t=${timestamp}&v=${cacheBuster}&trigger=${Date.now()}`
   })
   const showUserMenu = ref(false)
   const followLoading = ref(false)

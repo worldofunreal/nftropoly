@@ -96,8 +96,11 @@ impl Database {
     }
 
     pub fn username_exists(username: &str) -> bool {
+        let username_lower = username.to_lowercase();
         USERNAMES.with(|usernames| {
-            usernames.borrow().contains_key(&username.to_string())
+            usernames.borrow().iter().any(|entry| {
+                entry.key().to_lowercase() == username_lower
+            })
         })
     }
 

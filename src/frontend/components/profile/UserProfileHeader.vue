@@ -1,7 +1,7 @@
 <template>
-  <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg overflow-hidden mb-8">
+  <div class="bg-white dark:bg-neutral-950 rounded-lg shadow-lg overflow-hidden mb-8">
     <!-- Banner Section -->
-    <div class="relative h-48 bg-gradient-to-r from-blue-500 to-purple-600">
+    <div class="relative bg-gradient-to-r from-blue-500 to-purple-600" style="aspect-ratio: 3/1;">
       <img
         v-if="bannerUrl"
         :src="bannerUrl"
@@ -11,7 +11,7 @@
         @click="openImageModal(bannerUrl, 'Banner')"
       />
       <div v-else class="w-full h-full flex items-center justify-center">
-        <span class="text-white text-4xl font-bold">RUSH</span>
+        <!-- Empty banner placeholder -->
       </div>
     </div>
     
@@ -92,8 +92,8 @@
             </div>
             
             <!-- Bio -->
-            <div v-if="bio" class="text-gray-900 dark:text-white">
-              {{ bio }}
+            <div v-if="bio" class="text-gray-900 dark:text-white" @click="handleMentionClick">
+              <span v-html="formattedBio"></span>
             </div>
           </div>
 
@@ -240,7 +240,7 @@
   import type { Ref } from 'vue'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
-  import { useToast } from '#imports'
+  import { useToast, navigateTo } from '#imports'
   import { useRoute } from 'vue-router'
   import EditProfileModal from '../EditProfileModal.vue'
 
@@ -269,6 +269,9 @@
 
   // User profile data - use props if provided, otherwise use auth store
   const userProfile = computed(() => props.userProfile || auth.userProfile)
+  
+  // Force recomputation of avatar/banner URLs when profile updates
+  const profileUpdateTrigger = ref(0)
 
   // Use props if provided, otherwise fall back to computed logic
   const isOwnProfile = computed(() => {
@@ -304,6 +307,11 @@
   watch(() => userProfile.value?.id, () => {
     checkFollowingStatus()
   })
+
+  // Watch for profile changes to force recomputation of avatar/banner URLs
+  watch(() => userProfile.value, () => {
+    profileUpdateTrigger.value++
+  }, { deep: true })
 
   onMounted(() => {
     checkFollowingStatus()
@@ -352,6 +360,9 @@
 
   // Avatar URL - convert file paths to full URLs with cache busting
   const avatarUrl = computed(() => {
+    // Force recomputation when profile updates
+    profileUpdateTrigger.value
+    
     const avatarPath = userProfile.value?.avatar_url?.[0]
     if (!avatarPath) return null
     
@@ -363,11 +374,16 @@
     // Convert file path to full URL with cache busting
     const baseUrl = canisterService.getAssetUrl(avatarPath)
     const timestamp = Date.now()
-    return `${baseUrl}?t=${timestamp}`
+    // Use a combination of timestamp and profile update trigger for better cache busting
+    const cacheBuster = userProfile.value?.updated_at ? Number(userProfile.value.updated_at) : timestamp
+    return `${baseUrl}?t=${timestamp}&v=${cacheBuster}&trigger=${profileUpdateTrigger.value}`
   })
 
   // Banner URL - convert file paths to full URLs with cache busting
   const bannerUrl = computed(() => {
+    // Force recomputation when profile updates
+    profileUpdateTrigger.value
+    
     const bannerPath = userProfile.value?.banner_url?.[0]
     if (!bannerPath) return null
     
@@ -379,7 +395,9 @@
     // Convert file path to full URL with cache busting
     const baseUrl = canisterService.getAssetUrl(bannerPath)
     const timestamp = Date.now()
-    return `${baseUrl}?t=${timestamp}`
+    // Use a combination of timestamp and profile update trigger for better cache busting
+    const cacheBuster = userProfile.value?.updated_at ? Number(userProfile.value.updated_at) : timestamp
+    return `${baseUrl}?t=${timestamp}&v=${cacheBuster}&trigger=${profileUpdateTrigger.value}`
   })
 
   // Portfolio stats - using placeholder values for now
@@ -436,6 +454,46 @@
       year: 'numeric', 
       month: 'short' 
     })
+  }
+
+  // Computed property for formatted bio with clickable @mentions
+  const formattedBio = computed(() => {
+    if (!bio.value) return ''
+    
+    // Regular expression to match @username patterns
+    // Matches @ followed by alphanumeric characters, underscores, and hyphens
+    // Also handles edge cases like @username. or @username, or @username!
+    const mentionRegex = /@([a-zA-Z0-9_-]+)(?=[\s.,!?]|$)/g
+    
+    // Replace @mentions with clickable links
+    return bio.value.replace(mentionRegex, (match: string, username: string) => {
+      // Basic validation: username should be at least 1 character and not too long
+      if (username.length < 1 || username.length > 20) {
+        return match // Return original text if username is invalid
+      }
+      
+      // Create a clickable link that navigates to the user's profile
+      return `<a href="/@${username}" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 underline cursor-pointer transition-colors duration-200" data-username="${username}">@${username}</a>`
+    })
+  })
+
+  // Handle mention clicks
+  const handleMentionClick = (event: Event) => {
+    const target = event.target as HTMLElement
+    if (target.tagName === 'A' && target.classList.contains('cursor-pointer')) {
+      event.preventDefault()
+      const username = target.getAttribute('data-username')
+      if (username) {
+        // Add visual feedback
+        target.style.transform = 'scale(0.95)'
+        setTimeout(() => {
+          target.style.transform = ''
+        }, 150)
+        
+        // Use Vue Router to navigate
+        navigateTo(`/@${username}`)
+      }
+    }
   }
 
   // Copy to clipboard function
