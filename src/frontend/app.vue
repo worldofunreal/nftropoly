@@ -39,43 +39,102 @@
     <!-- <ClientOnly>
       <DisclaimerModal ref="disclaimerModalRef" @close="onDisclaimerClose" />
     </ClientOnly> -->
-    <ClientOnly>
+    <!-- <ClientOnly>
       <OnboardingTour ref="onboardingTourRef" />
-    </ClientOnly>
-    <ClientOnly>
+    </ClientOnly> -->
+    <!-- <ClientOnly>
       <OnboardingTrigger />
-    </ClientOnly>
+    </ClientOnly> -->
   </UApp>
 </template>
 
 <script setup lang="ts">
-  import { ref, provide, onMounted } from 'vue'
+  import { ref, provide, onMounted, nextTick } from 'vue'
   import { useNuxtApp } from '#imports'
+  import { useAuthStore } from '@/stores/auth'
   import SidebarNav from './components/SidebarNav.vue'
   import MobileSidebar from './components/MobileSidebar.vue'
   import Header from './components/Header.vue'
   import AppFooter from './components/AppFooter.vue'
   import LoginPanel from './components/LoginPanel.vue'
+  // Temporarily disabled for performance optimization
   // import DisclaimerModal from './components/DisclaimerModal.vue'
-  import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
-  import OnboardingTrigger from './components/onBoardingTour/OnboardingTrigger.vue'
+  // import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
+  // import OnboardingTrigger from './components/OnboardingTrigger.vue'
 
-  const loginPanelRef = ref<{ open: () => void } | null>(null)
+  const loginPanelRef = ref<{ open: () => void; showRegistrationModal: () => void } | null>(null)
+  // Temporarily disabled for performance optimization
+  // const disclaimerModalRef = ref<{
+  //   open: () => void
+  //   close: () => void
+  // } | null>(null)
   const mobileSidebarOpen = ref(false)
   const { $trackInteraction } = useNuxtApp()
-  // const { startTour } = useOnboarding()
+  // Temporarily disabled for performance optimization
+  // const onboardingTourRef = ref<{
+  //   startTour: () => void
+  //   stopTour: () => void
+  //   updateTourForRegistration: () => void
+  // } | null>(null)
 
-  provide('loginPanelRef', loginPanelRef)
-
-  // Handle disclaimer close event
+  // Temporarily disabled for performance optimization
+  // // Handle disclaimer close event
   // const onDisclaimerClose = () => {
+  //   // Start the onboarding tour after disclaimer is closed
   //   setTimeout(() => {
-  //     startTour('registration')
+  //     if (onboardingTourRef?.value?.startTour) {
+  //       onboardingTourRef.value.startTour()
+  //     }
   //   }, 500) // Small delay to ensure smooth transition
   // }
 
+  // Provide the login panel ref so other components can access it
+  provide('loginPanelRef', loginPanelRef)
+  // Temporarily disabled for performance optimization
+  // // Provide the onboarding tour ref for manual triggering
+  // provide('onboardingTourRef', onboardingTourRef)
+
   // Track app initialization and key metrics
-  onMounted(() => {
+  onMounted(async () => {
+    // Restore session if available
+    const auth = useAuthStore()
+    const toast = useToast()
+    
+    if (auth.hasValidSession) {
+      console.log('Valid session found, attempting to restore...')
+      const restored = await auth.restoreSession()
+      if (restored) {
+        if (auth.registered) {
+          console.log('Session restored successfully')
+          const username = auth.userProfile?.username || 'there'
+          toast.add({
+            title: `Welcome back, ${username}!`,
+            description: 'Great to see you again.',
+            color: 'success',
+          })
+        } else {
+          console.log('User authenticated but needs to complete registration')
+          toast.add({
+            title: 'Complete Registration',
+            description: 'Please complete your profile registration.',
+            color: 'warning',
+          })
+          // Show registration modal
+          await nextTick()
+          if (loginPanelRef.value) {
+            loginPanelRef.value.showRegistrationModal()
+          }
+        }
+      } else {
+        console.log('Session restoration failed, user needs to login again')
+        // Show connect wallet option when session restoration fails
+        await nextTick()
+        if (loginPanelRef.value) {
+          loginPanelRef.value.open()
+        }
+      }
+    }
+
     $trackInteraction('App Mounted', {
       userAgent: navigator.userAgent,
       screenSize: `${window.screen.width}x${window.screen.height}`,

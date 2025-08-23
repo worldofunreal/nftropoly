@@ -10,13 +10,13 @@
           :src="userAvatar"
           size="md"
           class="hover:opacity-80 transition-opacity"
-          :alt="authStore.player?.username || 'User profile'"
+          :alt="authStore.userProfile?.username || 'User profile'"
         >
           <template #fallback>
             <div
               class="w-full h-full rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold text-sm"
             >
-              {{ authStore.player?.avatarId || 'U' }}
+              {{ authStore.userProfile?.username?.charAt(0).toUpperCase() || 'U' }}
             </div>
           </template>
         </UAvatar>
@@ -34,7 +34,7 @@
       <!-- Username and Arrow -->
       <div class="flex items-center gap-1">
         <span class="text-sm font-medium text-gray-900 dark:text-white">
-          {{ authStore.player?.username || 'User' }}
+          {{ authStore.userProfile?.username || 'User' }}
         </span>
         <UIcon
           :name="showUserMenu ? 'bxs:up-arrow' : 'bxs:down-arrow'"
@@ -54,13 +54,13 @@
           <UAvatar
             :src="userAvatar"
             size="lg"
-            :alt="authStore.player?.username || 'User profile'"
+            :alt="authStore.userProfile?.username || 'User profile'"
           >
             <template #fallback>
               <div
                 class="w-full h-full rounded-full bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center text-white font-bold text-lg"
               >
-                {{ authStore.player?.avatarId || 'U' }}
+                {{ authStore.userProfile?.username?.charAt(0).toUpperCase() || 'U' }}
               </div>
             </template>
           </UAvatar>
@@ -68,12 +68,31 @@
             <div
               class="font-semibold text-gray-900 dark:text-white truncate"
             >
-              {{ authStore.player?.username || 'User' }}
+              {{ authStore.userProfile?.username || 'User' }}
             </div>
             <div class="text-sm text-gray-500 dark:text-gray-400">
               {{ authStore.nativeWallet.toUpperCase() }}
             </div>
           </div>
+        </div>
+
+        <!-- Follow Button (only for other users' profiles) -->
+        <div v-if="showFollowButton" class="mb-4">
+          <UButton
+            :color="isFollowing ? 'neutral' : 'primary'"
+            :variant="isFollowing ? 'soft' : 'solid'"
+            :loading="followLoading"
+            @click="toggleFollow"
+            @mouseenter="handleFollowHover"
+            @mouseleave="handleFollowLeave"
+            class="w-full"
+          >
+            <UIcon 
+              :name="isFollowing ? 'i-heroicons-user-minus-20-solid' : 'i-heroicons-user-plus-20-solid'" 
+              class="w-4 h-4 mr-2" 
+            />
+            {{ followButtonText }}
+          </UButton>
         </div>
 
         <!-- Cross-Chain Addresses Section -->
@@ -86,7 +105,7 @@
           <div v-if="authStore.principal" class="mb-3">
             <div class="flex items-center gap-2 mb-1">
               <UIcon name="token-branded:icp" class="w-4 h-4 text-orange-500" />
-              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">ICP Principal</span>
+              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">ICP</span>
             </div>
             <div
               class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-neutral-800 rounded-md"
@@ -99,7 +118,7 @@
               <UIcon
                 name="i-heroicons-document-duplicate-20-solid"
                 class="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
-                @click="copyToClipboard(authStore.principal)"
+                @click="copyToClipboard(authStore.principal, 'ICP')"
               />
             </div>
           </div>
@@ -108,7 +127,7 @@
           <div v-if="authStore.evmAddress" class="mb-3">
             <div class="flex items-center gap-2 mb-1">
               <UIcon name="cryptocurrency:eth" class="w-4 h-4 text-blue-500" />
-              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Ethereum Address</span>
+              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">EVM</span>
             </div>
             <div
               class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-neutral-800 rounded-md"
@@ -121,7 +140,7 @@
               <UIcon
                 name="i-heroicons-document-duplicate-20-solid"
                 class="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
-                @click="copyToClipboard(authStore.evmAddress)"
+                @click="copyToClipboard(authStore.evmAddress, 'EVM')"
               />
             </div>
           </div>
@@ -130,7 +149,7 @@
           <div v-if="authStore.solAddress" class="mb-3">
             <div class="flex items-center gap-2 mb-1">
               <UIcon name="cryptocurrency:sol" class="w-4 h-4 text-purple-500" />
-              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Solana Address</span>
+              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">SOL</span>
             </div>
             <div
               class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-neutral-800 rounded-md"
@@ -143,7 +162,7 @@
               <UIcon
                 name="i-heroicons-document-duplicate-20-solid"
                 class="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
-                @click="copyToClipboard(authStore.solAddress)"
+                @click="copyToClipboard(authStore.solAddress, 'Solana')"
               />
             </div>
           </div>
@@ -152,7 +171,7 @@
           <div v-if="authStore.btcAddress" class="mb-3">
             <div class="flex items-center gap-2 mb-1">
               <UIcon name="cryptocurrency:btc" class="w-4 h-4 text-orange-400" />
-              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">Bitcoin Address</span>
+              <span class="text-xs font-medium text-gray-600 dark:text-gray-400">BTC</span>
             </div>
             <div
               class="flex items-center gap-2 p-2 bg-gray-50 dark:bg-neutral-800 rounded-md"
@@ -165,14 +184,26 @@
               <UIcon
                 name="i-heroicons-document-duplicate-20-solid"
                 class="text-gray-400 cursor-pointer hover:text-gray-600 dark:hover:text-gray-300 transition flex-shrink-0"
-                @click="copyToClipboard(authStore.btcAddress)"
+                @click="copyToClipboard(authStore.btcAddress, 'Bitcoin')"
               />
             </div>
           </div>
         </div>
 
         <!-- Actions -->
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-2">
+          <!-- Profile Button -->
+          <UButton
+            block
+            color="primary"
+            variant="soft"
+            icon="iconamoon:profile-fill"
+            :to="authStore.userProfile?.username ? `/@${authStore.userProfile.username}` : '/profile'"
+          >
+            View Profile
+          </UButton>
+          
+          <!-- Logout Button -->
           <UButton
             block
             color="error"
@@ -189,34 +220,121 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted } from 'vue'
+  import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
   import { useNuxtApp } from '#imports'
   import { useAuthStore } from '@/stores/auth'
+  import { canisterService } from '@/services/CanisterService'
+  import { useRoute } from 'vue-router'
 
   defineOptions({
     name: 'HeaderProfile',
   })
 
   const authStore = useAuthStore()
+  const route = useRoute()
   const { $trackInteraction, $trackButtonClick } = useNuxtApp()
 
-  const userAvatar = ref('') // Stub: replace with real avatar URL
+  // Avatar URL - convert file paths to full URLs with cache busting
+  const userAvatar = computed(() => {
+    const avatarPath = authStore.userProfile?.avatar_url?.[0]
+    if (!avatarPath) return ''
+    
+    // If it's already a full URL, return as is
+    if (avatarPath.startsWith('http')) {
+      return avatarPath
+    }
+    
+    // Convert file path to full URL with cache busting
+    const baseUrl = canisterService.getAssetUrl(avatarPath)
+    const timestamp = Date.now()
+    // Use a combination of timestamp and profile update trigger for better cache busting
+    const cacheBuster = authStore.userProfile?.updated_at ? Number(authStore.userProfile.updated_at) : timestamp
+    return `${baseUrl}?t=${timestamp}&v=${cacheBuster}&trigger=${Date.now()}`
+  })
   const showUserMenu = ref(false)
+  const followLoading = ref(false)
+  const isFollowing = ref(false)
+  const isHoveringFollow = ref(false)
+
+  // Check if we're on a profile page and if it's not the current user's profile
+  const showFollowButton = computed(() => {
+    const isProfilePage = route.path.startsWith('/@')
+    if (!isProfilePage) return false
+    
+    const routeUsername = route.params.username as string
+    if (!routeUsername) return false
+    
+    // Remove @ symbol if present
+    const cleanUsername = routeUsername.startsWith('@') ? routeUsername.slice(1) : routeUsername
+    
+    // Don't show follow button for own profile
+    return cleanUsername !== authStore.userProfile?.username
+  })
+
+  // Get the username of the profile being viewed
+  const viewedProfileUsername = computed(() => {
+    const routeUsername = route.params.username as string
+    if (!routeUsername) return null
+    return routeUsername.startsWith('@') ? routeUsername.slice(1) : routeUsername
+  })
+
+  // Follow button text
+  const followButtonText = computed(() => {
+    if (isHoveringFollow.value && isFollowing.value) {
+      return 'Unfollow'
+    }
+    return isFollowing.value ? 'Following' : 'Follow'
+  })
 
   onMounted(() => {
     // Close menu when clicking outside
     document.addEventListener('click', handleClickOutside)
+    // Check if we're following the viewed profile
+    checkFollowingStatus()
   })
 
   onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
   })
 
+  // Check if current user is following this profile using the efficient method
+  const checkFollowingStatus = async () => {
+    if (!viewedProfileUsername.value) return
+    
+    try {
+      // Get the viewed profile to get their principal
+      const viewedProfile = await canisterService.getPublicProfile(viewedProfileUsername.value)
+      if (!viewedProfile?.id) return
+      
+      // Use personal endpoint to get follow state
+      const personalProfile = await canisterService.getUserPersonal(viewedProfile.id.toText(), authStore.principal)
+      if (personalProfile) {
+        isFollowing.value = personalProfile.am_following_them
+      }
+    } catch (error) {
+      console.error('Error checking following status:', error)
+    }
+  }
+
+  // Watch for route changes to update following status
+  watch(() => route.params.username, () => {
+    if (showUserMenu.value) {
+      checkFollowingStatus()
+    }
+  })
+
+  // Watch for menu open to check following status
+  watch(() => showUserMenu.value, (isOpen) => {
+    if (isOpen) {
+      checkFollowingStatus()
+    }
+  })
+
   function toggleUserMenu() {
     showUserMenu.value = !showUserMenu.value
     $trackButtonClick('User Menu Toggle', {
       isOpen: showUserMenu.value,
-      username: authStore.player?.username,
+      username: authStore.userProfile?.username,
     })
   }
 
@@ -227,12 +345,92 @@
     }
   }
 
-  function copyToClipboard(text: string) {
+  function handleFollowHover() {
+    isHoveringFollow.value = true
+  }
+
+  function handleFollowLeave() {
+    isHoveringFollow.value = false
+  }
+
+  async function toggleFollow() {
+    if (!viewedProfileUsername.value || followLoading.value) return
+    
+    followLoading.value = true
+    try {
+      // Get the viewed profile to get their principal
+      const viewedProfile = await canisterService.getPublicProfile(viewedProfileUsername.value)
+      if (!viewedProfile?.id) {
+        throw new Error('Profile not found')
+      }
+      
+      if (isFollowing.value) {
+        await canisterService.unfollowUser(viewedProfile.id.toText())
+        isFollowing.value = false
+        const toast = useToast()
+        toast.add({
+          title: 'Unfollowed',
+          description: `You unfollowed @${viewedProfileUsername.value}`,
+          color: 'success',
+        })
+      } else {
+        try {
+          await canisterService.followUser(viewedProfile.id.toText())
+          isFollowing.value = true
+          const toast = useToast()
+          toast.add({
+            title: 'Following',
+            description: `You are now following @${viewedProfileUsername.value}`,
+            color: 'success',
+          })
+        } catch (error: any) {
+          // Handle "Already following" error gracefully
+          if (error.message?.includes('Already following this user')) {
+            isFollowing.value = true
+            const toast = useToast()
+            toast.add({
+              title: 'Already Following',
+              description: `You are already following @${viewedProfileUsername.value}`,
+              color: 'info',
+            })
+            return
+          }
+          throw error
+        }
+      }
+      
+      $trackButtonClick('Toggle Follow', {
+        action: isFollowing.value ? 'follow' : 'unfollow',
+        targetUsername: viewedProfileUsername.value,
+        username: authStore.userProfile?.username,
+      })
+    } catch (error) {
+      console.error('Follow/Unfollow failed:', error)
+      const toast = useToast()
+      toast.add({
+        title: 'Error',
+        description: 'Failed to follow/unfollow user. Please try again.',
+        color: 'error',
+      })
+      $trackInteraction('Error', {
+        error: 'Follow/Unfollow failed',
+        targetUsername: viewedProfileUsername.value,
+      })
+    } finally {
+      followLoading.value = false
+    }
+  }
+
+  function copyToClipboard(text: string, walletType: string) {
     navigator.clipboard
       .writeText(text)
       .then(() => {
-        // You could add a toast notification here
-        console.log('Copied to clipboard:', text)
+        const toast = useToast()
+        toast.add({
+          title: `${walletType} Address Copied`,
+          description: text,
+          color: 'success',
+        })
         $trackButtonClick('Copy to Clipboard', {
           textType: text.includes('icp') ? 'ICP Principal' : 'Wallet Address',
           textLength: text.length,
@@ -240,6 +438,12 @@
       })
       .catch(err => {
         console.error('Failed to copy to clipboard:', err)
+        const toast = useToast()
+        toast.add({
+          title: `${walletType} Copy Failed`,
+          description: 'Failed to copy address to clipboard.',
+          color: 'error',
+        })
         $trackInteraction('Error', {
           error: 'Copy to clipboard failed',
           textType: text.includes('icp') ? 'ICP Principal' : 'Wallet Address',
@@ -250,7 +454,7 @@
   function logout() {
     showUserMenu.value = false
     $trackButtonClick('Logout', {
-      username: authStore.player?.username,
+      username: authStore.userProfile?.username,
       walletType: authStore.nativeWallet,
     })
     authStore.logout()

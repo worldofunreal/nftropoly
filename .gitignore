@@ -10,9 +10,6 @@
 # dfx temporary files
 .dfx/
 
-# generated files
-**/declarations/
-
 # rust
 target/
 
@@ -26,3 +23,7 @@ dist/
 
 .output/
 /ignore
+
+# production files
+src/frontend/scripts/deploy-production.sh
+src/frontend/nginx-production.conf

@@ -3,6 +3,7 @@ import type { Ed25519KeyIdentity } from '@dfinity/identity'
 import { canisterService, type User } from '@/services/CanisterService'
 import { WalletRegistry } from '@/services/wallets/WalletRegistry'
 import { CrossChainSeedService } from '@/services/CrossChainSeedService'
+import { appCacheService } from '@/services/AppCacheService'
 import type { WalletType } from '@/services/wallets/types'
 
 let identity: Ed25519KeyIdentity | null = null
@@ -21,6 +22,14 @@ export const useAuthStore = defineStore('auth', {
     canisterInitialized: false,
   }),
   
+  getters: {
+    // Check if session is valid
+    hasValidSession(): boolean {
+      const session = appCacheService.getSession()
+      return session !== null && session.authenticated
+    }
+  },
+  
   actions: {
     getIdentity() {
       return identity
@@ -36,6 +45,9 @@ export const useAuthStore = defineStore('auth', {
 
     async login(walletType: WalletType) {
       try {
+        // Clear any existing session first
+        appCacheService.clearSession()
+        
         // 1. Get wallet adapter
         const adapter = WalletRegistry.getAdapter(walletType)
         
@@ -86,6 +98,37 @@ export const useAuthStore = defineStore('auth', {
             principal: authResult.principal,
             walletType: authResult.nativeWallet,
           }
+          
+          // Store authentication data for session restoration
+          console.log('Storing authentication data for session restoration:')
+          console.log('- Principal:', authResult.principal)
+          console.log('- EVM Address:', authResult.evmAddress)
+          console.log('- Wallet Type:', walletType)
+          
+          // For Internet Identity, store principal instead of signature
+          const sessionData: any = {
+            authenticated: true,
+            registered: true,
+            principal: authResult.principal,
+            evmAddress: authResult.evmAddress || '',
+            solAddress: authResult.solAddress || '',
+            btcAddress: authResult.btcAddress || '',
+            nativeWallet: authResult.nativeWallet,
+            canisterInitialized: true,
+            originalWalletType: walletType // Store original wallet type
+          }
+          
+          // Store signature for wallets that have it, principal for Internet Identity
+          if (walletType === 'internet-identity') {
+            sessionData.originalPrincipal = authResult.principal // Store principal for II
+            console.log('- Original Principal (II):', authResult.principal)
+          } else {
+            sessionData.originalSignature = authResult.signature // Store signature for other wallets
+            console.log('- Original Signature:', authResult.signature)
+          }
+          
+          // Save session to cache
+          appCacheService.saveSession(sessionData)
           
           this.saveStateToLocalStorage()
           return { existing: true, profile: existingProfile }
@@ -138,12 +181,10 @@ export const useAuthStore = defineStore('auth', {
           // Legacy player object
           this.player = {
             username: existingProfile.username,
-            displayName: existingProfile.displayName.length > 0 ? existingProfile.displayName[0] : null,
-            avatarPreset: existingProfile.assets?.avatarPreset.length > 0
-              ? Number(existingProfile.assets.avatarPreset[0])
-              : 1,
-            avatarUrl: existingProfile.assets?.avatarUrl.length > 0 ? existingProfile.assets.avatarUrl[0] : null,
-            bannerUrl: existingProfile.assets?.bannerUrl.length > 0 ? existingProfile.assets.bannerUrl[0] : null,
+            displayName: existingProfile.display_name.length > 0 ? existingProfile.display_name[0] : null,
+            avatarPreset: 1, // Default avatar preset
+            avatarUrl: existingProfile.avatar_url.length > 0 ? existingProfile.avatar_url[0] : null,
+            bannerUrl: null, // Not available in new User type
             ethAddress: recovered.evmAddress,
             principal: recovered.principal,
             walletType: 'recovered',
@@ -180,6 +221,8 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
+      // Clear session from cache
+      appCacheService.clearSession()
       localStorage.removeItem('authStore')
       identity = null
       this.authenticated = false
@@ -188,6 +231,181 @@ export const useAuthStore = defineStore('auth', {
       this.canisterInitialized = false
       this.$reset()
       window.location.href = '/'
+    },
+
+    // Restore session from cache
+    async restoreSession() {
+      const session = appCacheService.getSession()
+      if (session && session.authenticated) {
+        console.log('Restoring session from cache...')
+        console.log('Session data:', session)
+        
+        try {
+          // Restore basic auth state first
+          this.authenticated = session.authenticated
+          this.registered = session.registered
+          this.principal = session.principal
+          this.evmAddress = session.evmAddress
+          this.solAddress = session.solAddress
+          this.btcAddress = session.btcAddress
+          this.nativeWallet = session.nativeWallet
+          this.canisterInitialized = session.canisterInitialized
+          
+          console.log('Auth state restored - authenticated:', this.authenticated, 'principal:', this.principal)
+          
+          // Recreate authentication data based on wallet type
+          if (session.originalSignature) {
+            // For wallets with signatures (MetaMask, Phantom, Plug)
+            console.log('Recreating mnemonic from stored signature...')
+            console.log('Stored signature:', session.originalSignature)
+            
+            // Recreate seed from original signature
+            const seed = await CrossChainSeedService.fromSignature(session.originalSignature)
+            
+            // Recreate mnemonic from seed
+            const mnemonic = CrossChainSeedService.seedToMnemonic(seed)
+            console.log('Recreated mnemonic:', mnemonic)
+            
+            // Use the seed directly to restore identity (don't call fromMnemonic again!)
+            identity = await CrossChainSeedService.toIdentity(seed)
+            
+            console.log('Using original stored addresses:')
+            console.log('- Principal:', session.principal)
+            console.log('- EVM Address:', session.evmAddress)
+            console.log('- Solana Address:', session.solAddress)
+            console.log('- Bitcoin Address:', session.btcAddress)
+            
+            // Initialize canister service based on wallet type
+            if (session.originalWalletType === 'plug') {
+              // For Plug, we need to reconnect first
+              console.log('Reconnecting Plug for session restoration...')
+              try {
+                // Get Plug adapter and reconnect
+                const adapter = WalletRegistry.getAdapter('plug')
+                await adapter.authenticate() // This will reconnect Plug
+                
+                // Now initialize canister service
+                await canisterService.initializeWithPlug()
+              } catch (error) {
+                console.warn('Failed to reconnect Plug, trying identity-based initialization...')
+                // Fallback to identity-based initialization
+                await canisterService.initialize(identity)
+              }
+            } else {
+              await canisterService.initialize(identity)
+            }
+            this.canisterInitialized = true
+            
+            // Get user profile
+            const profile = await canisterService.getMyProfile()
+            if (profile) {
+              this.userProfile = profile
+              this.registered = true
+              
+              // Update legacy player object
+              this.player = {
+                username: profile.username,
+                displayName: profile.display_name.length > 0 ? profile.display_name[0] : null,
+                avatarPreset: 1,
+                avatarUrl: profile.avatar_url.length > 0 ? profile.avatar_url[0] : null,
+                bannerUrl: null,
+                ethAddress: this.evmAddress,
+                principal: this.principal,
+                walletType: this.nativeWallet,
+              }
+              
+              console.log('Session restored successfully with full functionality')
+              return true
+            } else {
+              // User exists in session but not in database - needs registration
+              console.log('User authenticated but not registered, keeping session for registration')
+              this.registered = false
+              this.userProfile = null
+              return true // Return true to keep the session
+            }
+            
+          } else if (session.originalPrincipal && session.originalWalletType === 'internet-identity' as WalletType) {
+            // For Internet Identity, recreate seed from principal
+            console.log('Recreating seed from stored principal (Internet Identity)...')
+            console.log('Stored principal:', session.originalPrincipal)
+            
+            // Recreate seed from original principal
+            const seed = await CrossChainSeedService.fromPrincipal(session.originalPrincipal)
+            
+            // Recreate mnemonic from seed
+            const mnemonic = CrossChainSeedService.seedToMnemonic(seed)
+            console.log('Recreated mnemonic (II):', mnemonic)
+            
+            // Use the seed directly to restore identity
+            identity = await CrossChainSeedService.toIdentity(seed)
+            
+            console.log('Using original stored addresses:')
+            console.log('- Principal:', session.principal)
+            console.log('- EVM Address:', session.evmAddress)
+            console.log('- Solana Address:', session.solAddress)
+            console.log('- Bitcoin Address:', session.btcAddress)
+            
+            // Initialize canister service based on wallet type
+            if (session.originalWalletType === 'plug') {
+              // For Plug, we need to reconnect first
+              console.log('Reconnecting Plug for session restoration...')
+              try {
+                // Get Plug adapter and reconnect
+                const adapter = WalletRegistry.getAdapter('plug')
+                await adapter.authenticate() // This will reconnect Plug
+                
+                // Now initialize canister service
+                await canisterService.initializeWithPlug()
+              } catch (error) {
+                console.warn('Failed to reconnect Plug, trying identity-based initialization...')
+                // Fallback to identity-based initialization
+                await canisterService.initialize(identity)
+              }
+            } else {
+              await canisterService.initialize(identity)
+            }
+            this.canisterInitialized = true
+            
+            // Get user profile
+            const profile = await canisterService.getMyProfile()
+            if (profile) {
+              this.userProfile = profile
+              this.registered = true
+              
+              // Update legacy player object
+              this.player = {
+                username: profile.username,
+                displayName: profile.display_name.length > 0 ? profile.display_name[0] : null,
+                avatarPreset: 1,
+                avatarUrl: profile.avatar_url.length > 0 ? profile.avatar_url[0] : null,
+                bannerUrl: null,
+                ethAddress: this.evmAddress,
+                principal: this.principal,
+                walletType: this.nativeWallet,
+              }
+              
+              console.log('Session restored successfully with full functionality')
+              return true
+            } else {
+              // User exists in session but not in database - needs registration
+              console.log('User authenticated but not registered, keeping session for registration')
+              this.registered = false
+              this.userProfile = null
+              return true // Return true to keep the session
+            }
+          } else {
+            console.warn('No original signature or principal available for session restoration')
+            appCacheService.clearSession()
+            return false
+          }
+        } catch (error) {
+          console.warn('Failed to restore session:', error)
+          // Clear invalid session
+          appCacheService.clearSession()
+          return false
+        }
+      }
+      return false
     },
 
     saveStateToLocalStorage() {

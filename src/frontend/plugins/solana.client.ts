@@ -6,17 +6,15 @@ export default defineNuxtPlugin(async () => {
         solana: {
           connection: null,
           async getConnection() {
-            const { Connection, clusterApiUrl } = await import(
-              '@solana/web3.js'
-            )
-            return new Connection(clusterApiUrl('devnet'), 'confirmed')
+            // Return null for SSR
+            return null
           },
         },
       },
     }
   }
 
-  // Client-side: lazy load to avoid SSR issues
+  // Client-side: use static import
   const { Connection, clusterApiUrl } = await import('@solana/web3.js')
   const connection = new Connection(clusterApiUrl('devnet'), 'confirmed')
 

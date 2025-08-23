@@ -184,6 +184,24 @@
       error.value = ''
       showRegistrationModal.value = false
     },
+    showRegistrationModal: () => {
+      console.log('LoginPanel showRegistrationModal() called')
+      showRegistrationModal.value = true
+      nextTick(() => {
+        if (registrationModalRef.value) {
+          console.log('Opening registration modal with cross-chain addresses')
+          registrationModalRef.value.open(
+            auth.principal,
+            auth.evmAddress || '',
+            auth.solAddress || '',
+            auth.btcAddress || '',
+            auth.nativeWallet
+          )
+        } else {
+          console.error('registrationModalRef.value is null/undefined!')
+        }
+      })
+    },
   })
 
   const auth = useAuthStore()
@@ -207,8 +225,8 @@
 
         // Show success toast
         toast.add({
-          title: 'Welcome Back!',
-          description: `Welcome back, ${loginResult.profile?.username || 'user'}!`,
+          title: ` Welcome Back ${loginResult.profile?.username || 'user'}!`,
+          description: 'Great to see you again',
           color: 'success',
         })
 

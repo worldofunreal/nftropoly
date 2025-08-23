@@ -44,19 +44,29 @@ export class PlugAdapter implements WalletAdapter {
       
       if (!isConnected) {
         // Get database canister ID for whitelist
-        const databaseCanisterId = process.env.CANISTER_ID_DATABASE || 'uxrrr-q7777-77774-qaaaq-cai'
+        const databaseCanisterId = process.env.CANISTER_ID_DATABASE || 'bhhab-xyaaa-aaaap-qqchq-cai'
         
         // Request connection with whitelist and correct host
-        console.log('Requesting Plug connection...')
+        console.log('Requesting Plug connection to mainnet...')
         await window.ic?.plug?.requestConnect({
           whitelist: [databaseCanisterId],
-          host: process.env.NODE_ENV === 'development' 
-            ? 'http://127.0.0.1:4943'  // Use correct local endpoint
-            : 'https://ic0.app'
+          host: 'https://ic0.app'  // Always use mainnet
         })
         
         // Wait a bit for the connection to be established
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        await new Promise(resolve => setTimeout(resolve, 2000))
+        
+        // Force Plug to use mainnet by setting the agent host
+        if (window.ic?.plug?.agent) {
+          console.log('Configuring Plug agent for mainnet...')
+          window.ic.plug.agent._host = 'https://ic0.app'
+        }
+      } else {
+        // If already connected, ensure it's using mainnet
+        if (window.ic?.plug?.agent) {
+          console.log('Ensuring Plug agent uses mainnet...')
+          window.ic.plug.agent._host = 'https://ic0.app'
+        }
       }
       
       // Get the principal from the connected session

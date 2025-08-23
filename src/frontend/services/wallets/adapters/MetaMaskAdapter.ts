@@ -68,7 +68,7 @@ export class MetaMaskAdapter implements WalletAdapter {
         signature
       }
     } catch (error) {
-      throw new Error(`MetaMask authentication failed: ${error}`)
+      throw new Error(`MetaMask authentication canceled`)
     }
   }
 }

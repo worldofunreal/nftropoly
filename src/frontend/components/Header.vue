@@ -23,14 +23,56 @@
           />
         </button>
         <!-- Search Bar -->
-        <div class="hidden md:flex items-center ml-2 search-nfts-section">
+        <div class="hidden md:flex items-center ml-2 search-nfts-section relative">
           <UInput
             v-model="search"
             placeholder="Search Nftropoly"
             size="lg"
             class="w-96 h-12 text-lg"
             icon="ri:search-line"
+            @input="handleSearchInput"
+            @focus="showSearchResults = true"
+            @blur="handleSearchBlur"
           />
+          
+          <!-- Search Results Dropdown -->
+          <div
+            v-if="showSearchResults && (searchResults.length > 0 || searchLoading || searchError)"
+            class="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-neutral-900 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 max-h-96 overflow-y-auto z-50"
+            @mousedown.prevent
+          >
+            <!-- Loading State -->
+            <div v-if="searchLoading" class="p-4 text-center">
+              <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Searching...</p>
+            </div>
+            
+            <!-- Error State -->
+            <div v-else-if="searchError" class="p-4 text-center">
+              <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-6 h-6 text-red-500 mx-auto" />
+              <p class="text-sm text-red-500 mt-2">{{ searchError }}</p>
+            </div>
+            
+            <!-- Results -->
+            <div v-else-if="searchResults.length > 0" class="py-2">
+              <CompactProfile
+                v-for="user in searchResults"
+                :key="user.id"
+                :user="user"
+                :show-follow-button="true"
+                :clickable="true"
+                @click="selectUser"
+                @follow="handleFollow"
+                @unfollow="handleUnfollow"
+              />
+            </div>
+            
+            <!-- No Results -->
+            <div v-else-if="search.trim().length >= 2" class="p-4 text-center">
+              <UIcon name="i-heroicons-magnifying-glass-20-solid" class="w-6 h-6 text-gray-400 mx-auto" />
+              <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">No users found</p>
+            </div>
+          </div>
         </div>
       </div>
       <!-- Right: Actions -->
@@ -39,7 +81,7 @@
         <ClientOnly>
           <button
             class="relative w-12.5 h-7.5 rounded-full transition-colors duration-300 focus:outline-none border border-gray-300 dark:border-gray-700 flex mr-2"
-            :class="colorMode.value === 'dark' ? 'bg-pink-500' : 'bg-stone-600'"
+            :class="colorMode.value === 'dark' ? 'bg-primary-500' : 'bg-primary-600'"
             aria-label="Toggle theme"
             @click="toggleTheme"
           >
@@ -56,13 +98,27 @@
                     : 'tabler:moon-filled'
                 "
                 class="w-5 h-5 transition-colors duration-300"
-                :class="
-                  colorMode.value === 'dark'
-                    ? 'text-pink-500'
-                    : 'text-stone-600'
-                "
+                                  :class="
+                    colorMode.value === 'dark'
+                      ? 'text-primary-500'
+                      : 'text-primary-600'
+                  "
               />
             </span>
+          </button>
+        </ClientOnly>
+        
+        <!-- Color Theme Toggle Button - Client Only -->
+        <ClientOnly>
+          <button
+            class="relative w-8 h-8 rounded-lg transition-all duration-300 focus:outline-none border border-gray-300 dark:border-gray-700 flex items-center justify-center mr-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+            aria-label="Toggle color theme"
+            @click="toggleColorTheme"
+          >
+            <div
+              class="w-3 h-3 rounded-full transition-all duration-300"
+              :class="`color-circle-${colorTheme}`"
+            />
           </button>
         </ClientOnly>
         <!-- Connect Wallet Button -->
@@ -86,17 +142,27 @@
   import { ref, onMounted, onUnmounted, watch, inject, type Ref } from 'vue'
   import { useColorMode, useNuxtApp } from '#imports'
   import { useAuthStore } from '@/stores/auth'
+  import { canisterService } from '@/services/CanisterService'
+  import CompactProfile from '@/components/CompactProfile.vue'
+  import { useColorTheme } from '@/composables/useColorTheme'
 
   defineOptions({
     name: 'AppHeader',
   })
 
   const colorMode = useColorMode()
+  const { colorTheme, nextColorTheme } = useColorTheme()
   const authStore = useAuthStore()
   const { $trackInteraction, $trackButtonClick } = useNuxtApp()
 
   const scrolled = ref(false)
   const search = ref('')
+  const searchResults = ref<any[]>([])
+  const searchLoading = ref(false)
+  const searchError = ref('')
+  const showSearchResults = ref(false)
+  const followingUser = ref<string | null>(null)
+  const searchTimeout = ref<NodeJS.Timeout | null>(null)
 
   // Inject the login panel ref from the app
   const loginPanelRef = inject('loginPanelRef') as Ref<{
@@ -109,15 +175,145 @@
 
   function toggleTheme() {
     colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
+    
+    // Save to localStorage like useColorTheme
+    localStorage.setItem('nftropoly-theme', colorMode.value)
+    
     $trackButtonClick('Theme Toggle', {
       newTheme: colorMode.value,
       location: 'header',
     })
   }
 
-  function toggleMobileSidebar() {
+  const toggleColorTheme = (): void => {
+    nextColorTheme()
+    $trackButtonClick('Color Theme Toggle', {
+      newColorTheme: colorTheme.value,
+      location: 'header',
+    })
+  }
+
+  const toggleMobileSidebar = (): void => {
     // Emit event to parent component to control mobile sidebar visibility
     emit('toggle-mobile-sidebar')
+  }
+
+  // Search functionality
+  const handleSearchInput = () => {
+    // Clear previous timeout
+    if (searchTimeout.value) {
+      clearTimeout(searchTimeout.value)
+    }
+
+    // Clear results if search is too short
+    if (search.value.trim().length < 2) {
+      searchResults.value = []
+      searchError.value = ''
+      return
+    }
+
+    // Set loading state
+    searchLoading.value = true
+    searchError.value = ''
+
+    // Debounce the search
+    searchTimeout.value = setTimeout(async () => {
+      await performSearch()
+    }, 300)
+  }
+
+  const performSearch = async () => {
+    if (search.value.trim().length < 2) {
+      searchLoading.value = false
+      return
+    }
+
+    try {
+      // Initialize canister service if needed
+      if (!canisterService.isInitialized()) {
+        await canisterService.initializeAnonymous()
+      }
+
+      // Wait for auth store to be fully initialized
+      if (authStore.authenticated && !authStore.principal) {
+        // Wait a bit for session restoration to complete
+        await new Promise(resolve => setTimeout(resolve, 100))
+      }
+
+      // Use personal search if authenticated, otherwise use public search
+      if (authStore.authenticated && authStore.principal) {
+        const results = await canisterService.searchUsersPersonal(search.value.trim(), 10, authStore.principal)
+        searchResults.value = results
+      } else {
+        const results = await canisterService.searchUsers(search.value.trim(), 10)
+        searchResults.value = results
+      }
+      
+      searchError.value = ''
+    } catch (error) {
+      console.error('Search failed:', error)
+      searchError.value = 'Search failed. Please try again.'
+      searchResults.value = []
+    } finally {
+      searchLoading.value = false
+    }
+  }
+
+  const handleSearchBlur = (event: FocusEvent) => {
+    // Check if the related target (what we're focusing on) is within the search results
+    const relatedTarget = event.relatedTarget as HTMLElement
+    const searchResultsContainer = document.querySelector('.search-nfts-section')
+    
+    if (relatedTarget && searchResultsContainer?.contains(relatedTarget)) {
+      // Don't close if clicking within search results
+      return
+    }
+    
+    // Delay hiding results to allow for clicks
+    setTimeout(() => {
+      showSearchResults.value = false
+    }, 200)
+  }
+
+  const selectUser = (user: any) => {
+    // Navigate to user profile
+            navigateTo(`/@${user.username}`)
+    search.value = ''
+    showSearchResults.value = false
+    searchResults.value = []
+    
+    $trackButtonClick('Search Result Click', {
+      username: user.username,
+      searchTerm: search.value,
+    })
+  }
+
+  const handleFollow = (user: any) => {
+    // Update the user's following status in search results
+    const userIndex = searchResults.value.findIndex(u => u.id === user.id)
+    if (userIndex !== -1) {
+      searchResults.value[userIndex].am_following_them = true
+    }
+    
+    // Track the action
+    $trackButtonClick('Follow from Search', {
+      targetUsername: user.username,
+      searchTerm: search.value,
+    })
+  }
+
+  const handleUnfollow = (user: any) => {
+    // Update the user's following status in search results
+    const userIndex = searchResults.value.findIndex(u => u.id === user.id)
+    if (userIndex !== -1) {
+      searchResults.value[userIndex].am_following_them = false
+    }
+    
+    // Track the action
+    $trackButtonClick('Unfollow from Search', {
+      targetUsername: user.username,
+      searchTerm: search.value,
+    })
   }
 
   // Define emits
@@ -131,6 +327,13 @@
   onMounted(() => {
     window.addEventListener('scroll', onScroll)
     onScroll() // Initialize scroll state
+    
+    // Load saved theme from localStorage like useColorTheme
+    const savedTheme = localStorage.getItem('nftropoly-theme') as 'light' | 'dark' | null
+    if (savedTheme) {
+      colorMode.value = savedTheme
+    }
+    
     // Set logo based on theme
     if (colorMode.value === 'light') {
       logoSrc.value = '/logo-dark.svg'
@@ -148,9 +351,13 @@
 
   onUnmounted(() => {
     window.removeEventListener('scroll', onScroll)
+    // Clear search timeout
+    if (searchTimeout.value) {
+      clearTimeout(searchTimeout.value)
+    }
   })
 
-  function openLoginPanel() {
+  const openLoginPanel = (): void => {
     console.log('openLoginPanel called')
     console.log('loginPanelRef:', loginPanelRef)
     $trackButtonClick('Connect Wallet', {
@@ -159,6 +366,4 @@
     })
     loginPanelRef?.value?.open()
   }
-
-
 </script>

@@ -30,6 +30,7 @@ pub struct User {
     pub display_name: Option<String>,
     pub bio: Option<String>,
     pub avatar_url: Option<String>,
+    pub banner_url: Option<String>,
     pub location: Option<String>,
     pub website: Option<String>,
     pub created_at: u64,
@@ -63,6 +64,7 @@ pub struct UserUpdate {
     pub display_name: Option<String>,
     pub bio: Option<String>,
     pub avatar_url: Option<String>,
+    pub banner_url: Option<String>,
     pub location: Option<String>,
     pub website: Option<String>,
     pub evm_address: Option<String>,
@@ -76,7 +78,30 @@ pub struct CompactProfile {
     pub username: String,
     pub display_name: Option<String>,
     pub bio: Option<String>,
+    pub avatar_url: Option<String>,
     pub is_verified: bool,
+    pub is_following_me: bool,
+    pub am_following_them: bool,
+}
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub struct PersonalUser {
+    pub id: Principal,
+    pub username: String,
+    pub display_name: Option<String>,
+    pub bio: Option<String>,
+    pub avatar_url: Option<String>,
+    pub banner_url: Option<String>,
+    pub location: Option<String>,
+    pub website: Option<String>,
+    pub created_at: u64,
+    pub updated_at: u64,
+    pub is_verified: bool,
+    pub evm_address: Option<String>,
+    pub bitcoin_address: Option<String>,
+    pub solana_address: Option<String>,
+    pub following_count: u32,
+    pub followers_count: u32,
     pub is_following_me: bool,
     pub am_following_them: bool,
 }
@@ -96,6 +121,7 @@ impl User {
             display_name: None,
             bio: None,
             avatar_url: None,
+            banner_url: None,
             location: None,
             website: None,
             created_at: now,
@@ -118,6 +144,9 @@ impl User {
         }
         if let Some(avatar_url) = update.avatar_url {
             self.avatar_url = Some(avatar_url);
+        }
+        if let Some(banner_url) = update.banner_url {
+            self.banner_url = Some(banner_url);
         }
         if let Some(location) = update.location {
             self.location = Some(location);
