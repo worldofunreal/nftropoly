@@ -61,14 +61,26 @@ export const useColorTheme = () => {
     }
   }
 
-  // Get next color theme (for cycling)
+  // Get next color theme (for cycling) - optimized for speed
   const nextColorTheme = (): void => {
     const themes: ColorTheme[] = ['emerald', 'pink', 'red', 'orange', 'sky', 'fuchsia', 'purple', 'teal']
     const currentIndex = themes.indexOf(colorTheme.value)
     const nextIndex = (currentIndex + 1) % themes.length
     const nextTheme = themes[nextIndex]
+    
     if (nextTheme) {
-      setColorTheme(nextTheme)
+      colorTheme.value = nextTheme
+      
+      // Apply color theme immediately for instant feedback
+      if (typeof window !== 'undefined' && appConfig.ui) {
+        appConfig.ui.colors = {
+          ...appConfig.ui.colors,
+          primary: colorThemes[nextTheme]
+        }
+      }
+      
+      // Save to localStorage in the background (non-blocking)
+      localStorage.setItem('nftropoly-color-theme', nextTheme)
     }
   }
 

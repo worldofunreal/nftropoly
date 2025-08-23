@@ -81,25 +81,25 @@
         <ClientOnly>
           <button
             class="relative w-12.5 h-7.5 rounded-full transition-colors duration-300 focus:outline-none border border-gray-300 dark:border-gray-700 flex mr-2"
-            :class="theme === 'dark' ? 'bg-primary-500' : 'bg-primary-600'"
+            :class="colorMode.value === 'dark' ? 'bg-primary-500' : 'bg-primary-600'"
             aria-label="Toggle theme"
             @click="toggleTheme"
           >
             <span
               class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow transition-all duration-300 flex items-center justify-center"
               :class="
-                theme === 'dark' ? 'translate-x-5' : 'translate-x-0'
+                colorMode.value === 'dark' ? 'translate-x-5' : 'translate-x-0'
               "
             >
               <UIcon
                 :name="
-                  theme === 'dark'
+                  colorMode.value === 'dark'
                     ? 'ix:sun-filled'
                     : 'tabler:moon-filled'
                 "
                 class="w-5 h-5 transition-colors duration-300"
                                   :class="
-                    theme === 'dark'
+                    colorMode.value === 'dark'
                       ? 'text-primary-500'
                       : 'text-primary-600'
                   "
@@ -127,7 +127,6 @@
           color="primary"
           icon="solar:wallet-bold"
           class="hidden md:flex connect-wallet-btn"
-          :key="colorTheme"
           @click="openLoginPanel"
         >
           Connect Wallet
@@ -141,18 +140,17 @@
 
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted, watch, inject, type Ref } from 'vue'
-  import { useNuxtApp } from '#imports'
+  import { useColorMode, useNuxtApp } from '#imports'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
   import CompactProfile from '@/components/CompactProfile.vue'
-  import { useTheme } from '@/composables/useTheme'
   import { useColorTheme } from '@/composables/useColorTheme'
 
   defineOptions({
     name: 'AppHeader',
   })
 
-  const { theme, toggleTheme: toggleThemeComposable } = useTheme()
+  const colorMode = useColorMode()
   const { colorTheme, nextColorTheme } = useColorTheme()
   const authStore = useAuthStore()
   const { $trackInteraction, $trackButtonClick } = useNuxtApp()
@@ -175,10 +173,14 @@
     scrolled.value = window.scrollY > 10
   }
 
-  const toggleTheme = (): void => {
-    toggleThemeComposable()
+  function toggleTheme() {
+    colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
+    
+    // Save to localStorage like useColorTheme
+    localStorage.setItem('nftropoly-theme', colorMode.value)
+    
     $trackButtonClick('Theme Toggle', {
-      newTheme: theme,
+      newTheme: colorMode.value,
       location: 'header',
     })
   }
@@ -325,8 +327,15 @@
   onMounted(() => {
     window.addEventListener('scroll', onScroll)
     onScroll() // Initialize scroll state
+    
+    // Load saved theme from localStorage like useColorTheme
+    const savedTheme = localStorage.getItem('nftropoly-theme') as 'light' | 'dark' | null
+    if (savedTheme) {
+      colorMode.value = savedTheme
+    }
+    
     // Set logo based on theme
-    if (theme.value === 'light') {
+    if (colorMode.value === 'light') {
       logoSrc.value = '/logo-dark.svg'
     } else {
       logoSrc.value = '/logo.svg'
@@ -334,7 +343,7 @@
   })
 
   watch(
-    () => theme.value,
+    () => colorMode.value,
     val => {
       logoSrc.value = val === 'light' ? '/logo-dark.svg' : '/logo.svg'
     }
