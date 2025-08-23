@@ -75,6 +75,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error })],
         [],
       ),
+    'is_following' : IDL.Func([IDL.Principal, IDL.Principal], [IDL.Bool], []),
     'is_username_available' : IDL.Func([IDL.Text], [IDL.Bool], []),
     'search_users' : IDL.Func([IDL.Text, IDL.Nat32], [UsersResult], []),
     'signup' : IDL.Func(

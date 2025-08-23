@@ -1,0 +1,42 @@
+Creator tools
+
+Upload image to canister-> convert to webp -> upload
+Upload batch of images -> convert all to webp -> upload
+Delete image from canister
+
+
+Metadata tools
+Input manually for each image -> Form with fields +
+Analyze with AI -> Get metadata from AI -> Provide context on the collection
+Specify the kind of Metadata -> Name, description, attributes
+
+Random names descriptions and attributes
+
+
+
+Specify order or random mint id
+-> drag and drop positions
+-> set id manually
+
+
+
+
+
+Migrate/Convert collection
+From EXT -> Automated / Manual
+Automated checks the current canister, images, ownership and metadata
+
+Collection Owner -> KYC
+Collector Owner -> Transfer to Nftropoly canister conversion
+
+If collection owner migrates collection -> nftropoly canister conversion retrieves NFT and mints the new one
+
+NFTs must be transfered to the new canister in order to be tradable (Verified Escrow)
+
+From Solana / EVM / Ordinals
+
+Verify Collection Ownership -> Sign Challenge on chain -> provide icp principal -> verified crosschain collection
+The verified owner can now migrate their collection to nftropoly -> 
+NFT owners same -> Sign challenge on chain -> provide icp principal -> verified -> mint NFT
+
+Migrations can be full or partial

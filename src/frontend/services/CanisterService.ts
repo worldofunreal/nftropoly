@@ -546,6 +546,23 @@ class CanisterService {
     }
   }
 
+  async isFollowing(follower: string, following: string): Promise<boolean> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const { Principal } = await import('@dfinity/principal')
+      const followerPrincipal = Principal.fromText(follower)
+      const followingPrincipal = Principal.fromText(following)
+      const result = await this.backendActor.is_following(followerPrincipal, followingPrincipal)
+      return result
+    } catch (error) {
+      console.error('Error checking following status:', error)
+      throw error
+    }
+  }
+
   // Search users
   async searchUsers(searchTerm: string, limit: number = 10): Promise<User[]> {
     if (!this.backendActor) {

@@ -78,6 +78,7 @@ export interface _SERVICE {
     { 'Ok' : null } |
       { 'Err' : Error }
   >,
+  'is_following' : ActorMethod<[Principal, Principal], boolean>,
   'is_username_available' : ActorMethod<[string], boolean>,
   'search_users' : ActorMethod<[string, number], UsersResult>,
   'signup' : ActorMethod<

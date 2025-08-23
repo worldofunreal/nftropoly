@@ -439,6 +439,10 @@ pub fn get_followers(user: Principal) -> Vec<CompactProfile> {
     profiles
 }
 
+pub fn is_following(follower: Principal, following: Principal) -> bool {
+    Database::is_following(follower, following)
+}
+
 // Asset upload handlers
 
 pub async fn init_upload(

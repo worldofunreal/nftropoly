@@ -76,6 +76,25 @@
           </div>
         </div>
 
+        <!-- Follow Button (only for other users' profiles) -->
+        <div v-if="showFollowButton" class="mb-4">
+          <UButton
+            :color="isFollowing ? 'neutral' : 'primary'"
+            :variant="isFollowing ? 'soft' : 'solid'"
+            :loading="followLoading"
+            @click="toggleFollow"
+            @mouseenter="handleFollowHover"
+            @mouseleave="handleFollowLeave"
+            class="w-full"
+          >
+            <UIcon 
+              :name="isFollowing ? 'i-heroicons-user-minus-20-solid' : 'i-heroicons-user-plus-20-solid'" 
+              class="w-4 h-4 mr-2" 
+            />
+            {{ followButtonText }}
+          </UButton>
+        </div>
+
         <!-- Cross-Chain Addresses Section -->
         <div class="mb-4">
           <div class="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2">
@@ -189,16 +208,18 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted, onUnmounted, computed } from 'vue'
+  import { ref, onMounted, onUnmounted, computed, watch } from 'vue'
   import { useNuxtApp } from '#imports'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
+  import { useRoute } from 'vue-router'
 
   defineOptions({
     name: 'HeaderProfile',
   })
 
   const authStore = useAuthStore()
+  const route = useRoute()
   const { $trackInteraction, $trackButtonClick } = useNuxtApp()
 
   // Avatar URL - convert file paths to full URLs with cache busting
@@ -217,28 +238,170 @@
     return `${baseUrl}?t=${timestamp}`
   })
   const showUserMenu = ref(false)
+  const followLoading = ref(false)
+  const isFollowing = ref(false)
+  const isHoveringFollow = ref(false)
+
+  // Check if we're on a profile page and if it's not the current user's profile
+  const showFollowButton = computed(() => {
+    const isProfilePage = route.path.startsWith('/profile/')
+    if (!isProfilePage) return false
+    
+    const routeUsername = route.params.username as string
+    if (!routeUsername) return false
+    
+    // Remove @ symbol if present
+    const cleanUsername = routeUsername.startsWith('@') ? routeUsername.slice(1) : routeUsername
+    
+    // Don't show follow button for own profile
+    return cleanUsername !== authStore.userProfile?.username
+  })
+
+  // Get the username of the profile being viewed
+  const viewedProfileUsername = computed(() => {
+    const routeUsername = route.params.username as string
+    if (!routeUsername) return null
+    return routeUsername.startsWith('@') ? routeUsername.slice(1) : routeUsername
+  })
+
+  // Follow button text
+  const followButtonText = computed(() => {
+    if (isHoveringFollow.value && isFollowing.value) {
+      return 'Unfollow'
+    }
+    return isFollowing.value ? 'Following' : 'Follow'
+  })
 
   onMounted(() => {
     // Close menu when clicking outside
     document.addEventListener('click', handleClickOutside)
+    // Check if we're following the viewed profile
+    checkFollowingStatus()
   })
 
   onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
   })
 
+  // Check if current user is following the viewed profile
+  const checkFollowingStatus = async () => {
+    if (!showFollowButton.value || !viewedProfileUsername.value) return
+    
+    try {
+      // Get the viewed profile to get their principal
+      const viewedProfile = await canisterService.getPublicProfile(viewedProfileUsername.value)
+      if (!viewedProfile?.id) return
+      
+      // Check if current user is following this profile using the efficient method
+      const followingStatus = await canisterService.isFollowing(authStore.principal, viewedProfile.id.toText())
+      isFollowing.value = followingStatus
+    } catch (error) {
+      console.error('Error checking following status:', error)
+    }
+  }
+
+  // Watch for route changes to update following status
+  watch(() => route.params.username, () => {
+    if (showUserMenu.value) {
+      checkFollowingStatus()
+    }
+  })
+
+  // Watch for menu open to check following status
+  watch(() => showUserMenu.value, (isOpen) => {
+    if (isOpen) {
+      checkFollowingStatus()
+    }
+  })
+
   function toggleUserMenu() {
     showUserMenu.value = !showUserMenu.value
-            $trackButtonClick('User Menu Toggle', {
-          isOpen: showUserMenu.value,
-          username: authStore.userProfile?.username,
-        })
+    $trackButtonClick('User Menu Toggle', {
+      isOpen: showUserMenu.value,
+      username: authStore.userProfile?.username,
+    })
   }
 
   function handleClickOutside(event: MouseEvent) {
     const target = event.target as HTMLElement
     if (!target.closest('.relative')) {
       showUserMenu.value = false
+    }
+  }
+
+  function handleFollowHover() {
+    isHoveringFollow.value = true
+  }
+
+  function handleFollowLeave() {
+    isHoveringFollow.value = false
+  }
+
+  async function toggleFollow() {
+    if (!viewedProfileUsername.value || followLoading.value) return
+    
+    followLoading.value = true
+    try {
+      // Get the viewed profile to get their principal
+      const viewedProfile = await canisterService.getPublicProfile(viewedProfileUsername.value)
+      if (!viewedProfile?.id) {
+        throw new Error('Profile not found')
+      }
+      
+      if (isFollowing.value) {
+        await canisterService.unfollowUser(viewedProfile.id.toText())
+        isFollowing.value = false
+        const toast = useToast()
+        toast.add({
+          title: 'Unfollowed',
+          description: `You unfollowed @${viewedProfileUsername.value}`,
+          color: 'success',
+        })
+      } else {
+        try {
+          await canisterService.followUser(viewedProfile.id.toText())
+          isFollowing.value = true
+          const toast = useToast()
+          toast.add({
+            title: 'Following',
+            description: `You are now following @${viewedProfileUsername.value}`,
+            color: 'success',
+          })
+        } catch (error: any) {
+          // Handle "Already following" error gracefully
+          if (error.message?.includes('Already following this user')) {
+            isFollowing.value = true
+            const toast = useToast()
+            toast.add({
+              title: 'Already Following',
+              description: `You are already following @${viewedProfileUsername.value}`,
+              color: 'info',
+            })
+            return
+          }
+          throw error
+        }
+      }
+      
+      $trackButtonClick('Toggle Follow', {
+        action: isFollowing.value ? 'follow' : 'unfollow',
+        targetUsername: viewedProfileUsername.value,
+        username: authStore.userProfile?.username,
+      })
+    } catch (error) {
+      console.error('Follow/Unfollow failed:', error)
+      const toast = useToast()
+      toast.add({
+        title: 'Error',
+        description: 'Failed to follow/unfollow user. Please try again.',
+        color: 'error',
+      })
+      $trackInteraction('Error', {
+        error: 'Follow/Unfollow failed',
+        targetUsername: viewedProfileUsername.value,
+      })
+    } finally {
+      followLoading.value = false
     }
   }
 

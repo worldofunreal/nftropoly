@@ -111,6 +111,9 @@ service : {
     get_following: (principal) -> (vec CompactProfile);
     get_followers: (principal) -> (vec CompactProfile);
     
+    // Check if user is following another user
+    is_following: (principal, principal) -> (bool);
+    
     // Asset upload functions (requires signed call, registered users only)
     init_upload: (text, nat64, opt nat64, text) -> (variant { Ok; Err: Error }); // file_path, file_size, chunk_size, file_hash
     store_chunk: (nat64, vec nat8, text) -> (variant { Ok; Err: Error }); // chunk_id, chunk_data, file_path

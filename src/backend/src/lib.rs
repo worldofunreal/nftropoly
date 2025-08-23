@@ -282,3 +282,8 @@ fn get_following(user: Principal) -> Vec<CompactProfile> {
 fn get_followers(user: Principal) -> Vec<CompactProfile> {
     handlers::get_followers(user)
 }
+
+#[query]
+fn is_following(follower: Principal, following: Principal) -> bool {
+    handlers::is_following(follower, following)
+}

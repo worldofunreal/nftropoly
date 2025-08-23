@@ -236,7 +236,7 @@
 </template>
 
 <script setup lang="ts">
-  import { computed, ref } from 'vue'
+  import { computed, ref, onMounted, watch } from 'vue'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
   import { useRoute } from 'vue-router'
@@ -257,6 +257,10 @@
   const route = useRoute()
   const followLoading = ref(false)
   const editProfileModalRef = ref<any>(null)
+  const isFollowing = ref(false)
+
+  // User profile data - use props if provided, otherwise use auth store
+  const userProfile = computed(() => props.userProfile || auth.userProfile)
 
   // Use props if provided, otherwise fall back to computed logic
   const isOwnProfile = computed(() => {
@@ -269,14 +273,25 @@
   })
 
   // Check if current user is following this profile
-  const isFollowing = computed(() => {
-    // TODO: Implement proper following check
-    // For now, we'll assume false since we need to check against the current user's following list
-    return false
+  const checkFollowingStatus = async () => {
+    if (!userProfile.value?.id || isOwnProfile.value) return
+    
+    try {
+      const followingStatus = await canisterService.isFollowing(auth.principal, userProfile.value.id.toText())
+      isFollowing.value = followingStatus
+    } catch (error) {
+      console.error('Error checking following status:', error)
+    }
+  }
+
+  // Watch for profile changes to update following status
+  watch(() => userProfile.value?.id, () => {
+    checkFollowingStatus()
   })
 
-  // User profile data - use props if provided, otherwise use auth store
-  const userProfile = computed(() => props.userProfile || auth.userProfile)
+  onMounted(() => {
+    checkFollowingStatus()
+  })
 
   // Avatar initial (first letter of username)
   const avatarInitial = computed(() => {
@@ -436,13 +451,48 @@
     try {
       if (isFollowing.value) {
         await canisterService.unfollowUser(userProfile.value.id.toText())
+        isFollowing.value = false
+        const toast = useToast()
+        toast.add({
+          title: 'Unfollowed',
+          description: `You unfollowed @${userProfile.value.username}`,
+          color: 'success',
+        })
       } else {
-        await canisterService.followUser(userProfile.value.id.toText())
+        try {
+          await canisterService.followUser(userProfile.value.id.toText())
+          isFollowing.value = true
+          const toast = useToast()
+          toast.add({
+            title: 'Following',
+            description: `You are now following @${userProfile.value.username}`,
+            color: 'success',
+          })
+        } catch (error: any) {
+          // Handle "Already following" error gracefully
+          if (error.message?.includes('Already following this user')) {
+            isFollowing.value = true
+            const toast = useToast()
+            toast.add({
+              title: 'Already Following',
+              description: `You are already following @${userProfile.value.username}`,
+              color: 'info',
+            })
+            return
+          }
+          throw error
+        }
       }
       // Refresh profile data
       await canisterService.getMyProfile()
     } catch (error) {
       console.error('Follow/Unfollow failed:', error)
+      const toast = useToast()
+      toast.add({
+        title: 'Error',
+        description: 'Failed to follow/unfollow user. Please try again.',
+        color: 'error',
+      })
     } finally {
       followLoading.value = false
     }
