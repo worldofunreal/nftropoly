@@ -97,6 +97,12 @@ service : {
     // Search users
     search_users: (text, nat32) -> (UsersResult);
     
+    // Personal search with follow state
+    search_users_personal: (text, nat32, principal) -> (variant { Ok: vec CompactProfile; Err: Error });
+    
+    // Personal user lookup with follow state
+    get_user_personal: (principal, principal) -> (variant { Ok: CompactProfile; Err: Error });
+    
     // Check if username is available
     is_username_available: (text) -> (bool);
     

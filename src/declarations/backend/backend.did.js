@@ -69,6 +69,11 @@ export const idlFactory = ({ IDL }) => {
     'get_user' : IDL.Func([IDL.Principal], [UserResult], []),
     'get_user_by_username' : IDL.Func([IDL.Text], [UserResult], []),
     'get_user_count' : IDL.Func([], [IDL.Nat64], []),
+    'get_user_personal' : IDL.Func(
+        [IDL.Principal, IDL.Principal],
+        [IDL.Variant({ 'Ok' : CompactProfile, 'Err' : Error })],
+        [],
+      ),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], []),
     'init_upload' : IDL.Func(
         [IDL.Text, IDL.Nat64, IDL.Opt(IDL.Nat64), IDL.Text],
@@ -78,6 +83,11 @@ export const idlFactory = ({ IDL }) => {
     'is_following' : IDL.Func([IDL.Principal, IDL.Principal], [IDL.Bool], []),
     'is_username_available' : IDL.Func([IDL.Text], [IDL.Bool], []),
     'search_users' : IDL.Func([IDL.Text, IDL.Nat32], [UsersResult], []),
+    'search_users_personal' : IDL.Func(
+        [IDL.Text, IDL.Nat32, IDL.Principal],
+        [IDL.Variant({ 'Ok' : IDL.Vec(CompactProfile), 'Err' : Error })],
+        [],
+      ),
     'signup' : IDL.Func(
         [IDL.Text, IDL.Opt(IDL.Text), IDL.Opt(IDL.Text), IDL.Opt(IDL.Text)],
         [UserResult],

@@ -283,18 +283,20 @@
     document.removeEventListener('click', handleClickOutside)
   })
 
-  // Check if current user is following the viewed profile
+  // Check if current user is following this profile using the efficient method
   const checkFollowingStatus = async () => {
-    if (!showFollowButton.value || !viewedProfileUsername.value) return
+    if (!viewedProfileUsername.value) return
     
     try {
       // Get the viewed profile to get their principal
       const viewedProfile = await canisterService.getPublicProfile(viewedProfileUsername.value)
       if (!viewedProfile?.id) return
       
-      // Check if current user is following this profile using the efficient method
-      const followingStatus = await canisterService.isFollowing(authStore.principal, viewedProfile.id.toText())
-      isFollowing.value = followingStatus
+      // Use personal endpoint to get follow state
+      const personalProfile = await canisterService.getUserPersonal(viewedProfile.id.toText(), authStore.principal)
+      if (personalProfile) {
+        isFollowing.value = personalProfile.am_following_them
+      }
     } catch (error) {
       console.error('Error checking following status:', error)
     }

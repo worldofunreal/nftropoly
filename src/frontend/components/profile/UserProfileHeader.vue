@@ -277,8 +277,10 @@
     if (!userProfile.value?.id || isOwnProfile.value) return
     
     try {
-      const followingStatus = await canisterService.isFollowing(auth.principal, userProfile.value.id.toText())
-      isFollowing.value = followingStatus
+      const personalProfile = await canisterService.getUserPersonal(userProfile.value.id.toText(), auth.principal)
+      if (personalProfile) {
+        isFollowing.value = personalProfile.am_following_them
+      }
     } catch (error) {
       console.error('Error checking following status:', error)
     }

@@ -306,14 +306,50 @@ pub async fn update_solana_address(caller: Principal, solana_address: String) ->
 }
 
 pub fn search_users(query: String, limit: u32) -> Result<Vec<User>, Error> {
-    if query.len() < 2 {
-        return Ok(Vec::new());
+    let max_limit = std::cmp::min(limit, 50); // Cap at 50 results
+    let results = Database::search_users(&query, max_limit);
+    Ok(results)
+}
+
+pub fn search_users_personal(query: String, limit: u32, caller: Principal) -> Result<Vec<CompactProfile>, Error> {
+    let max_limit = std::cmp::min(limit, 50); // Cap at 50 results
+    let users = Database::search_users(&query, max_limit);
+    let mut profiles = Vec::new();
+    
+    for user in users {
+        let is_following_me = Database::is_following(user.id, caller);
+        let am_following_them = Database::is_following(caller, user.id);
+        
+        profiles.push(CompactProfile {
+            id: user.id,
+            username: user.username,
+            display_name: user.display_name,
+            bio: user.bio,
+            is_verified: user.is_verified,
+            is_following_me,
+            am_following_them,
+        });
     }
     
-    let max_limit = limit.min(50); // Cap at 50 results
-    let results = Database::search_users(&query, max_limit);
+    Ok(profiles)
+}
+
+pub fn get_user_personal(target: Principal, caller: Principal) -> Result<CompactProfile, Error> {
+    let user = Database::get_user(target)
+        .ok_or(Error::UserNotFound)?;
     
-    Ok(results)
+    let is_following_me = Database::is_following(target, caller);
+    let am_following_them = Database::is_following(caller, target);
+    
+    Ok(CompactProfile {
+        id: user.id,
+        username: user.username,
+        display_name: user.display_name,
+        bio: user.bio,
+        is_verified: user.is_verified,
+        is_following_me,
+        am_following_them,
+    })
 }
 
 pub fn is_username_available(username: String) -> bool {

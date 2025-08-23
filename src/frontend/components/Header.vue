@@ -205,29 +205,24 @@
         await canisterService.initializeAnonymous()
       }
 
-      const results = await canisterService.searchUsers(search.value.trim(), 10)
-      
-      // If user is authenticated, check follow status for each result
+      // Use personal search if authenticated, otherwise use public search
       if (authStore.authenticated && authStore.principal) {
-        for (const user of results) {
-          try {
-            // Check if current user is following this user
-            const amFollowingThem = await canisterService.isFollowing(authStore.principal, user.id.toText())
-            ;(user as any).am_following_them = amFollowingThem
-            
-            // Check if this user is following the current user
-            const isFollowingMe = await canisterService.isFollowing(user.id.toText(), authStore.principal)
-            ;(user as any).is_following_me = isFollowingMe
-          } catch (error) {
-            console.error('Error checking follow status for user:', user.username, error)
-            // Set defaults if check fails
-            ;(user as any).am_following_them = false
-            ;(user as any).is_following_me = false
-          }
-        }
+        const results = await canisterService.searchUsersPersonal(search.value.trim(), 10, authStore.principal)
+        searchResults.value = results
+      } else {
+        const results = await canisterService.searchUsers(search.value.trim(), 10)
+        // For public search, add default follow state
+        searchResults.value = results.map(user => ({
+          id: user.id,
+          username: user.username,
+          display_name: user.display_name,
+          bio: user.bio,
+          is_verified: user.is_verified,
+          is_following_me: false,
+          am_following_them: false,
+        }))
       }
       
-      searchResults.value = results
       searchError.value = ''
     } catch (error) {
       console.error('Search failed:', error)

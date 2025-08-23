@@ -578,6 +578,54 @@ class CanisterService {
     }
   }
 
+  // Personal search with follow state
+  async searchUsersPersonal(searchTerm: string, limit: number, callerPrincipal: string): Promise<CompactProfile[]> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const { Principal } = await import('@dfinity/principal')
+      const callerPrincipalObj = Principal.fromText(callerPrincipal)
+      const result = await this.backendActor.search_users_personal(searchTerm, limit, callerPrincipalObj)
+      
+      if ('Ok' in result) {
+        return result.Ok
+      } else {
+        throw new Error(`Backend error: ${JSON.stringify(result.Err)}`)
+      }
+    } catch (error) {
+      console.error('Error searching users personally:', error)
+      throw error
+    }
+  }
+
+  // Personal user lookup with follow state
+  async getUserPersonal(targetPrincipal: string, callerPrincipal: string): Promise<CompactProfile | null> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const { Principal } = await import('@dfinity/principal')
+      const targetPrincipalObj = Principal.fromText(targetPrincipal)
+      const callerPrincipalObj = Principal.fromText(callerPrincipal)
+      const result = await this.backendActor.get_user_personal(targetPrincipalObj, callerPrincipalObj)
+      
+      if ('Ok' in result) {
+        return result.Ok
+      } else {
+        if (result.Err.UserNotFound) {
+          return null
+        }
+        throw new Error(`Backend error: ${JSON.stringify(result.Err)}`)
+      }
+    } catch (error) {
+      console.error('Error getting user personally:', error)
+      throw error
+    }
+  }
+
   // Get user by username
   async getUserByUsername(username: string): Promise<User | null> {
     if (!this.backendActor) {

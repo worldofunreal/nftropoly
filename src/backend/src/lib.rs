@@ -191,6 +191,16 @@ fn search_users(query: String, limit: u32) -> Result<Vec<User>, Error> {
 }
 
 #[query]
+fn search_users_personal(query: String, limit: u32, caller: Principal) -> Result<Vec<CompactProfile>, Error> {
+    handlers::search_users_personal(query, limit, caller)
+}
+
+#[query]
+fn get_user_personal(target: Principal, caller: Principal) -> Result<CompactProfile, Error> {
+    handlers::get_user_personal(target, caller)
+}
+
+#[query]
 fn is_username_available(username: String) -> bool {
     handlers::is_username_available(username)
 }

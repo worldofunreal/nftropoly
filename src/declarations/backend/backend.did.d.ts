@@ -72,6 +72,11 @@ export interface _SERVICE {
   'get_user' : ActorMethod<[Principal], UserResult>,
   'get_user_by_username' : ActorMethod<[string], UserResult>,
   'get_user_count' : ActorMethod<[], bigint>,
+  'get_user_personal' : ActorMethod<
+    [Principal, Principal],
+    { 'Ok' : CompactProfile } |
+      { 'Err' : Error }
+  >,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'init_upload' : ActorMethod<
     [string, bigint, [] | [bigint], string],
@@ -81,6 +86,11 @@ export interface _SERVICE {
   'is_following' : ActorMethod<[Principal, Principal], boolean>,
   'is_username_available' : ActorMethod<[string], boolean>,
   'search_users' : ActorMethod<[string, number], UsersResult>,
+  'search_users_personal' : ActorMethod<
+    [string, number, Principal],
+    { 'Ok' : Array<CompactProfile> } |
+      { 'Err' : Error }
+  >,
   'signup' : ActorMethod<
     [string, [] | [string], [] | [string], [] | [string]],
     UserResult
