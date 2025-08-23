@@ -19,6 +19,7 @@ interface SessionCache {
   canisterInitialized: boolean
   mnemonic?: string // Optional mnemonic for session restoration
   originalSignature?: string // Original signature for wallet-specific restoration
+  originalPrincipal?: string // Original principal for Internet Identity restoration
   originalWalletType?: string // Original wallet type used for authentication
   timestamp: number
   expiresAt: number

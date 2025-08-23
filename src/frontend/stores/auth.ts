@@ -99,14 +99,14 @@ export const useAuthStore = defineStore('auth', {
             walletType: authResult.nativeWallet,
           }
           
-          // Store the original signature for session restoration
-          console.log('Storing original signature for session restoration:')
+          // Store authentication data for session restoration
+          console.log('Storing authentication data for session restoration:')
           console.log('- Principal:', authResult.principal)
           console.log('- EVM Address:', authResult.evmAddress)
-          console.log('- Original Signature:', authResult.signature)
+          console.log('- Wallet Type:', walletType)
           
-          // Save session to cache with original signature
-          appCacheService.saveSession({
+          // For Internet Identity, store principal instead of signature
+          const sessionData: any = {
             authenticated: true,
             registered: true,
             principal: authResult.principal,
@@ -115,9 +115,20 @@ export const useAuthStore = defineStore('auth', {
             btcAddress: authResult.btcAddress || '',
             nativeWallet: authResult.nativeWallet,
             canisterInitialized: true,
-            originalSignature: authResult.signature, // Store original signature
             originalWalletType: walletType // Store original wallet type
-          })
+          }
+          
+          // Store signature for wallets that have it, principal for Internet Identity
+          if (walletType === 'internet-identity') {
+            sessionData.originalPrincipal = authResult.principal // Store principal for II
+            console.log('- Original Principal (II):', authResult.principal)
+          } else {
+            sessionData.originalSignature = authResult.signature // Store signature for other wallets
+            console.log('- Original Signature:', authResult.signature)
+          }
+          
+          // Save session to cache
+          appCacheService.saveSession(sessionData)
           
           this.saveStateToLocalStorage()
           return { existing: true, profile: existingProfile }
@@ -239,8 +250,9 @@ export const useAuthStore = defineStore('auth', {
           this.nativeWallet = session.nativeWallet
           this.canisterInitialized = session.canisterInitialized
           
-          // Recreate mnemonic from stored signature
+          // Recreate authentication data based on wallet type
           if (session.originalSignature) {
+            // For wallets with signatures (MetaMask, Phantom, Plug)
             console.log('Recreating mnemonic from stored signature...')
             console.log('Stored signature:', session.originalSignature)
             
@@ -252,6 +264,21 @@ export const useAuthStore = defineStore('auth', {
             console.log('Recreated mnemonic:', mnemonic)
             
             // Use the seed directly to restore identity (don't call fromMnemonic again!)
+            identity = await CrossChainSeedService.toIdentity(seed)
+            
+          } else if (session.originalPrincipal && session.originalWalletType === 'internet-identity' as WalletType) {
+            // For Internet Identity, recreate seed from principal
+            console.log('Recreating seed from stored principal (Internet Identity)...')
+            console.log('Stored principal:', session.originalPrincipal)
+            
+            // Recreate seed from original principal
+            const seed = await CrossChainSeedService.fromPrincipal(session.originalPrincipal)
+            
+            // Recreate mnemonic from seed
+            const mnemonic = CrossChainSeedService.seedToMnemonic(seed)
+            console.log('Recreated mnemonic (II):', mnemonic)
+            
+            // Use the seed directly to restore identity
             identity = await CrossChainSeedService.toIdentity(seed)
             
             console.log('Using original stored addresses:')
@@ -309,7 +336,7 @@ export const useAuthStore = defineStore('auth', {
               return true // Return true to keep the session
             }
           } else {
-            console.warn('No original signature available for session restoration')
+            console.warn('No original signature or principal available for session restoration')
             appCacheService.clearSession()
             return false
           }

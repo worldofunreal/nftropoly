@@ -62,7 +62,7 @@
   // import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
   // import OnboardingTrigger from './components/OnboardingTrigger.vue'
 
-  const loginPanelRef = ref<{ open: () => void } | null>(null)
+  const loginPanelRef = ref<{ open: () => void; showRegistrationModal: () => void } | null>(null)
   // Temporarily disabled for performance optimization
   // const disclaimerModalRef = ref<{
   //   open: () => void
@@ -106,9 +106,10 @@
       if (restored) {
         if (auth.registered) {
           console.log('Session restored successfully')
+          const username = auth.userProfile?.username || 'there'
           toast.add({
-            title: 'Welcome Back!',
-            description: 'Your session has been restored.',
+            title: `Welcome back, ${username}!`,
+            description: 'Great to see you again.',
             color: 'success',
           })
         } else {
