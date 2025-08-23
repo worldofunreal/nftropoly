@@ -86,13 +86,32 @@ export default defineNuxtConfig({
       },
     },
     optimizeDeps: {
-      include: ['buffer', 'process', 'util', 'bitcoinjs-lib', 'ecpair', 'tiny-secp256k1', 'crypto-browserify', 'stream-browserify'],
+      include: [
+        'buffer', 
+        'process', 
+        'util', 
+        'bitcoinjs-lib', 
+        'ecpair', 
+        'tiny-secp256k1', 
+        'crypto-browserify', 
+        'stream-browserify',
+        '@dfinity/principal',
+        '@dfinity/agent',
+        '@dfinity/candid',
+        '@solana/web3.js'
+      ],
+      exclude: ['@microsoft/clarity']
     },
     build: {
+      chunkSizeWarningLimit: 1000,
       rollupOptions: {
         output: {
           manualChunks: {
-            bitcoin: ['bitcoinjs-lib', 'ecpair', 'tiny-secp256k1'],
+            // Split vendor chunks for better caching
+            'bitcoin': ['bitcoinjs-lib', 'ecpair', 'tiny-secp256k1'],
+            'crypto': ['crypto-browserify', 'stream-browserify', 'buffer', 'process', 'util'],
+            'chart': ['chart.js', 'vue-chartjs'],
+            'ethers': ['ethers']
           },
         },
       },
@@ -100,13 +119,23 @@ export default defineNuxtConfig({
     plugins: [
       require('vite-plugin-wasm')(),
     ],
+    // Ensure WASM files are properly handled
+    assetsInclude: ['**/*.wasm'],
   },
   nitro: {
     experimental: {
       wasm: true,
     },
     rollupConfig: {
-      external: [],
+      external: [
+        '@dfinity/agent',
+        '@dfinity/principal',
+        '@dfinity/candid',
+        '@dfinity/identity', 
+        '@dfinity/auth-client',
+        '@solana/web3.js',
+        '@microsoft/clarity'
+      ],
     },
     nodeModulesDirs: ['../../node_modules'],
     alias: {
@@ -132,4 +161,16 @@ export default defineNuxtConfig({
       network: 'local',
     },
   },
+  // Optimize build for SSR
+  build: {
+    transpile: [
+      '@dfinity/agent',
+      '@dfinity/principal',
+      '@dfinity/candid',
+      '@dfinity/identity',
+      '@dfinity/auth-client'
+    ]
+  },
+  // Disable source maps in production for better performance
+  sourcemap: process.env.NODE_ENV === 'development',
 })

@@ -188,8 +188,8 @@ async function login(walletType: WalletType) {
 
         // Show success toast
         toast.add({
-          title: 'Welcome Back!',
-          description: `Welcome back, ${loginResult.profile?.username || 'user'}!`,
+          title: ` Welcome Back ${loginResult.profile?.username || 'user'}!`,
+          description: 'Great to see you again',
           color: 'success',
         })
 

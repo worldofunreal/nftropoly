@@ -23,3 +23,7 @@ dist/
 
 .output/
 /ignore
+
+# production files
+src/frontend/scripts/deploy-production.sh
+src/frontend/nginx-production.conf

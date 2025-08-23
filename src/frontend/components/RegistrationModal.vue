@@ -72,8 +72,9 @@
           <input
             v-model="username"
             type="text"
-            placeholder="Enter your username"
+            placeholder="Enter your username (3-12 characters, any language)"
             required
+            maxlength="12"
             :disabled="loading"
             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
             @input="checkUsernameAvailability"
@@ -88,6 +89,15 @@
             ]"
           >
             {{ usernameMessage }}
+          </p>
+          <p
+            v-if="usernameValidationError"
+            class="text-xs mt-1 text-red-600"
+          >
+            {{ usernameValidationError }}
+          </p>
+          <p class="text-xs mt-1 text-gray-500">
+            {{ username.length }}/12 characters
           </p>
         </div>
 
@@ -144,6 +154,7 @@
   const usernameStatus = ref<'available' | 'taken' | 'checking' | null>(null)
   const usernameMessage = ref('')
   const usernameCheckTimeout = ref<NodeJS.Timeout | null>(null)
+  const usernameValidationError = ref('')
 
   const auth = useAuthStore()
   const toast = useToast()
@@ -152,13 +163,44 @@
   const canComplete = computed(() => {
     return (
       username.value.trim().length >= 3 &&
-      usernameStatus.value === 'available'
+      usernameStatus.value === 'available' &&
+      !usernameValidationError.value
     )
   })
+
+  // Username validation function
+  function validateUsername(usernameValue: string): string | null {
+    if (usernameValue.length < 3) {
+      return 'Username must be at least 3 characters long'
+    }
+    
+    if (usernameValue.length > 12) {
+      return 'Username must be 12 characters or less'
+    }
+    
+    // Allow any Unicode characters except whitespace and problematic characters
+    if (/[\s\/\\:*?"<>|]/.test(usernameValue)) {
+      return 'Username cannot contain whitespace or special characters'
+    }
+    
+    return null
+  }
 
   // Username availability check
   async function checkUsernameAvailability() {
     const usernameValue = username.value.trim()
+
+    // Clear previous validation error
+    usernameValidationError.value = ''
+
+    // Validate username format
+    const validationError = validateUsername(usernameValue)
+    if (validationError) {
+      usernameValidationError.value = validationError
+      usernameStatus.value = null
+      usernameMessage.value = ''
+      return
+    }
 
     if (usernameValue.length < 3) {
       usernameStatus.value = null
@@ -232,6 +274,7 @@
     username.value = ''
     usernameStatus.value = null
     usernameMessage.value = ''
+    usernameValidationError.value = ''
   }
 
   defineExpose({ open, close })
@@ -266,8 +309,8 @@
 
       // Show success notification
       toast.add({
-        title: 'Profile Created!',
-        description: `Welcome to NFTropoly, ${profile.username}! Your profile has been created successfully.`,
+        title: `Welcome to NFTropoly ${profile.username}!`,
+        description: `Let's get you started.`,
         color: 'success',
       })
 
@@ -277,7 +320,7 @@
       await navigateTo('/profile')
     } catch (err: any) {
       console.error('Registration error:', err)
-      error.value = err?.message || 'Registration failed. Please try again.'
+      error.value = err?.message || 'Please try again and report this annoying bug on Social Media or email hello@nftropoly.com'
 
       toast.add({
         title: 'Registration Failed',

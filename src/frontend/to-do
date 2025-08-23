@@ -19,9 +19,6 @@ Specify order or random mint id
 -> set id manually
 
 
-
-
-
 Migrate/Convert collection
 From EXT -> Automated / Manual
 Automated checks the current canister, images, ownership and metadata
@@ -40,3 +37,19 @@ The verified owner can now migrate their collection to nftropoly ->
 NFT owners same -> Sign challenge on chain -> provide icp principal -> verified -> mint NFT
 
 Migrations can be full or partial
+
+
+
+
+Cache strategies for user profiles
+Followers, NFTs
+so they pull the info locally cached, and just update with blockchain call if there's new info
+
+
+Connect to social media
+For short videos Tiktok/Insta/YT set the api to check the users posts that tag @nftropoly
+
+
+
+SECURITY
+Check SSR security so the signed messages and mnemonic aren't leaked on the server and generated only on frontend

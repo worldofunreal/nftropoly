@@ -13,8 +13,9 @@ fn validate_username(username: &str) -> Result<(), Error> {
         return Err(Error::InvalidInput("Username must be between 3 and 12 characters".to_string()));
     }
     
-    if !username.chars().all(|c| c.is_alphanumeric() || c == '_') {
-        return Err(Error::InvalidInput("Username can only contain letters, numbers, and underscores".to_string()));
+    // Allow any Unicode characters except whitespace and problematic characters
+    if username.chars().any(|c| c.is_whitespace() || c == '/' || c == '\\' || c == ':' || c == '*' || c == '?' || c == '"' || c == '<' || c == '>' || c == '|') {
+        return Err(Error::InvalidInput("Username cannot contain whitespace or special characters".to_string()));
     }
     
     Ok(())

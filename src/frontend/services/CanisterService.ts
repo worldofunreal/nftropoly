@@ -1,5 +1,6 @@
 import { Actor, HttpAgent } from '@dfinity/agent'
 import type { Identity } from '@dfinity/agent'
+import { Principal } from '@dfinity/principal'
 import { idlFactory } from '../../declarations/backend'
 import type { _SERVICE as BackendService, User, UserResult, UserUpdate, CompactProfile, PersonalUser } from '../../declarations/backend/backend.did'
 import { appCacheService } from './AppCacheService'
@@ -213,7 +214,6 @@ class CanisterService {
       }
 
       // Ensure caller is a proper Principal object
-      const { Principal } = await import('@dfinity/principal')
       let principal: any
       
       console.log('Processing caller principal:', caller)
@@ -509,7 +509,6 @@ class CanisterService {
     }
 
     try {
-      const { Principal } = await import('@dfinity/principal')
       const targetPrincipalObj = Principal.fromText(targetPrincipal)
       const result = await this.backendActor.follow_user(targetPrincipalObj)
       
@@ -532,7 +531,6 @@ class CanisterService {
     }
 
     try {
-      const { Principal } = await import('@dfinity/principal')
       const targetPrincipalObj = Principal.fromText(targetPrincipal)
       const result = await this.backendActor.unfollow_user(targetPrincipalObj)
       
@@ -555,7 +553,6 @@ class CanisterService {
     }
 
     try {
-      const { Principal } = await import('@dfinity/principal')
       const userPrincipal = Principal.fromText(user)
       const result = await this.backendActor.get_following(userPrincipal)
       return result
@@ -571,7 +568,6 @@ class CanisterService {
     }
 
     try {
-      const { Principal } = await import('@dfinity/principal')
       const userPrincipal = Principal.fromText(user)
       const result = await this.backendActor.get_followers(userPrincipal)
       return result
@@ -587,7 +583,6 @@ class CanisterService {
     }
 
     try {
-      const { Principal } = await import('@dfinity/principal')
       const followerPrincipal = Principal.fromText(follower)
       const followingPrincipal = Principal.fromText(following)
       const result = await this.backendActor.is_following(followerPrincipal, followingPrincipal)
@@ -624,7 +619,6 @@ class CanisterService {
     }
 
     try {
-      const { Principal } = await import('@dfinity/principal')
       const callerPrincipalObj = Principal.fromText(callerPrincipal)
       const result = await this.backendActor.search_users_personal(searchTerm, limit, callerPrincipalObj)
       
@@ -646,7 +640,6 @@ class CanisterService {
     }
 
     try {
-      const { Principal } = await import('@dfinity/principal')
       const targetPrincipalObj = Principal.fromText(targetPrincipal)
       const callerPrincipalObj = Principal.fromText(callerPrincipal)
       const result = await this.backendActor.get_user_personal(targetPrincipalObj, callerPrincipalObj)
@@ -741,7 +734,6 @@ class CanisterService {
     try {
       // Fetch fresh data
       console.log('Fetching fresh profile for principal:', principal)
-      const { Principal } = await import('@dfinity/principal')
       const userPrincipal = Principal.fromText(principal)
       const result = await this.backendActor.get_user(userPrincipal)
       const user = handleUserResult(result)
@@ -766,7 +758,6 @@ class CanisterService {
     
     try {
       console.log('Refreshing profile in background for principal:', principal)
-      const { Principal } = await import('@dfinity/principal')
       const userPrincipal = Principal.fromText(principal)
       const result = await this.backendActor.get_user(userPrincipal)
       const user = handleUserResult(result)

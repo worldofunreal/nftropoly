@@ -43,6 +43,7 @@ export default defineNuxtPlugin(nuxtApp => {
   // Attempt to identify user once app is mounted and auth store is available
   nuxtApp.hook('app:mounted', async () => {
     try {
+      // Use static import for auth store
       const { useAuthStore } = await import('@/stores/auth')
       const auth = useAuthStore()
 
