@@ -20,9 +20,7 @@ export class InternetIdentityAdapter implements WalletAdapter {
     
     return new Promise((resolve, reject) => {
       authClient.login({
-        identityProvider: process.env.NODE_ENV === 'development' 
-          ? `http://localhost:4943?canisterId=rdmx6-jaaaa-aaaaa-aaadq-cai`
-          : 'https://identity.ic0.app',
+        identityProvider: 'https://identity.ic0.app', // Always use mainnet
         onSuccess: () => {
           const identity = authClient.getIdentity()
           const principal = identity.getPrincipal().toText()

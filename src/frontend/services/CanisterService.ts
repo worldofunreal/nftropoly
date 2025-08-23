@@ -183,6 +183,15 @@ class CanisterService {
       if (!caller && this.agent) {
         caller = this.agent.getPrincipal()
       }
+      if (!caller && window.ic?.plug?.agent) {
+        // For Plug, get principal from Plug's agent
+        try {
+          caller = await window.ic.plug.agent.getPrincipal()
+          console.log('Got principal from Plug agent:', caller)
+        } catch (error) {
+          console.warn('Failed to get principal from Plug agent:', error)
+        }
+      }
       if (!caller) {
         throw new Error('No principal available')
       }
@@ -191,11 +200,26 @@ class CanisterService {
       const { Principal } = await import('@dfinity/principal')
       let principal: any
       
+      console.log('Processing caller principal:', caller)
+      console.log('Caller type:', typeof caller)
+      console.log('Caller has toText:', caller && typeof caller.toText === 'function')
+      
       if (caller && typeof caller.toText === 'function') {
         principal = caller
       } else if (typeof caller === 'string') {
         principal = Principal.fromText(caller)
+      } else if (caller && caller._isPrincipal) {
+        // Handle Plug's principal format - try to convert to string first
+        console.log('Converting Plug principal format')
+        try {
+          const principalText = caller.toString()
+          principal = Principal.fromText(principalText)
+        } catch (error) {
+          console.error('Failed to convert Plug principal:', error)
+          throw new Error('Invalid principal format')
+        }
       } else {
+        console.error('Invalid principal format:', caller)
         throw new Error('Invalid principal format')
       }
 

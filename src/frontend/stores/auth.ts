@@ -260,9 +260,22 @@ export const useAuthStore = defineStore('auth', {
             console.log('- Solana Address:', session.solAddress)
             console.log('- Bitcoin Address:', session.btcAddress)
             
-            // Initialize canister service
+            // Initialize canister service based on wallet type
             if (session.originalWalletType === 'plug') {
-              await canisterService.initializeWithPlug()
+              // For Plug, we need to reconnect first
+              console.log('Reconnecting Plug for session restoration...')
+              try {
+                // Get Plug adapter and reconnect
+                const adapter = WalletRegistry.getAdapter('plug')
+                await adapter.authenticate() // This will reconnect Plug
+                
+                // Now initialize canister service
+                await canisterService.initializeWithPlug()
+              } catch (error) {
+                console.warn('Failed to reconnect Plug, trying identity-based initialization...')
+                // Fallback to identity-based initialization
+                await canisterService.initialize(identity)
+              }
             } else {
               await canisterService.initialize(identity)
             }
