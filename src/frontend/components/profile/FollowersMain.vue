@@ -5,7 +5,7 @@
       <div class="mb-6">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Followers</h2>
         <p class="text-gray-600 dark:text-gray-400 mt-1">
-          People following you
+          {{ isOwnProfile ? 'People following you' : `People following @${targetUser?.username}` }}
         </p>
       </div>
 
@@ -18,9 +18,11 @@
       <div v-else-if="followers.length === 0" class="text-center py-12">
         <div class="text-gray-400 dark:text-gray-500">
           <UIcon name="i-heroicons-user-group-20-solid" class="w-12 h-12 mx-auto mb-4" />
-          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">No followers yet</h3>
+          <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            {{ isOwnProfile ? 'No followers yet' : `@${targetUser?.username} has no followers yet` }}
+          </h3>
           <p class="text-gray-500 dark:text-gray-400">
-            When people follow you, they'll appear here.
+            {{ isOwnProfile ? 'When people follow you, they\'ll appear here.' : `When people follow @${targetUser?.username}, they'll appear here.` }}
           </p>
         </div>
       </div>
@@ -54,10 +56,20 @@
 </template>
 
 <script setup lang="ts">
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, computed, watch } from 'vue'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
   import CompactProfile from '@/components/CompactProfile.vue'
+
+  interface Props {
+    targetUser?: any
+    isOwnProfile?: boolean
+  }
+
+  const props = withDefaults(defineProps<Props>(), {
+    targetUser: undefined,
+    isOwnProfile: false
+  })
 
   const auth = useAuthStore()
   const loading = ref(false)
@@ -66,13 +78,18 @@
   const followers = ref<any[]>([])
   const hasMore = ref(false)
 
+  // Get the principal to use for loading followers data
+  const targetPrincipal = computed(() => {
+    return props.targetUser?.id?.toText() || auth.principal
+  })
+
   // Load followers list
   const loadFollowers = async () => {
-    if (!auth.principal) return
+    if (!targetPrincipal.value) return
     
     loading.value = true
     try {
-      const result = await canisterService.getFollowers(auth.principal)
+      const result = await canisterService.getFollowers(targetPrincipal.value)
       followers.value = result
     } catch (error) {
       console.error('Failed to load followers:', error)
@@ -80,6 +97,13 @@
       loading.value = false
     }
   }
+
+  // Watch for target user changes
+  watch(() => props.targetUser?.id, () => {
+    if (props.targetUser?.id) {
+      loadFollowers()
+    }
+  })
 
   // Load more followers
   const loadMore = async () => {

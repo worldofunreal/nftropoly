@@ -39,7 +39,11 @@
         />
         <!-- Main Content Area -->
         <div class="w-0 flex-1 min-h-0">
-          <component :is="tabComponent" />
+          <component 
+            :is="tabComponent" 
+            :target-user="userProfile"
+            :is-own-profile="isOwnProfile"
+          />
         </div>
       </div>
     </div>

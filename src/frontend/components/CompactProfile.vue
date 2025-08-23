@@ -105,22 +105,17 @@
   // Avatar URL - convert file paths to full URLs with cache busting
   const avatarUrl = computed(() => {
     const avatarPath = props.user?.avatar_url?.[0]
-    console.log('CompactProfile avatar debug - user:', props.user?.username, 'avatar_url:', props.user?.avatar_url, 'avatarPath:', avatarPath)
-    
     if (!avatarPath) return null
     
     // If it's already a full URL, return as is
     if (avatarPath.startsWith('http')) {
-      console.log('CompactProfile avatar is full URL:', avatarPath)
       return avatarPath
     }
     
     // Convert file path to full URL with cache busting
     const baseUrl = canisterService.getAssetUrl(avatarPath)
     const timestamp = Date.now()
-    const finalUrl = `${baseUrl}?t=${timestamp}`
-    console.log('CompactProfile avatar converted to URL:', finalUrl)
-    return finalUrl
+    return `${baseUrl}?t=${timestamp}`
   })
 
   // Check if we should show follow button
