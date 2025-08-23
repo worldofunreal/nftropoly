@@ -269,6 +269,61 @@ export const useAuthStore = defineStore('auth', {
             // Use the seed directly to restore identity (don't call fromMnemonic again!)
             identity = await CrossChainSeedService.toIdentity(seed)
             
+            console.log('Using original stored addresses:')
+            console.log('- Principal:', session.principal)
+            console.log('- EVM Address:', session.evmAddress)
+            console.log('- Solana Address:', session.solAddress)
+            console.log('- Bitcoin Address:', session.btcAddress)
+            
+            // Initialize canister service based on wallet type
+            if (session.originalWalletType === 'plug') {
+              // For Plug, we need to reconnect first
+              console.log('Reconnecting Plug for session restoration...')
+              try {
+                // Get Plug adapter and reconnect
+                const adapter = WalletRegistry.getAdapter('plug')
+                await adapter.authenticate() // This will reconnect Plug
+                
+                // Now initialize canister service
+                await canisterService.initializeWithPlug()
+              } catch (error) {
+                console.warn('Failed to reconnect Plug, trying identity-based initialization...')
+                // Fallback to identity-based initialization
+                await canisterService.initialize(identity)
+              }
+            } else {
+              await canisterService.initialize(identity)
+            }
+            this.canisterInitialized = true
+            
+            // Get user profile
+            const profile = await canisterService.getMyProfile()
+            if (profile) {
+              this.userProfile = profile
+              this.registered = true
+              
+              // Update legacy player object
+              this.player = {
+                username: profile.username,
+                displayName: profile.display_name.length > 0 ? profile.display_name[0] : null,
+                avatarPreset: 1,
+                avatarUrl: profile.avatar_url.length > 0 ? profile.avatar_url[0] : null,
+                bannerUrl: null,
+                ethAddress: this.evmAddress,
+                principal: this.principal,
+                walletType: this.nativeWallet,
+              }
+              
+              console.log('Session restored successfully with full functionality')
+              return true
+            } else {
+              // User exists in session but not in database - needs registration
+              console.log('User authenticated but not registered, keeping session for registration')
+              this.registered = false
+              this.userProfile = null
+              return true // Return true to keep the session
+            }
+            
           } else if (session.originalPrincipal && session.originalWalletType === 'internet-identity' as WalletType) {
             // For Internet Identity, recreate seed from principal
             console.log('Recreating seed from stored principal (Internet Identity)...')
