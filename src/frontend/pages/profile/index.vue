@@ -41,7 +41,7 @@
       if (profile?.username) {
         username.value = profile.username
         // Redirect to the username-based route
-        await router.push(`/profile/@${profile.username}`)
+        await router.push(`/@${profile.username}`)
       } else {
         // If no username, redirect to home
         await router.push('/')

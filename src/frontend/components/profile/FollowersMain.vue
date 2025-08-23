@@ -140,7 +140,7 @@
 
   // View user profile
   const viewProfile = (user: any) => {
-    navigateTo(`/profile/@${user.username}`)
+            navigateTo(`/@${user.username}`)
   }
 
   onMounted(() => {

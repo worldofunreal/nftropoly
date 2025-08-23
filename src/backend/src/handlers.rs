@@ -391,6 +391,10 @@ pub fn get_user_count() -> u64 {
     Database::get_user_count()
 }
 
+pub fn get_all_usernames() -> Vec<String> {
+    Database::get_all_usernames()
+}
+
 // Following/Followers functions
 pub async fn follow_user(caller: Principal, target: Principal) -> Result<User, Error> {
     // Check if caller exists

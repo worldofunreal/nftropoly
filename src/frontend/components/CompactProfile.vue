@@ -70,6 +70,7 @@
 
 <script setup lang="ts">
   import { computed, ref, onMounted, watch } from 'vue'
+  import { useRouter } from 'vue-router'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
 
@@ -91,6 +92,7 @@
   }>()
 
   const authStore = useAuthStore()
+  const router = useRouter()
   const followLoading = ref(false)
 
   // Display name (prefer display_name, fallback to username)
@@ -233,6 +235,8 @@
 
   const handleClick = () => {
     if (props.clickable) {
+      // Navigate to the new @username route
+      router.push(`/@${props.user.username}`)
       emit('click', props.user)
     }
   }

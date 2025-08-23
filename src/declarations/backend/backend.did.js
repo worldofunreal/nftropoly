@@ -84,6 +84,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'follow_user' : IDL.Func([IDL.Principal], [UserResult], []),
+    'get_all_usernames' : IDL.Func([], [IDL.Vec(IDL.Text)], []),
     'get_followers' : IDL.Func([IDL.Principal], [IDL.Vec(CompactProfile)], []),
     'get_following' : IDL.Func([IDL.Principal], [IDL.Vec(CompactProfile)], []),
     'get_user' : IDL.Func([IDL.Principal], [UserResult], []),

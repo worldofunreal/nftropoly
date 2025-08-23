@@ -86,6 +86,7 @@ export interface _SERVICE {
       { 'Err' : Error }
   >,
   'follow_user' : ActorMethod<[Principal], UserResult>,
+  'get_all_usernames' : ActorMethod<[], Array<string>>,
   'get_followers' : ActorMethod<[Principal], Array<CompactProfile>>,
   'get_following' : ActorMethod<[Principal], Array<CompactProfile>>,
   'get_user' : ActorMethod<[Principal], UserResult>,

@@ -162,6 +162,31 @@ class CanisterService {
     }
   }
 
+  // Get all usernames for sitemap generation
+  async getAllUsernames(): Promise<string[]> {
+    if (!this.backendActor) {
+      // Try to initialize anonymously if not initialized
+      try {
+        await this.initializeAnonymous()
+      } catch (error) {
+        console.error('Failed to initialize for usernames fetch:', error)
+        throw new Error('Service not available')
+      }
+    }
+
+    try {
+      console.log('Fetching all usernames for sitemap')
+      if (!this.backendActor) {
+        throw new Error('Service not available')
+      }
+      const usernames = await this.backendActor.get_all_usernames()
+      return usernames
+    } catch (error) {
+      console.error('Error getting all usernames:', error)
+      throw error
+    }
+  }
+
   // Check if user exists by querying their profile
   async getMyProfile(): Promise<User | null> {
     if (!this.backendActor) {

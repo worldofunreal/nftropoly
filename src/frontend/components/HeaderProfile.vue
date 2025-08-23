@@ -191,7 +191,19 @@
         </div>
 
         <!-- Actions -->
-        <div class="border-t border-gray-200 dark:border-gray-700 pt-3">
+        <div class="border-t border-gray-200 dark:border-gray-700 pt-3 space-y-2">
+          <!-- Profile Button -->
+          <UButton
+            block
+            color="primary"
+            variant="soft"
+            icon="iconamoon:profile-fill"
+            :to="authStore.userProfile?.username ? `/@${authStore.userProfile.username}` : '/profile'"
+          >
+            View Profile
+          </UButton>
+          
+          <!-- Logout Button -->
           <UButton
             block
             color="error"
@@ -244,7 +256,7 @@
 
   // Check if we're on a profile page and if it's not the current user's profile
   const showFollowButton = computed(() => {
-    const isProfilePage = route.path.startsWith('/profile/')
+    const isProfilePage = route.path.startsWith('/@')
     if (!isProfilePage) return false
     
     const routeUsername = route.params.username as string

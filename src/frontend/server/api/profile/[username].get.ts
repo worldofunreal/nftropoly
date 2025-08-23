@@ -10,9 +10,12 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Remove @ symbol if present
+    const cleanUsername = username.startsWith('@') ? username.slice(1) : username
+
     // Return a proper response structure to avoid useFetch warnings
     // This indicates that client-side fetching should be used
-    console.log('SSR API: Returning empty response, will use client-side fetching for:', username)
+    console.log('SSR API: Returning empty response, will use client-side fetching for:', cleanUsername)
     return {
       success: false,
       message: 'Client-side fetching required',

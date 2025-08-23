@@ -239,7 +239,7 @@
 
   const selectUser = (user: any) => {
     // Navigate to user profile
-    navigateTo(`/profile/@${user.username}`)
+            navigateTo(`/@${user.username}`)
     search.value = ''
     showSearchResults.value = false
     searchResults.value = []

@@ -85,6 +85,11 @@ fn get_user_by_username(username: String) -> Result<User, Error> {
     handlers::get_user_by_username(username)
 }
 
+#[query]
+fn get_all_usernames() -> Vec<String> {
+    handlers::get_all_usernames()
+}
+
 #[update]
 async fn update_profile(update: UserUpdate) -> Result<User, Error> {
     let caller = msg_caller();

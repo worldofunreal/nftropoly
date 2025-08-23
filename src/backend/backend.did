@@ -126,6 +126,9 @@ service : {
     // Get total user count
     get_user_count: () -> (nat64);
     
+    // Get all usernames for sitemap generation
+    get_all_usernames: () -> (vec text);
+    
     // Follow/Unfollow functionality
     follow_user: (principal) -> (UserResult);
     unfollow_user: (principal) -> (UserResult);

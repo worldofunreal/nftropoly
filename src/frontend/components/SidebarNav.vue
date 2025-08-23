@@ -57,7 +57,7 @@
     { 
       label: 'Profile', 
       icon: 'iconamoon:profile-fill', 
-      to: auth.userProfile?.username ? `/profile/@${auth.userProfile.username}` : '/profile/' 
+      to: auth.userProfile?.username ? `/@${auth.userProfile.username}` : '/profile' 
     },
     { hr: true },
     { label: 'Settings', icon: 'iconamoon:settings-fill', to: '/settings' },

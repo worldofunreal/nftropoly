@@ -107,6 +107,12 @@ impl Database {
         })
     }
 
+    pub fn get_all_usernames() -> Vec<String> {
+        USERNAMES.with(|usernames| {
+            usernames.borrow().iter().map(|entry| entry.key().clone()).collect()
+        })
+    }
+
     pub fn search_users(query: &str, limit: u32) -> Vec<User> {
         let query_lower = query.to_lowercase();
         let mut results = Vec::new();

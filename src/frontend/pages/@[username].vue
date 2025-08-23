@@ -9,7 +9,7 @@
     <div v-else-if="error" class="flex items-center justify-center min-h-screen">
       <div class="text-center">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">User Not Found</h1>
-        <p class="text-gray-600 dark:text-gray-400 mb-6">The user "@{{ username }}" could not be found.</p>
+        <p class="text-gray-600 dark:text-gray-400 mb-6">The user "{{ username }}" could not be found.</p>
         <UButton @click="$router.push('/')" color="primary">
           Go Home
         </UButton>
@@ -93,7 +93,7 @@
     return routeUsername.startsWith('@') ? routeUsername.slice(1) : routeUsername
   })
 
-  // SSR: Fetch profile data on server-side (optional, falls back to client-side)
+  // SSR: Fetch profile data on server-side
   const { data: ssrProfile } = await useFetch(`/api/profile/${username.value}`, {
     key: `profile-${username.value}`,
     default: () => null,
@@ -106,7 +106,7 @@
 
   // If SSR data is available and valid, use it immediately
   if (ssrProfile.value && ssrProfile.value.success !== false) {
-    userProfile.value = ssrProfile.value
+    userProfile.value = ssrProfile.value.data
     loading.value = false
   }
 
@@ -114,6 +114,148 @@
   const isOwnProfile = computed(() => {
     if (!userProfile.value || !auth.userProfile) return false
     return userProfile.value.id?.toText() === auth.userProfile.id?.toText()
+  })
+
+  // SEO: Generate meta tags and structured data
+  const profileDisplayName = computed(() => {
+    if (!userProfile.value?.display_name) return username.value
+    return Array.isArray(userProfile.value.display_name) 
+      ? userProfile.value.display_name[0] 
+      : userProfile.value.display_name
+  })
+
+  const profileBio = computed(() => {
+    if (!userProfile.value?.bio) return ''
+    return Array.isArray(userProfile.value.bio) 
+      ? userProfile.value.bio[0] 
+      : userProfile.value.bio
+  })
+
+  const profileAvatarUrl = computed(() => {
+    const avatarPath = userProfile.value?.avatar_url?.[0]
+    if (!avatarPath) return 'https://nftropoly.com/logo.svg'
+    
+    if (avatarPath.startsWith('http')) {
+      return avatarPath
+    }
+    
+    return canisterService.getAssetUrl(avatarPath)
+  })
+
+  // Set page meta tags for SEO
+  useHead({
+    title: computed(() => userProfile.value 
+      ? `${profileDisplayName.value} (@${username.value}) - Nftropoly` 
+      : 'Profile Not Found - Nftropoly'
+    ),
+    meta: [
+      {
+        name: 'description',
+        content: computed(() => userProfile.value 
+          ? profileBio.value || `View ${profileDisplayName.value}'s NFT collection, tokens, and activity on Nftropoly - The Multichain, Gasless NFT Marketplace`
+          : 'Profile not found on Nftropoly'
+        )
+      },
+      {
+        name: 'robots',
+        content: 'index, follow'
+      },
+      // Open Graph tags
+      {
+        property: 'og:title',
+        content: computed(() => userProfile.value 
+          ? `${profileDisplayName.value} (@${username.value}) - Nftropoly`
+          : 'Profile Not Found - Nftropoly'
+        )
+      },
+      {
+        property: 'og:description',
+        content: computed(() => userProfile.value 
+          ? profileBio.value || `View ${profileDisplayName.value}'s NFT collection, tokens, and activity on Nftropoly`
+          : 'Profile not found on Nftropoly'
+        )
+      },
+      {
+        property: 'og:type',
+        content: 'profile'
+      },
+      {
+        property: 'og:url',
+        content: computed(() => `https://nftropoly.com/@${username.value}`)
+      },
+      {
+        property: 'og:image',
+        content: computed(() => profileAvatarUrl.value)
+      },
+      // Twitter Card tags
+      {
+        name: 'twitter:card',
+        content: 'summary'
+      },
+      {
+        name: 'twitter:title',
+        content: computed(() => userProfile.value 
+          ? `${profileDisplayName.value} (@${username.value}) - Nftropoly`
+          : 'Profile Not Found - Nftropoly'
+        )
+      },
+      {
+        name: 'twitter:description',
+        content: computed(() => userProfile.value 
+          ? profileBio.value || `View ${profileDisplayName.value}'s NFT collection, tokens, and activity on Nftropoly`
+          : 'Profile not found on Nftropoly'
+        )
+      },
+      {
+        name: 'twitter:image',
+        content: computed(() => profileAvatarUrl.value)
+      }
+    ],
+    link: [
+      {
+        rel: 'canonical',
+        href: computed(() => `https://nftropoly.com/@${username.value}`)
+      }
+    ]
+  })
+
+  // Structured data for search engines
+  useHead({
+    script: computed(() => {
+      if (!userProfile.value) return []
+      
+      const structuredData = {
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        '@id': `https://nftropoly.com/@${username.value}`,
+        name: profileDisplayName.value,
+        alternateName: `@${username.value}`,
+        description: profileBio.value,
+        image: profileAvatarUrl.value,
+        url: `https://nftropoly.com/@${username.value}`,
+        sameAs: [
+          // Add social media links if available
+          ...(userProfile.value.website ? [userProfile.value.website] : [])
+        ],
+        worksFor: {
+          '@type': 'Organization',
+          name: 'Nftropoly',
+          url: 'https://nftropoly.com'
+        },
+        knowsAbout: ['NFTs', 'Cryptocurrency', 'Digital Art', 'Blockchain'],
+        hasOccupation: {
+          '@type': 'Occupation',
+          name: 'NFT Collector & Creator'
+        }
+      }
+      
+      return [
+        {
+          type: 'application/ld+json',
+          innerHTML: JSON.stringify(structuredData)
+        }
+      ]
+    })
   })
 
   const tabComponent = computed(() => {
