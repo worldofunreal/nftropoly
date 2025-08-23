@@ -2,11 +2,109 @@
 @import '@nuxt/ui';
 
 :root {
-  --ui-primary: var(--ui-color-primary-600);
+  --ui-primary: var(--ui-color-primary-500);
+  --color-primary: var(--emerald-500);
+  --color-primary-hover: var(--emerald-600);
+  --color-primary-light: var(--emerald-50);
+  --color-primary-dark: var(--emerald-900);
 }
 
 .dark {
   --ui-primary: var(--ui-color-primary-500);
+  --color-primary: var(--emerald-500);
+  --color-primary-hover: var(--emerald-600);
+  --color-primary-light: var(--emerald-50);
+  --color-primary-dark: var(--emerald-900);
+}
+
+/* Color theme classes */
+.theme-emerald {
+  --color-primary: var(--emerald-500);
+  --color-primary-hover: var(--emerald-600);
+  --color-primary-light: var(--emerald-50);
+  --color-primary-dark: var(--emerald-900);
+}
+
+.theme-pink {
+  --color-primary: var(--pink-500);
+  --color-primary-hover: var(--pink-600);
+  --color-primary-light: var(--pink-50);
+  --color-primary-dark: var(--pink-900);
+}
+
+.theme-red {
+  --color-primary: var(--red-500);
+  --color-primary-hover: var(--red-600);
+  --color-primary-light: var(--red-50);
+  --color-primary-dark: var(--red-900);
+}
+
+.theme-orange {
+  --color-primary: var(--orange-500);
+  --color-primary-hover: var(--orange-600);
+  --color-primary-light: var(--orange-50);
+  --color-primary-dark: var(--orange-900);
+}
+
+.theme-sky {
+  --color-primary: var(--sky-500);
+  --color-primary-hover: var(--sky-600);
+  --color-primary-light: var(--sky-50);
+  --color-primary-dark: var(--sky-900);
+}
+
+.theme-fuchsia {
+  --color-primary: var(--fuchsia-500);
+  --color-primary-hover: var(--fuchsia-600);
+  --color-primary-light: var(--fuchsia-50);
+  --color-primary-dark: var(--fuchsia-900);
+}
+
+.theme-purple {
+  --color-primary: var(--purple-500);
+  --color-primary-hover: var(--purple-600);
+  --color-primary-light: var(--purple-50);
+  --color-primary-dark: var(--purple-900);
+}
+
+.theme-teal {
+  --color-primary: var(--teal-500);
+  --color-primary-hover: var(--teal-600);
+  --color-primary-light: var(--teal-50);
+  --color-primary-dark: var(--teal-900);
+}
+
+/* Color circle classes for the theme switcher */
+.color-circle-emerald {
+  background-color: #10b981;
+}
+
+.color-circle-pink {
+  background-color: #ec4899;
+}
+
+.color-circle-red {
+  background-color: #ef4444;
+}
+
+.color-circle-orange {
+  background-color: #f97316;
+}
+
+.color-circle-sky {
+  background-color: #0ea5e9;
+}
+
+.color-circle-fuchsia {
+  background-color: #a855f7;
+}
+
+.color-circle-purple {
+  background-color: #8b5cf6;
+}
+
+.color-circle-teal {
+  background-color: #14b8a6;
 }
 
 /* Minimalist Scrollbar Styles */

@@ -81,7 +81,7 @@
         <ClientOnly>
           <button
             class="relative w-12.5 h-7.5 rounded-full transition-colors duration-300 focus:outline-none border border-gray-300 dark:border-gray-700 flex mr-2"
-            :class="theme === 'dark' ? 'bg-pink-500' : 'bg-stone-600'"
+            :class="theme === 'dark' ? 'bg-primary-500' : 'bg-primary-600'"
             aria-label="Toggle theme"
             @click="toggleTheme"
           >
@@ -98,13 +98,27 @@
                     : 'tabler:moon-filled'
                 "
                 class="w-5 h-5 transition-colors duration-300"
-                :class="
-                  theme === 'dark'
-                    ? 'text-pink-500'
-                    : 'text-stone-600'
-                "
+                                  :class="
+                    theme === 'dark'
+                      ? 'text-primary-500'
+                      : 'text-primary-600'
+                  "
               />
             </span>
+          </button>
+        </ClientOnly>
+        
+        <!-- Color Theme Toggle Button - Client Only -->
+        <ClientOnly>
+          <button
+            class="relative w-8 h-8 rounded-lg transition-all duration-300 focus:outline-none border border-gray-300 dark:border-gray-700 flex items-center justify-center mr-2 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700"
+            aria-label="Toggle color theme"
+            @click="toggleColorTheme"
+          >
+            <div
+              class="w-3 h-3 rounded-full transition-all duration-300"
+              :class="`color-circle-${colorTheme}`"
+            />
           </button>
         </ClientOnly>
         <!-- Connect Wallet Button -->
@@ -113,6 +127,7 @@
           color="primary"
           icon="solar:wallet-bold"
           class="hidden md:flex connect-wallet-btn"
+          :key="colorTheme"
           @click="openLoginPanel"
         >
           Connect Wallet
@@ -131,12 +146,14 @@
   import { canisterService } from '@/services/CanisterService'
   import CompactProfile from '@/components/CompactProfile.vue'
   import { useTheme } from '@/composables/useTheme'
+  import { useColorTheme } from '@/composables/useColorTheme'
 
   defineOptions({
     name: 'AppHeader',
   })
 
   const { theme, toggleTheme: toggleThemeComposable } = useTheme()
+  const { colorTheme, nextColorTheme } = useColorTheme()
   const authStore = useAuthStore()
   const { $trackInteraction, $trackButtonClick } = useNuxtApp()
 
@@ -162,6 +179,14 @@
     toggleThemeComposable()
     $trackButtonClick('Theme Toggle', {
       newTheme: theme,
+      location: 'header',
+    })
+  }
+
+  const toggleColorTheme = (): void => {
+    nextColorTheme()
+    $trackButtonClick('Color Theme Toggle', {
+      newColorTheme: colorTheme.value,
       location: 'header',
     })
   }
