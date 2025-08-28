@@ -50,6 +50,12 @@ export const useColorTheme = () => {
         primary: newPrimaryColor
       }
     }
+
+    // Update Intro.js tour styles if tour is active
+    setTimeout(() => {
+      const { updateTourStyles } = useOnboarding()
+      updateTourStyles()
+    }, 100)
   }
 
   // Set specific color theme

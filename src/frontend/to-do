@@ -12,8 +12,6 @@ Specify the kind of Metadata -> Name, description, attributes
 
 Random names descriptions and attributes
 
-
-
 Specify order or random mint id
 -> drag and drop positions
 -> set id manually
@@ -53,3 +51,13 @@ For short videos Tiktok/Insta/YT set the api to check the users posts that tag @
 
 SECURITY
 Check SSR security so the signed messages and mnemonic aren't leaked on the server and generated only on frontend
+
+
+LOGIN
+Add WOUID to login methods for super fast login
+Add recovery method for WOUID with seed
+Add encrypted seed data and 2FA / QR login from mobile app
+
+
+TOUR
+Add achievements and token unlocks for finishing tours

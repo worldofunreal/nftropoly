@@ -187,8 +187,8 @@
 
 /* Intro.js Buttons */
 .introjs-button {
-  background: #84cc16 !important;
-  color: #000000 !important;
+  background: var(--color-primary) !important;
+  color: white !important;
   border: none !important;
   border-radius: 6px !important;
   padding: 8px 16px !important;
@@ -199,7 +199,7 @@
 }
 
 .introjs-button:hover {
-  background: #65a30d !important;
+  background: var(--color-primary-hover) !important;
   transform: translateY(-1px) !important;
 }
 
@@ -213,12 +213,12 @@
 }
 
 .dark .introjs-button {
-  background: #84cc16 !important;
-  color: #000000 !important;
+  background: var(--color-primary) !important;
+  color: white !important;
 }
 
 .dark .introjs-button:hover {
-  background: #65a30d !important;
+  background: var(--color-primary-hover) !important;
 }
 
 /* Intro.js Arrows */
@@ -283,8 +283,8 @@
 }
 
 .welcome-tooltip {
-  background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%) !important;
-  color: #000000 !important;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%) !important;
+  color: white !important;
   border-radius: 12px !important;
   padding: 24px !important;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
@@ -297,8 +297,8 @@
 }
 
 .dark .welcome-tooltip {
-  background: linear-gradient(135deg, #84cc16 0%, #65a30d 100%) !important;
-  color: #000000 !important;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-hover) 100%) !important;
+  color: white !important;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3) !important;
 }
 
@@ -369,13 +369,15 @@
 }
 
 .custom-highlight {
-  box-shadow: 0 0 0 4px rgba(132, 204, 22, 0.5);
+  box-shadow: 0 0 0 4px var(--color-primary);
   border-radius: 8px;
   z-index: 1000;
+  opacity: 0.5;
 }
 
 .dark .custom-highlight {
-  box-shadow: 0 0 0 4px rgba(132, 204, 22, 0.6);
+  box-shadow: 0 0 0 4px var(--color-primary);
+  opacity: 0.6;
 }
 
 /* Mobile-friendly adjustments */

@@ -1,236 +1,227 @@
 # Onboarding Tour System
 
-This document explains how to use and customize the onboarding tour system for the NFT marketplace.
+This document explains the current onboarding tour system implementation for NFTropoly.
 
 ## Overview
 
-The onboarding tour uses `intro.js` to create an interactive guided tour for first-time visitors. It highlights key UI elements and provides short, action-oriented instructions.
+The onboarding tour system uses **Intro.js** to create interactive guided tours for new users. It automatically starts for first-time visitors and can be manually triggered via a button.
 
-## Tour Flow
+## System Architecture
 
-The tour follows this sequence:
+### Core Components
 
-1. **Disclaimer Modal**: Shows first when the page loads
-2. **User Action**: User clicks "Accept & Continue" or clicks outside the modal
-3. **Tour Start**: After disclaimer is closed, the onboarding tour automatically starts
-4. **Tour Steps**: User progresses through the defined tour steps
+1. **`useOnboarding.ts`** - Main logic and state management
+2. **`OnboardingTour.vue`** - Container component for the tour overlay
+3. **`OnboardingTrigger.vue`** - Manual tour trigger UI
+4. **Integration in `app.vue`** - Auto-start logic and component mounting
 
-## Current Implementation (Steps 1-3)
+### Dependencies
 
-The tour currently implements the first 3 steps as defined in `Toursteps.md`:
+- **`intro.js`** (v8.3.2) - Tour overlay library
+- **`intro.js/introjs.css`** - Default Intro.js styles
+- **Vue 3** - Component framework
+- **Nuxt 4** - Application framework
+- **localStorage** - Persistence for tour completion state
 
-### Step 1: Welcome & Introduction
-
-- **Target**: Main page body
-- **Text**: "Welcome to NFTropoly! Your gateway to the world of NFTs on the Internet Computer. Let's explore the key features together."
-- **Position**: center
-- **Styling**: Special gradient background with larger text
-
-### Step 2: Wallet Connection
-
-- **Target**: `.connect-wallet-btn` (Header)
-- **Text**: "Start by connecting your wallet to browse, buy, and sell NFTs securely using Internet Identity, MetaMask, Phantom, Plug, or Google."
-- **Position**: bottom
-- **Styling**: Standard tooltip styling
-
-### Step 3: Profile Registration (Conditional)
-
-- **Target**: `.registration-modal` (RegistrationModal component)
-- **Text**: "Complete your profile setup! Choose a username, customize your avatar, and set your privacy preferences to get started."
-- **Position**: center
-- **Styling**: Special gradient background with registration-specific styling
-- **Behavior**: Only appears when registration modal is opened after wallet connection
-
-## Components
+## Component Details
 
 ### 1. `useOnboarding` Composable
 
-Located in `composables/useOnboarding.ts`
+**Location**: `src/frontend/composables/useOnboarding.ts`
 
-**Features:**
+**Purpose**: Core logic for tour management and state
 
-- Manages onboarding state in localStorage
-- Provides methods to check, complete, and reset onboarding
-- Ensures tour only runs for first-time visitors
+**Key Functions**:
+- `shouldShowOnboarding` - Checks if user should see tour (first-time visitor)
+- `startTour(tourName)` - Initializes and starts a specific tour
+- `stopTour()` - Stops the current tour
+- `completeOnboarding()` - Marks tour as completed
+- `initOnboarding()` - Initializes onboarding state
 
-**Usage:**
+**State Management**:
+- Uses localStorage key: `'nftropoly-onboarding-completed'`
+- Tracks completion status to avoid showing tour repeatedly
 
+### 2. `OnboardingTour.vue` Component
+
+**Location**: `src/frontend/components/onBoardingTour/OnboardingTour.vue`
+
+**Purpose**: Container for Intro.js tour overlay
+
+**Features**:
+- Minimal wrapper component
+- Exposes `stopTour` and `startTour` methods
+- Handles cleanup on component unmount
+- No visible UI - just manages tour lifecycle
+
+**Exposed Methods**:
 ```typescript
-import { useOnboarding } from '@/composables/useOnboarding'
-
-const { shouldShowOnboarding, completeOnboarding, resetOnboarding } =
-  useOnboarding()
+defineExpose({
+  stopTour,
+  startTour,
+})
 ```
 
-### 2. `OnboardingTour` Component
+### 3. `OnboardingTrigger.vue` Component
 
-Located in `components/onBoardingTour/OnboardingTour.vue`
+**Location**: `src/frontend/components/onBoardingTour/OnboardingTrigger.vue`
 
-**Features:**
+**Purpose**: Manual tour trigger UI
 
-- Configurable tour steps
-- Mobile-friendly design
-- Custom styling that matches the app theme
-- Event handling for completion and skipping
-- Dynamic step addition for registration modal
-- **No longer auto-starts** - waits for disclaimer to be closed
+**Features**:
+- "Start Tour" button in bottom-right corner
+- Modal with available tour options
+- Currently only "Registration Tour" is active
+- Other tours (Marketplace, Portfolio, Trading) are disabled
 
-**Props:**
+### 4. Integration in `app.vue`
 
-- `steps`: Array of custom tour steps (optional)
-- `autoStart`: Whether to start tour automatically (default: true, but overridden by disclaimer flow)
+**Auto-start Logic**:
+```typescript
+// Auto-start onboarding tour for new users
+if (shouldShowOnboarding.value) {
+  setTimeout(() => {
+    startTour('registration')
+  }, 2000) // Small delay to ensure everything is loaded
+}
+```
 
-**Events:**
+**Component Mounting**:
+```vue
+<ClientOnly>
+  <OnboardingTour ref="onboardingTourRef" />
+</ClientOnly>
+<ClientOnly>
+  <OnboardingTrigger />
+</ClientOnly>
+```
 
-- `complete`: Emitted when tour is completed
-- `skip`: Emitted when tour is skipped
-- `start`: Emitted when tour starts
+## Tour Implementation
 
-**Methods:**
+### Current Tour: "registration"
 
-- `startTour()`: Start the tour (only if onboarding should be shown)
-- `stopTour()`: Stop the tour
-- `updateTourForRegistration()`: Add registration step when modal opens
+**Steps Defined**:
+1. **Welcome Message** - General introduction
+2. **Connect Wallet Button** - `.connect-wallet-btn` in Header
+3. **Wallet Options** - Individual wallet buttons (Internet Identity, MetaMask, Phantom, Plug)
+4. **Registration Modal** - `.registration-modal` container
+5. **Profile Fields** - Username input, address fields
+6. **Create Profile Button** - `.create-profile-btn`
+7. **Completion** - Final congratulations message
 
-### 3. `OnboardingTrigger` Component
-
-Located in `components/OnboardingTrigger.vue`
-
-**Features:**
-
-- Manual trigger button for testing
-- Resets onboarding state
-- Positioned in bottom-right corner
-- Can be used to restart the tour at any time
-
-### 4. `DisclaimerModal` Component
-
-Located in `components/DisclaimerModal.vue`
-
-**Features:**
-
-- Shows disclaimer on page load
-- Emits 'close' event when dismissed
-- Triggers tour start when closed
-
-## Integration Flow
-
-1. **Page Load**: DisclaimerModal shows automatically
-2. **User Dismisses Disclaimer**: Clicks "Accept & Continue" or outside modal
-3. **DisclaimerModal Emits 'close'**: Event is handled by app.vue
-4. **Tour Starts**: OnboardingTour.startTour() is called with 500ms delay
-5. **Tour Progress**: User goes through welcome, wallet connection, and registration steps
-
-## CSS Classes Required
-
-The following CSS classes must be present on elements for the tour to work:
-
-- `.connect-wallet-btn` - Connect wallet button in header
+**Target Elements**:
+- `.connect-wallet-btn` - Header connect wallet button
+- `#internet-identity-btn` - Internet Identity wallet button
+- `#metamask-btn` - MetaMask wallet button
+- `#phantom-btn` - Phantom wallet button
+- `#plug-btn` - Plug wallet button
 - `.registration-modal` - Registration modal container
+- `#username-input` - Username input field
+- `.create-profile-btn` - Create profile button
 
-## Styling
+### Tour Configuration
 
-The tour uses custom CSS that matches the app's design:
-
-- **Welcome Tooltip**: Blue gradient background with larger text
-- **Registration Tooltip**: Pink gradient background with registration-specific styling
-- **Standard Tooltip**: Dark background with rounded corners
-- **Buttons**: Primary blue color with hover effects
-- **Highlight**: Blue glow around highlighted elements
-- **Mobile**: Responsive design with adjusted sizing
-
-## Integration with Login Flow
-
-The tour integrates with the login flow through the `LoginPanel` component:
-
-1. When a user connects their wallet, the login process checks if they're a new user
-2. If new user, the registration modal opens
-3. The `LoginPanel` triggers `updateTourForRegistration()` on the onboarding tour
-4. The tour dynamically adds the registration step and navigates to it
-
-## Testing
-
-### Manual Testing:
-
-1. **Normal Flow**:
-   - Load the page
-   - Accept the disclaimer
-   - Tour should start automatically
-2. **Manual Trigger**:
-   - Click the "Start Tour" button in the bottom-right corner
-   - This resets the onboarding state and starts the tour
-3. **Registration Flow**:
-   - Connect a wallet to see the registration step
-
-### Reset for Development:
-
+**Intro.js Options**:
 ```typescript
-import { useOnboarding } from '@/composables/useOnboarding'
-const { resetOnboarding } = useOnboarding()
-resetOnboarding()
+intro.setOptions({
+  steps: tourSteps,
+  disableInteraction: false,
+  exitOnOverlayClick: false,
+  nextLabel: 'Next',
+  hidePrev: true,
+  dontShowAgain: false,
+  doneLabel: 'Done',
+  tooltipClass: 'custom-tooltip',
+  highlightClass: 'custom-highlight',
+  scrollToElement: true,
+  scrollPadding: 50,
+  overlayOpacity: 0.5,
+  helperElementPadding: 10,
+})
 ```
 
-### Check localStorage:
+## User Flow
 
-```javascript
-// Check if onboarding is completed
-localStorage.getItem('nftropoly-onboarding-completed')
+### Automatic Flow (New Users)
+1. User visits site for first time
+2. After 2 seconds, tour automatically starts
+3. User progresses through registration steps
+4. Tour completion is saved to localStorage
+5. Tour won't show again unless localStorage is cleared
 
-// Reset onboarding
-localStorage.removeItem('nftropoly-onboarding-completed')
-```
+### Manual Flow (Any User)
+1. User clicks "Start Tour" button in bottom-right corner
+2. Tour selection modal opens
+3. User selects "Registration Tour"
+4. Tour starts and progresses through steps
+5. Same completion logic applies
+
+## CSS Requirements
+
+The tour targets specific CSS classes that must exist in the application:
+
+**Required Classes**:
+- `.connect-wallet-btn` - Connect wallet button in Header
+- `.registration-modal` - Registration modal container
+- `.create-profile-btn` - Create profile button
+- `#username-input` - Username input field
+- `#internet-identity-btn`, `#metamask-btn`, `#phantom-btn`, `#plug-btn` - Wallet buttons
+
+## State Persistence
+
+**localStorage Key**: `'nftropoly-onboarding-completed'`
+
+**Values**:
+- `'true'` - User has completed onboarding
+- `null` or not set - User hasn't completed onboarding
+
+**Behavior**:
+- New users (no localStorage entry) see tour automatically
+- Returning users (localStorage = 'true') don't see tour
+- Manual trigger works regardless of completion status
+
+## Error Handling
+
+**Known Issues Fixed**:
+- Removed infinite loop in `checkLoginStatus` function
+- Fixed stack overflow from undefined window properties
+- Cleaned up unused reset functionality
+
+**Current Error Prevention**:
+- Server-side checks prevent Intro.js initialization
+- Element existence checks before targeting
+- Graceful fallbacks for missing elements
 
 ## Performance Considerations
 
-- Tour only loads `intro.js` on the client side
-- CSS is imported globally but minimal
-- Tour state is stored in localStorage for persistence
-- Tour starts only after disclaimer is closed (not on page load)
-- Registration step is added dynamically only when needed
+- Tour only initializes on client-side
+- Intro.js CSS imported globally in app.vue
+- Tour starts with 2-second delay to ensure page load
+- Component cleanup on unmount prevents memory leaks
 
-## Mobile Support
+## Testing
 
-The tour is fully responsive and includes:
+### Manual Testing
+1. **New User**: Clear localStorage and refresh page
+2. **Manual Trigger**: Click "Start Tour" button
+3. **Completion**: Complete tour and verify localStorage is set
+4. **Returning User**: Verify tour doesn't auto-start
 
-- Adjusted tooltip sizing for mobile screens
-- Touch-friendly button interactions
-- Proper positioning on small screens
-- Scroll handling for off-screen elements
+### Development Testing
+- Use browser dev tools to clear localStorage
+- Test different screen sizes and themes
+- Verify all target elements exist in DOM
 
-## Troubleshooting
+## Future Enhancements
 
-### Tour not starting:
+**Potential Improvements**:
+- Add more tour types (marketplace, portfolio, etc.)
+- Custom styling for different themes
+- A/B testing for different tour flows
+- Analytics integration for tour completion rates
+- Mobile-specific tour optimizations
 
-1. Check if disclaimer modal is being closed properly
-2. Verify the 'close' event is being emitted
-3. Check if elements with required CSS classes exist
-4. Verify localStorage is not blocked
-5. Check browser console for errors
-
-### Elements not highlighting:
-
-1. Ensure CSS classes are correctly applied
-2. Check if elements are visible in the DOM
-3. Verify no CSS conflicts with z-index
-
-### Registration step not appearing:
-
-1. Check if registration modal has the `.registration-modal` class
-2. Verify the `updateTourForRegistration()` method is being called
-3. Check browser console for errors
-
-### Styling issues:
-
-1. Check if intro.js CSS is properly imported
-2. Verify custom CSS overrides are working
-3. Test in both light and dark modes
-
-## Future Steps
-
-The next implementation phase will add steps 4-17 as defined in `Toursteps.md`, including:
-
-- Search & Discovery
-- Category Filters
-- Featured Collections
-- Navigation Sidebar
-- And more...
+**Planned Features**:
+- Marketplace tour for browsing and trading
+- Portfolio tour for managing collections
+- Advanced features tour for power users

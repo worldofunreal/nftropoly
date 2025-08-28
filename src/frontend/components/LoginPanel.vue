@@ -39,7 +39,7 @@
           >
             <div class="flex items-center gap-3">
               <UIcon name="token-branded:icp" class="text-2xl" />
-              <span>Sign in with Internet Identity</span>
+              <span>Sign in with Internet Identity <span class="text-gray-500 text-xs">(Recommended)</span></span>
             </div>
           </UButton>
 

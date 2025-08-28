@@ -49,20 +49,29 @@
 
   const collapsed = ref(true)
 
-  const menuItems = computed(() => [
-    { label: 'Discover', icon: 'eos-icons:compass', to: '/' },
-    { label: 'NFTs', icon: 'icon-park-solid:game-ps', to: '/nfts' },
-    { label: 'Tokens', icon: 'subway:coin', to: '/tokens' },
-    { label: 'Activity', icon: 'tabler:activity', to: '/activity' },
-    { 
-      label: 'Profile', 
-      icon: 'iconamoon:profile-fill', 
-      to: auth.userProfile?.username ? `/@${auth.userProfile.username}` : '/profile' 
-    },
-    { hr: true },
-    { label: 'Settings', icon: 'iconamoon:settings-fill', to: '/settings' },
-    { label: 'Support', icon: 'ix:support', to: '/support' },
-  ])
+  const menuItems = computed(() => {
+    const items = [
+      { label: 'Discover', icon: 'eos-icons:compass', to: '/' },
+      { label: 'NFTs', icon: 'icon-park-solid:game-ps', to: '/nfts' },
+      { label: 'Tokens', icon: 'subway:coin', to: '/tokens' },
+      { label: 'Activity', icon: 'tabler:activity', to: '/activity' },
+    ]
+
+    // Only show profile and settings if user is logged in
+    if (auth.userProfile) {
+      items.push({ 
+        label: 'Profile', 
+        icon: 'iconamoon:profile-fill', 
+        to: auth.userProfile.username ? `/@${auth.userProfile.username}` : '/profile' 
+      })
+      items.push({ hr: true })
+      items.push({ label: 'Settings', icon: 'iconamoon:settings-fill', to: '/settings' })
+    }
+
+    items.push({ label: 'Support', icon: 'ix:support', to: '/support' })
+
+    return items
+  })
 </script>
 
 <style scoped>

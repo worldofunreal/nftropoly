@@ -42,12 +42,8 @@ export const useOnboarding = () => {
       case 'login':
         break
       case 'registration': {
-        console.log('tourSteps')
-        console.log('tourSteps')
         const loginPanelElement = document.getElementById('login-panel')
-        setTimeout(() => {
-          console.log(loginPanelElement)
-        }, 3000)
+
         if (!loginPanelElement) return
         const tourSteps: Partial<
           TourStep & {
@@ -206,6 +202,13 @@ export const useOnboarding = () => {
             }
           )
 
+          intro.onAfterChange(() => {
+            // Update styles after each step change to ensure new elements are styled
+            setTimeout(() => {
+              updateTourStyles()
+            }, 50)
+          })
+
           intro.onStart(() => {
             setTimeout(() => {
               const helperLayer = document.querySelector('.introjs-helperLayer')
@@ -215,6 +218,9 @@ export const useOnboarding = () => {
               helperLayer.addEventListener('mouseleave', forwardEventListeners)
               helperLayer.addEventListener('mousedown', forwardEventListeners)
               helperLayer.addEventListener('mouseup', forwardEventListeners)
+              
+              // Update tour styles to match current theme
+              updateTourStyles()
             }, 100)
           })
         } catch (error) {
@@ -277,6 +283,117 @@ export const useOnboarding = () => {
     }
   }
 
+  // Update tour styles when theme changes
+  const updateTourStyles = () => {
+    if (!introInstance.value || !import.meta.client) return
+
+    // Get primary color from current theme
+    const savedTheme = localStorage.getItem('nftropoly-color-theme')
+    let primaryColor = '#84cc16' // default fallback
+
+    if (savedTheme) {
+      const themeColors = {
+        emerald: '#10b981',
+        pink: '#ec4899', 
+        red: '#ef4444',
+        orange: '#f97316',
+        sky: '#0ea5e9',
+        fuchsia: '#a855f7',
+        purple: '#8b5cf6',
+        teal: '#14b8a6'
+      }
+      if (themeColors[savedTheme as keyof typeof themeColors]) {
+        primaryColor = themeColors[savedTheme as keyof typeof themeColors]
+      }
+    }
+
+    // Update Intro.js button styles
+    const buttons = document.querySelectorAll('.introjs-button')
+    buttons.forEach(button => {
+      if (button instanceof HTMLElement) {
+        button.style.setProperty('background', primaryColor, 'important')
+        button.style.setProperty('color', 'white', 'important')
+        button.style.setProperty('border', 'none', 'important')
+        button.style.setProperty('border-radius', '6px', 'important')
+        button.style.setProperty('padding', '8px 16px', 'important')
+        button.style.setProperty('font-size', '14px', 'important')
+        button.style.setProperty('font-weight', '500', 'important')
+        button.style.setProperty('cursor', 'pointer', 'important')
+        button.style.setProperty('transition', 'all 0.2s ease-in-out', 'important')
+      }
+    })
+
+    // Update close button (skip button) - smaller and rounded with theme color
+    const closeButtons = document.querySelectorAll('.introjs-skipbutton')
+    closeButtons.forEach(button => {
+      if (button instanceof HTMLElement) {
+        button.style.setProperty('background', primaryColor, 'important')
+        button.style.setProperty('color', 'white', 'important')
+        button.style.setProperty('border', 'none', 'important')
+        button.style.setProperty('border-radius', '20px', 'important')
+        button.style.setProperty('padding', '6px 12px', 'important')
+        button.style.setProperty('font-size', '12px', 'important')
+        button.style.setProperty('font-weight', '500', 'important')
+        button.style.setProperty('cursor', 'pointer', 'important')
+        button.style.setProperty('transition', 'all 0.2s ease-in-out', 'important')
+        button.style.setProperty('display', 'flex', 'important')
+        button.style.setProperty('align-items', 'center', 'important')
+        button.style.setProperty('justify-content', 'center', 'important')
+        button.style.setProperty('min-width', '24px', 'important')
+        button.style.setProperty('min-height', '24px', 'important')
+      }
+    })
+
+    // Update step indicators - restore original styling, only change active color
+    const stepIndicators = document.querySelectorAll('.introjs-bullets li a')
+    stepIndicators.forEach((indicator, index) => {
+      if (indicator instanceof HTMLElement) {
+        const currentStep = introInstance.value?.getCurrentStep() || 0
+        const isActive = index === currentStep
+        
+        // Restore original styling
+        indicator.style.setProperty('border-radius', '50%', 'important')
+        indicator.style.setProperty('width', '12px', 'important')
+        indicator.style.setProperty('height', '12px', 'important')
+        indicator.style.setProperty('display', 'inline-block', 'important')
+        indicator.style.setProperty('margin', '0 4px', 'important')
+        indicator.style.setProperty('cursor', 'pointer', 'important')
+        indicator.style.setProperty('transition', 'all 0.2s ease-in-out', 'important')
+        indicator.style.setProperty('border', `2px solid ${primaryColor}`, 'important')
+        
+        if (isActive) {
+          indicator.style.setProperty('background', primaryColor, 'important')
+          indicator.style.setProperty('opacity', '1', 'important')
+        } else {
+          indicator.style.setProperty('background', 'transparent', 'important')
+          indicator.style.setProperty('opacity', '0.5', 'important')
+        }
+      }
+    })
+
+    // Update highlight styles
+    const highlights = document.querySelectorAll('.introjs-helperLayer')
+    highlights.forEach(highlight => {
+      if (highlight instanceof HTMLElement) {
+        highlight.style.setProperty('box-shadow', `0 0 0 4px ${primaryColor}`, 'important')
+        highlight.style.setProperty('border-radius', '8px', 'important')
+        highlight.style.setProperty('opacity', '0.5', 'important')
+      }
+    })
+
+    // Update tooltip styles for gradient tooltips
+    const tooltips = document.querySelectorAll('.introjs-tooltip')
+    tooltips.forEach(tooltip => {
+      if (tooltip instanceof HTMLElement) {
+        const tooltipClass = tooltip.className
+        if (tooltipClass.includes('welcome-tooltip') || tooltipClass.includes('registration-tooltip')) {
+          tooltip.style.setProperty('background', `linear-gradient(135deg, ${primaryColor} 0%, ${primaryColor} 100%)`, 'important')
+          tooltip.style.setProperty('color', 'white', 'important')
+        }
+      }
+    })
+  }
+
   return {
     hasCompletedOnboarding,
     shouldShowOnboarding,
@@ -285,5 +402,6 @@ export const useOnboarding = () => {
     startTour,
     stopTour,
     initTour,
+    updateTourStyles,
   }
 }

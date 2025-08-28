@@ -149,7 +149,7 @@
     if (shouldShowOnboarding.value) {
       setTimeout(() => {
         startTour('registration')
-      }, 2000) // Small delay to ensure everything is loaded
+      }, 100) // Small delay to ensure everything is loaded
     }
   })
 </script>
