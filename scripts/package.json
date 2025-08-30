@@ -1,22 +1,29 @@
 {
-  "name": "backend-testing",
+  "name": "nft-marketplace-test",
   "version": "1.0.0",
-  "description": "Testing script for the backend canister with multiple identities",
-  "main": "test_backend.ts",
+  "description": "Comprehensive NFT + Marketplace integration testing",
+  "main": "test_nft_marketplace_integration.ts",
   "scripts": {
-    "test": "ts-node test_backend.ts",
-    "test-images": "ts-node test_images_mainnet.ts"
+    "test": "tsx test_nft_marketplace_integration.ts",
+    "test:marketplace": "tsx test_nft_marketplace_integration.ts",
+    "build": "tsc",
+    "dev": "tsx --watch test_nft_marketplace_integration.ts"
   },
   "dependencies": {
-    "@dfinity/agent": "^3.0.2",
-    "@dfinity/candid": "^3.0.2",
-    "@dfinity/identity": "^3.0.2",
-    "@solana/web3.js": "^1.98.4",
-    "@types/node": "^20.0.0",
+    "@dfinity/agent": "^1.0.0",
+    "@dfinity/identity": "^1.0.0",
+    "@dfinity/principal": "^1.0.0",
+    "@solana/web3.js": "^1.87.0",
     "bip39": "^3.1.0",
-    "ethers": "^6.15.0",
-    "ts-node": "^10.9.0",
-    "typescript": "^5.8.3",
+    "ethers": "^6.8.0",
     "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }
