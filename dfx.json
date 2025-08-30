@@ -9,6 +9,11 @@
       "candid": "src/marketplace/marketplace.did",
       "package": "marketplace",
       "type": "rust"
+    },
+    "nft_collection": {
+      "candid": "src/nft_collection/nft_collection.did",
+      "package": "nft_collection",
+      "type": "rust"
     }
   },
   "defaults": {
