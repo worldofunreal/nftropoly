@@ -118,16 +118,63 @@ MARKETPLACE_CANISTER_ID=$(dfx canister id marketplace)
 echo -e "${GREEN}✅ Marketplace deployed!${NC}"
 echo -e "${YELLOW}Marketplace Canister ID:${NC} $MARKETPLACE_CANISTER_ID"
 
-# Step 5: Handle Spiral Token (Note: Not in dfx.json, so we'll use a mock or skip)
-echo -e "${BLUE}📋 Step 5: Spiral Token Status${NC}"
-echo -e "${YELLOW}Note:${NC} Spiral token canister not in dfx.json"
-echo -e "${YELLOW}Solution:${NC} TypeScript tests will use mock token or skip token operations"
-echo -e "${YELLOW}Alternative:${NC} Add spiral to dfx.json if needed"
+# Step 5: Deploy NFTropoly Token (ICRC-1)
+echo -e "${BLUE}📋 Step 5: Deploying NFTropoly Token (ICRC-1)${NC}"
+
+# Create canister if it doesn't exist
+echo "Creating NFTropoly token canister..."
+dfx canister create nftropoly_token --no-wallet
+
+# Set token configuration
+TOKEN_NAME="NFTropoly"
+TOKEN_SYMBOL="NTRP"
+PRE_MINTED_TOKENS=100000000000000000  # 100 million tokens with 8 decimals
+TRANSFER_FEE=10000  # 0.0001 tokens with 8 decimals
+FEATURE_FLAGS=true  # Enable ICRC-2 support
+
+# Archive configuration
+TRIGGER_THRESHOLD=2000
+NUM_OF_BLOCK_TO_ARCHIVE=1000
+CYCLE_FOR_ARCHIVE_CREATION=10000000000000
+
+echo -e "${YELLOW}Token Configuration:${NC}"
+echo "   Name: $TOKEN_NAME"
+echo "   Symbol: $TOKEN_SYMBOL"
+echo "   Decimals: 8"
+echo "   Initial Supply: $PRE_MINTED_TOKENS (100,000,000 tokens)"
+echo "   Transfer Fee: $TRANSFER_FEE"
+echo "   ICRC-2 Support: Enabled"
+
+# Deploy the token
+echo "Deploying NFTropoly token..."
+dfx deploy nftropoly_token --argument "(variant {Init =
+record {
+     token_symbol = \"${TOKEN_SYMBOL}\";
+     token_name = \"${TOKEN_NAME}\";
+     minting_account = record { owner = principal \"${BIZKIT_PRINCIPAL}\" };
+     transfer_fee = ${TRANSFER_FEE};
+     metadata = vec {};
+     feature_flags = opt record{icrc2 = ${FEATURE_FLAGS}};
+     initial_balances = vec { record { record { owner = principal \"${BIZKIT_PRINCIPAL}\"; }; ${PRE_MINTED_TOKENS}; }; };
+     archive_options = record {
+         num_blocks_to_archive = ${NUM_OF_BLOCK_TO_ARCHIVE};
+         trigger_threshold = ${TRIGGER_THRESHOLD};
+         controller_id = principal \"${BIZKIT_PRINCIPAL}\";
+         cycles_for_archive_creation = opt ${CYCLE_FOR_ARCHIVE_CREATION};
+     };
+ }
+})"
+
+# Get token canister ID
+TOKEN_CANISTER_ID=$(dfx canister id nftropoly_token)
+echo -e "${GREEN}✅ NFTropoly Token deployed!${NC}"
+echo -e "${YELLOW}Token Canister ID:${NC} $TOKEN_CANISTER_ID"
 
 # Step 6: Generate TypeScript declarations
 echo -e "${BLUE}📋 Step 6: Generating TypeScript Declarations${NC}"
 dfx generate nft_collection
 dfx generate marketplace
+dfx generate nftropoly_token
 echo -e "${GREEN}✅ TypeScript declarations generated!${NC}"
 
 # Step 7: Test basic functionality with DFX
@@ -154,12 +201,14 @@ echo -e "${YELLOW}📝 Summary:${NC}"
 echo "   - Using ONLY bizkit identity for deployment"
 echo "   - NFT Collection: $NFT_CANISTER_ID"
 echo "   - Marketplace: $MARKETPLACE_CANISTER_ID"
+echo "   - NFTropoly Token: $TOKEN_CANISTER_ID"
 echo "   - Alice Principal (for TypeScript): $ALICE_PRINCIPAL"
 echo "   - TypeScript declarations generated"
 echo ""
 echo -e "${BLUE}🌐 Canister URLs:${NC}"
 echo "   NFT Collection: http://localhost:4943/?canisterId=$NFT_CANISTER_ID"
 echo "   Marketplace: http://localhost:4943/?canisterId=$MARKETPLACE_CANISTER_ID"
+echo "   NFTropoly Token: http://localhost:4943/?canisterId=$TOKEN_CANISTER_ID"
 echo ""
 echo -e "${BLUE}🔑 For TypeScript Tests:${NC}"
 echo "   - Use generated Alice identity (principal: $ALICE_PRINCIPAL)"
@@ -169,5 +218,5 @@ echo ""
 echo -e "${BLUE}📝 Next Steps:${NC}"
 echo "   1. Run TypeScript tests with generated identities"
 echo "   2. Test NFT minting, transfers, approvals"
-echo "   3. Test marketplace functionality"
-echo "   4. Add spiral token to dfx.json if needed"
+echo "   3. Test marketplace functionality with real tokens"
+echo "   4. Test trading, auctions, and marketplace features"
