@@ -89,12 +89,19 @@ impl Marketplace {
                 Some(req) => {
                     let response = match &req {
                         ManageAskRequest::NewAsk(features) => {
+                            ic_cdk::println!("Processing NewAsk request with {} features", features.len());
                             match self.create_new_ask(msg_caller(), features.clone()).await {
-                                Ok(result) => ManageAskResponse::NewAsk(Ok(result)),
-                                Err(error) => ManageAskResponse::NewAsk(Err(types::GenericError {
-                                    code: error.to_string().len() as u64,
-                                    message: error.to_string(),
-                                })),
+                                Ok(result) => {
+                                    ic_cdk::println!("NewAsk successful: ask_id = {}", result.ask_id);
+                                    ManageAskResponse::NewAsk(Ok(result))
+                                }
+                                Err(error) => {
+                                    ic_cdk::println!("NewAsk failed: {}", error);
+                                    ManageAskResponse::NewAsk(Err(types::GenericError {
+                                        code: error.to_string().len() as u64,
+                                        message: error.to_string(),
+                                    }))
+                                }
                             }
                         }
                         ManageAskRequest::EndAsk(ask_id) => {
@@ -393,7 +400,7 @@ impl Marketplace {
             ask_id,
             original_broker_id: None,
             current_broker_id: None,
-            config: features.into_iter().filter_map(|f| f).collect(),
+            config: features.clone().into_iter().filter_map(|f| f).collect(),
             auction_info,
             settlement: None,
             allow_list: None,
@@ -406,9 +413,29 @@ impl Marketplace {
         self.storage.insert_ask(ask_id, ask_status.clone());
         self.storage.add_user_ask(caller, ask_id);
 
+        // Extract tokens from ask features for escrow
+        let mut escrow_tokens = Vec::new();
+        for feature in &features {
+            if let Some(feature) = feature {
+                match feature {
+                    AskFeature::AskToken(tokens) => {
+                        escrow_tokens.extend(tokens.iter().cloned());
+                    }
+                    AskFeature::BuyNow(buy_now_reqs) => {
+                        for buy_now_req in buy_now_reqs {
+                            for req in buy_now_req {
+                                escrow_tokens.push(Some(req.token.clone()));
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+
         // Create escrow record using EscrowManager
         let escrow_id = self.escrow_manager.create_escrow(
-            EscrowType::Ask(vec![]), // Simplified for now
+            EscrowType::Ask(escrow_tokens),
             None, // No buyer yet
             account.clone(),
             Some(ask_id),
@@ -417,8 +444,13 @@ impl Marketplace {
 
         // Get the escrow record from EscrowManager
         let escrow_record = self.escrow_manager.get_escrow(escrow_id)
-            .ok_or(MarketplaceError::Internal("Failed to retrieve created escrow".to_string()))?
+            .ok_or_else(|| {
+                ic_cdk::println!("Failed to retrieve escrow {} for ask {}", escrow_id, ask_id);
+                MarketplaceError::Internal(format!("Failed to retrieve created escrow {}", escrow_id))
+            })?
             .clone();
+
+        ic_cdk::println!("Successfully created ask {} with escrow {}", ask_id, escrow_id);
 
         Ok(NewAskResult {
             ask_id,

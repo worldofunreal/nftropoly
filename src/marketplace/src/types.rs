@@ -158,7 +158,7 @@ pub struct TokenSpecResult {
 /// Escrow record for managing assets during transactions
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct EscrowRecord {
-    pub type_: EscrowType,
+    pub escrow_type: EscrowType,
     pub buyer: Option<Account>,
     pub seller: Account,
     pub ask_id: Option<u64>,
@@ -754,7 +754,7 @@ impl TokenSpec {
 impl EscrowRecord {
     pub fn new(escrow_type: EscrowType, seller: Account) -> Self {
         Self {
-            type_: escrow_type,
+            escrow_type,
             buyer: None,
             seller,
             ask_id: None,

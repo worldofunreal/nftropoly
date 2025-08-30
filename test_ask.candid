@@ -1,0 +1,29 @@
+(vec {
+  opt variant {
+    NewAsk = vec {
+      opt variant {
+        AskToken = vec {
+          opt record {
+            canister = principal "uqqxf-5h777-77774-qaaaa-cai";
+            symbol = "NFT";
+            standards = vec { variant { ICRC7 = null } }
+          }
+        }
+      };
+      opt variant {
+        BuyNow = vec {
+          vec {
+            record {
+              token = record {
+                canister = principal "uzt4z-lp777-77774-qaabq-cai";
+                symbol = "NTRP";
+                standards = vec { variant { ICRC1 = null } }
+              };
+              amount = 1000000000 : nat64
+            }
+          }
+        }
+      }
+    }
+  }
+})

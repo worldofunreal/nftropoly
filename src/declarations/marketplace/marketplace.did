@@ -21,15 +21,15 @@ type ICRCStandards = variant {
 };
 
 type ICRC1TokenSpecDetail = record {
-  amount : nat;
-  fee : opt nat;
+  amount : nat64;
+  fee : opt nat64;
   decimals : nat8;
 };
 
 type ICRC2TokenSpecDetail = record {
-  amount : nat;
-  approval_fee : opt nat;
-  transfer_from_fee : opt nat;
+  amount : nat64;
+  approval_fee : opt nat64;
+  transfer_from_fee : opt nat64;
   decimals : nat8;
 };
 
@@ -53,10 +53,10 @@ type TokenSpecResult = record {
   canister : principal;
   symbol : text;
   standards : vec ICRCStandards;
-  result : nat;
+  result : nat64;
   sending_account : Account;
   receiving_account : Account;
-  ask_id : opt nat;
+  ask_id : opt nat64;
 };
 
 // Escrow Types
@@ -64,7 +64,7 @@ type EscrowRecord = record {
   escrow_type : EscrowType;
   buyer : opt Account;
   seller : Account;
-  ask_id : opt nat;
+  ask_id : opt nat64;
   lock_to_date : opt nat64;
 };
 
@@ -93,7 +93,7 @@ type AskFeature = variant {
 
 type BuyNowReq = record {
   token : TokenSpec;
-  amount : nat;
+  amount : nat64;
 };
 
 type EndingType = variant {
@@ -103,7 +103,7 @@ type EndingType = variant {
 };
 
 type AskStatus = record {
-  ask_id : nat;
+  ask_id : nat64;
   original_broker_id : opt Account;
   current_broker_id : opt Account;
   config : vec AskFeature;
@@ -219,54 +219,54 @@ type ManageBidResponse = variant {
 };
 
 type NewAskResult = record {
-  ask_id : nat;
+  ask_id : nat64;
   escrow : EscrowRecord;
 };
 
 type NewBidResult = record {
   escrow : EscrowRecord;
-  result : nat;
+  result : nat64;
 };
 
 type RefreshOffersResult = record {
   records : vec record { blob; opt AskStatus };
   eof : bool;
-  count : nat;
+  count : nat64;
 };
 
 type WithdrawResult = record {
-  withdraw_result : nat;
+  withdraw_result : nat64;
   token_results : vec TokenResult;
 };
 
 type TokenResult = record {
   token : TokenSpec;
-  result : variant { Ok : nat; Err : GenericError };
+  result : variant { Ok : nat64; Err : GenericError };
 };
 
 type DistributionResult = record {
   token : TokenSpec;
-  result : variant { Ok : nat; Err : GenericError };
+  result : variant { Ok : nat64; Err : GenericError };
 };
 
 type EngineMatchResult = record {
   ask_canister : opt principal;
-  ask_id : nat;
+  ask_id : nat64;
   token : opt vec opt TokenSpecResult;
 };
 
 type GenericError = record {
-  code : nat;
+  code : nat64;
   message : text;
 };
 
 type AMMUpdate = record {
-  ask_id : nat;
+  ask_id : nat64;
   params : AMMParams;
 };
 
 type LockAsk = record {
-  ask_id : nat;
+  ask_id : nat64;
   lock_duration : nat64;
   fee : TokenSpec;
 };
@@ -295,14 +295,14 @@ type BalanceResult = variant {
 
 type BalanceRecords = record {
   records : vec EscrowRecord;
-  count : nat;
+  count : nat64;
   eof : bool;
 };
 
 type AskInfoRequest = variant {
-  Active : opt record { opt nat; opt nat };
-  History : record { nat; nat };
-  Status : nat;
+  Active : opt record { opt nat64; opt nat64 };
+  History : record { nat64; nat64 };
+  Status : nat64;
 };
 
 type AskInfoResponse = variant {
@@ -314,7 +314,7 @@ type AskInfoResponse = variant {
 type AskInfoRecords = record {
   records : vec opt AskStatus;
   eof : bool;
-  count : nat;
+  count : nat64;
 };
 
 // Main Service Interface

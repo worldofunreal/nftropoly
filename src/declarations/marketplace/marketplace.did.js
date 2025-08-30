@@ -1,15 +1,15 @@
 export const idlFactory = ({ IDL }) => {
   const TokenSpec = IDL.Rec();
   const ICRC1TokenSpecDetail = IDL.Record({
-    'fee' : IDL.Opt(IDL.Nat),
+    'fee' : IDL.Opt(IDL.Nat64),
     'decimals' : IDL.Nat8,
-    'amount' : IDL.Nat,
+    'amount' : IDL.Nat64,
   });
   const ICRC2TokenSpecDetail = IDL.Record({
     'decimals' : IDL.Nat8,
-    'transfer_from_fee' : IDL.Opt(IDL.Nat),
-    'approval_fee' : IDL.Opt(IDL.Nat),
-    'amount' : IDL.Nat,
+    'transfer_from_fee' : IDL.Opt(IDL.Nat64),
+    'approval_fee' : IDL.Opt(IDL.Nat64),
+    'amount' : IDL.Nat64,
   });
   const ICRC4TokenSpecDetail = IDL.Record({
     'decimals' : IDL.Nat8,
@@ -40,7 +40,7 @@ export const idlFactory = ({ IDL }) => {
   );
   const LockAsk = IDL.Record({
     'fee' : TokenSpec,
-    'ask_id' : IDL.Nat,
+    'ask_id' : IDL.Nat64,
     'lock_duration' : IDL.Nat64,
   });
   const Account = IDL.Record({
@@ -53,7 +53,7 @@ export const idlFactory = ({ IDL }) => {
     'Settlement' : IDL.Vec(IDL.Opt(TokenSpec)),
   });
   const EscrowRecord = IDL.Record({
-    'ask_id' : IDL.Opt(IDL.Nat),
+    'ask_id' : IDL.Opt(IDL.Nat64),
     'seller' : Account,
     'lock_to_date' : IDL.Opt(IDL.Nat64),
     'buyer' : IDL.Opt(Account),
@@ -66,8 +66,8 @@ export const idlFactory = ({ IDL }) => {
     'token_1' : TokenSpec,
     'token_2' : TokenSpec,
   });
-  const AMMUpdate = IDL.Record({ 'ask_id' : IDL.Nat, 'params' : AMMParams });
-  const BuyNowReq = IDL.Record({ 'token' : TokenSpec, 'amount' : IDL.Nat });
+  const AMMUpdate = IDL.Record({ 'ask_id' : IDL.Nat64, 'params' : AMMParams });
+  const BuyNowReq = IDL.Record({ 'token' : TokenSpec, 'amount' : IDL.Nat64 });
   const EndingType = IDL.Variant({
     'Date' : IDL.Nat64,
     'Perpetual' : IDL.Null,
@@ -101,25 +101,25 @@ export const idlFactory = ({ IDL }) => {
     'DistributeAsk' : IDL.Nat,
   });
   const TokenSpecResult = IDL.Record({
-    'result' : IDL.Nat,
+    'result' : IDL.Nat64,
     'standards' : IDL.Vec(ICRCStandards),
-    'ask_id' : IDL.Opt(IDL.Nat),
+    'ask_id' : IDL.Opt(IDL.Nat64),
     'receiving_account' : Account,
     'sending_account' : Account,
     'canister' : IDL.Principal,
     'symbol' : IDL.Text,
   });
-  const GenericError = IDL.Record({ 'code' : IDL.Nat, 'message' : IDL.Text });
+  const GenericError = IDL.Record({ 'code' : IDL.Nat64, 'message' : IDL.Text });
   const TokenResult = IDL.Record({
-    'result' : IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : GenericError }),
+    'result' : IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : GenericError }),
     'token' : TokenSpec,
   });
   const WithdrawResult = IDL.Record({
     'token_results' : IDL.Vec(TokenResult),
-    'withdraw_result' : IDL.Nat,
+    'withdraw_result' : IDL.Nat64,
   });
   const NewAskResult = IDL.Record({
-    'ask_id' : IDL.Nat,
+    'ask_id' : IDL.Nat64,
     'escrow' : EscrowRecord,
   });
   const EncumbranceSpec = IDL.Record({
@@ -155,7 +155,7 @@ export const idlFactory = ({ IDL }) => {
     'status' : AskStatusType,
     'participants' : IDL.Vec(Account),
     'auction_info' : IDL.Opt(AuctionInfo),
-    'ask_id' : IDL.Nat,
+    'ask_id' : IDL.Nat64,
     'seller' : Account,
     'allow_list' : IDL.Opt(IDL.Vec(Account)),
     'current_broker_id' : IDL.Opt(Account),
@@ -167,10 +167,10 @@ export const idlFactory = ({ IDL }) => {
   const RefreshOffersResult = IDL.Record({
     'eof' : IDL.Bool,
     'records' : IDL.Vec(IDL.Tuple(IDL.Vec(IDL.Nat8), IDL.Opt(AskStatus))),
-    'count' : IDL.Nat,
+    'count' : IDL.Nat64,
   });
   const DistributionResult = IDL.Record({
-    'result' : IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : GenericError }),
+    'result' : IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : GenericError }),
     'token' : TokenSpec,
   });
   const ManageAskResponse = IDL.Variant({
@@ -194,14 +194,14 @@ export const idlFactory = ({ IDL }) => {
     }),
   });
   const AskInfoRequest = IDL.Variant({
-    'History' : IDL.Tuple(IDL.Nat, IDL.Nat),
-    'Status' : IDL.Nat,
-    'Active' : IDL.Opt(IDL.Tuple(IDL.Opt(IDL.Nat), IDL.Opt(IDL.Nat))),
+    'History' : IDL.Tuple(IDL.Nat64, IDL.Nat64),
+    'Status' : IDL.Nat64,
+    'Active' : IDL.Opt(IDL.Tuple(IDL.Opt(IDL.Nat64), IDL.Opt(IDL.Nat64))),
   });
   const AskInfoRecords = IDL.Record({
     'eof' : IDL.Bool,
     'records' : IDL.Vec(IDL.Opt(AskStatus)),
-    'count' : IDL.Nat,
+    'count' : IDL.Nat64,
   });
   const AskInfoResponse = IDL.Variant({
     'History' : AskInfoRecords,
@@ -222,7 +222,7 @@ export const idlFactory = ({ IDL }) => {
   const BalanceRecords = IDL.Record({
     'eof' : IDL.Bool,
     'records' : IDL.Vec(EscrowRecord),
-    'count' : IDL.Nat,
+    'count' : IDL.Nat64,
   });
   const BalanceResult = IDL.Variant({
     'Escrow' : BalanceRecords,
@@ -259,10 +259,10 @@ export const idlFactory = ({ IDL }) => {
   const EngineMatchResult = IDL.Record({
     'ask_canister' : IDL.Opt(IDL.Principal),
     'token' : IDL.Opt(IDL.Vec(IDL.Opt(TokenSpecResult))),
-    'ask_id' : IDL.Nat,
+    'ask_id' : IDL.Nat64,
   });
   const NewBidResult = IDL.Record({
-    'result' : IDL.Nat,
+    'result' : IDL.Nat64,
     'escrow' : EscrowRecord,
   });
   const ManageBidResponse = IDL.Variant({

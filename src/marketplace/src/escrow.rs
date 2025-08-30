@@ -34,7 +34,7 @@ impl EscrowManager {
         self.next_escrow_id += 1;
 
         let escrow_record = EscrowRecord {
-            type_: escrow_type,
+            escrow_type,
             buyer,
             seller,
             ask_id,
@@ -94,7 +94,7 @@ impl EscrowManager {
         self.escrow_records
             .iter()
             .filter(|(_, escrow)| {
-                std::mem::discriminant(&escrow.type_) == std::mem::discriminant(escrow_type)
+                std::mem::discriminant(&escrow.escrow_type) == std::mem::discriminant(escrow_type)
             })
             .map(|(id, escrow)| (*id, escrow))
             .collect()
