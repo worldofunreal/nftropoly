@@ -9,7 +9,14 @@
     "prebuild": "npm run prebuild --workspaces --if-present",
     "pretest": "npm run prebuild --workspaces --if-present",
     "start": "npm start --workspaces --if-present",
-    "test": "npm test --workspaces --if-present"
+    "test": "npm test --workspaces --if-present",
+    "test:marketplace": "npx tsx scripts/test_marketplace.ts",
+    "test:marketplace:stage1": "npx tsx scripts/test_marketplace.ts 1",
+    "test:marketplace:stage2": "npx tsx scripts/test_marketplace.ts 2",
+    "test:marketplace:stage3": "npx tsx scripts/test_marketplace.ts 3",
+    "test:marketplace:stage4": "npx tsx scripts/test_marketplace.ts 4",
+    "test:marketplace:stage5": "npx tsx scripts/test_marketplace.ts 5",
+    "test:marketplace:stage6": "npx tsx scripts/test_marketplace.ts 6"
   },
   "type": "module",
   "workspaces": [

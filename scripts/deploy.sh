@@ -170,15 +170,67 @@ TOKEN_CANISTER_ID=$(dfx canister id nftropoly_token)
 echo -e "${GREEN}✅ NFTropoly Token deployed!${NC}"
 echo -e "${YELLOW}Token Canister ID:${NC} $TOKEN_CANISTER_ID"
 
-# Step 6: Generate TypeScript declarations
-echo -e "${BLUE}📋 Step 6: Generating TypeScript Declarations${NC}"
+# Step 6: Distribute tokens to test users
+echo -e "${BLUE}📋 Step 6: Distributing Tokens to Test Users${NC}"
+
+# Generate the same deterministic principals as TypeScript tests
+echo "Generating test user principals..."
+ALICE_PRINCIPAL_SCRIPT="xwe6e-zas76-5hg7f-mkafc-jgup5-rqt2l-47yvu-4a6f6-5b24o-bbt32-6qe"
+BOB_PRINCIPAL_SCRIPT="dl4xe-2luof-w44kh-vf2aa-euakg-shpg4-bdbjq-inl5q-uycri-3yttu-mqe"
+CHARLIE_PRINCIPAL_SCRIPT="twckm-2qq7z-52hrk-pyzpx-ijhl6-7ldey-plxmn-nsdoh-7grwo-556u7-iqe"
+
+# Transfer tokens to test users (10 million tokens each = 10,000,000 * 10^8)
+TOKENS_PER_USER=10000000000000000  # 10 million tokens with 8 decimals
+
+echo "Distributing $TOKENS_PER_USER tokens to each test user..."
+
+# Transfer to Alice
+echo "Transferring tokens to Alice..."
+dfx canister call nftropoly_token icrc1_transfer "(record {
+    to = record { owner = principal \"$ALICE_PRINCIPAL_SCRIPT\"; subaccount = null };
+    amount = $TOKENS_PER_USER;
+    fee = null;
+    memo = null;
+    from_subaccount = null;
+    created_at_time = null;
+})"
+
+# Transfer to Bob
+echo "Transferring tokens to Bob..."
+dfx canister call nftropoly_token icrc1_transfer "(record {
+    to = record { owner = principal \"$BOB_PRINCIPAL_SCRIPT\"; subaccount = null };
+    amount = $TOKENS_PER_USER;
+    fee = null;
+    memo = null;
+    from_subaccount = null;
+    created_at_time = null;
+})"
+
+# Transfer to Charlie
+echo "Transferring tokens to Charlie..."
+dfx canister call nftropoly_token icrc1_transfer "(record {
+    to = record { owner = principal \"$CHARLIE_PRINCIPAL_SCRIPT\"; subaccount = null };
+    amount = $TOKENS_PER_USER;
+    fee = null;
+    memo = null;
+    from_subaccount = null;
+    created_at_time = null;
+})"
+
+echo -e "${GREEN}✅ Token distribution completed!${NC}"
+echo "   Alice: $TOKENS_PER_USER NTRP"
+echo "   Bob: $TOKENS_PER_USER NTRP"
+echo "   Charlie: $TOKENS_PER_USER NTRP"
+
+# Step 7: Generate TypeScript declarations
+echo -e "${BLUE}📋 Step 7: Generating TypeScript Declarations${NC}"
 dfx generate nft_collection
 dfx generate marketplace
 dfx generate nftropoly_token
 echo -e "${GREEN}✅ TypeScript declarations generated!${NC}"
 
-# Step 7: Test basic functionality with DFX
-echo -e "${BLUE}📋 Step 7: Testing Basic Functionality${NC}"
+# Step 8: Test basic functionality with DFX
+echo -e "${BLUE}📋 Step 8: Testing Basic Functionality${NC}"
 
 # Test NFT collection
 echo "Testing NFT collection..."
@@ -203,6 +255,7 @@ echo "   - NFT Collection: $NFT_CANISTER_ID"
 echo "   - Marketplace: $MARKETPLACE_CANISTER_ID"
 echo "   - NFTropoly Token: $TOKEN_CANISTER_ID"
 echo "   - Alice Principal (for TypeScript): $ALICE_PRINCIPAL"
+echo "   - Token Distribution: 10M NTRP each to Alice, Bob, Charlie"
 echo "   - TypeScript declarations generated"
 echo ""
 echo -e "${BLUE}🌐 Canister URLs:${NC}"
