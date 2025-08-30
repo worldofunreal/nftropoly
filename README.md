@@ -74,8 +74,11 @@ at any time. This is recommended before starting the frontend development server
 For frontend development, use the following commands:
 
 ```bash
+# Install Nuxt globally (required for frontend development)
+npm install -g nuxt
+
 # Navigate to the frontend directory
-cd src/nftropoly_frontend/
+cd src/frontend/
 
 # Install dependencies
 npm install
