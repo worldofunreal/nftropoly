@@ -280,6 +280,8 @@ type BalanceRequest = variant {
   Offers : opt BalancePagination;
 };
 
+
+
 type BalancePagination = record {
   prev : opt nat;
   take : opt nat;
@@ -322,7 +324,7 @@ service : {
   // ICRC-8 Core Methods
   icrc8_ask : (vec opt ManageAskRequest) -> (vec record { opt ManageAskRequest; opt ManageAskResponse });
   icrc8_bid : (vec opt ManageBidRequest) -> (vec record { opt ManageBidRequest; opt ManageBidResponse });
-  icrc8_balance_of : (vec record { Account; opt vec opt BalanceRequest }) -> (vec record { Account; vec BalanceResult });
+  icrc8_balance_of : (vec record { Account; opt BalanceRequest }) -> (vec record { Account; vec BalanceResult });
   icrc8_ask_info : (vec opt AskInfoRequest) -> (vec record { opt AskInfoRequest; opt AskInfoResponse });
   icrc8_approved_tokens : () -> (opt vec principal);
   

@@ -614,6 +614,8 @@ pub enum BalanceRequest {
     Offers(Option<BalancePagination>),
 }
 
+
+
 /// Balance pagination
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub struct BalancePagination {

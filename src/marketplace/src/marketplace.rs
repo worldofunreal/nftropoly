@@ -680,45 +680,42 @@ impl Marketplace {
     /// Get balance information
     pub async fn get_balance_of(
         &self,
-        requests: Vec<(Account, Option<Vec<Option<BalanceRequest>>>)>,
+        requests: Vec<(Account, Option<BalanceRequest>)>,
     ) -> Vec<(Account, Vec<BalanceResult>)> {
         let mut results = Vec::new();
 
-        for (account, request_opt) in requests {
-            let balance_results = match request_opt {
+        for (account, balance_request) in requests {
+            let balance_results = match balance_request {
                 None => vec![],
-                Some(requests) => {
+                Some(request) => {
                     let mut results = Vec::new();
-                    for request in requests {
-                        match request {
-                            None => results.push(BalanceResult::Tokens(None)),
-                            Some(BalanceRequest::Nfts(_pagination)) => {
-                                results.push(BalanceResult::Nfts(None)); // Simplified
-                            }
-                            Some(BalanceRequest::Tokens) => {
-                                results.push(BalanceResult::Tokens(Some(0))); // Simplified
-                            }
-                            Some(BalanceRequest::Escrow(_pagination)) => {
-                                results.push(BalanceResult::Escrow(BalanceRecords {
-                                    records: vec![],
-                                    count: 0,
-                                    eof: true,
-                                }));
-                            }
-                            Some(BalanceRequest::AskSettlements(_pagination)) => {
-                                results.push(BalanceResult::AskSettlements(BalanceRecords {
-                                    records: vec![],
-                                    count: 0,
-                                    eof: true,
-                                }));
-                            }
-                            Some(BalanceRequest::Offers(_pagination)) => {
-                                results.push(BalanceResult::Offers(BalanceRecords {
-                                    records: vec![],
-                                    count: 0,
-                                    eof: true,
-                                }));
-                            }
+                    match request {
+                        BalanceRequest::Nfts(_pagination) => {
+                            results.push(BalanceResult::Nfts(None)); // Simplified
+                        }
+                        BalanceRequest::Tokens => {
+                            results.push(BalanceResult::Tokens(Some(0))); // Simplified
+                        }
+                        BalanceRequest::Escrow(_pagination) => {
+                            results.push(BalanceResult::Escrow(BalanceRecords {
+                                records: vec![],
+                                count: 0,
+                                eof: true,
+                            }));
+                        }
+                        BalanceRequest::AskSettlements(_pagination) => {
+                            results.push(BalanceResult::AskSettlements(BalanceRecords {
+                                records: vec![],
+                                count: 0,
+                                eof: true,
+                            }));
+                        }
+                        BalanceRequest::Offers(_pagination) => {
+                            results.push(BalanceResult::Offers(BalanceRecords {
+                                records: vec![],
+                                count: 0,
+                                eof: true,
+                            }));
                         }
                     }
                     results

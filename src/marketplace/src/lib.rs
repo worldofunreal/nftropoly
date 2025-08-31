@@ -80,7 +80,7 @@ pub async fn icrc8_bid(
 
 #[query]
 pub async fn icrc8_balance_of(
-    request: Vec<(Account, Option<Vec<Option<BalanceRequest>>>)>,
+    request: Vec<(Account, Option<BalanceRequest>)>,
 ) -> Vec<(Account, Vec<BalanceResult>)> {
     let mut marketplace = None;
     MARKETPLACE.with(|m| {

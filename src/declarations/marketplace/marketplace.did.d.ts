@@ -257,7 +257,7 @@ export interface _SERVICE {
     Array<[[] | [AskInfoRequest], [] | [AskInfoResponse]]>
   >,
   'icrc8_balance_of' : ActorMethod<
-    [Array<[Account, [] | [Array<[] | [BalanceRequest]>]]>],
+    [Array<[Account, [] | [BalanceRequest]]>],
     Array<[Account, Array<BalanceResult>]>
   >,
   'icrc8_bid' : ActorMethod<

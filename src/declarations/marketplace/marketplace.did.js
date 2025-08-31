@@ -299,11 +299,7 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'icrc8_balance_of' : IDL.Func(
-        [
-          IDL.Vec(
-            IDL.Tuple(Account, IDL.Opt(IDL.Vec(IDL.Opt(BalanceRequest))))
-          ),
-        ],
+        [IDL.Vec(IDL.Tuple(Account, IDL.Opt(BalanceRequest)))],
         [IDL.Vec(IDL.Tuple(Account, IDL.Vec(BalanceResult)))],
         [],
       ),
