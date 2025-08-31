@@ -158,6 +158,7 @@ pub fn mint(req: management::mint::Args) -> management::mint::Response {
                 "7mint".to_string(),
                 ic_cdk::api::time(),
                 ICRC7TransactionData {
+                    op: "7mint".to_string(),
                     tid: Some(token_id.clone()),
                     from: None,
                     to: Some(req.token_owner.clone()),
@@ -224,6 +225,7 @@ pub fn update_nft_metadata(
                 "7update_token".to_string(),
                 ic_cdk::api::time(),
                 ICRC7TransactionData {
+                    op: "7update_token".to_string(),
                     tid: Some(token_name_hash.clone()),
                     from: Some(Account {
                         owner: ic_cdk::api::msg_caller(),
@@ -280,14 +282,15 @@ pub fn burn_nft(token_id: Nat) -> management::burn_nft::Response {
     let transaction = ICRC7Transaction::new(
         "7burn".to_string(),
         ic_cdk::api::time(),
-        ICRC7TransactionData {
-            tid: Some(token_id.clone()),
-            from: Some(token.token_owner.clone()),
-            to: None,
-            meta: None,
-            memo: None,
-            created_at_time: Some(Nat::from(ic_cdk::api::time())),
-        },
+                        ICRC7TransactionData {
+                    op: "7burn".to_string(),
+                    tid: Some(token_id.clone()),
+                    from: Some(token.token_owner.clone()),
+                    to: None,
+                    meta: None,
+                    memo: None,
+                    created_at_time: Some(Nat::from(ic_cdk::api::time())),
+                },
     );
 
     match icrc3_add_transaction(transaction) {

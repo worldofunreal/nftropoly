@@ -3,7 +3,7 @@
 // Core ICRC-8 Types
 type Account = record {
   owner : principal;
-  sub_account : opt blob;
+  subaccount : opt blob;
 };
 
 type TokenSpec = record {
@@ -46,7 +46,7 @@ type ICRC7TokenSpecDetail = record {
 type ICRC37TokenSpecDetail = record {
   approval_fee : opt TokenSpec;
   transfer_from_fee : opt TokenSpec;
-  token_id : opt nat;
+  token_id : opt nat64;
 };
 
 type TokenSpecResult = record {

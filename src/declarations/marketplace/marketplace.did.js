@@ -21,7 +21,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const ICRC37TokenSpecDetail = IDL.Record({
     'transfer_from_fee' : IDL.Opt(TokenSpec),
-    'token_id' : IDL.Opt(IDL.Nat),
+    'token_id' : IDL.Opt(IDL.Nat64),
     'approval_fee' : IDL.Opt(TokenSpec),
   });
   const ICRCStandards = IDL.Variant({
@@ -45,7 +45,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Account = IDL.Record({
     'owner' : IDL.Principal,
-    'sub_account' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
   });
   const EscrowType = IDL.Variant({
     'Ask' : IDL.Vec(IDL.Opt(TokenSpec)),

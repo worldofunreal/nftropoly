@@ -32,27 +32,10 @@ impl Storable for AskIds {
 // ============================================================================
 
 /// Account representation for token owners
-#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
-pub struct Account {
-    pub owner: Principal,
-    pub sub_account: Option<Vec<u8>>,
-}
+/// Using standard ICRC-1 Account type for compatibility
+pub type Account = icrc_ledger_types::icrc1::account::Account;
 
-impl Storable for Account {
-    const BOUND: Bound = Bound::Unbounded;
-    
-    fn to_bytes(&self) -> Cow<[u8]> {
-        Cow::Owned(candid::encode_one(self).unwrap())
-    }
-    
-    fn into_bytes(self) -> Vec<u8> {
-        candid::encode_one(&self).unwrap()
-    }
-    
-    fn from_bytes(bytes: Cow<[u8]>) -> Self {
-        candid::decode_one(&bytes).unwrap()
-    }
-}
+// Storable implementation removed - using standard ICRC-1 Account type
 
 /// Token specification for identifying tokens in the marketplace
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
@@ -720,21 +703,7 @@ pub type TokenId = u64;
 // Implementations
 // ============================================================================
 
-impl Account {
-    pub fn new(owner: Principal) -> Self {
-        Self {
-            owner,
-            sub_account: None,
-        }
-    }
-
-    pub fn with_subaccount(owner: Principal, sub_account: Vec<u8>) -> Self {
-        Self {
-            owner,
-            sub_account: Some(sub_account),
-        }
-    }
-}
+// Account implementation removed - using standard ICRC-1 Account type
 
 impl TokenSpec {
     pub fn new(canister: Principal, symbol: String) -> Self {

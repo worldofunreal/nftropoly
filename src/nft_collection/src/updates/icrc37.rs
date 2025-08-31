@@ -159,6 +159,7 @@ fn approve_token(
         "37approve".to_string(),
         current_time,
         ICRC37TransactionData {
+            op: "37approve".to_string(),
             tid: Some(arg.token_id.clone()),
             from: Some(from_account.clone()),
             to: None,
@@ -303,6 +304,7 @@ fn approve_collection(
         "37approve_coll".to_string(),
         current_time,
         ICRC37TransactionData {
+            op: "37approve_coll".to_string(),
             tid: None,
             from: Some(from_account.clone()),
             to: None,
@@ -440,6 +442,7 @@ fn revoke_token_approvals(
         "37revoke".to_string(),
         current_time,
         ICRC37TransactionData {
+            op: "37revoke".to_string(),
             tid: Some(arg.token_id.clone()),
             from: Some(from_account.clone()),
             to: None,
@@ -560,6 +563,7 @@ fn revoke_collection_approvals(
         "37revoke_coll".to_string(),
         current_time,
         ICRC37TransactionData {
+            op: "37revoke_coll".to_string(),
             tid: None,
             from: Some(from_account.clone()),
             to: None,
@@ -697,6 +701,7 @@ fn transfer_from(
         "37xfer".to_string(),
         current_time,
         ICRC37TransactionData {
+            op: "37xfer".to_string(),
             tid: Some(arg.token_id.clone()),
             from: Some(arg.from.clone()),
             to: Some(arg.to.clone()),

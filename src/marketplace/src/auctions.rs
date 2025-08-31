@@ -144,7 +144,10 @@ impl AuctionManager {
 
         // Update auction state
         auction_info.current_bid_amount = Some(amount);
-        auction_info.current_winner = Some(Account::new(bidder));
+        auction_info.current_winner = Some(Account {
+            owner: bidder,
+            subaccount: None,
+        });
 
         // Calculate new minimum next bid
         let new_min_next_bid = self.calculate_min_next_bid(amount, &auction_info.min_increase);
@@ -278,7 +281,10 @@ impl AuctionManager {
 
         // Update auction state
         auction_info.current_bid_amount = Some(current_price);
-        auction_info.current_winner = Some(Account::new(buyer));
+        auction_info.current_winner = Some(Account {
+            owner: buyer,
+            subaccount: None,
+        });
 
         // For Dutch auctions, the accepted price becomes the final price
         auction_info.min_next_bid = Some(current_price);

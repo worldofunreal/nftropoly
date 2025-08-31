@@ -12,7 +12,7 @@ export interface AMMParams {
 export interface AMMUpdate { 'ask_id' : bigint, 'params' : AMMParams }
 export interface Account {
   'owner' : Principal,
-  'sub_account' : [] | [Uint8Array | number[]],
+  'subaccount' : [] | [Uint8Array | number[]],
 }
 export type AskFeature = { 'BuyNow' : Array<Array<BuyNowReq>> } |
   { 'FeeSchema' : string } |

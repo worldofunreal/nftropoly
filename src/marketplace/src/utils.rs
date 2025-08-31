@@ -57,9 +57,9 @@ pub fn validate_principal(principal_text: &str) -> MarketplaceResult<Principal> 
 /// Validate account format
 pub fn validate_account(
     owner: Principal,
-    sub_account: Option<Vec<u8>>,
+    subaccount: Option<[u8; 32]>,
 ) -> MarketplaceResult<Account> {
-    Ok(Account { owner, sub_account })
+    Ok(Account { owner, subaccount })
 }
 
 /// Extract token details from ask features

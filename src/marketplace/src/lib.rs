@@ -17,6 +17,7 @@ pub mod auctions;
 pub mod errors;
 pub mod escrow;
 pub mod fees;
+pub mod icrc_client;
 pub mod kyc;
 pub mod marketplace;
 pub mod notifications;

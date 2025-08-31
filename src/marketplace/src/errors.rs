@@ -63,11 +63,14 @@ pub enum MarketplaceError {
     #[error("Escrow not found")]
     EscrowNotFound,
 
-    #[error("Insufficient balance")]
-    InsufficientBalance,
+    #[error("Insufficient balance: {0}")]
+    InsufficientBalance(String),
 
-    #[error("Transfer failed")]
-    TransferFailed,
+    #[error("Transfer failed: {0}")]
+    TransferFailed(String),
+
+    #[error("Insufficient approval: {0}")]
+    InsufficientApproval(String),
 
     #[error("Settlement failed")]
     SettlementFailed,
@@ -119,8 +122,9 @@ impl From<MarketplaceError> for GenericError {
             MarketplaceError::MissingBuyNowFeature => (400, "Missing required buy_now feature"),
             MarketplaceError::InvalidAskFeatures => (400, "Invalid ask features"),
             MarketplaceError::EscrowNotFound => (404, "Escrow not found"),
-            MarketplaceError::InsufficientBalance => (400, "Insufficient balance"),
-            MarketplaceError::TransferFailed => (500, "Transfer failed"),
+            MarketplaceError::InsufficientBalance(_) => (400, "Insufficient balance"),
+            MarketplaceError::TransferFailed(_) => (500, "Transfer failed"),
+            MarketplaceError::InsufficientApproval(_) => (403, "Insufficient approval"),
             MarketplaceError::SettlementFailed => (500, "Settlement failed"),
             MarketplaceError::EngineMatchFailed => (500, "Engine match failed"),
             MarketplaceError::EncumbranceFailed => (500, "Encumbrance failed"),

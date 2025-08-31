@@ -11,6 +11,7 @@ use crate::auctions::AuctionManager;
 use crate::errors::{MarketplaceError, MarketplaceResult};
 use crate::escrow::EscrowManager;
 use crate::fees::{FeeManager, FeeParty};
+use crate::icrc_client::{pull_icrc2_tokens, pull_icrc37_nfts};
 use crate::kyc::KYCManager;
 use crate::notifications::NotificationManager;
 use crate::storage::MarketplaceStorage;
@@ -299,7 +300,7 @@ impl Marketplace {
         let ask_id = self.storage.get_next_ask_id();
         let account = Account {
             owner: caller,
-            sub_account: None,
+            subaccount: None,
         };
 
         // Handle auction creation if auction feature is present
@@ -410,16 +411,52 @@ impl Marketplace {
             seller: account.clone(),
         };
 
-        self.storage.insert_ask(ask_id, ask_status.clone());
-        self.storage.add_user_ask(caller, ask_id);
-
-        // Extract tokens from ask features for escrow
+        // Extract and transfer NFTs from user to marketplace escrow
         let mut escrow_tokens = Vec::new();
         for feature in &features {
             if let Some(feature) = feature {
                 match feature {
                     AskFeature::AskToken(tokens) => {
-                        escrow_tokens.extend(tokens.iter().cloned());
+                        // Transfer NFTs to marketplace escrow
+                        for token in tokens {
+                            if let Some(token_spec) = token {
+                                // Extract token IDs from ICRC-37 standard details
+                                let mut token_ids = Vec::new();
+                                
+                                for standard in &token_spec.standards {
+                                    if let ICRCStandards::ICRC37(details) = standard {
+                                        if let Some(detail) = details {
+                                            if let Some(token_id) = detail.token_id {
+                                                token_ids.push(token_id);
+                                            }
+                                        }
+                                    }
+                                }
+                                
+                                if token_ids.is_empty() {
+                                    return Err(MarketplaceError::InvalidInput(
+                                        "No token IDs specified in ICRC-37 token spec".to_string()
+                                    ));
+                                }
+                                
+                                ic_cdk::println!("🔄 Transferring NFTs with IDs: {:?} from user {}", token_ids, caller);
+                                
+                                match pull_icrc37_nfts(
+                                    token_spec.canister,
+                                    caller,
+                                    token_ids,
+                                ).await {
+                                    Ok(block_index) => {
+                                        ic_cdk::println!("✅ Successfully transferred NFTs to escrow. Block: {}", block_index);
+                                        escrow_tokens.push(Some(token_spec.clone()));
+                                    }
+                                    Err(e) => {
+                                        ic_cdk::println!("❌ Failed to transfer NFTs: {}", e);
+                                        return Err(e);
+                                    }
+                                }
+                            }
+                        }
                     }
                     AskFeature::BuyNow(buy_now_reqs) => {
                         for buy_now_req in buy_now_reqs {
@@ -432,6 +469,9 @@ impl Marketplace {
                 }
             }
         }
+
+        self.storage.insert_ask(ask_id, ask_status.clone());
+        self.storage.add_user_ask(caller, ask_id);
 
         // Create escrow record using EscrowManager
         let escrow_id = self.escrow_manager.create_escrow(
@@ -519,7 +559,7 @@ impl Marketplace {
                         // Create escrow record for the bid using EscrowManager
                         let buyer_account = Account {
                             owner: caller,
-                            sub_account: None,
+                            subaccount: None,
                         };
 
                         let escrow_id = self.escrow_manager.create_escrow(
@@ -551,12 +591,30 @@ impl Marketplace {
                 // Handle regular bid (non-auction)
                 let buyer_account = Account {
                     owner: caller,
-                    sub_account: None,
+                    subaccount: None,
                 };
 
                 // Check if this is a buy_now bid (immediate settlement)
                 let buy_now_amount = self.extract_buy_now_amount(&ask_status.config);
                 if let Some(amount) = buy_now_amount {
+                    // Extract payment token from ask features
+                    let payment_token = self.extract_payment_token(&ask_status.config)?;
+                    
+                    // Transfer payment tokens from buyer to marketplace escrow
+                    match pull_icrc2_tokens(
+                        payment_token.canister,
+                        caller,
+                        amount.into(),
+                    ).await {
+                        Ok(block_index) => {
+                            ic_cdk::println!("✅ Successfully transferred payment tokens to escrow. Block: {}", block_index);
+                        }
+                        Err(e) => {
+                            ic_cdk::println!("❌ Failed to transfer payment tokens: {}", e);
+                            return Err(e);
+                        }
+                    }
+                    
                     // Process immediate settlement
                     match self.process_settlement(ask_id, caller, amount) {
                         Ok(_settlement_info) => {
@@ -749,7 +807,7 @@ impl Marketplace {
         // Validate that the caller is authorized to withdraw from this escrow
         let _caller_account = Account {
             owner: caller,
-            sub_account: None,
+            subaccount: None,
         };
 
         // Check if caller is the buyer or seller
@@ -789,7 +847,7 @@ impl Marketplace {
         // Validate that the caller is authorized to withdraw settlement
         let _caller_account = Account {
             owner: caller,
-            sub_account: None,
+            subaccount: None,
         };
 
         // Check if caller is the seller (only seller can withdraw settlement)
@@ -860,7 +918,7 @@ impl Marketplace {
         // Create fee distribution for marketplace
         let marketplace_account = Account {
             owner: ic_cdk::api::canister_self(), // Marketplace canister ID
-            sub_account: None,
+            subaccount: None,
         };
 
         let fee_distributions = vec![
@@ -891,7 +949,7 @@ impl Marketplace {
         // Create settlement escrow record
         let buyer_account = Account {
             owner: buyer,
-            sub_account: None,
+            subaccount: None,
         };
 
         let _settlement_escrow_id = self.escrow_manager.create_escrow(
@@ -952,6 +1010,20 @@ impl Marketplace {
             }
         }
         None
+    }
+
+    /// Extract payment token from ask features
+    fn extract_payment_token(&self, features: &[AskFeature]) -> MarketplaceResult<TokenSpec> {
+        for feature in features {
+            if let AskFeature::BuyNow(buy_now_options) = feature {
+                if let Some(buy_now_vec) = buy_now_options.first() {
+                    if let Some(buy_now) = buy_now_vec.first() {
+                        return Ok(buy_now.token.clone());
+                    }
+                }
+            }
+        }
+        Err(MarketplaceError::InvalidInput("No payment token found in ask features".to_string()))
     }
 
     /// Distribute ask settlement funds

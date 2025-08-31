@@ -59,6 +59,7 @@ fn transfer_nft(arg: &icrc7::TransferArg) -> Result<Nat, icrc7::icrc7_transfer::
         "7xfer".to_string(),
         current_time,
         ICRC7TransactionData {
+            op: "7xfer".to_string(),
             tid: Some(arg.token_id.clone()),
             from: Some(nft.token_owner.clone()),
             to: Some(arg.to.clone()),
