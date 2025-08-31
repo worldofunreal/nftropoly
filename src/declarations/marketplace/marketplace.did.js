@@ -1,5 +1,6 @@
 export const idlFactory = ({ IDL }) => {
   const TokenSpec = IDL.Rec();
+  const SupportedStandard = IDL.Record({ 'url' : IDL.Text, 'name' : IDL.Text });
   const ICRC1TokenSpecDetail = IDL.Record({
     'fee' : IDL.Opt(IDL.Nat64),
     'decimals' : IDL.Nat8,
@@ -276,9 +277,15 @@ export const idlFactory = ({ IDL }) => {
     }),
     'NewBid' : IDL.Variant({ 'Ok' : NewBidResult, 'Err' : GenericError }),
   });
+  const ICRC8Metadata = IDL.Record({ 'key' : IDL.Text, 'value' : IDL.Text });
   return IDL.Service({
     'get_metadata' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))], []),
     'health_check' : IDL.Func([], [IDL.Text], []),
+    'icrc10_supported_standards' : IDL.Func(
+        [],
+        [IDL.Vec(SupportedStandard)],
+        ['query'],
+      ),
     'icrc8_approved_tokens' : IDL.Func(
         [],
         [IDL.Opt(IDL.Vec(IDL.Principal))],
@@ -312,6 +319,7 @@ export const idlFactory = ({ IDL }) => {
         ],
         [],
       ),
+    'icrc8_metadata' : IDL.Func([], [IDL.Vec(ICRC8Metadata)], ['query']),
     'set_metadata' : IDL.Func(
         [IDL.Text, IDL.Text],
         [IDL.Variant({ 'Ok' : IDL.Null, 'Err' : IDL.Text })],

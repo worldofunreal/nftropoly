@@ -7,6 +7,24 @@ use ic_stable_structures::{storable::Bound, Storable};
 use serde::Serialize;
 use std::borrow::Cow;
 
+// ============================================================================
+// ICRC-10 and ICRC-8 Metadata Types
+// ============================================================================
+
+/// ICRC-10 Supported Standard record
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
+pub struct SupportedStandard {
+    pub name: String,
+    pub url: String,
+}
+
+/// ICRC-8 Metadata record
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
+pub struct ICRC8Metadata {
+    pub key: String,
+    pub value: String,
+}
+
 // Newtype wrapper for Vec<u64> to implement Storable
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct AskIds(pub Vec<u64>);

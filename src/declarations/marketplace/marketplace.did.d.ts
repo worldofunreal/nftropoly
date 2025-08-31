@@ -155,6 +155,7 @@ export interface ICRC7TokenSpecDetail {
   'fee' : [] | [TokenSpec],
   'token_id' : [] | [bigint],
 }
+export interface ICRC8Metadata { 'key' : string, 'value' : string }
 export type ICRCStandards = { 'ICRC1' : [] | [ICRC1TokenSpecDetail] } |
   { 'ICRC2' : [] | [ICRC2TokenSpecDetail] } |
   { 'ICRC4' : [] | [ICRC4TokenSpecDetail] } |
@@ -221,6 +222,7 @@ export interface SettlementInfo {
   'ask_tokens' : Array<[] | [TokenSpecResult]>,
   'royalties' : Array<[Account, bigint, string]>,
 }
+export interface SupportedStandard { 'url' : string, 'name' : string }
 export interface TokenResult {
   'result' : { 'Ok' : bigint } |
     { 'Err' : GenericError },
@@ -247,6 +249,7 @@ export interface WithdrawResult {
 export interface _SERVICE {
   'get_metadata' : ActorMethod<[], Array<[string, string]>>,
   'health_check' : ActorMethod<[], string>,
+  'icrc10_supported_standards' : ActorMethod<[], Array<SupportedStandard>>,
   'icrc8_approved_tokens' : ActorMethod<[], [] | [Array<Principal>]>,
   'icrc8_ask' : ActorMethod<
     [Array<[] | [ManageAskRequest]>],
@@ -264,6 +267,7 @@ export interface _SERVICE {
     [Array<[] | [ManageBidRequest]>],
     Array<[[] | [ManageBidRequest], [] | [ManageBidResponse]]>
   >,
+  'icrc8_metadata' : ActorMethod<[], Array<ICRC8Metadata>>,
   'set_metadata' : ActorMethod<
     [string, string],
     { 'Ok' : null } |

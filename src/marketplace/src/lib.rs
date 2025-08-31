@@ -145,7 +145,85 @@ pub async fn icrc8_approved_tokens() -> Option<Vec<Principal>> {
     result
 }
 
-// Metadata and configuration
+// ICRC-10 Metadata (General Standards Support)
+#[query]
+pub async fn icrc10_supported_standards() -> Vec<SupportedStandard> {
+    vec![
+        SupportedStandard {
+            name: "ICRC-1".to_string(),
+            url: "https://github.com/dfinity/ICRC-1".to_string(),
+        },
+        SupportedStandard {
+            name: "ICRC-2".to_string(),
+            url: "https://github.com/dfinity/ICRC-2".to_string(),
+        },
+        SupportedStandard {
+            name: "ICRC-4".to_string(),
+            url: "https://github.com/dfinity/ICRC-4".to_string(),
+        },
+        SupportedStandard {
+            name: "ICRC-7".to_string(),
+            url: "https://github.com/dfinity/ICRC-7".to_string(),
+        },
+        SupportedStandard {
+            name: "ICRC-37".to_string(),
+            url: "https://github.com/dfinity/ICRC-37".to_string(),
+        },
+        SupportedStandard {
+            name: "ICRC-8".to_string(),
+            url: "https://github.com/dfinity/ICRC-8".to_string(),
+        },
+    ]
+}
+
+// ICRC-8 Metadata (Marketplace-Specific Configuration)
+#[query]
+pub async fn icrc8_metadata() -> Vec<ICRC8Metadata> {
+    vec![
+        ICRC8Metadata {
+            key: "icrc8:approved_tokens".to_string(),
+            value: "uqqxf-5h777-77774-qaaaa-cai,uzt4z-lp777-77774-qaabq-cai".to_string(), // NFT Collection, NTRP Token
+        },
+        ICRC8Metadata {
+            key: "icrc8:supports_icrc_1".to_string(),
+            value: "true".to_string(),
+        },
+        ICRC8Metadata {
+            key: "icrc8:supports_icrc_2".to_string(),
+            value: "true".to_string(),
+        },
+        ICRC8Metadata {
+            key: "icrc8:supports_icrc_4".to_string(),
+            value: "true".to_string(),
+        },
+        ICRC8Metadata {
+            key: "icrc8:supports_icrc_7".to_string(),
+            value: "true".to_string(),
+        },
+        ICRC8Metadata {
+            key: "icrc8:supports_icrc_37".to_string(),
+            value: "true".to_string(),
+        },
+        ICRC8Metadata {
+            key: "icrc8:default_ask_timeout".to_string(),
+            value: "86400000000000".to_string(), // 24 hours in nanoseconds
+        },
+        ICRC8Metadata {
+            key: "icrc8:default_fee_schema".to_string(),
+            value: "standard".to_string(),
+        },
+        ICRC8Metadata {
+            key: "icrc8:default_auction_token".to_string(),
+            value: "uzt4z-lp777-77774-qaabq-cai".to_string(), // NTRP Token as default auction currency
+        },
+        ICRC8Metadata {
+            key: "icrc8:settlement_trustee".to_string(),
+            value: "uqqxf-5h777-77774-qaaaa-cai".to_string(), // Marketplace canister as settlement trustee
+        },
+    ]
+}
+
+// Legacy Metadata Methods (for backward compatibility)
 #[query]
 pub async fn get_metadata() -> Vec<(String, String)> {
     let mut marketplace = None;

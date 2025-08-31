@@ -6,6 +6,12 @@ type Account = record {
   subaccount : opt blob;
 };
 
+// ICRC-10 Metadata Types
+type SupportedStandard = record { url : text; name : text };
+
+// ICRC-8 Metadata Types
+type ICRC8Metadata = record { key : text; value : text };
+
 type TokenSpec = record {
   canister : principal;
   symbol : text;
@@ -328,7 +334,13 @@ service : {
   icrc8_ask_info : (vec opt AskInfoRequest) -> (vec record { opt AskInfoRequest; opt AskInfoResponse });
   icrc8_approved_tokens : () -> (opt vec principal);
   
-  // Metadata and Configuration
+  // ICRC-10 Metadata (General Standards Support)
+  icrc10_supported_standards : () -> (vec SupportedStandard) query;
+  
+  // ICRC-8 Metadata (Marketplace-Specific Configuration)
+  icrc8_metadata : () -> (vec ICRC8Metadata) query;
+  
+  // Legacy Metadata Methods (for backward compatibility)
   get_metadata : () -> (vec record { text; text });
   set_metadata : (text, text) -> (variant { Ok; Err : text });
   
