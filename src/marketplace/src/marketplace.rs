@@ -697,9 +697,17 @@ impl Marketplace {
                             results.push(BalanceResult::Tokens(Some(0))); // Simplified
                         }
                         BalanceRequest::Escrow(_pagination) => {
+                            // Get escrow records for this account
+                            let account_escrows = self.escrow_manager.get_account_escrows(&account);
+                            let escrow_records: Vec<EscrowRecord> = account_escrows
+                                .into_iter()
+                                .map(|(_, escrow)| escrow.clone())
+                                .collect();
+                            
+                            let count = escrow_records.len() as u64;
                             results.push(BalanceResult::Escrow(BalanceRecords {
-                                records: vec![],
-                                count: 0,
+                                records: escrow_records,
+                                count,
                                 eof: true,
                             }));
                         }

@@ -269,7 +269,17 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
         [{ 'Escrow': [] }]
       ]
     ])
+    
+    // Also check Alice's escrow (since she's the seller)
+    const aliceBalanceResult = await aliceMarketplace.icrc8_balance_of([
+      [
+        { owner: Principal.fromText(alicePrincipal), subaccount: [] },
+        [{ 'Escrow': [] }]
+      ]
+    ])
+    
     console.log(`   Marketplace Escrow: ${JSON.stringify(serializeBigInt(marketplaceBalanceResult), null, 2)}`)
+    console.log(`   Alice's Escrow: ${JSON.stringify(serializeBigInt(aliceBalanceResult), null, 2)}`)
     
     console.log('\n🎉 NFT Marketplace Flow Test Completed!')
     
