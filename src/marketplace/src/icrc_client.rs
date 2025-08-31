@@ -62,7 +62,7 @@ pub async fn pull_icrc2_tokens(
     };
     
     let result: (TransferFromResult,) = Call::unbounded_wait(token_canister, "icrc2_transfer_from")
-        .with_arg((transfer_from_args,))
+        .with_arg(transfer_from_args)
         .await
         .map_err(|e| MarketplaceError::TransferFailed(format!("ICRC-2 transfer failed: {:?}", e)))?
         .candid_tuple()
@@ -100,12 +100,13 @@ pub async fn pull_icrc2_tokens(
 // ICRC-37 NFT FUNCTIONS
 // ============================================================================
 
+// Use the same TransferFromArg as the NFT collection
 #[derive(CandidType, Deserialize)]
-pub struct ICRC37TransferFromArgs {
-    pub spender_subaccount: Option<Vec<u8>>,
-    pub from: Account,
+pub struct TransferFromArg {
     pub to: Account,
+    pub spender_subaccount: Option<Vec<u8>>,
     pub token_id: candid::Nat,
+    pub from: Account,
     pub memo: Option<Vec<u8>>,
     pub created_at_time: Option<u64>,
 }
@@ -140,11 +141,11 @@ pub async fn pull_icrc37_nfts(
     // Create a vector of transfer arguments (one per token)
     let mut transfer_args = Vec::new();
     for token_id in token_ids {
-        let transfer_arg = ICRC37TransferFromArgs {
-            spender_subaccount: None,
-            from: Account { owner: from, subaccount: None },
+        let transfer_arg = TransferFromArg {
             to: Account { owner: marketplace_principal, subaccount: None },
+            spender_subaccount: None,
             token_id: candid::Nat::from(token_id),
+            from: Account { owner: from, subaccount: None },
             memo: None,
             created_at_time: None,
         };
@@ -152,7 +153,7 @@ pub async fn pull_icrc37_nfts(
     }
     
     let result: (Result<Vec<Option<ICRC37TransferFromResult>>, ICRC37TransferFromError>,) = Call::unbounded_wait(nft_canister, "icrc37_transfer_from")
-        .with_arg((transfer_args,))
+        .with_arg(transfer_args)
         .await
         .map_err(|e| MarketplaceError::TransferFailed(format!("ICRC-37 transfer failed: {:?}", e)))?
         .candid_tuple()
