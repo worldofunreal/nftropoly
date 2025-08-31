@@ -260,7 +260,7 @@ const runStage2 = async (identities: IdentityData[]): Promise<void> => {
       console.log(`   Alice new balance: ${aliceNewBalance}`)
       console.log(`   Bob new balance: ${bobNewBalance}`)
     } else {
-      console.log(`❌ Transfer failed: ${JSON.stringify(serializeBigInt(transferResult), null, 2)}`)
+      throw new Error(`Token transfer failed: ${JSON.stringify(serializeBigInt(transferResult), null, 2)}`)
     }
     
     // Test ICRC-2 approvals
@@ -290,7 +290,7 @@ const runStage2 = async (identities: IdentityData[]): Promise<void> => {
       console.log(`   Allowance: ${allowance.allowance}`)
       console.log(`   Expires at: ${allowance.expires_at}`)
     } else {
-      console.log(`❌ Approval failed: ${JSON.stringify(serializeBigInt(approveResult), null, 2)}`)
+      throw new Error(`Token approval failed: ${JSON.stringify(serializeBigInt(approveResult), null, 2)}`)
     }
     
     // Test transfer from (using approval)
@@ -317,7 +317,7 @@ const runStage2 = async (identities: IdentityData[]): Promise<void> => {
       console.log(`   Bob final balance: ${bobFinalBalance}`)
       console.log(`   Charlie final balance: ${charlieFinalBalance}`)
     } else {
-      console.log(`❌ Transfer from failed: ${JSON.stringify(serializeBigInt(transferFromResult), null, 2)}`)
+      throw new Error(`Transfer from failed: ${JSON.stringify(serializeBigInt(transferFromResult), null, 2)}`)
     }
     
     // Test ICRC-3 transaction history
@@ -383,16 +383,17 @@ const runStage3 = async (identities: IdentityData[]): Promise<void> => {
       const ownership = await aliceNFT.icrc7_owner_of([mintResult.Ok])
       console.log(`   Ownership: ${JSON.stringify(serializeBigInt(ownership), null, 2)}`)
     } else {
-      console.log(`❌ Minting failed: ${JSON.stringify(serializeBigInt(mintResult), null, 2)}`)
+      throw new Error(`NFT minting failed: ${JSON.stringify(serializeBigInt(mintResult), null, 2)}`)
     }
     
     // Test NFT transfers
     console.log('\n🔄 Testing NFT Transfers...')
     const bobAccount = { owner: Principal.fromText(bob.principal), subaccount: [] }
     
+    // Use the newly minted NFT ID instead of hardcoded 1
     const transferResult = await aliceNFT.icrc7_transfer([{
       to: bobAccount,
-      token_id: BigInt(1), // Assuming NFT ID 1 exists
+      token_id: mintResult.Ok, // Use the newly minted NFT
       memo: [],
       from_subaccount: [],
       created_at_time: []
@@ -400,8 +401,13 @@ const runStage3 = async (identities: IdentityData[]): Promise<void> => {
     
     console.log(`   Transfer Result: ${JSON.stringify(serializeBigInt(transferResult), null, 2)}`)
     
+    // Check if transfer was successful
+    if (transferResult[0] && 'Err' in transferResult[0]) {
+      throw new Error(`NFT transfer failed: ${JSON.stringify(serializeBigInt(transferResult[0].Err), null, 2)}`)
+    }
+    
     // Verify ownership change
-    const bobOwnership = await bobNFT.icrc7_owner_of([BigInt(1)])
+    const bobOwnership = await bobNFT.icrc7_owner_of([mintResult.Ok])
     console.log(`   Bob's Ownership: ${JSON.stringify(serializeBigInt(bobOwnership), null, 2)}`)
     
     // Test ICRC-37 approvals
@@ -409,7 +415,7 @@ const runStage3 = async (identities: IdentityData[]): Promise<void> => {
     const charlieAccount = { owner: Principal.fromText(charlie.principal), subaccount: [] }
     
     const approveResult = await bobNFT.icrc37_approve_tokens([{
-      token_id: BigInt(1),
+      token_id: mintResult.Ok,
       approval_info: {
         spender: charlieAccount,
         expires_at: [],
@@ -424,10 +430,10 @@ const runStage3 = async (identities: IdentityData[]): Promise<void> => {
       console.log(`✅ NFT Approval successful!`)
       
       // Check approvals
-      const approvals = await bobNFT.icrc37_get_token_approvals(BigInt(1), [], [])
+      const approvals = await bobNFT.icrc37_get_token_approvals(mintResult.Ok, [], [])
       console.log(`   Approvals: ${JSON.stringify(serializeBigInt(approvals), null, 2)}`)
     } else {
-      console.log(`❌ NFT Approval failed: ${JSON.stringify(serializeBigInt(approveResult), null, 2)}`)
+      throw new Error(`NFT approval failed: ${JSON.stringify(serializeBigInt(approveResult), null, 2)}`)
     }
     
     // Test ICRC-3 transaction history
@@ -729,33 +735,55 @@ const runStagedTests = async (stages: number[] = [1, 2, 3, 4, 5, 6]): Promise<vo
   console.log(`   Marketplace: ${CANISTER_IDS.marketplace}`)
   console.log(`   NFTropoly Token: ${CANISTER_IDS.nftropolyToken}\n`)
   
-  // Run selected stages
+  // Run selected stages with error handling
   for (const stage of stages) {
-    switch (stage) {
-      case 1:
-        await runStage1(identities)
-        break
-      case 2:
-        await runStage2(identities)
-        break
-      case 3:
-        await runStage3(identities)
-        break
-      case 4:
-        await runStage4(identities)
-        break
-      case 5:
-        await runStage5(identities)
-        break
-      case 6:
-        await runStage6(identities)
-        break
-      default:
-        console.log(`⚠️ Unknown stage: ${stage}`)
+    try {
+      console.log(`\n📋 Stage ${stage}: Starting...`)
+      
+      switch (stage) {
+        case 1:
+          await runStage1(identities)
+          break
+        case 2:
+          await runStage2(identities)
+          break
+        case 3:
+          await runStage3(identities)
+          break
+        case 4:
+          await runStage4(identities)
+          break
+        case 5:
+          await runStage5(identities)
+          break
+        case 6:
+          await runStage6(identities)
+          break
+        default:
+          console.log(`⚠️ Unknown stage: ${stage}`)
+      }
+      
+      console.log(`✅ Stage ${stage}: Completed successfully!`)
+      
+    } catch (error) {
+      console.log(`\n❌ Stage ${stage}: FAILED!`)
+      console.log(`Error details: ${error instanceof Error ? error.message : String(error)}`)
+      console.log(`\n🔍 Debug Information:`)
+      console.log(`   - Stage: ${stage}`)
+      console.log(`   - Error type: ${error?.constructor?.name || 'Unknown'}`)
+      console.log(`   - Stack trace: ${error instanceof Error ? error.stack : 'N/A'}`)
+      console.log(`\n🚫 Stopping test execution due to failure in Stage ${stage}`)
+      console.log(`\n📊 Testing Summary:`)
+      console.log(`   ${stages.slice(0, stages.indexOf(stage)).map(s => `✅ Stage ${s}`).join('\n   ')}`)
+      console.log(`   ❌ Stage ${stage}: FAILED`)
+      console.log(`   ${stages.slice(stages.indexOf(stage) + 1).map(s => `⏸️ Stage ${s}: Skipped`).join('\n   ')}`)
+      
+      // Exit with error code
+      process.exit(1)
     }
   }
   
-  console.log('\n🎉 All selected stages completed!')
+  console.log('\n🎉 All selected stages completed successfully!')
   console.log('\n📊 Testing Summary:')
   console.log('   ✅ Stage 1: Foundation & Setup Verification')
   console.log('   ✅ Stage 2: Basic Token Operations (ICRC-1/2/3)')
