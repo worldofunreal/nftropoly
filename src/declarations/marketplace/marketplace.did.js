@@ -3,17 +3,17 @@ export const idlFactory = ({ IDL }) => {
   const SupportedStandard = IDL.Record({ 'url' : IDL.Text, 'name' : IDL.Text });
   const ICRC1TokenSpecDetail = IDL.Record({
     'fee' : IDL.Opt(IDL.Nat64),
-    'decimals' : IDL.Nat8,
+    'decimals' : IDL.Nat64,
     'amount' : IDL.Nat64,
   });
   const ICRC2TokenSpecDetail = IDL.Record({
-    'decimals' : IDL.Nat8,
+    'decimals' : IDL.Nat64,
     'transfer_from_fee' : IDL.Opt(IDL.Nat64),
     'approval_fee' : IDL.Opt(IDL.Nat64),
     'amount' : IDL.Nat64,
   });
   const ICRC4TokenSpecDetail = IDL.Record({
-    'decimals' : IDL.Nat8,
+    'decimals' : IDL.Nat64,
     'batch_fee' : IDL.Opt(IDL.Nat),
   });
   const ICRC7TokenSpecDetail = IDL.Record({
@@ -89,6 +89,9 @@ export const idlFactory = ({ IDL }) => {
     'CreatedAt' : IDL.Nat64,
     'AllowPartial' : IDL.Null,
   });
+  const NewAskRequest = IDL.Record({
+    'feature' : IDL.Vec(IDL.Opt(AskFeature)),
+  });
   const ManageAskRequest = IDL.Variant({
     'LockAsk' : LockAsk,
     'WithdrawEscrow' : EscrowRecord,
@@ -97,7 +100,7 @@ export const idlFactory = ({ IDL }) => {
     'EndAsk' : IDL.Nat,
     'RejectOffer' : IDL.Nat,
     'WithdrawSettlement' : EscrowRecord,
-    'NewAsk' : IDL.Vec(IDL.Opt(AskFeature)),
+    'NewAsk' : NewAskRequest,
     'RefreshOffers' : IDL.Opt(Account),
     'DistributeAsk' : IDL.Nat,
   });
@@ -235,7 +238,7 @@ export const idlFactory = ({ IDL }) => {
   const EngineMatchAsk = IDL.Record({
     'ask_canister' : IDL.Opt(IDL.Principal),
     'token' : IDL.Opt(IDL.Vec(IDL.Opt(TokenSpec))),
-    'ask_id' : IDL.Nat,
+    'ask_id' : IDL.Nat64,
   });
   const EngineMatch = IDL.Record({
     'asks' : IDL.Vec(EngineMatchAsk),
@@ -250,7 +253,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const NewBidRequest = IDL.Record({
     'feature' : IDL.Vec(IDL.Opt(BidFeature)),
-    'ask_id' : IDL.Nat,
+    'ask_id' : IDL.Nat64,
   });
   const ManageBidRequest = IDL.Variant({
     'WithdrawEscrow' : EscrowRecord,

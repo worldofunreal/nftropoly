@@ -29,19 +29,19 @@ type ICRCStandards = variant {
 type ICRC1TokenSpecDetail = record {
   amount : nat64;
   fee : opt nat64;
-  decimals : nat8;
+  decimals : nat64;
 };
 
 type ICRC2TokenSpecDetail = record {
   amount : nat64;
   approval_fee : opt nat64;
   transfer_from_fee : opt nat64;
-  decimals : nat8;
+  decimals : nat64;
 };
 
 type ICRC4TokenSpecDetail = record {
   batch_fee : opt nat;
-  decimals : nat8;
+  decimals : nat64;
 };
 
 type ICRC7TokenSpecDetail = record {
@@ -180,13 +180,13 @@ type EngineMatch = record {
 
 type EngineMatchAsk = record {
   ask_canister : opt principal;
-  ask_id : nat;
+  ask_id : nat64;
   token : opt vec opt TokenSpec;
 };
 
 // Request/Response Types
 type ManageAskRequest = variant {
-  NewAsk : vec opt AskFeature;
+  NewAsk : NewAskRequest;
   EndAsk : nat;
   RefreshOffers : opt Account;
   WithdrawSettlement : EscrowRecord;
@@ -198,6 +198,10 @@ type ManageAskRequest = variant {
   Unencumber : nat;
 };
 
+type NewAskRequest = record {
+  feature : vec opt AskFeature;
+};
+
 type ManageBidRequest = variant {
   NewBid : NewBidRequest;
   EngineMatch : EngineMatch;
@@ -205,7 +209,7 @@ type ManageBidRequest = variant {
 };
 
 type NewBidRequest = record {
-  ask_id : nat;
+  ask_id : nat64;
   feature : vec opt BidFeature;
 };
 

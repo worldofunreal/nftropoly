@@ -260,7 +260,9 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     
     // Create the ask request
     const askRequest: ManageAskRequest = {
-      NewAsk: [[askTokenFeature], [buyNowFeature]]
+      NewAsk: {
+        feature: [[askTokenFeature], [buyNowFeature]]
+      }
     }
     
     console.log('   Creating ask for NFT with BuyNow price of 50 NTRP...')
@@ -270,7 +272,7 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     
     // Extract the ask ID and NFT ID from the result
     const askId = askResult[0]?.[1]?.[0]?.NewAsk?.Ok?.ask_id
-    const askNftId = askResult[0]?.[0]?.[0]?.NewAsk?.[0]?.[0]?.AskToken?.[0]?.[0]?.standards?.[0]?.ICRC37?.[0]?.token_id?.[0]
+    const askNftId = askResult[0]?.[0]?.[0]?.NewAsk?.feature?.[0]?.[0]?.AskToken?.[0]?.[0]?.standards?.[0]?.ICRC37?.[0]?.token_id?.[0]
     if (!askId) {
       throw new Error('Failed to get ask ID from ask result')
     }
@@ -343,6 +345,10 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     console.log(`   Bob's initial NTRP balance: ${bobInitialTokens}`)
     console.log(`   Bob's initial NFTs: ${bobInitialNFTs.length}`)
     
+    // Check Alice's initial token balance
+    const aliceInitialTokens = await aliceToken.icrc1_balance_of({ owner: Principal.fromText(alicePrincipal), subaccount: [] })
+    console.log(`   Alice's initial NTRP balance: ${aliceInitialTokens}`)
+    
     // Bob needs to have enough tokens to buy the NFT
     if (bobInitialTokens < BigInt(5000000000)) {
       console.log(`   ❌ Bob doesn't have enough tokens (needs 50 NTRP, has ${bobInitialTokens})`)
@@ -376,6 +382,7 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     // Create Bob's account
     const bobAccount = { owner: Principal.fromText(bobPrincipal), subaccount: [] as [] }
     
+    // For a "buy now" ask, we need to create a bid that matches the ask requirements
     // Create escrow record for Bob's bid (the tokens he's offering)
     const bobEscrowRecord: EscrowRecord = {
       escrow_type: { Bid: [[{
@@ -388,10 +395,10 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
         }],
         canister: Principal.fromText(CANISTER_IDS.nftropolyToken),
         symbol: 'NTRP'
-      }]] },
-      buyer: [bobAccount], // This is wrong - should be opt Account
+      }]] }, // Array<[] | [TokenSpec]>: [[TokenSpec]]
+      buyer: [bobAccount], // opt Account
       seller: { owner: Principal.fromText(CANISTER_IDS.marketplace), subaccount: [] },
-      ask_id: [askId], // This is wrong - should be opt nat64
+      ask_id: [BigInt(askId)], // opt nat64
       lock_to_date: []
     }
     
@@ -400,22 +407,15 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
       { Escrow: bobEscrowRecord }
     ]
     
-    // Create the bid request
+    // Create the bid request - match the same structure as ask request
     const bidRequest: ManageBidRequest = {
       NewBid: {
         ask_id: BigInt(askId), // Use the actual ask ID from Alice's ask
-        feature: bidFeatures.map(f => [f]) // This creates vec opt BidFeature
+        feature: [[bidFeatures[0]]] // Match the ask request pattern: [[feature]]
       }
     }
     
     console.log(`   🔍 Bid request structure: ${JSON.stringify(serializeBigInt(bidRequest), null, 2)}`)
-    console.log(`   🔍 Bid request type: ${typeof bidRequest}`)
-    console.log(`   🔍 NewBid type: ${typeof bidRequest.NewBid}`)
-    console.log(`   🔍 ask_id type: ${typeof bidRequest.NewBid.ask_id}`)
-    console.log(`   🔍 feature length: ${bidRequest.NewBid.feature.length}`)
-    console.log(`   🔍 feature[0] type: ${typeof bidRequest.NewBid.feature[0]}`)
-    console.log(`   🔍 feature[0] length: ${bidRequest.NewBid.feature[0].length}`)
-    console.log(`   🔍 feature[0][0] type: ${typeof bidRequest.NewBid.feature[0][0]}`)
     
     const bidResult = await bobMarketplace.icrc8_bid([[bidRequest]])
     console.log(`   Bid Result: ${JSON.stringify(serializeBigInt(bidResult), null, 2)}`)
@@ -434,6 +434,13 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     console.log(`   Bob's final NTRP balance: ${bobFinalTokens}`)
     console.log(`   Bob's final NFTs: ${bobFinalNFTs.length}`)
     console.log(`   Alice's final NTRP balance: ${aliceFinalTokens}`)
+    
+    // Calculate the actual changes
+    const bobTokensWithdrawn = bobInitialTokens - bobFinalTokens
+    const alicePaymentReceived = aliceFinalTokens - aliceInitialTokens
+    
+    console.log(`   Bob's tokens withdrawn: ${bobTokensWithdrawn.toString()}`)
+    console.log(`   Alice's payment received: ${alicePaymentReceived.toString()}`)
     
     if (bobFinalNFTs.length > 0) {
       console.log(`   ✅ Bob successfully purchased Alice's NFT!`)
@@ -474,10 +481,12 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
       console.log(`   ❌ Bob did not receive the NFT`)
     }
     
-    if (aliceFinalTokens > BigInt(0)) {
+    if (alicePaymentReceived > BigInt(0)) {
       console.log(`   ✅ Alice received payment for her NFT!`)
+    } else if (alicePaymentReceived === BigInt(0)) {
+      console.log(`   ❌ Alice did not receive any payment`)
     } else {
-      console.log(`   ❌ Alice did not receive payment`)
+      console.log(`   ❌ Alice's balance decreased by ${alicePaymentReceived.toString()}`)
     }
     
     console.log('\n🎉 Complete NFT Marketplace Flow Test Completed!')

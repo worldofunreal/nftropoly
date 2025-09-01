@@ -89,9 +89,9 @@ impl Marketplace {
                 }
                 Some(req) => {
                     let response = match &req {
-                        ManageAskRequest::NewAsk(features) => {
-                            ic_cdk::println!("Processing NewAsk request with {} features", features.len());
-                            match self.create_new_ask(msg_caller(), features.clone()).await {
+                        ManageAskRequest::NewAsk(new_ask_request) => {
+                            ic_cdk::println!("Processing NewAsk request with {} features", new_ask_request.feature.len());
+                            match self.create_new_ask(msg_caller(), new_ask_request.feature.clone()).await {
                                 Ok(result) => {
                                     ic_cdk::println!("NewAsk successful: ask_id = {}", result.ask_id);
                                     ManageAskResponse::NewAsk(Ok(result))

@@ -133,11 +133,11 @@ export type EscrowType = { 'Ask' : Array<[] | [TokenSpec]> } |
 export interface GenericError { 'code' : bigint, 'message' : string }
 export interface ICRC1TokenSpecDetail {
   'fee' : [] | [bigint],
-  'decimals' : number,
+  'decimals' : bigint,
   'amount' : bigint,
 }
 export interface ICRC2TokenSpecDetail {
-  'decimals' : number,
+  'decimals' : bigint,
   'transfer_from_fee' : [] | [bigint],
   'approval_fee' : [] | [bigint],
   'amount' : bigint,
@@ -148,7 +148,7 @@ export interface ICRC37TokenSpecDetail {
   'approval_fee' : [] | [TokenSpec],
 }
 export interface ICRC4TokenSpecDetail {
-  'decimals' : number,
+  'decimals' : bigint,
   'batch_fee' : [] | [bigint],
 }
 export interface ICRC7TokenSpecDetail {
@@ -173,7 +173,7 @@ export type ManageAskRequest = { 'LockAsk' : LockAsk } |
   { 'EndAsk' : bigint } |
   { 'RejectOffer' : bigint } |
   { 'WithdrawSettlement' : EscrowRecord } |
-  { 'NewAsk' : Array<[] | [AskFeature]> } |
+  { 'NewAsk' : NewAskRequest } |
   { 'RefreshOffers' : [] | [Account] } |
   { 'DistributeAsk' : bigint };
 export type ManageAskResponse = {
@@ -206,6 +206,7 @@ export type ManageBidResponse = {
       { 'Err' : GenericError }
   } |
   { 'NewBid' : { 'Ok' : NewBidResult } | { 'Err' : GenericError } };
+export interface NewAskRequest { 'feature' : Array<[] | [AskFeature]> }
 export interface NewAskResult { 'ask_id' : bigint, 'escrow' : EscrowRecord }
 export interface NewBidRequest {
   'feature' : Array<[] | [BidFeature]>,

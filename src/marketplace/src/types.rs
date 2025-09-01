@@ -521,7 +521,7 @@ pub struct EngineMatchAsk {
 /// Manage ask request
 #[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
 pub enum ManageAskRequest {
-    NewAsk(Vec<Option<AskFeature>>),
+    NewAsk(NewAskRequest),
     EndAsk(u64),
     RefreshOffers(Option<Account>),
     WithdrawSettlement(EscrowRecord),
@@ -531,6 +531,12 @@ pub enum ManageAskRequest {
     UpdateAmm(AMMUpdate),
     LockAsk(LockAsk),
     Unencumber(u64),
+}
+
+/// New ask request
+#[derive(CandidType, Deserialize, Clone, Debug, PartialEq)]
+pub struct NewAskRequest {
+    pub feature: Vec<Option<AskFeature>>,
 }
 
 /// Manage bid request
