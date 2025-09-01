@@ -361,7 +361,7 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     const bobApprovalResult = await bobToken.icrc2_approve({
       from_subaccount: [],
       spender: { owner: Principal.fromText(CANISTER_IDS.marketplace), subaccount: [] },
-      amount: BigInt(5000000000),
+      amount: BigInt(5000000000 + 10000), // 50 NTRP + token fee (10,000)
       expected_allowance: [],
       expires_at: [],
       fee: [],

@@ -1063,7 +1063,10 @@ impl Marketplace {
         }
         
         // Transfer payment tokens from marketplace to seller
-        let seller_amount = amount; // For now, full amount goes to seller (fees handled separately)
+        // Calculate fee and deduct from seller amount
+        let fee_schema = self.extract_fee_schema(&ask_status.config);
+        let total_fee = self.fee_manager.calculate_fee(amount, fee_schema.as_deref());
+        let seller_amount = amount - total_fee; // Seller gets amount minus fees
         match push_icrc2_tokens(
             payment_token.canister,
             ask_status.seller.owner,

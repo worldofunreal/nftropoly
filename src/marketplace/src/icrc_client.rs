@@ -274,52 +274,42 @@ pub async fn push_icrc7_nfts(
         transfer_args.push(transfer_arg);
     }
     
-    let result: (Result<Vec<Option<ICRC7TransferResult>>, ICRC7TransferError>,) = Call::unbounded_wait(nft_canister, "icrc7_transfer")
+    let result: (Vec<Option<Result<candid::Nat, ICRC7TransferError>>>,) = Call::unbounded_wait(nft_canister, "icrc7_transfer")
         .with_arg(transfer_args)
         .await
         .map_err(|e| MarketplaceError::TransferFailed(format!("ICRC-7 transfer failed: {:?}", e)))?
         .candid_tuple()
         .map_err(|e| MarketplaceError::TransferFailed(format!("Failed to decode response: {:?}", e)))?;
     
-    // Handle the response which is Result<Vec<Option<TransferResult>>, TransferError>
-    match result.0 {
-        Ok(transfer_results) => {
-            // Handle the vector of transfer results
-            if let Some(response) = transfer_results.first() {
-                if let Some(transfer_result) = response {
-                    match transfer_result {
-                        ICRC7TransferResult::Ok(block_index) => {
-                            ic_cdk::println!("✅ Successfully pushed ICRC-7 NFTs to user {}", to);
-                            Ok(*block_index)
-                        }
-                        ICRC7TransferResult::Err(ICRC7TransferError::InsufficientFunds { balance }) => {
-                            Err(MarketplaceError::InsufficientBalance(
-                                format!("Insufficient NFT balance. Marketplace balance: {}", balance)
-                            ))
-                        }
-                        ICRC7TransferResult::Err(ICRC7TransferError::GenericError { error_code, message }) => {
-                            Err(MarketplaceError::TransferFailed(
-                                format!("ICRC-7 transfer error {}: {}", error_code, message)
-                            ))
-                        }
-                        ICRC7TransferResult::Err(e) => {
-                            Err(MarketplaceError::TransferFailed(
-                                format!("ICRC-7 transfer failed: {:?}", e)
-                            ))
-                        }
-                    }
-                } else {
-                    Err(MarketplaceError::TransferFailed("ICRC-7 transfer returned None".to_string()))
+    // Handle the response which is Vec<Option<Result<Nat, TransferError>>>
+    if let Some(response) = result.0.first() {
+        if let Some(transfer_result) = response {
+            match transfer_result {
+                Ok(block_index) => {
+                    ic_cdk::println!("✅ Successfully pushed ICRC-7 NFTs to user {}", to);
+                    Ok(u128::try_from(block_index.0.clone()).unwrap_or(0))
                 }
-            } else {
-                Err(MarketplaceError::TransferFailed("ICRC-7 transfer returned empty response".to_string()))
+                Err(ICRC7TransferError::InsufficientFunds { balance }) => {
+                    Err(MarketplaceError::InsufficientBalance(
+                        format!("Insufficient NFT balance. Marketplace balance: {}", balance)
+                    ))
+                }
+                Err(ICRC7TransferError::GenericError { error_code, message }) => {
+                    Err(MarketplaceError::TransferFailed(
+                        format!("ICRC-7 transfer error {}: {}", error_code, message)
+                    ))
+                }
+                Err(e) => {
+                    Err(MarketplaceError::TransferFailed(
+                        format!("ICRC-7 transfer failed: {:?}", e)
+                    ))
+                }
             }
+        } else {
+            Err(MarketplaceError::TransferFailed("ICRC-7 transfer returned None".to_string()))
         }
-        Err(transfer_error) => {
-            Err(MarketplaceError::TransferFailed(
-                format!("ICRC-7 transfer failed: {:?}", transfer_error)
-            ))
-        }
+    } else {
+        Err(MarketplaceError::TransferFailed("ICRC-7 transfer returned empty response".to_string()))
     }
 }
 
