@@ -346,7 +346,7 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     console.log(`   Bob's initial NFTs: ${bobInitialNFTs.length}`)
     
     // Check Alice's initial token balance
-    const aliceInitialTokens = await aliceToken.icrc1_balance_of({ owner: Principal.fromText(alicePrincipal), subaccount: [] })
+    const aliceInitialTokens: bigint = await aliceToken.icrc1_balance_of({ owner: Principal.fromText(alicePrincipal), subaccount: [] })
     console.log(`   Alice's initial NTRP balance: ${aliceInitialTokens}`)
     
     // Bob needs to have enough tokens to buy the NFT
@@ -429,7 +429,7 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     const bobFinalNFTs = await bobNFT.icrc7_tokens_of({ owner: Principal.fromText(bobPrincipal), subaccount: [] }, [], [])
     
     // Check Alice's final token balance
-    const aliceFinalTokens = await aliceToken.icrc1_balance_of({ owner: Principal.fromText(alicePrincipal), subaccount: [] })
+    const aliceFinalTokens: bigint = await aliceToken.icrc1_balance_of({ owner: Principal.fromText(alicePrincipal), subaccount: [] })
     
     console.log(`   Bob's final NTRP balance: ${bobFinalTokens}`)
     console.log(`   Bob's final NFTs: ${bobFinalNFTs.length}`)
@@ -437,7 +437,7 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     
     // Calculate the actual changes
     const bobTokensWithdrawn = bobInitialTokens - bobFinalTokens
-    const alicePaymentReceived = aliceFinalTokens - aliceInitialTokens
+    const alicePaymentReceived: bigint = aliceFinalTokens - aliceInitialTokens
     
     console.log(`   Bob's tokens withdrawn: ${bobTokensWithdrawn.toString()}`)
     console.log(`   Alice's payment received: ${alicePaymentReceived.toString()}`)
@@ -459,8 +459,8 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
       
       console.log(`   🔍 Parsed owner object: ${JSON.stringify(ownerObject)}`)
       
-      // Extract the principal from the owner object
-      const actualOwnerPrincipal = (ownerObject as any)?.['__principal__']
+      // Extract the principal from the owner object - ownerObject is a Principal object
+      const actualOwnerPrincipal = ownerObject?.toString()
       
       console.log(`   🔍 Actual owner: ${actualOwnerPrincipal}`)
       console.log(`   🔍 Expected owner: ${expectedOwner}`)
