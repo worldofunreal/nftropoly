@@ -444,9 +444,9 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     
     if (bobFinalNFTs.length > 0) {
       console.log(`   ✅ Bob successfully purchased Alice's NFT!`)
-      console.log(`   Bob now owns NFT ID: ${bobFinalNFTs[0]}`)
+      console.log(`   Bob now owns ${bobFinalNFTs.length} NFTs: ${bobFinalNFTs.map((id: bigint) => id.toString()).join(', ')}`)
        
-      // Verify Bob actually owns the NFT by checking the collection directly
+      // Verify Bob actually owns the specific NFT by checking the collection directly
       console.log(`   🔍 Verifying Bob's NFT ownership in the collection...`)
       console.log(`   🔍 Checking ownership of NFT ID: ${askNftId} (the NFT Alice minted and sold)`)
       const bobNFTOwner = await bobNFT.icrc7_owner_of([BigInt(askNftId)])
@@ -455,14 +455,21 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
       // The result structure is [[owner]] where owner is an Account
       // Looking at the JSON output, the structure is: [[{"owner": {"__principal__": "..."}}]]
       const ownerObject = bobNFTOwner[0]?.[0]?.owner
-      const actualOwner = ownerObject?.['__principal__']
       const expectedOwner = bobPrincipal
       
-      if (actualOwner === expectedOwner) {
+      console.log(`   🔍 Parsed owner object: ${JSON.stringify(ownerObject)}`)
+      
+      // Extract the principal from the owner object
+      const actualOwnerPrincipal = (ownerObject as any)?.['__principal__']
+      
+      console.log(`   🔍 Actual owner: ${actualOwnerPrincipal}`)
+      console.log(`   🔍 Expected owner: ${expectedOwner}`)
+      
+      if (actualOwnerPrincipal === expectedOwner) {
         console.log(`   ✅ Collection confirms Bob owns NFT ID: ${askNftId}`)
       } else {
         console.log(`   ❌ Collection shows Bob does NOT own NFT ID: ${askNftId}`)
-        console.log(`   📋 Actual owner: ${actualOwner}`)
+        console.log(`   📋 Actual owner: ${actualOwnerPrincipal}`)
         console.log(`   📋 Expected owner: ${expectedOwner}`)
       }
       
