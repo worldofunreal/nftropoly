@@ -121,8 +121,16 @@ impl EscrowManager {
     }
 
     /// Get all escrow records (for upgrades)
-    pub fn get_all_escrows(&self) -> &HashMap<u64, EscrowRecord> {
+    pub fn get_all_escrows_ref(&self) -> &HashMap<u64, EscrowRecord> {
         &self.escrow_records
+    }
+
+    /// Get all escrow records as vector of tuples (for admin access)
+    pub fn get_all_escrows(&self) -> Vec<(u64, EscrowRecord)> {
+        self.escrow_records
+            .iter()
+            .map(|(id, escrow)| (*id, escrow.clone()))
+            .collect()
     }
 
     /// Set all escrow records (for upgrades)

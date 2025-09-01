@@ -141,6 +141,7 @@ type SettlementInfo = record {
 type AskStatusType = variant {
   Open;
   Closed;
+  PartiallySettled;
   Encumbered : vec EncumbranceDetail;
   NotStarted;
 };
@@ -344,10 +345,16 @@ service : {
   // ICRC-8 Metadata (Marketplace-Specific Configuration)
   icrc8_metadata : () -> (vec ICRC8Metadata) query;
   
-  // Legacy Metadata Methods (for backward compatibility)
-  get_metadata : () -> (vec record { text; text });
-  set_metadata : (text, text) -> (variant { Ok; Err : text });
+  // General Metadata
+  get_metadata : () -> (vec ICRC8Metadata) query;
   
   // Health Check
   health_check : () -> (text);
+  
+  // Admin Methods (Admin Only)
+  admin_withdraw_escrow : (nat64) -> (variant { Ok : EscrowRecord; Err : GenericError });
+  admin_get_all_escrows : () -> (variant { Ok : vec record { nat64; EscrowRecord }; Err : GenericError });
+  
+  // Debug Methods
+  get_debug_state : () -> (text) query;
 };

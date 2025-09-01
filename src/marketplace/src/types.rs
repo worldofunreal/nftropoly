@@ -423,6 +423,7 @@ pub enum EndingType {
 pub enum AskStatusType {
     Open,
     Closed,
+    PartiallySettled, // For when NFT transferred but tokens failed
     Encumbered(Vec<EncumbranceDetail>),
     NotStarted,
 }

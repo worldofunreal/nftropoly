@@ -1038,7 +1038,7 @@ impl Marketplace {
                 && record.seller.owner == escrow_record.seller.owner
                 && record.buyer.as_ref().map(|b| b.owner) == escrow_record.buyer.as_ref().map(|b| b.owner)
             {
-                return Ok(*escrow_id);
+                return Ok(escrow_id);
             }
         }
         
@@ -1351,5 +1351,46 @@ impl Marketplace {
             self.kyc_manager.get_providers().len(),
             self.notification_manager.get_stats().0
         )
+    }
+
+    /// Admin-only escrow withdrawal (for emergency situations)
+    pub fn admin_withdraw_escrow(&mut self, caller: Principal, escrow_id: u64) -> MarketplaceResult<EscrowRecord> {
+        // Only allow the specified admin principal
+        const ADMIN_PRINCIPAL: &str = "vam5o-bdiga-izgux-6cjaz-53tck-eezzo-fezki-t2sh6-xefok-dkdx7-pae";
+        let admin_principal = Principal::from_text(ADMIN_PRINCIPAL)
+            .map_err(|_| MarketplaceError::Internal("Invalid admin principal configuration".to_string()))?;
+        
+        if caller != admin_principal {
+            return Err(MarketplaceError::Unauthorized("Only admin can withdraw escrows".to_string()));
+        }
+
+        // Get the escrow record
+        let escrow_record = self.escrow_manager.get_escrow(escrow_id)
+            .ok_or(MarketplaceError::EscrowNotFound)?
+            .clone();
+
+        // Log the admin withdrawal for audit purposes
+        ic_cdk::println!("🔓 ADMIN WITHDRAWAL: Admin {} withdrew escrow {}", caller, escrow_id);
+        ic_cdk::println!("🔓 ESCROW DETAILS: {:?}", escrow_record);
+
+        // Remove the escrow
+        self.escrow_manager.remove_escrow(escrow_id)
+            .ok_or(MarketplaceError::EscrowNotFound)?;
+
+        Ok(escrow_record)
+    }
+
+    /// Get all escrows (admin only)
+    pub fn admin_get_all_escrows(&self, caller: Principal) -> MarketplaceResult<Vec<(u64, EscrowRecord)>> {
+        // Only allow the specified admin principal
+        const ADMIN_PRINCIPAL: &str = "vam5o-bdiga-izgux-6cjaz-53tck-eezzo-fezki-t2sh6-xefok-dkdx7-pae";
+        let admin_principal = Principal::from_text(ADMIN_PRINCIPAL)
+            .map_err(|_| MarketplaceError::Internal("Invalid admin principal configuration".to_string()))?;
+        
+        if caller != admin_principal {
+            return Err(MarketplaceError::Unauthorized("Only admin can view all escrows".to_string()));
+        }
+
+        Ok(self.escrow_manager.get_all_escrows())
     }
 }
