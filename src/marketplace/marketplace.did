@@ -348,6 +348,9 @@ service : {
   // General Metadata
   get_metadata : () -> (vec ICRC8Metadata) query;
   
+  // Health Check
+  health_check : () -> (text);
+  
   // Admin Methods (Admin Only)
   admin_withdraw_escrow : (nat64) -> (variant { Ok : EscrowRecord; Err : GenericError });
   admin_get_all_escrows : () -> (variant { Ok : vec record { nat64; EscrowRecord }; Err : GenericError });
