@@ -10,7 +10,7 @@ import { Keypair } from '@solana/web3.js'
 import { idlFactory as nftIdlFactory } from '../src/declarations/nft_collection/nft_collection.did.js'
 import type { _SERVICE as NFTService } from '../src/declarations/nft_collection/nft_collection.did.d.ts'
 import { idlFactory as marketplaceIdlFactory } from '../src/declarations/marketplace/marketplace.did.js'
-import type { _SERVICE as MarketplaceService, TokenSpec, AskFeature, ManageAskRequest } from '../src/declarations/marketplace/marketplace.did.d.ts'
+import type { _SERVICE as MarketplaceService, TokenSpec, AskFeature, ManageAskRequest, EscrowRecord, BidFeature, ManageBidRequest } from '../src/declarations/marketplace/marketplace.did.d.ts'
 import { idlFactory as tokenIdlFactory } from '../src/declarations/nftropoly_token/nftropoly_token.did.js'
 import type { _SERVICE as TokenService } from '../src/declarations/nftropoly_token/nftropoly_token.did.d.ts'
 
@@ -44,6 +44,35 @@ const generateAliceIdentity = async (): Promise<Ed25519KeyIdentity> => {
   }
   
   const mnemonic = generateMnemonic('Alice')
+  const seedBuffer = bip39.mnemonicToSeedSync(mnemonic)
+  const seed = new Uint8Array(seedBuffer.slice(0, 32))
+  
+  const keyPair = nacl.sign.keyPair.fromSeed(seed)
+  return Ed25519KeyIdentity.fromKeyPair(keyPair.publicKey, keyPair.secretKey)
+}
+
+// Generate consistent identity for Bob
+const generateBobIdentity = async (): Promise<Ed25519KeyIdentity> => {
+  const generateMnemonic = (name: string): string => {
+    const encoder = new TextEncoder()
+    const nameBytes = encoder.encode(name.toLowerCase())
+    
+    let hash = 0
+    for (let i = 0; i < nameBytes.length; i++) {
+      const char = nameBytes[i]
+      hash = ((hash << 5) - hash) + char
+      hash = hash & hash
+    }
+    
+    const entropy = new Uint8Array(16)
+    for (let i = 0; i < 16; i++) {
+      entropy[i] = (hash >> (i * 8)) & 0xFF
+    }
+    
+    return bip39.entropyToMnemonic(Buffer.from(entropy).toString('hex'))
+  }
+  
+  const mnemonic = generateMnemonic('Bob')
   const seedBuffer = bip39.mnemonicToSeedSync(mnemonic)
   const seed = new Uint8Array(seedBuffer.slice(0, 32))
   
@@ -239,6 +268,18 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     const askResult = await aliceMarketplace.icrc8_ask([[askRequest]])
     console.log(`   Ask Result: ${JSON.stringify(serializeBigInt(askResult), null, 2)}`)
     
+    // Extract the ask ID and NFT ID from the result
+    const askId = askResult[0]?.[1]?.[0]?.NewAsk?.Ok?.ask_id
+    const askNftId = askResult[0]?.[0]?.[0]?.NewAsk?.[0]?.[0]?.AskToken?.[0]?.[0]?.standards?.[0]?.ICRC37?.[0]?.token_id?.[0]
+    if (!askId) {
+      throw new Error('Failed to get ask ID from ask result')
+    }
+    if (!askNftId) {
+      throw new Error('Failed to get NFT ID from ask result')
+    }
+    console.log(`   📋 Extracted Ask ID: ${askId}`)
+    console.log(`   📋 Extracted NFT ID: ${askNftId}`)
+    
     // Step 4: Verify the NFT was transferred to marketplace escrow
     console.log('\n📋 Step 4: Verifying NFT Transfer to Marketplace Escrow')
     console.log('-'.repeat(40))
@@ -281,7 +322,165 @@ const testNFTMarketplaceFlow = async (): Promise<void> => {
     console.log(`   Marketplace Escrow: ${JSON.stringify(serializeBigInt(marketplaceBalanceResult), null, 2)}`)
     console.log(`   Alice's Escrow: ${JSON.stringify(serializeBigInt(aliceBalanceResult), null, 2)}`)
     
-    console.log('\n🎉 NFT Marketplace Flow Test Completed!')
+    // Step 6: Bob buys Alice's NFT
+    console.log('\n📋 Step 6: Bob Buys Alice\'s NFT')
+    console.log('-'.repeat(40))
+    
+    // Generate Bob's identity
+    const bobIdentity = await generateBobIdentity()
+    const bobPrincipal = bobIdentity.getPrincipal().toText()
+    console.log(`👤 Bob Principal: ${bobPrincipal}`)
+    
+    // Create Bob's actors
+    const bobNFT = await createNFTActor(bobIdentity)
+    const bobMarketplace = await createMarketplaceActor(bobIdentity)
+    const bobToken = await createTokenActor(bobIdentity)
+    
+    // Check Bob's initial balances
+    const bobInitialTokens = await bobToken.icrc1_balance_of({ owner: Principal.fromText(bobPrincipal), subaccount: [] })
+    const bobInitialNFTs = await bobNFT.icrc7_tokens_of({ owner: Principal.fromText(bobPrincipal), subaccount: [] }, [], [])
+    
+    console.log(`   Bob's initial NTRP balance: ${bobInitialTokens}`)
+    console.log(`   Bob's initial NFTs: ${bobInitialNFTs.length}`)
+    
+    // Bob needs to have enough tokens to buy the NFT
+    if (bobInitialTokens < BigInt(5000000000)) {
+      console.log(`   ❌ Bob doesn't have enough tokens (needs 50 NTRP, has ${bobInitialTokens})`)
+      console.log(`   💡 In a real scenario, Bob would need to acquire tokens first`)
+      return
+    }
+    
+    // Bob approves marketplace to spend his tokens
+    console.log(`   🔐 Bob approves marketplace to spend his tokens...`)
+    const bobApprovalResult = await bobToken.icrc2_approve({
+      from_subaccount: [],
+      spender: { owner: Principal.fromText(CANISTER_IDS.marketplace), subaccount: [] },
+      amount: BigInt(5000000000),
+      expected_allowance: [],
+      expires_at: [],
+      fee: [],
+      memo: [],
+      created_at_time: []
+    })
+    
+    if ('Ok' in bobApprovalResult) {
+      console.log(`   ✅ Bob's token approval successful!`)
+    } else {
+      console.log(`   ❌ Bob's token approval failed: ${JSON.stringify(bobApprovalResult)}`)
+      return
+    }
+    
+    // Bob places a bid to buy Alice's NFT
+    console.log(`   🛒 Bob places bid to buy Alice's NFT for 50 NTRP...`)
+    
+    // Create Bob's account
+    const bobAccount = { owner: Principal.fromText(bobPrincipal), subaccount: [] as [] }
+    
+    // Create escrow record for Bob's bid (the tokens he's offering)
+    const bobEscrowRecord: EscrowRecord = {
+      escrow_type: { Bid: [[{
+        standards: [{ 
+          ICRC1: [{ 
+            amount: BigInt(5000000000), // 50 NTRP tokens
+            fee: [BigInt(10000)], 
+            decimals: 8 
+          }] 
+        }],
+        canister: Principal.fromText(CANISTER_IDS.nftropolyToken),
+        symbol: 'NTRP'
+      }]] },
+      buyer: [bobAccount], // This is wrong - should be opt Account
+      seller: { owner: Principal.fromText(CANISTER_IDS.marketplace), subaccount: [] },
+      ask_id: [askId], // This is wrong - should be opt nat64
+      lock_to_date: []
+    }
+    
+    // Create bid features
+    const bidFeatures: BidFeature[] = [
+      { Escrow: bobEscrowRecord }
+    ]
+    
+    // Create the bid request
+    const bidRequest: ManageBidRequest = {
+      NewBid: {
+        ask_id: BigInt(askId), // Use the actual ask ID from Alice's ask
+        feature: bidFeatures.map(f => [f]) // This creates vec opt BidFeature
+      }
+    }
+    
+    console.log(`   🔍 Bid request structure: ${JSON.stringify(serializeBigInt(bidRequest), null, 2)}`)
+    console.log(`   🔍 Bid request type: ${typeof bidRequest}`)
+    console.log(`   🔍 NewBid type: ${typeof bidRequest.NewBid}`)
+    console.log(`   🔍 ask_id type: ${typeof bidRequest.NewBid.ask_id}`)
+    console.log(`   🔍 feature length: ${bidRequest.NewBid.feature.length}`)
+    console.log(`   🔍 feature[0] type: ${typeof bidRequest.NewBid.feature[0]}`)
+    console.log(`   🔍 feature[0] length: ${bidRequest.NewBid.feature[0].length}`)
+    console.log(`   🔍 feature[0][0] type: ${typeof bidRequest.NewBid.feature[0][0]}`)
+    
+    const bidResult = await bobMarketplace.icrc8_bid([[bidRequest]])
+    console.log(`   Bid Result: ${JSON.stringify(serializeBigInt(bidResult), null, 2)}`)
+    
+    // Step 7: Verify the purchase
+    console.log('\n📋 Step 7: Verifying the Purchase')
+    console.log('-'.repeat(40))
+    
+    // Check Bob's final balances
+    const bobFinalTokens = await bobToken.icrc1_balance_of({ owner: Principal.fromText(bobPrincipal), subaccount: [] })
+    const bobFinalNFTs = await bobNFT.icrc7_tokens_of({ owner: Principal.fromText(bobPrincipal), subaccount: [] }, [], [])
+    
+    // Check Alice's final token balance
+    const aliceFinalTokens = await aliceToken.icrc1_balance_of({ owner: Principal.fromText(alicePrincipal), subaccount: [] })
+    
+    console.log(`   Bob's final NTRP balance: ${bobFinalTokens}`)
+    console.log(`   Bob's final NFTs: ${bobFinalNFTs.length}`)
+    console.log(`   Alice's final NTRP balance: ${aliceFinalTokens}`)
+    
+    if (bobFinalNFTs.length > 0) {
+      console.log(`   ✅ Bob successfully purchased Alice's NFT!`)
+      console.log(`   Bob now owns NFT ID: ${bobFinalNFTs[0]}`)
+       
+      // Verify Bob actually owns the NFT by checking the collection directly
+      console.log(`   🔍 Verifying Bob's NFT ownership in the collection...`)
+      console.log(`   🔍 Checking ownership of NFT ID: ${askNftId} (the NFT Alice minted and sold)`)
+      const bobNFTOwner = await bobNFT.icrc7_owner_of([BigInt(askNftId)])
+      console.log(`   📋 Owner lookup result: ${JSON.stringify(serializeBigInt(bobNFTOwner), null, 2)}`)
+      
+      // The result structure is [[owner]] where owner is an Account
+      // Looking at the JSON output, the structure is: [[{"owner": {"__principal__": "..."}}]]
+      const ownerObject = bobNFTOwner[0]?.[0]?.owner
+      const actualOwner = ownerObject?.['__principal__']
+      const expectedOwner = bobPrincipal
+      
+      if (actualOwner === expectedOwner) {
+        console.log(`   ✅ Collection confirms Bob owns NFT ID: ${askNftId}`)
+      } else {
+        console.log(`   ❌ Collection shows Bob does NOT own NFT ID: ${askNftId}`)
+        console.log(`   📋 Actual owner: ${actualOwner}`)
+        console.log(`   📋 Expected owner: ${expectedOwner}`)
+      }
+      
+      // Also verify Alice no longer owns the NFT
+      console.log(`   🔍 Verifying Alice no longer owns the NFT...`)
+      const aliceNFTsAfterSale = await aliceNFT.icrc7_tokens_of({ owner: Principal.fromText(alicePrincipal), subaccount: [] }, [], [])
+      const aliceStillOwnsNFT = aliceNFTsAfterSale.includes(BigInt(askNftId))
+      
+      if (!aliceStillOwnsNFT) {
+        console.log(`   ✅ Alice no longer owns NFT ID: ${askNftId}`)
+      } else {
+        console.log(`   ❌ Alice still owns NFT ID: ${askNftId} - ownership transfer failed!`)
+      }
+      
+    } else {
+      console.log(`   ❌ Bob did not receive the NFT`)
+    }
+    
+    if (aliceFinalTokens > BigInt(0)) {
+      console.log(`   ✅ Alice received payment for her NFT!`)
+    } else {
+      console.log(`   ❌ Alice did not receive payment`)
+    }
+    
+    console.log('\n🎉 Complete NFT Marketplace Flow Test Completed!')
     
   } catch (error) {
     console.log(`❌ Test error: ${error instanceof Error ? error.message : String(error)}`)

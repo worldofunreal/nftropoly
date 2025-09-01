@@ -11,7 +11,7 @@ use crate::auctions::AuctionManager;
 use crate::errors::{MarketplaceError, MarketplaceResult};
 use crate::escrow::EscrowManager;
 use crate::fees::{FeeManager, FeeParty};
-use crate::icrc_client::{pull_icrc2_tokens, pull_icrc37_nfts};
+use crate::icrc_client::{pull_icrc2_tokens, pull_icrc37_nfts, push_icrc2_tokens, push_icrc7_nfts};
 use crate::kyc::KYCManager;
 use crate::notifications::NotificationManager;
 use crate::storage::MarketplaceStorage;
@@ -185,9 +185,12 @@ impl Marketplace {
         &mut self,
         requests: Vec<Option<ManageBidRequest>>,
     ) -> Vec<(Option<ManageBidRequest>, Option<ManageBidResponse>)> {
+        ic_cdk::println!("🎯 Processing {} bid requests", requests.len());
+        ic_cdk::println!("🎯 Raw requests: {:?}", requests);
         let mut results = Vec::new();
 
-        for request in requests {
+        for (i, request) in requests.into_iter().enumerate() {
+            ic_cdk::println!("🔍 Processing request {}: {:?}", i, request.is_some());
             match request {
                 None => {
                     results.push((None, None));
@@ -195,15 +198,22 @@ impl Marketplace {
                 Some(req) => {
                     let response = match &req {
                         ManageBidRequest::NewBid(new_bid_request) => {
-                            match self
-                                .create_new_bid(msg_caller(), new_bid_request.clone())
-                                .await
-                            {
-                                Ok(result) => ManageBidResponse::NewBid(Ok(result)),
-                                Err(error) => ManageBidResponse::NewBid(Err(types::GenericError {
-                                    code: error.to_string().len() as u64,
-                                    message: error.to_string(),
-                                })),
+                            ic_cdk::println!("🆕 Processing NewBid request for ask_id: {}", new_bid_request.ask_id);
+                            ic_cdk::println!("🆕 Bid features: {:?}", new_bid_request.feature);
+                            ic_cdk::println!("🆕 Caller: {}", msg_caller());
+                            
+                            match self.create_new_bid(msg_caller(), new_bid_request.clone()).await {
+                                Ok(result) => {
+                                    ic_cdk::println!("✅ NewBid successful: {:?}", result);
+                                    ManageBidResponse::NewBid(Ok(result))
+                                },
+                                Err(error) => {
+                                    ic_cdk::println!("❌ NewBid failed: {:?}", error);
+                                    ManageBidResponse::NewBid(Err(types::GenericError {
+                                        code: error.to_string().len() as u64,
+                                        message: error.to_string(),
+                                    }))
+                                },
                             }
                         }
                         ManageBidRequest::EngineMatch(_engine_match) => {
@@ -531,9 +541,13 @@ impl Marketplace {
         caller: Principal,
         new_bid_request: NewBidRequest,
     ) -> MarketplaceResult<NewBidResult> {
+        ic_cdk::println!("🎯 create_new_bid called for ask_id: {}, caller: {}", new_bid_request.ask_id, caller);
+        ic_cdk::println!("🎯 Bid request features: {:?}", new_bid_request.feature);
         let ask_id = new_bid_request.ask_id;
 
+        ic_cdk::println!("🔍 Looking for ask_id: {}", ask_id);
         if let Some(mut ask_status) = self.storage.get_ask(ask_id) {
+            ic_cdk::println!("✅ Found ask_id: {}", ask_id);
             if !matches!(ask_status.status, AskStatusType::Open) {
                 return Err(MarketplaceError::InvalidState(
                     "Ask is not open for bids".to_string(),
@@ -596,9 +610,39 @@ impl Marketplace {
 
                 // Check if this is a buy_now bid (immediate settlement)
                 let buy_now_amount = self.extract_buy_now_amount(&ask_status.config);
-                if let Some(amount) = buy_now_amount {
-                    // Extract payment token from ask features
-                    let payment_token = self.extract_payment_token(&ask_status.config)?;
+                ic_cdk::println!("🔍 Checking buy_now_amount: {:?}", buy_now_amount);
+                
+                // Check if the bid matches the buy_now requirements
+                ic_cdk::println!("🔍 Extracting bid amount from features...");
+                let bid_amount = match self.extract_bid_amount(&new_bid_request.feature) {
+                    Ok(amount) => {
+                        ic_cdk::println!("✅ Successfully extracted bid amount: {}", amount);
+                        amount
+                    },
+                    Err(e) => {
+                        ic_cdk::println!("❌ Failed to extract bid amount: {:?}", e);
+                        return Err(e);
+                    }
+                };
+                ic_cdk::println!("🔍 Bid amount: {}, Buy now amount: {:?}", bid_amount, buy_now_amount);
+                
+                if let Some(required_amount) = buy_now_amount {
+                    if bid_amount >= required_amount {
+                        ic_cdk::println!("✅ Bid matches buy_now requirements! Proceeding with settlement.");
+                        let amount = required_amount; // Use the required amount for settlement
+                        
+                        // Extract payment token from ask features
+                        ic_cdk::println!("🔍 Extracting payment token from ask config...");
+                        let payment_token = match self.extract_payment_token(&ask_status.config) {
+                            Ok(token) => {
+                                ic_cdk::println!("✅ Successfully extracted payment token: {:?}", token);
+                                token
+                            },
+                            Err(e) => {
+                                ic_cdk::println!("❌ Failed to extract payment token: {:?}", e);
+                                return Err(e);
+                            }
+                        };
                     
                     // Transfer payment tokens from buyer to marketplace escrow
                     match pull_icrc2_tokens(
@@ -616,8 +660,11 @@ impl Marketplace {
                     }
                     
                     // Process immediate settlement
-                    match self.process_settlement(ask_id, caller, amount) {
+                    ic_cdk::println!("🔄 Processing settlement for ask_id: {}, buyer: {}, amount: {}", ask_id, caller, amount);
+                    ic_cdk::println!("🔄 About to call process_settlement...");
+                    match self.process_settlement(ask_id, caller, amount).await {
                         Ok(_settlement_info) => {
+                          ic_cdk::println!("✅ Settlement successful, creating escrow record...");
                             // Create settlement escrow record
                             let escrow_id = self.escrow_manager.create_escrow(
                                 EscrowType::Settlement(vec![]), // Would contain actual token specs
@@ -627,9 +674,17 @@ impl Marketplace {
                                 None, // No lock date
                             );
 
-                            let escrow_record = self.escrow_manager.get_escrow(escrow_id)
-                                .ok_or(MarketplaceError::Internal("Failed to retrieve created escrow".to_string()))?
-                                .clone();
+                            ic_cdk::println!("🔍 Created escrow_id: {}", escrow_id);
+                            let escrow_record = match self.escrow_manager.get_escrow(escrow_id) {
+                                Some(record) => {
+                                    ic_cdk::println!("✅ Successfully retrieved escrow record");
+                                    record.clone()
+                                },
+                                None => {
+                                    ic_cdk::println!("❌ Failed to retrieve created escrow");
+                                    return Err(MarketplaceError::Internal("Failed to retrieve created escrow".to_string()));
+                                }
+                            };
 
                             Ok(NewBidResult {
                                 escrow: escrow_record,
@@ -639,7 +694,14 @@ impl Marketplace {
                         Err(e) => Err(e),
                     }
                 } else {
-                    // Regular bid (not buy_now)
+                    // Bid doesn't match buy_now requirements, treat as regular bid
+                    ic_cdk::println!("❌ Bid amount {} doesn't meet buy_now requirement {}", bid_amount, required_amount);
+                    return Err(MarketplaceError::InvalidInput(format!("Bid amount {} doesn't meet buy_now requirement {}", bid_amount, required_amount)));
+                }
+            } else {
+                // No buy_now requirement, treat as regular bid
+                ic_cdk::println!("ℹ️ No buy_now requirement found, treating as regular bid");
+                // Regular bid (not buy_now)
                     let escrow_id = self.escrow_manager.create_escrow(
                         EscrowType::Bid(vec![]), // Simplified for now
                         Some(buyer_account.clone()),
@@ -670,11 +732,45 @@ impl Marketplace {
     }
 
     /// Extract bid amount from bid features
-    fn extract_bid_amount(&self, _features: &[Option<BidFeature>]) -> MarketplaceResult<u64> {
-        // For now, we'll use a simplified approach
-        // In a real implementation, you'd extract the actual bid amount from the features
-        // This is a placeholder - you'd need to implement proper bid amount extraction
-        Ok(1000) // Default bid amount for now
+    fn extract_bid_amount(&self, features: &[Option<BidFeature>]) -> MarketplaceResult<u64> {
+        ic_cdk::println!("🔍 extract_bid_amount called with {} features", features.len());
+        for (i, feature) in features.iter().enumerate() {
+            ic_cdk::println!("🔍 Processing feature {}: {:?}", i, feature.is_some());
+            if let Some(feature) = feature {
+                ic_cdk::println!("🔍 Feature {} type: {:?}", i, std::mem::discriminant(feature));
+                match feature {
+                    BidFeature::Escrow(escrow_record) => {
+                        ic_cdk::println!("🔍 Found Escrow bid feature");
+                        ic_cdk::println!("🔍 Escrow record: {:?}", escrow_record);
+                        // Extract amount from escrow record
+                        if let EscrowType::Bid(token_specs) = &escrow_record.escrow_type {
+                            ic_cdk::println!("🔍 Found Bid escrow type with {} token specs", token_specs.len());
+                            for (j, token_spec) in token_specs.iter().enumerate() {
+                                ic_cdk::println!("🔍 Processing token spec {}: {:?}", j, token_spec.is_some());
+                                if let Some(spec) = token_spec {
+                                    ic_cdk::println!("🔍 Processing token spec: {:?}", spec);
+                                    // Look for ICRC1 tokens (fungible tokens)
+                                    for (k, standard) in spec.standards.iter().enumerate() {
+                                        ic_cdk::println!("🔍 Processing standard {}: {:?}", k, std::mem::discriminant(standard));
+                                        if let ICRCStandards::ICRC1(icrc1_spec) = standard {
+                                            ic_cdk::println!("🔍 Found ICRC1 spec: {:?}", icrc1_spec.is_some());
+                                            if let Some(icrc1_detail) = icrc1_spec {
+                                                ic_cdk::println!("✅ Found ICRC1 amount: {}", icrc1_detail.amount);
+                                                return Ok(icrc1_detail.amount);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            ic_cdk::println!("❌ Escrow type is not Bid: {:?}", escrow_record.escrow_type);
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+        Err(MarketplaceError::InvalidInput("No bid amount found in bid features".to_string()))
     }
 
     /// Get balance information
@@ -906,7 +1002,8 @@ impl Marketplace {
     }
 
     /// Process settlement for an ask (integrated with FeeManager)
-    fn process_settlement(&mut self, ask_id: u64, buyer: Principal, amount: u64) -> MarketplaceResult<SettlementInfo> {
+    async fn process_settlement(&mut self, ask_id: u64, buyer: Principal, amount: u64) -> MarketplaceResult<SettlementInfo> {
+        ic_cdk::println!("🏁 Starting settlement process for ask_id: {}, buyer: {}, amount: {}", ask_id, buyer, amount);
         // Get the ask status
         let mut ask_status = self.storage.get_ask(ask_id)
             .ok_or(MarketplaceError::NotFound("Ask not found".to_string()))?;
@@ -935,6 +1032,51 @@ impl Marketplace {
         ];
 
         let _fee_results = self.fee_manager.calculate_fees(amount, fee_schema.as_deref(), &fee_distributions);
+
+        // Extract NFT token IDs from the ask
+        let nft_token_ids = self.extract_nft_token_ids(&ask_status.config)?;
+        let payment_token = self.extract_payment_token(&ask_status.config)?;
+        
+        ic_cdk::println!("🔄 Processing settlement for ask {}: transferring {} NFTs to buyer {}", ask_id, nft_token_ids.len(), buyer);
+        ic_cdk::println!("🔄 NFT token IDs to transfer: {:?}", nft_token_ids);
+        
+        // Transfer NFTs from marketplace to buyer
+        let nft_canister = self.extract_nft_canister(&ask_status.config)?;
+        ic_cdk::println!("🎨 Transferring NFTs from marketplace to buyer. NFT canister: {}, buyer: {}, token_ids: {:?}", nft_canister, buyer, nft_token_ids);
+        
+        // Check if marketplace actually owns these NFTs before trying to transfer
+        ic_cdk::println!("🔍 Checking if marketplace owns the NFTs before transfer...");
+        // This would be a good place to add ownership verification
+        
+        match push_icrc7_nfts(
+            nft_canister, // Use the NFT canister
+            buyer, // To buyer
+            nft_token_ids.clone(),
+        ).await {
+            Ok(block_index) => {
+                ic_cdk::println!("✅ Successfully transferred NFTs to buyer. Block: {}", block_index);
+            }
+            Err(e) => {
+                ic_cdk::println!("❌ Failed to transfer NFTs to buyer: {}", e);
+                return Err(e);
+            }
+        }
+        
+        // Transfer payment tokens from marketplace to seller
+        let seller_amount = amount; // For now, full amount goes to seller (fees handled separately)
+        match push_icrc2_tokens(
+            payment_token.canister,
+            ask_status.seller.owner,
+            seller_amount.into(),
+        ).await {
+            Ok(block_index) => {
+                ic_cdk::println!("✅ Successfully transferred payment to seller. Block: {}", block_index);
+            }
+            Err(e) => {
+                ic_cdk::println!("❌ Failed to transfer payment to seller: {}", e);
+                return Err(e);
+            }
+        }
 
         // Create settlement info
         let settlement_info = SettlementInfo {
@@ -1082,7 +1224,53 @@ impl Marketplace {
     }
 
     /// Public method to trigger settlement
-    pub fn settle_ask(&mut self, ask_id: u64, buyer: Principal, amount: u64) -> MarketplaceResult<SettlementInfo> {
-        self.process_settlement(ask_id, buyer, amount)
+    pub async fn settle_ask(&mut self, ask_id: u64, buyer: Principal, amount: u64) -> MarketplaceResult<SettlementInfo> {
+        self.process_settlement(ask_id, buyer, amount).await
+    }
+
+    /// Extract NFT token IDs from ask features
+    fn extract_nft_token_ids(&self, features: &[AskFeature]) -> MarketplaceResult<Vec<u64>> {
+        ic_cdk::println!("🔍 extract_nft_token_ids called with {} features", features.len());
+        for (i, feature) in features.iter().enumerate() {
+            ic_cdk::println!("🔍 Processing feature {}: {:?}", i, std::mem::discriminant(feature));
+            if let AskFeature::AskToken(ask_token_options) = feature {
+                ic_cdk::println!("🔍 Found AskToken feature with {} options", ask_token_options.len());
+                if let Some(ask_token) = ask_token_options.first() {
+                    ic_cdk::println!("🔍 Processing ask_token: {:?}", ask_token.is_some());
+                    if let Some(token_spec) = ask_token {
+                        ic_cdk::println!("🔍 Processing token_spec with {} standards", token_spec.standards.len());
+                        // Extract token IDs from ICRC37 standards
+                        for (j, standard) in token_spec.standards.iter().enumerate() {
+                            ic_cdk::println!("🔍 Processing standard {}: {:?}", j, std::mem::discriminant(standard));
+                            if let ICRCStandards::ICRC37(icrc37_spec) = standard {
+                                ic_cdk::println!("🔍 Found ICRC37 spec: {:?}", icrc37_spec.is_some());
+                                if let Some(icrc37_detail) = icrc37_spec {
+                                    ic_cdk::println!("🔍 Found ICRC37 detail with token_id: {:?}", icrc37_detail.token_id);
+                                    if let Some(token_id) = &icrc37_detail.token_id {
+                                        ic_cdk::println!("✅ Extracted token ID: {}", token_id);
+                                        return Ok(vec![*token_id]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        Err(MarketplaceError::InvalidInput("No NFT token IDs found in ask features".to_string()))
+    }
+
+    /// Extract NFT canister from ask features
+    fn extract_nft_canister(&self, features: &[AskFeature]) -> MarketplaceResult<Principal> {
+        for feature in features {
+            if let AskFeature::AskToken(ask_token_options) = feature {
+                if let Some(ask_token) = ask_token_options.first() {
+                    if let Some(token_spec) = ask_token {
+                        return Ok(token_spec.canister);
+                    }
+                }
+            }
+        }
+        Err(MarketplaceError::InvalidInput("No NFT canister found in ask features".to_string()))
     }
 }
