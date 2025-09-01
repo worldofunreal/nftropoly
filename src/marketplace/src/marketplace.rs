@@ -60,11 +60,7 @@ impl Marketplace {
         metadata.insert("icrc8:supports_distributions".to_string(), "true".to_string());
 
         Self {
-            storage: MarketplaceStorage::new(
-                &ic_stable_structures::memory_manager::MemoryManager::init(
-                    ic_stable_structures::DefaultMemoryImpl::default(),
-                ),
-            ),
+            storage: MarketplaceStorage::new(),
             escrow_manager: EscrowManager::new(),
             fee_manager: FeeManager::new(),
             auction_manager: AuctionManager::new(),

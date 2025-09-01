@@ -5,6 +5,7 @@
 use candid::{CandidType, Deserialize, Principal};
 use serde::Serialize;
 use std::collections::HashMap;
+use ic_stable_structures::Storable;
 
 use crate::errors::{MarketplaceError, MarketplaceResult};
 use crate::types::*;
@@ -15,6 +16,23 @@ pub enum FeeSchema {
     Standard,
     Premium,
     Custom(HashMap<String, u64>),
+}
+
+impl Storable for FeeSchema {
+    fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
+        let bytes = candid::encode_one(self).expect("Failed to encode FeeSchema");
+        std::borrow::Cow::Owned(bytes)
+    }
+
+    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
+        candid::decode_one(&bytes).expect("Failed to decode FeeSchema")
+    }
+
+    fn into_bytes(self) -> std::vec::Vec<u8> {
+        candid::encode_one(&self).expect("Failed to encode FeeSchema")
+    }
+
+    const BOUND: ic_stable_structures::storable::Bound = ic_stable_structures::storable::Bound::Unbounded;
 }
 
 /// Fee manager for handling fee calculations and distributions

@@ -303,36 +303,15 @@ pub fn init() {
 // Pre-upgrade hook for state persistence
 #[pre_upgrade]
 pub fn pre_upgrade() {
-    ic_cdk::println!("🔄 Starting pre-upgrade process...");
-    MARKETPLACE.with(|marketplace| {
-        let marketplace = marketplace.borrow();
-        if let Some(marketplace) = marketplace.as_ref() {
-            // Save state to stable memory
-            marketplace.save_state();
-            ic_cdk::println!("✅ Pre-upgrade state save completed");
-        } else {
-            ic_cdk::println!("⚠️ No marketplace instance found during pre-upgrade");
-        }
-    });
-    ic_cdk::println!("✅ Pre-upgrade process completed");
+    // Stable structures handle persistence automatically
+    ic_cdk::println!("✅ Pre-upgrade: Stable structures will persist data automatically");
 }
 
 // Post-upgrade hook for state restoration
 #[post_upgrade]
 pub fn post_upgrade() {
-    ic_cdk::println!("🔄 Starting post-upgrade process...");
-    MARKETPLACE.with(|marketplace| {
-        let mut marketplace = marketplace.borrow_mut();
-        if marketplace.is_none() {
-            ic_cdk::println!("🔄 Creating new marketplace instance...");
-            *marketplace = Some(Marketplace::new());
-        }
-        let marketplace = marketplace.as_mut().unwrap();
-        // Restore state from stable memory
-        marketplace.load_state();
-        ic_cdk::println!("✅ Post-upgrade state restoration completed");
-    });
-    ic_cdk::println!("✅ Post-upgrade process completed");
+    // Stable structures handle restoration automatically
+    ic_cdk::println!("✅ Post-upgrade: Stable structures will restore data automatically");
 }
 
 // Export candid interface
