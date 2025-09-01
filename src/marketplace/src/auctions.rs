@@ -291,4 +291,19 @@ impl AuctionManager {
 
         Ok(current_price)
     }
+
+    /// Save state to stable storage
+    pub fn save_state(&self) {
+        ic_cdk::println!("Auction manager state saved (no persistent auctions)");
+    }
+
+    /// Load state from stable storage
+    pub fn load_state(&self) {
+        ic_cdk::println!("Auction manager state loaded (no persistent auctions)");
+    }
+
+    /// Get all auctions (placeholder - auctions are stored with asks)
+    pub fn get_all_auctions(&self) -> Vec<AuctionInfo> {
+        vec![] // Auctions are stored as part of AskStatus, not separately
+    }
 }

@@ -2,14 +2,47 @@
 //!
 //! This module handles all state management including stable storage for upgrades.
 
-use candid::Principal;
+use candid::{CandidType, Deserialize, Principal};
 use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager, VirtualMemory},
-    DefaultMemoryImpl, StableBTreeMap, StableCell, StableVec,
+    DefaultMemoryImpl, StableBTreeMap, StableCell, StableVec, Storable,
 };
 use std::cell::RefCell;
 
 use crate::types::*;
+
+/// Runtime state that needs to be persisted across upgrades
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub struct RuntimeState {
+    pub next_ask_id: u64,
+    pub next_escrow_id: u64,
+}
+
+impl Default for RuntimeState {
+    fn default() -> Self {
+        Self {
+            next_ask_id: 1,
+            next_escrow_id: 1,
+        }
+    }
+}
+
+impl Storable for RuntimeState {
+    fn to_bytes(&self) -> std::borrow::Cow<[u8]> {
+        let bytes = candid::encode_one(self).expect("Failed to encode RuntimeState");
+        std::borrow::Cow::Owned(bytes)
+    }
+
+    fn from_bytes(bytes: std::borrow::Cow<[u8]>) -> Self {
+        candid::decode_one(&bytes).expect("Failed to decode RuntimeState")
+    }
+
+    fn into_bytes(self) -> std::vec::Vec<u8> {
+        candid::encode_one(&self).expect("Failed to encode RuntimeState")
+    }
+
+    const BOUND: ic_stable_structures::storable::Bound = ic_stable_structures::storable::Bound::Unbounded;
+}
 
 // Memory IDs for different storage areas
 const ASKS_MEMORY_ID: MemoryId = MemoryId::new(0);
@@ -19,6 +52,7 @@ const APPROVED_TOKENS_MEMORY_ID: MemoryId = MemoryId::new(3);
 const OWNER_MEMORY_ID: MemoryId = MemoryId::new(4);
 const FEE_PERCENTAGE_MEMORY_ID: MemoryId = MemoryId::new(5);
 const ASK_HISTORY_MEMORY_ID: MemoryId = MemoryId::new(6);
+const RUNTIME_STATE_MEMORY_ID: MemoryId = MemoryId::new(7);
 
 /// Stable storage for the marketplace
 pub struct MarketplaceStorage {
@@ -34,10 +68,7 @@ pub struct MarketplaceStorage {
         StableCell<u64, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
     ask_history:
         StableBTreeMap<u64, AskStatus, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
-
-    // Runtime state
-    next_ask_id: RefCell<u64>,
-    next_escrow_id: RefCell<u64>,
+    runtime_state: StableCell<RuntimeState, VirtualMemory<ic_stable_structures::DefaultMemoryImpl>>,
 }
 
 impl MarketplaceStorage {
@@ -53,8 +84,7 @@ impl MarketplaceStorage {
                 250,
             ), // 2.5%
             ask_history: StableBTreeMap::new(memory_manager.get(ASK_HISTORY_MEMORY_ID)),
-            next_ask_id: RefCell::new(1),
-            next_escrow_id: RefCell::new(1),
+            runtime_state: StableCell::new(memory_manager.get(RUNTIME_STATE_MEMORY_ID), RuntimeState::default()),
         }
     }
 
@@ -71,9 +101,11 @@ impl MarketplaceStorage {
         self.asks.remove(&ask_id);
     }
 
-    pub fn get_next_ask_id(&self) -> u64 {
-        let id = *self.next_ask_id.borrow();
-        *self.next_ask_id.borrow_mut() = id + 1;
+    pub fn get_next_ask_id(&mut self) -> u64 {
+        let mut state = self.runtime_state.get().clone();
+        let id = state.next_ask_id;
+        state.next_ask_id += 1;
+        self.runtime_state.set(state);
         id
     }
 
@@ -85,9 +117,11 @@ impl MarketplaceStorage {
         self.escrow_records.insert(escrow_id, escrow.clone());
     }
 
-    pub fn get_next_escrow_id(&self) -> u64 {
-        let id = *self.next_escrow_id.borrow();
-        *self.next_escrow_id.borrow_mut() = id + 1;
+    pub fn get_next_escrow_id(&mut self) -> u64 {
+        let mut state = self.runtime_state.get().clone();
+        let id = state.next_escrow_id;
+        state.next_escrow_id += 1;
+        self.runtime_state.set(state);
         id
     }
 
@@ -163,6 +197,32 @@ impl MarketplaceStorage {
             .iter()
             .map(|entry| entry.value().clone())
             .collect()
+    }
+
+    /// Save runtime state to stable storage
+    pub fn save_runtime_state(&self) {
+        // Runtime state is automatically saved by stable structures
+        // This method is called during pre_upgrade for explicit state persistence
+        ic_cdk::println!("Runtime state saved to stable storage");
+        ic_cdk::println!("Current runtime state: {:?}", self.runtime_state.get());
+    }
+
+    /// Load runtime state from stable storage
+    pub fn load_runtime_state(&self) {
+        // Runtime state is automatically loaded by stable structures
+        // This method is called during post_upgrade for explicit state restoration
+        ic_cdk::println!("Runtime state loaded from stable storage");
+        ic_cdk::println!("Loaded runtime state: {:?}", self.runtime_state.get());
+    }
+
+    /// Get current runtime state for debugging
+    pub fn get_runtime_state(&self) -> RuntimeState {
+        self.runtime_state.get().clone()
+    }
+
+    /// Set runtime state (for testing and migration)
+    pub fn set_runtime_state(&mut self, state: RuntimeState) {
+        self.runtime_state.set(state);
     }
 }
 

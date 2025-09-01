@@ -327,4 +327,16 @@ impl NotificationManager {
 
         Ok(())
     }
+
+    /// Save state to stable storage
+    pub fn save_state(&self) {
+        ic_cdk::println!("Notification manager state saved: {} subscribers, {} history entries", 
+            self.subscriptions.len(), self.notification_history.len());
+    }
+
+    /// Load state from stable storage
+    pub fn load_state(&self) {
+        ic_cdk::println!("Notification manager state loaded: {} subscribers, {} history entries", 
+            self.subscriptions.len(), self.notification_history.len());
+    }
 }

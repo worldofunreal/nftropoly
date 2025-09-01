@@ -272,6 +272,28 @@ pub async fn health_check() -> String {
     "NFT Marketplace is running".to_string()
 }
 
+// Debug method to get current state
+#[query]
+pub async fn get_debug_state() -> String {
+    let mut marketplace = None;
+    MARKETPLACE.with(|m| {
+        let mut m = m.borrow_mut();
+        if m.is_none() {
+            *m = Some(Marketplace::new());
+        }
+        marketplace = m.take();
+    });
+
+    let marketplace = marketplace.unwrap();
+    let result = marketplace.get_debug_state();
+
+    MARKETPLACE.with(|m| {
+        *m.borrow_mut() = Some(marketplace);
+    });
+
+    result
+}
+
 // Initialize the canister
 #[init]
 pub fn init() {
@@ -281,27 +303,36 @@ pub fn init() {
 // Pre-upgrade hook for state persistence
 #[pre_upgrade]
 pub fn pre_upgrade() {
+    ic_cdk::println!("🔄 Starting pre-upgrade process...");
     MARKETPLACE.with(|marketplace| {
         let marketplace = marketplace.borrow();
-        let marketplace = marketplace.as_ref().expect("Marketplace not initialized");
-        // Save state to stable memory
-        marketplace.save_state();
+        if let Some(marketplace) = marketplace.as_ref() {
+            // Save state to stable memory
+            marketplace.save_state();
+            ic_cdk::println!("✅ Pre-upgrade state save completed");
+        } else {
+            ic_cdk::println!("⚠️ No marketplace instance found during pre-upgrade");
+        }
     });
+    ic_cdk::println!("✅ Pre-upgrade process completed");
 }
 
 // Post-upgrade hook for state restoration
 #[post_upgrade]
 pub fn post_upgrade() {
+    ic_cdk::println!("🔄 Starting post-upgrade process...");
     MARKETPLACE.with(|marketplace| {
         let mut marketplace = marketplace.borrow_mut();
         if marketplace.is_none() {
+            ic_cdk::println!("🔄 Creating new marketplace instance...");
             *marketplace = Some(Marketplace::new());
         }
         let marketplace = marketplace.as_mut().unwrap();
         // Restore state from stable memory
         marketplace.load_state();
-        ic_cdk::println!("NFT Marketplace state restored");
+        ic_cdk::println!("✅ Post-upgrade state restoration completed");
     });
+    ic_cdk::println!("✅ Post-upgrade process completed");
 }
 
 // Export candid interface

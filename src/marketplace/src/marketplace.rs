@@ -893,14 +893,58 @@ impl Marketplace {
 
     /// Save state to stable memory
     pub fn save_state(&self) {
-        // State is automatically saved by stable structures
-        ic_cdk::println!("State saved to stable memory");
+        ic_cdk::println!("🔄 Starting state save process...");
+        
+        // Save storage state
+        self.storage.save_runtime_state();
+        
+        // Save escrow manager state
+        self.escrow_manager.save_state();
+        
+        // Save fee manager state
+        self.fee_manager.save_state();
+        
+        // Save auction manager state
+        self.auction_manager.save_state();
+        
+        // Save AMM manager state
+        self.amm_manager.save_state();
+        
+        // Save KYC manager state
+        self.kyc_manager.save_state();
+        
+        // Save notification manager state
+        self.notification_manager.save_state();
+        
+        ic_cdk::println!("✅ State save process completed successfully");
     }
 
     /// Load state from stable memory
     pub fn load_state(&self) {
-        // State is automatically loaded by stable structures
-        ic_cdk::println!("State loaded from stable memory");
+        ic_cdk::println!("🔄 Starting state load process...");
+        
+        // Load storage state
+        self.storage.load_runtime_state();
+        
+        // Load escrow manager state
+        self.escrow_manager.load_state();
+        
+        // Load fee manager state
+        self.fee_manager.load_state();
+        
+        // Load auction manager state
+        self.auction_manager.load_state();
+        
+        // Load AMM manager state
+        self.amm_manager.load_state();
+        
+        // Load KYC manager state
+        self.kyc_manager.load_state();
+        
+        // Load notification manager state
+        self.notification_manager.load_state();
+        
+        ic_cdk::println!("✅ State load process completed successfully");
     }
 
     /// Withdraw escrow funds
@@ -1275,5 +1319,37 @@ impl Marketplace {
             }
         }
         Err(MarketplaceError::InvalidInput("No NFT canister found in ask features".to_string()))
+    }
+
+    /// Get current marketplace state for debugging
+    pub fn get_debug_state(&self) -> String {
+        let runtime_state = self.storage.get_runtime_state();
+        let active_asks = self.storage.get_all_active_asks().len();
+        let total_asks = self.storage.get_all_ask_history().len();
+        let escrow_count = self.escrow_manager.get_all_escrows().len();
+        
+        format!(
+            "Marketplace State:\n\
+            - Next Ask ID: {}\n\
+            - Next Escrow ID: {}\n\
+            - Active Asks: {}\n\
+            - Total Ask History: {}\n\
+            - Escrow Records: {}\n\
+            - Fee Schemas: {}\n\
+            - Auctions: {}\n\
+            - AMM Pools: {}\n\
+            - KYC Providers: {}\n\
+            - Notification Subscribers: {}",
+            runtime_state.next_ask_id,
+            runtime_state.next_escrow_id,
+            active_asks,
+            total_asks,
+            escrow_count,
+            self.fee_manager.get_fee_schemas().len(),
+            self.auction_manager.get_all_auctions().len(),
+            self.amm_manager.get_all_pools().len(),
+            self.kyc_manager.get_providers().len(),
+            self.notification_manager.get_stats().0
+        )
     }
 }

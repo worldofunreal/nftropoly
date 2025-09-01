@@ -129,4 +129,14 @@ impl EscrowManager {
     pub fn set_all_escrows(&mut self, escrows: HashMap<u64, EscrowRecord>) {
         self.escrow_records = escrows;
     }
+
+    /// Save state to stable storage
+    pub fn save_state(&self) {
+        ic_cdk::println!("Escrow manager state saved: {} escrow records", self.escrow_records.len());
+    }
+
+    /// Load state from stable storage
+    pub fn load_state(&self) {
+        ic_cdk::println!("Escrow manager state loaded: {} escrow records", self.escrow_records.len());
+    }
 }

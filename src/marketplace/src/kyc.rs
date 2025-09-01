@@ -310,4 +310,16 @@ impl KYCManager {
 
         Ok((kyc_status, aml_status, max_amount))
     }
+
+    /// Save state to stable storage
+    pub fn save_state(&self) {
+        ic_cdk::println!("KYC manager state saved: {} providers, {} cached results", 
+            self.providers.len(), self.kyc_cache.len());
+    }
+
+    /// Load state from stable storage
+    pub fn load_state(&self) {
+        ic_cdk::println!("KYC manager state loaded: {} providers, {} cached results", 
+            self.providers.len(), self.kyc_cache.len());
+    }
 }

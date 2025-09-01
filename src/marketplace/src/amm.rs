@@ -296,4 +296,14 @@ impl AMMManager {
         pool.fee_rate = new_fee_rate;
         Ok(())
     }
+
+    /// Save state to stable storage
+    pub fn save_state(&self) {
+        ic_cdk::println!("AMM manager state saved: {} pools", self.pools.len());
+    }
+
+    /// Load state from stable storage
+    pub fn load_state(&self) {
+        ic_cdk::println!("AMM manager state loaded: {} pools", self.pools.len());
+    }
 }

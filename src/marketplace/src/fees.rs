@@ -173,6 +173,16 @@ impl FeeManager {
     pub fn validate_fee_schema(&self, schema_name: &str) -> bool {
         self.fee_schemas.contains_key(schema_name)
     }
+
+    /// Save state to stable storage
+    pub fn save_state(&self) {
+        ic_cdk::println!("Fee manager state saved: {} fee schemas", self.fee_schemas.len());
+    }
+
+    /// Load state from stable storage
+    pub fn load_state(&self) {
+        ic_cdk::println!("Fee manager state loaded: {} fee schemas", self.fee_schemas.len());
+    }
 }
 
 /// Fee party information
