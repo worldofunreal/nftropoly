@@ -454,6 +454,35 @@ pub struct SettlementInfo {
     pub royalties: Vec<(Account, u64, String)>,
 }
 
+/// Settlement retry information for partially failed settlements
+#[derive(Debug, Clone, PartialEq, Eq, CandidType, Deserialize)]
+pub struct SettlementRetryInfo {
+    pub ask_id: u64,
+    pub buyer: Principal,
+    pub amount: u64,
+    pub nft_transferred: bool,
+    pub token_transfer_failed: bool,
+    pub last_attempt: u64,
+    pub retry_count: u32,
+    pub max_retries: u32,
+}
+
+impl Storable for SettlementRetryInfo {
+    const BOUND: Bound = Bound::Unbounded;
+    
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(candid::encode_one(self).unwrap())
+    }
+    
+    fn into_bytes(self) -> Vec<u8> {
+        candid::encode_one(&self).unwrap()
+    }
+    
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        candid::decode_one(&bytes).unwrap()
+    }
+}
+
 /// Ask status for tracking marketplace asks
 #[derive(Debug, Clone, PartialEq, CandidType, Deserialize)]
 pub struct AskStatus {

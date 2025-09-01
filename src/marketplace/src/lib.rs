@@ -4,6 +4,7 @@
 //! for the Internet Computer blockchain.
 
 use candid::Principal;
+use ic_cdk::api::msg_caller;
 use ic_cdk_macros::*;
 use std::cell::RefCell;
 
@@ -272,7 +273,7 @@ pub async fn health_check() -> String {
     "NFT Marketplace is running".to_string()
 }
 
-// Debug method to get current state
+// Debug Methods
 #[query]
 pub async fn get_debug_state() -> String {
     let mut marketplace = None;
@@ -286,6 +287,77 @@ pub async fn get_debug_state() -> String {
 
     let marketplace = marketplace.unwrap();
     let result = marketplace.get_debug_state();
+
+    MARKETPLACE.with(|m| {
+        *m.borrow_mut() = Some(marketplace);
+    });
+
+    result
+}
+
+// Retry settlement methods
+#[update]
+pub async fn retry_settlement(ask_id: u64) -> Result<SettlementInfo, GenericError> {
+    let mut marketplace = None;
+    MARKETPLACE.with(|m| {
+        let mut m = m.borrow_mut();
+        if m.is_none() {
+            *m = Some(Marketplace::new());
+        }
+        marketplace = m.take();
+    });
+
+    let mut marketplace = marketplace.unwrap();
+    let caller = msg_caller();
+    let result = marketplace.retry_settlement(ask_id, caller).await;
+
+    MARKETPLACE.with(|m| {
+        *m.borrow_mut() = Some(marketplace);
+    });
+
+    match result {
+        Ok(settlement_info) => Ok(settlement_info),
+        Err(e) => Err(GenericError {
+            code: e.to_string().len() as u64,
+            message: e.to_string(),
+        }),
+    }
+}
+
+#[query]
+pub async fn get_asks_needing_retry() -> Vec<u64> {
+    let mut marketplace = None;
+    MARKETPLACE.with(|m| {
+        let mut m = m.borrow_mut();
+        if m.is_none() {
+            *m = Some(Marketplace::new());
+        }
+        marketplace = m.take();
+    });
+
+    let marketplace = marketplace.unwrap();
+    let result = marketplace.get_asks_needing_retry();
+
+    MARKETPLACE.with(|m| {
+        *m.borrow_mut() = Some(marketplace);
+    });
+
+    result
+}
+
+#[query]
+pub async fn get_settlement_retry_info(ask_id: u64) -> Option<SettlementRetryInfo> {
+    let mut marketplace = None;
+    MARKETPLACE.with(|m| {
+        let mut m = m.borrow_mut();
+        if m.is_none() {
+            *m = Some(Marketplace::new());
+        }
+        marketplace = m.take();
+    });
+
+    let marketplace = marketplace.unwrap();
+    let result = marketplace.get_settlement_retry_info(ask_id);
 
     MARKETPLACE.with(|m| {
         *m.borrow_mut() = Some(marketplace);

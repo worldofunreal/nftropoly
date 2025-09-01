@@ -29,6 +29,7 @@ const OWNER_MEMORY_ID: MemoryId = MemoryId::new(4);
 const FEE_PERCENTAGE_MEMORY_ID: MemoryId = MemoryId::new(5);
 const USER_ASKS_MEMORY_ID: MemoryId = MemoryId::new(6);
 const APPROVED_TOKENS_MEMORY_ID: MemoryId = MemoryId::new(7);
+const SETTLEMENT_RETRY_INFO_MEMORY_ID: MemoryId = MemoryId::new(8);
 
 // Stable storage instances
 thread_local! {
@@ -62,6 +63,10 @@ thread_local! {
 
     static APPROVED_TOKENS: RefCell<StableVec<Principal, Memory>> = RefCell::new(
         StableVec::init(MEMORY_MANAGER.with(|mm| mm.borrow().get(APPROVED_TOKENS_MEMORY_ID)))
+    );
+
+    static SETTLEMENT_RETRY_INFO: RefCell<StableBTreeMap<u64, SettlementRetryInfo, Memory>> = RefCell::new(
+        StableBTreeMap::init(MEMORY_MANAGER.with(|mm| mm.borrow().get(SETTLEMENT_RETRY_INFO_MEMORY_ID)))
     );
 }
 
@@ -301,6 +306,34 @@ impl MarketplaceStorage {
         RUNTIME_STATE.with(|state_cell| {
             state_cell.borrow_mut().set(state);
         });
+    }
+
+    // Settlement retry management
+    pub fn set_settlement_retry_info(&mut self, ask_id: u64, retry_info: SettlementRetryInfo) {
+        SETTLEMENT_RETRY_INFO.with(|retry_map| {
+            retry_map.borrow_mut().insert(ask_id, retry_info);
+        });
+    }
+
+    pub fn get_settlement_retry_info(&self, ask_id: u64) -> Option<SettlementRetryInfo> {
+        SETTLEMENT_RETRY_INFO.with(|retry_map| {
+            retry_map.borrow().get(&ask_id)
+        })
+    }
+
+    pub fn clear_settlement_retry_info(&mut self, ask_id: u64) {
+        SETTLEMENT_RETRY_INFO.with(|retry_map| {
+            retry_map.borrow_mut().remove(&ask_id);
+        });
+    }
+
+    pub fn get_all_retry_info(&self) -> Vec<(u64, SettlementRetryInfo)> {
+        SETTLEMENT_RETRY_INFO.with(|retry_map| {
+            retry_map.borrow()
+                .iter()
+                .map(|entry| (*entry.key(), entry.value().clone()))
+                .collect()
+        })
     }
 }
 

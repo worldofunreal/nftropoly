@@ -288,16 +288,14 @@ impl Marketplace {
             ));
         }
 
-        // For auctions, AMMs, KYC, and notifications, we don't require buy_now
+        // ICRC-8 requires buy_now for core transactions
+        // Only for specific auction types (ICRC-61, ICRC-63) can buy_now be optional
         if auction_feature.is_none()
             && dutch_feature.is_none()
-            && amm_feature.is_none()
-            && kyc_feature.is_none()
-            && notify_feature.is_none()
             && !has_buy_now
         {
             return Err(MarketplaceError::InvalidInput(
-                "Missing required buy_now feature for non-auction/non-AMM/non-KYC/non-notify asks"
+                "Missing required buy_now feature for core ICRC-8 transactions. Only standard auctions (ICRC-61) and Dutch auctions (ICRC-63) can omit buy_now."
                     .to_string(),
             ));
         }
@@ -1088,11 +1086,13 @@ impl Marketplace {
         ic_cdk::println!("🔍 Checking if marketplace owns the NFTs before transfer...");
         // This would be a good place to add ownership verification
         
-        match push_icrc7_nfts(
+        let nft_transfer_result = push_icrc7_nfts(
             nft_canister, // Use the NFT canister
             buyer, // To buyer
             nft_token_ids.clone(),
-        ).await {
+        ).await;
+        
+        match nft_transfer_result {
             Ok(block_index) => {
                 ic_cdk::println!("✅ Successfully transferred NFTs to buyer. Block: {}", block_index);
             }
@@ -1107,20 +1107,65 @@ impl Marketplace {
         let fee_schema = self.extract_fee_schema(&ask_status.config);
         let total_fee = self.fee_manager.calculate_fee(amount, fee_schema.as_deref());
         let seller_amount = amount - total_fee; // Seller gets amount minus fees
-        match push_icrc2_tokens(
+        
+        let token_transfer_result = push_icrc2_tokens(
             payment_token.canister,
             ask_status.seller.owner,
             seller_amount.into(),
-        ).await {
+        ).await;
+        
+        match token_transfer_result {
             Ok(block_index) => {
                 ic_cdk::println!("✅ Successfully transferred payment to seller. Block: {}", block_index);
+                
+                // Both transfers succeeded - complete the settlement
+                self.complete_settlement(ask_id, &mut ask_status, buyer, amount).await?;
             }
             Err(e) => {
                 ic_cdk::println!("❌ Failed to transfer payment to seller: {}", e);
-                return Err(e);
+                ic_cdk::println!("⚠️ NFT transfer succeeded but token transfer failed. Setting ask to PartiallySettled for retry.");
+                
+                // NFT transfer succeeded but token transfer failed
+                // Set ask to PartiallySettled state for retry
+                ask_status.status = AskStatusType::PartiallySettled;
+                ask_status.settled_at = Some((buyer, ic_cdk::api::time()));
+                
+                // Store retry information
+                let retry_info = SettlementRetryInfo {
+                    ask_id,
+                    buyer,
+                    amount,
+                    nft_transferred: true,
+                    token_transfer_failed: true,
+                    last_attempt: ic_cdk::api::time(),
+                    retry_count: 0,
+                    max_retries: 3,
+                };
+                
+                // Save retry info for later retry attempts
+                self.storage.set_settlement_retry_info(ask_id, retry_info);
+                
+                // Save updated ask status
+                self.storage.insert_ask(ask_id, ask_status.clone());
+                
+                return Err(MarketplaceError::PartialSettlement(
+                    format!("NFT transfer succeeded but token transfer failed. Ask {} set to PartiallySettled for retry.", ask_id)
+                ));
             }
         }
 
+        // Create settlement info for response
+        let settlement_info = SettlementInfo {
+            bid_tokens: vec![], // Would contain actual token transfer results
+            ask_tokens: vec![], // Would contain actual token transfer results
+            royalties: vec![], // Would contain royalty distributions
+        };
+
+        Ok(settlement_info)
+    }
+
+    /// Complete settlement after both transfers succeed
+    async fn complete_settlement(&mut self, ask_id: u64, ask_status: &mut AskStatus, buyer: Principal, _amount: u64) -> MarketplaceResult<()> {
         // Create settlement info
         let settlement_info = SettlementInfo {
             bid_tokens: vec![], // Would contain actual token transfer results
@@ -1160,7 +1205,98 @@ impl Marketplace {
             println!("Failed to send settlement notification: {:?}", e);
         }
 
-        Ok(settlement_info)
+        // Clear any retry info since settlement is complete
+        self.storage.clear_settlement_retry_info(ask_id);
+
+        Ok(())
+    }
+
+    /// Retry settlement for partially failed asks
+    pub async fn retry_settlement(&mut self, ask_id: u64, _caller: Principal) -> MarketplaceResult<SettlementInfo> {
+        ic_cdk::println!("🔄 Retrying settlement for ask_id: {}", ask_id);
+        
+        // Get the ask status
+        let ask_status = self.storage.get_ask(ask_id)
+            .ok_or(MarketplaceError::NotFound("Ask not found".to_string()))?;
+
+        // Validate ask is in PartiallySettled state
+        if !matches!(ask_status.status, AskStatusType::PartiallySettled) {
+            return Err(MarketplaceError::InvalidState("Ask is not in PartiallySettled state".to_string()));
+        }
+
+        // Get retry info
+        let retry_info = self.storage.get_settlement_retry_info(ask_id)
+            .ok_or(MarketplaceError::NotFound("Retry info not found".to_string()))?;
+
+        // Check if max retries exceeded
+        if retry_info.retry_count >= retry_info.max_retries {
+            return Err(MarketplaceError::MaxRetriesExceeded(
+                format!("Max retries ({}) exceeded for ask {}", retry_info.max_retries, ask_id)
+            ));
+        }
+
+        // Check if enough time has passed since last attempt (exponential backoff)
+        let current_time = ic_cdk::api::time();
+        let backoff_duration = 30_000_000_000; // 30 seconds in nanoseconds
+        let required_wait = retry_info.last_attempt + backoff_duration;
+        
+        if current_time < required_wait {
+            return Err(MarketplaceError::RetryTooSoon(
+                format!("Must wait {} more nanoseconds before retry", required_wait - current_time)
+            ));
+        }
+
+        // Extract payment token from ask features
+        let payment_token = self.extract_payment_token(&ask_status.config)?;
+        
+        // Calculate fee and seller amount
+        let fee_schema = self.extract_fee_schema(&ask_status.config);
+        let total_fee = self.fee_manager.calculate_fee(retry_info.amount, fee_schema.as_deref());
+        let seller_amount = retry_info.amount - total_fee;
+
+        ic_cdk::println!("🔄 Retrying token transfer for ask {}: {} tokens to seller {}", 
+            ask_id, seller_amount, ask_status.seller.owner);
+
+        // Retry the token transfer
+        let token_transfer_result = push_icrc2_tokens(
+            payment_token.canister,
+            ask_status.seller.owner,
+            seller_amount.into(),
+        ).await;
+
+        match token_transfer_result {
+            Ok(block_index) => {
+                ic_cdk::println!("✅ Retry successful! Transferred payment to seller. Block: {}", block_index);
+                
+                // Complete the settlement
+                let mut updated_ask_status = ask_status.clone();
+                self.complete_settlement(ask_id, &mut updated_ask_status, retry_info.buyer, retry_info.amount).await?;
+                
+                // Create settlement info for response
+                let settlement_info = SettlementInfo {
+                    bid_tokens: vec![],
+                    ask_tokens: vec![],
+                    royalties: vec![],
+                };
+
+                Ok(settlement_info)
+            }
+            Err(e) => {
+                ic_cdk::println!("❌ Retry failed: {}", e);
+                
+                // Update retry info
+                let mut updated_retry_info = retry_info.clone();
+                updated_retry_info.retry_count += 1;
+                updated_retry_info.last_attempt = current_time;
+                
+                self.storage.set_settlement_retry_info(ask_id, updated_retry_info);
+                
+                Err(MarketplaceError::PartialSettlement(
+                    format!("Retry {} failed for ask {}. Error: {}", 
+                        retry_info.retry_count + 1, ask_id, e)
+                ))
+            }
+        }
     }
 
     /// Extract fee schema from ask features
@@ -1388,5 +1524,32 @@ impl Marketplace {
         }
 
         Ok(self.escrow_manager.get_all_escrows())
+    }
+
+    /// Get all asks that need retry
+    pub fn get_asks_needing_retry(&self) -> Vec<u64> {
+        let mut retry_asks = Vec::new();
+        let all_asks = self.storage.get_all_active_asks();
+        
+        for ask in all_asks {
+            if matches!(ask.status, AskStatusType::PartiallySettled) {
+                if let Some(retry_info) = self.storage.get_settlement_retry_info(ask.ask_id) {
+                    let current_time = ic_cdk::api::time();
+                    let backoff_duration = 30_000_000_000; // 30 seconds
+                    let required_wait = retry_info.last_attempt + backoff_duration;
+                    
+                    if current_time >= required_wait && retry_info.retry_count < retry_info.max_retries {
+                        retry_asks.push(ask.ask_id);
+                    }
+                }
+            }
+        }
+        
+        retry_asks
+    }
+
+    /// Get settlement retry info for a specific ask
+    pub fn get_settlement_retry_info(&self, ask_id: u64) -> Option<SettlementRetryInfo> {
+        self.storage.get_settlement_retry_info(ask_id)
     }
 }

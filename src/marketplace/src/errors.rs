@@ -92,6 +92,15 @@ pub enum MarketplaceError {
 
     #[error("Not found: {0}")]
     NotFound(String),
+
+    #[error("Partial settlement: {0}")]
+    PartialSettlement(String),
+
+    #[error("Max retries exceeded: {0}")]
+    MaxRetriesExceeded(String),
+
+    #[error("Retry too soon: {0}")]
+    RetryTooSoon(String),
 }
 
 /// Generic error type for ICRC-8 compatibility
@@ -132,6 +141,9 @@ impl From<MarketplaceError> for GenericError {
             MarketplaceError::InvalidInput(_) => (400, "Invalid input"),
             MarketplaceError::InvalidState(_) => (400, "Invalid state"),
             MarketplaceError::NotFound(_) => (404, "Not found"),
+            MarketplaceError::PartialSettlement(_) => (500, "Partial settlement"),
+            MarketplaceError::MaxRetriesExceeded(_) => (500, "Max retries exceeded"),
+            MarketplaceError::RetryTooSoon(_) => (429, "Retry too soon"),
         };
 
         GenericError {
