@@ -80,6 +80,7 @@ export interface UserUpdate {
   'location' : [] | [string],
 }
 export interface _SERVICE {
+  'delete_account' : ActorMethod<[], { 'Ok' : null } | { 'Err' : Error }>,
   'finalize_upload' : ActorMethod<
     [string],
     { 'Ok' : string } |
