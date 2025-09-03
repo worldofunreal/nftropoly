@@ -127,14 +127,15 @@
 
 <script setup lang="ts">
   import { ref } from 'vue'
-  import { useColorMode, useNuxtApp } from '#imports'
+  import { useNuxtApp } from '#imports'
+  import { useTheme } from '@/composables/useTheme'
 
-  const colorMode = useColorMode()
+  const { theme: colorMode, toggleTheme: toggleThemeAction } = useTheme()
   const { $trackButtonClick } = useNuxtApp()
   const showFiat = ref(false)
 
   function toggleTheme() {
-    colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
+    toggleThemeAction()
     $trackButtonClick('Theme Toggle', {
       newTheme: colorMode.value,
       location: 'footer',

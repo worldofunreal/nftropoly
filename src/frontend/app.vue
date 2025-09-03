@@ -39,12 +39,13 @@
     <!-- <ClientOnly>
       <DisclaimerModal ref="disclaimerModalRef" @close="onDisclaimerClose" />
     </ClientOnly> -->
-    <ClientOnly>
+    <!-- Temporarily disabled onboarding tour until issues are resolved -->
+    <!-- <ClientOnly>
       <OnboardingTour ref="onboardingTourRef" />
-    </ClientOnly>
-    <ClientOnly>
+    </ClientOnly> -->
+    <!-- <ClientOnly>
       <OnboardingTrigger />
-    </ClientOnly>
+    </ClientOnly> -->
   </UApp>
 </template>
 
@@ -52,6 +53,7 @@
   import { ref, provide, onMounted, nextTick } from 'vue'
   import { useNuxtApp } from '#imports'
   import { useAuthStore } from '@/stores/auth'
+  import { useTheme } from '@/composables/useTheme'
   import SidebarNav from './components/SidebarNav.vue'
   import MobileSidebar from './components/MobileSidebar.vue'
   import Header from './components/Header.vue'
@@ -70,12 +72,12 @@
   // } | null>(null)
   const mobileSidebarOpen = ref(false)
   const { $trackInteraction } = useNuxtApp()
-  // Temporarily disabled for performance optimization
-  const onboardingTourRef = ref<{
-    startTour: () => void
-    stopTour: () => void
-    updateTourForRegistration: () => void
-  } | null>(null)
+  // Temporarily disabled onboarding tour until issues are resolved
+  // const onboardingTourRef = ref<{
+  //   startTour: () => void
+  //   stopTour: () => void
+  //   updateTourForRegistration: () => void
+  // } | null>(null)
 
   // Temporarily disabled for performance optimization
   // // Handle disclaimer close event
@@ -90,14 +92,18 @@
 
   // Provide the login panel ref so other components can access it
   provide('loginPanelRef', loginPanelRef)
-  // Temporarily disabled for performance optimization
-  // Provide the onboarding tour ref for manual triggering
-  provide('onboardingTourRef', onboardingTourRef)
+  // Temporarily disabled onboarding tour until issues are resolved
+  // // Provide the onboarding tour ref for manual triggering
+  // provide('onboardingTourRef', onboardingTourRef)
 
   // Track app initialization and key metrics
   onMounted(async () => {
-    // Initialize onboarding
-    const { shouldShowOnboarding, startTour } = useOnboarding()
+    // Theme is now handled automatically by Nuxt color mode
+    // No need to manually initialize
+    
+    // Temporarily disabled onboarding tour until issues are resolved
+    // // Initialize onboarding
+    // const { shouldShowOnboarding, startTour } = useOnboarding()
     
     // Restore session if available
     const auth = useAuthStore()
@@ -145,12 +151,13 @@
       timestamp: Date.now(),
     })
 
-    // Auto-start onboarding tour for new users
-    if (shouldShowOnboarding.value) {
-      setTimeout(() => {
-        startTour('registration')
-      }, 100) // Small delay to ensure everything is loaded
-    }
+    // Temporarily disabled onboarding tour until issues are resolved
+    // // Auto-start onboarding tour for new users
+    // if (shouldShowOnboarding.value) {
+    //   setTimeout(() => {
+    //     startTour('registration')
+    //   }, 100) // Small delay to ensure everything is loaded
+    // }
   })
 </script>
 

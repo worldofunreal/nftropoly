@@ -502,6 +502,21 @@ class CanisterService {
     }
   }
 
+  async deleteAccount(): Promise<void> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      await this.backendActor.delete_account()
+      // Clear all user-related cache after account deletion
+      appCacheService.clearAllCache()
+    } catch (error) {
+      console.error('Error deleting account:', error)
+      throw error
+    }
+  }
+
   // Following/Followers methods
   async followUser(targetPrincipal: string): Promise<User> {
     if (!this.backendActor) {

@@ -14,6 +14,14 @@ export default defineNuxtConfig({
     '@vueuse/motion/nuxt',
     '@pinia/nuxt',
   ],
+
+  // Configure color mode to work with our localStorage approach
+  colorMode: {
+    preference: 'system',
+    fallback: 'dark',
+    storageKey: 'nftropoly-theme'
+  },
+
   fonts: {
     families: [
       {

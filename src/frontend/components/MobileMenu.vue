@@ -158,15 +158,16 @@
 
 <script setup lang="ts">
   import { resolveComponent } from 'vue'
-  import { useColorMode, useNuxtApp } from '#imports'
+  import { useNuxtApp } from '#imports'
   import { useRoute } from 'vue-router'
+  import { useTheme } from '@/composables/useTheme'
   const route = useRoute()
   const Motion = resolveComponent('Motion')
-  const colorMode = useColorMode()
+  const { theme: colorMode, toggleTheme: toggleThemeAction } = useTheme()
   const { $trackButtonClick, $trackNavigation } = useNuxtApp()
 
   function toggleTheme() {
-    colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
+    toggleThemeAction()
     $trackButtonClick('Theme Toggle', {
       newTheme: colorMode.value,
       location: 'mobile_menu',

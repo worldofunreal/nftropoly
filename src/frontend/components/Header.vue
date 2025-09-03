@@ -144,17 +144,18 @@
 
 <script setup lang="ts">
   import { ref, onMounted, onUnmounted, watch, inject, type Ref } from 'vue'
-  import { useColorMode, useNuxtApp } from '#imports'
+  import { useNuxtApp } from '#imports'
   import { useAuthStore } from '@/stores/auth'
   import { canisterService } from '@/services/CanisterService'
   import CompactProfile from '@/components/CompactProfile.vue'
   import { useColorTheme } from '@/composables/useColorTheme'
+  import { useTheme } from '@/composables/useTheme'
 
   defineOptions({
     name: 'AppHeader',
   })
 
-  const colorMode = useColorMode()
+  const { theme: colorMode, toggleTheme: toggleThemeAction } = useTheme()
   const { colorTheme, nextColorTheme } = useColorTheme()
   const authStore = useAuthStore()
   const { $trackInteraction, $trackButtonClick } = useNuxtApp()
@@ -178,10 +179,7 @@
   }
 
   function toggleTheme() {
-    colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
-    
-    // Save to localStorage like useColorTheme
-    localStorage.setItem('nftropoly-theme', colorMode.value)
+    toggleThemeAction()
     
     $trackButtonClick('Theme Toggle', {
       newTheme: colorMode.value,
@@ -332,13 +330,7 @@
     window.addEventListener('scroll', onScroll)
     onScroll() // Initialize scroll state
     
-    // Load saved theme from localStorage like useColorTheme
-    const savedTheme = localStorage.getItem('nftropoly-theme') as 'light' | 'dark' | null
-    if (savedTheme) {
-      colorMode.value = savedTheme
-    }
-    
-    // Set logo based on theme
+    // Set logo based on current theme (don't restore theme, just use current value)
     if (colorMode.value === 'light') {
       logoSrc.value = '/logo-dark.svg'
     } else {

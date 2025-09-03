@@ -44,35 +44,63 @@
               </p>
             </div>
 
-            <!-- EVM Address -->
-            <div class="space-y-4">
-              <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                <div class="flex items-center gap-3">
-                  <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
-                    <UIcon name="i-simple-icons-ethereum" class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                          <!-- EVM Address -->
+              <div class="space-y-4">
+                <div class="p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                      <UIcon name="i-simple-icons-ethereum" class="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                      <h4 class="text-sm font-medium text-gray-900 dark:text-white">
+                        Ethereum Address
+                      </h4>
+                      <p class="text-sm text-gray-500 dark:text-gray-400">
+                        {{ userProfile?.evm_address?.[0] ? formatAddress(userProfile.evm_address[0]) : 'Not connected' }}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 class="text-sm font-medium text-gray-900 dark:text-white">
-                      Ethereum Address
-                    </h4>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
-                      {{ userProfile?.evm_address?.[0] ? formatAddress(userProfile.evm_address[0]) : 'Not connected' }}
-                    </p>
+                  
+                  <div v-if="editingWallet === 'evm'" class="space-y-3">
+                    <UInput
+                      v-model="walletAddresses.evm"
+                      placeholder="0x..."
+                      class="w-full"
+                    />
+                    <div class="flex gap-2">
+                      <UButton
+                        color="primary"
+                        size="sm"
+                        :loading="updatingWallet"
+                        @click="updateWalletAddress('evm')"
+                      >
+                        {{ updatingWallet ? 'Updating...' : 'Update' }}
+                      </UButton>
+                      <UButton
+                        color="neutral"
+                        variant="soft"
+                        size="sm"
+                        @click="cancelEditWallet('evm')"
+                      >
+                        Cancel
+                      </UButton>
+                    </div>
                   </div>
+                  
+                  <UButton
+                    v-else
+                    color="primary"
+                    variant="soft"
+                    size="sm"
+                    @click="editWalletAddress('evm')"
+                  >
+                    {{ userProfile?.evm_address?.[0] ? 'Update' : 'Connect' }}
+                  </UButton>
                 </div>
-                <UButton
-                  color="primary"
-                  variant="soft"
-                  size="sm"
-                  @click="editWalletAddress('evm')"
-                >
-                  {{ userProfile?.evm_address?.[0] ? 'Update' : 'Connect' }}
-                </UButton>
-              </div>
 
               <!-- Bitcoin Address -->
-              <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                <div class="flex items-center gap-3">
+              <div class="p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                <div class="flex items-center gap-3 mb-3">
                   <div class="w-10 h-10 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
                     <UIcon name="i-simple-icons-bitcoin" class="w-6 h-6 text-orange-600 dark:text-orange-400" />
                   </div>
@@ -85,7 +113,35 @@
                     </p>
                   </div>
                 </div>
+                
+                <div v-if="editingWallet === 'bitcoin'" class="space-y-3">
+                  <UInput
+                    v-model="walletAddresses.bitcoin"
+                    placeholder="bc1..."
+                    class="w-full"
+                  />
+                  <div class="flex gap-2">
+                    <UButton
+                      color="primary"
+                      size="sm"
+                      :loading="updatingWallet"
+                      @click="updateWalletAddress('bitcoin')"
+                    >
+                      {{ updatingWallet ? 'Updating...' : 'Update' }}
+                    </UButton>
+                    <UButton
+                      color="neutral"
+                      variant="soft"
+                      size="sm"
+                      @click="cancelEditWallet('bitcoin')"
+                    >
+                      Cancel
+                    </UButton>
+                  </div>
+                </div>
+                
                 <UButton
+                  v-else
                   color="primary"
                   variant="soft"
                   size="sm"
@@ -96,8 +152,8 @@
               </div>
 
               <!-- Solana Address -->
-              <div class="flex items-center justify-between p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                <div class="flex items-center gap-3">
+              <div class="p-4 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
+                <div class="flex items-center gap-3 mb-3">
                   <div class="w-10 h-10 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
                     <UIcon name="i-simple-icons-solana" class="w-6 h-6 text-purple-600 dark:text-purple-400" />
                   </div>
@@ -110,7 +166,35 @@
                     </p>
                   </div>
                 </div>
+                
+                <div v-if="editingWallet === 'solana'" class="space-y-3">
+                  <UInput
+                    v-model="walletAddresses.solana"
+                    placeholder="..."
+                    class="w-full"
+                  />
+                  <div class="flex gap-2">
+                    <UButton
+                      color="primary"
+                      size="sm"
+                      :loading="updatingWallet"
+                      @click="updateWalletAddress('solana')"
+                    >
+                      {{ updatingWallet ? 'Updating...' : 'Update' }}
+                    </UButton>
+                    <UButton
+                      color="neutral"
+                      variant="soft"
+                      size="sm"
+                      @click="cancelEditWallet('solana')"
+                    >
+                      Cancel
+                    </UButton>
+                  </div>
+                </div>
+                
                 <UButton
+                  v-else
                   color="primary"
                   variant="soft"
                   size="sm"
@@ -194,7 +278,7 @@
                 </h4>
                 <div class="grid grid-cols-4 gap-3">
                   <button
-                    v-for="theme in colorThemes"
+                    v-for="theme in Object.keys(colorThemes)"
                     :key="theme"
                     class="relative p-4 rounded-lg border-2 transition-all duration-200 hover:scale-105"
                     :class="[
@@ -202,7 +286,7 @@
                         ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20' 
                         : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
                     ]"
-                    @click="setColorTheme(theme)"
+                    @click="setTheme(theme as any)"
                   >
                     <div 
                       class="w-8 h-8 rounded-full mx-auto mb-2"
@@ -399,10 +483,10 @@
                   </div>
                 </div>
                 <UButton
-                  color="red"
+                  color="error"
                   variant="soft"
                   size="sm"
-                  @click="showDeleteAccountModal = true"
+                  @click="deleteAccount"
                 >
                   Delete
                 </UButton>
@@ -442,116 +526,15 @@
       </div>
     </div>
 
-    <!-- Wallet Address Edit Modal -->
-    <UModal v-model="showWalletModal" :ui="{ width: 'sm:max-w-md' }">
-      <UCard>
-        <template #header>
-          <div class="flex items-center gap-2">
-            <div 
-              class="w-8 h-8 rounded-lg flex items-center justify-center"
-              :class="walletModalConfig.bgColor"
-            >
-              <UIcon :name="walletModalConfig.icon" class="w-5 h-5" :class="walletModalConfig.iconColor" />
-            </div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-              {{ walletModalConfig.title }}
-            </h3>
-          </div>
-        </template>
 
-        <div class="space-y-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              {{ walletModalConfig.label }}
-            </label>
-            <UInput
-              v-model="walletAddress"
-              :placeholder="walletModalConfig.placeholder"
-              class="w-full"
-            />
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              {{ walletModalConfig.description }}
-            </p>
-          </div>
-        </div>
-
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <UButton
-              color="neutral"
-              variant="soft"
-              @click="showWalletModal = false"
-            >
-              Cancel
-            </UButton>
-            <UButton
-              color="primary"
-              :loading="updatingWallet"
-              @click="updateWalletAddress"
-            >
-              {{ updatingWallet ? 'Updating...' : 'Update' }}
-            </UButton>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
-
-    <!-- Delete Account Confirmation Modal -->
-    <UModal v-model="showDeleteAccountModal" :ui="{ width: 'sm:max-w-md' }">
-      <UCard>
-        <template #header>
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
-              <UIcon name="i-heroicons-exclamation-triangle-20-solid" class="w-5 h-5 text-red-600 dark:text-red-400" />
-            </div>
-            <h3 class="text-lg font-semibold text-red-900 dark:text-red-100">
-              Delete Account
-            </h3>
-          </div>
-        </template>
-
-        <div class="space-y-4">
-          <p class="text-gray-700 dark:text-gray-300">
-            Are you sure you want to delete your account? This action cannot be undone and will permanently remove:
-          </p>
-          <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1">
-            <li>Your profile and all associated data</li>
-            <li>Your wallet connections and preferences</li>
-            <li>All your activity and transaction history</li>
-            <li>Your followers and following relationships</li>
-          </ul>
-          <p class="text-sm text-red-600 dark:text-red-400 font-medium">
-            This action is irreversible!
-          </p>
-        </div>
-
-        <template #footer>
-          <div class="flex justify-end gap-3">
-            <UButton
-              color="neutral"
-              variant="soft"
-              @click="showDeleteAccountModal = false"
-            >
-              Cancel
-            </UButton>
-            <UButton
-              color="red"
-              @click="deleteAccount"
-            >
-              Delete Account
-            </UButton>
-          </div>
-        </template>
-      </UCard>
-    </UModal>
   </div>
 </template>
 
 <script setup lang="ts">
   import { ref, computed, onMounted } from 'vue'
-  import { useColorMode } from '#imports'
   import { useAuthStore } from '@/stores/auth'
   import { useColorTheme } from '@/composables/useColorTheme'
+  import { useTheme } from '@/composables/useTheme'
   import { canisterService } from '@/services/CanisterService'
   import { useToast } from '#imports'
 
@@ -560,17 +543,19 @@
   const userProfile = computed(() => auth.userProfile)
 
   // Theme management
-  const colorMode = useColorMode()
+  const { theme: colorMode, setTheme: setThemeAction } = useTheme()
   const { colorTheme, setColorTheme: setTheme, colorThemes } = useColorTheme()
 
   // UI state
   const activeTab = ref('wallets')
   const saving = ref(false)
   const updatingWallet = ref(false)
-  const showWalletModal = ref(false)
-  const showDeleteAccountModal = ref(false)
-  const walletAddress = ref('')
-  const currentWalletType = ref('')
+  const editingWallet = ref('')
+  const walletAddresses = ref({
+    evm: '',
+    bitcoin: '',
+    solana: ''
+  })
 
   // Privacy settings (mock data for now)
   const privacySettings = ref({
@@ -590,39 +575,7 @@
     { id: 'account', name: 'Account' },
   ]
 
-  // Wallet modal configuration
-  const walletModalConfig = computed(() => {
-    const configs = {
-      evm: {
-        title: 'Ethereum Address',
-        label: 'Ethereum Address',
-        placeholder: '0x...',
-        description: 'Enter your Ethereum wallet address (0x format)',
-        icon: 'i-simple-icons-ethereum',
-        bgColor: 'bg-blue-100 dark:bg-blue-900',
-        iconColor: 'text-blue-600 dark:text-blue-400'
-      },
-      bitcoin: {
-        title: 'Bitcoin Address',
-        label: 'Bitcoin Address',
-        placeholder: 'bc1...',
-        description: 'Enter your Bitcoin wallet address',
-        icon: 'i-simple-icons-bitcoin',
-        bgColor: 'bg-orange-100 dark:bg-orange-900',
-        iconColor: 'text-orange-600 dark:text-orange-400'
-      },
-      solana: {
-        title: 'Solana Address',
-        label: 'Solana Address',
-        placeholder: '...',
-        description: 'Enter your Solana wallet address',
-        icon: 'i-simple-icons-solana',
-        bgColor: 'bg-purple-100 dark:bg-purple-900',
-        iconColor: 'text-purple-600 dark:text-purple-400'
-      }
-    }
-    return configs[currentWalletType.value as keyof typeof configs] || configs.evm
-  })
+
 
   // Computed properties
   const hasUnsavedChanges = computed(() => {
@@ -639,23 +592,27 @@
 
   // Methods
   const toggleTheme = () => {
-    colorMode.value = colorMode.value === 'dark' ? 'light' : 'dark'
-    localStorage.setItem('nftropoly-theme', colorMode.value)
+    setThemeAction(colorMode.value === 'dark' ? 'light' : 'dark')
   }
 
   const editWalletAddress = (type: string) => {
-    currentWalletType.value = type
+    editingWallet.value = type
     const addressMap = {
       evm: userProfile.value?.evm_address?.[0] || '',
       bitcoin: userProfile.value?.bitcoin_address?.[0] || '',
       solana: userProfile.value?.solana_address?.[0] || ''
     }
-    walletAddress.value = addressMap[type as keyof typeof addressMap] || ''
-    showWalletModal.value = true
+    walletAddresses.value[type as keyof typeof walletAddresses.value] = addressMap[type as keyof typeof addressMap] || ''
   }
 
-  const updateWalletAddress = async () => {
-    if (!walletAddress.value.trim()) {
+  const cancelEditWallet = (type: string) => {
+    editingWallet.value = ''
+    walletAddresses.value[type as keyof typeof walletAddresses.value] = ''
+  }
+
+  const updateWalletAddress = async (type: string) => {
+    const address = walletAddresses.value[type as keyof typeof walletAddresses.value]
+    if (!address.trim()) {
       const toast = useToast()
       toast.add({
         title: 'Invalid Address',
@@ -668,23 +625,25 @@
     updatingWallet.value = true
     try {
       const updateMethod = {
-        evm: () => canisterService.updateEvmAddress(walletAddress.value.trim()),
-        bitcoin: () => canisterService.updateBitcoinAddress(walletAddress.value.trim()),
-        solana: () => canisterService.updateSolanaAddress(walletAddress.value.trim())
-      }[currentWalletType.value]
+        evm: () => canisterService.updateEvmAddress(address.trim()),
+        bitcoin: () => canisterService.updateBitcoinAddress(address.trim()),
+        solana: () => canisterService.updateSolanaAddress(address.trim())
+      }[type]
 
       if (updateMethod) {
         await updateMethod()
-        await auth.refreshProfile()
+        // Refresh the user profile to get updated data
+        // Note: You may need to implement this method in your auth store
+        // await auth.refreshProfile()
         
         const toast = useToast()
         toast.add({
           title: 'Address Updated',
-          description: `${walletModalConfig.value.title} has been updated successfully`,
+          description: `${type.toUpperCase()} address has been updated successfully`,
           color: 'success'
         })
         
-        showWalletModal.value = false
+        editingWallet.value = ''
       }
     } catch (error) {
       console.error('Failed to update wallet address:', error)
@@ -745,14 +704,31 @@
   }
 
   const deleteAccount = async () => {
-    // Mock implementation - would need backend support
-    const toast = useToast()
-    toast.add({
-      title: 'Feature Coming Soon',
-      description: 'Account deletion will be available in a future update',
-      color: 'info'
-    })
-    showDeleteAccountModal.value = false
+    if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+      return
+    }
+
+    try {
+      await canisterService.deleteAccount()
+      
+      const toast = useToast()
+      toast.add({
+        title: 'Account Deleted',
+        description: 'Your account has been successfully deleted',
+        color: 'success'
+      })
+      
+      // Redirect to home page after account deletion
+      await navigateTo('/')
+    } catch (error) {
+      console.error('Failed to delete account:', error)
+      const toast = useToast()
+      toast.add({
+        title: 'Delete Failed',
+        description: 'Failed to delete account. Please try again.',
+        color: 'error'
+      })
+    }
   }
 
   const formatAddress = (address: string) => {

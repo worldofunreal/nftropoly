@@ -49,6 +49,8 @@ impl Database {
         Self
     }
 
+
+
     pub fn init(&mut self) {
         // Database is initialized automatically by thread_local!
     }
@@ -221,6 +223,64 @@ impl Database {
         FOLLOWERS.with(|followers_map| {
             followers_map.borrow().get(&user).map(|list| list.0.clone()).unwrap_or_default()
         })
+    }
+
+    // Account deletion operations
+    pub fn remove_user_from_following(user: Principal) {
+        // Remove user from all following lists
+        FOLLOWING.with(|following_map| {
+            let mut following_map = following_map.borrow_mut();
+            let keys: Vec<Principal> = following_map.iter().map(|entry| entry.key().clone()).collect();
+            for key in keys {
+                if let Some(following_list) = following_map.get(&key) {
+                    let mut principals = following_list.0.clone();
+                    principals.retain(|&p| p != user);
+                    following_map.insert(key, PrincipalList(principals));
+                }
+            }
+        });
+    }
+
+    pub fn remove_user_from_followers(user: Principal) {
+        // Remove user from all followers lists
+        FOLLOWERS.with(|followers_map| {
+            let mut followers_map = followers_map.borrow_mut();
+            let keys: Vec<Principal> = followers_map.iter().map(|entry| entry.key().clone()).collect();
+            for key in keys {
+                if let Some(followers_list) = followers_map.get(&key) {
+                    let mut principals = followers_list.0.clone();
+                    principals.retain(|&p| p != user);
+                    followers_map.insert(key, PrincipalList(principals));
+                }
+            }
+        });
+    }
+
+    pub fn remove_username(username: String) {
+        USERNAMES.with(|usernames| {
+            usernames.borrow_mut().remove(&username);
+        });
+    }
+
+    pub fn remove_user(user: Principal) {
+        USERS.with(|users| {
+            users.borrow_mut().remove(&user);
+        });
+    }
+
+    pub fn remove_user_assets(user: Principal) {
+        // Remove all assets associated with the user
+        // This is a simplified implementation - in production you might want to
+        // track which assets belong to which user
+        ASSETS.with(|assets| {
+            let mut assets = assets.borrow_mut();
+            let keys: Vec<String> = assets.iter().map(|entry| entry.key().clone()).collect();
+            for key in keys {
+                if key.contains(&user.to_string()) {
+                    assets.remove(&key);
+                }
+            }
+        });
     }
 
     // Upload storage operations

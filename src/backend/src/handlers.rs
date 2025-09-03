@@ -612,6 +612,26 @@ pub async fn finalize_upload(caller: Principal, file_path: String) -> Result<Str
     Ok(file_path)
 }
 
+pub async fn delete_account(caller: Principal) -> Result<(), Error> {
+    // Check if user exists
+    let user = Database::get_user(caller).ok_or(Error::UserNotFound)?;
+    
+    // Remove user from all following/follower relationships
+    Database::remove_user_from_following(caller);
+    Database::remove_user_from_followers(caller);
+    
+    // Remove user's username from the username index
+    Database::remove_username(user.username);
+    
+    // Remove user's profile data
+    Database::remove_user(caller);
+    
+    // Remove user's assets
+    Database::remove_user_assets(caller);
+    
+    Ok(())
+}
+
 pub fn http_request(req: HttpRequest) -> HttpResponse {
     let path = req.get_path().expect("Failed to parse request path");
     

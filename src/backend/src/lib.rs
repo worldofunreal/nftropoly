@@ -288,6 +288,16 @@ async fn unfollow_user(target: Principal) -> Result<User, Error> {
     handlers::unfollow_user(caller, target).await
 }
 
+#[update]
+async fn delete_account() -> Result<(), Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::delete_account(caller).await
+}
+
 #[query]
 fn get_following(user: Principal) -> Vec<CompactProfile> {
     handlers::get_following(user)
