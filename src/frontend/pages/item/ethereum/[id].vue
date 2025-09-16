@@ -24,7 +24,7 @@
               src="https://placehold.co/600x600/3B82F6/FFFFFF?text=CryptoPunk+%238150"
               alt="CryptoPunk #8150"
               class="w-full h-full object-contain rounded-sm"
-            />
+            >
           </div>
         </div>
 
@@ -41,7 +41,7 @@
                     src="https://placehold.co/32x32"
                     alt="Collection"
                     class="w-8 h-8 rounded-full"
-                  />
+                  >
                   <span class="font-semibold">CryptoPunks</span>
                   <UIcon
                     name="material-symbols:verified"

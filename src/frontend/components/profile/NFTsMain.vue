@@ -20,7 +20,7 @@
         type="text"
         placeholder="Search for items"
         class="flex-1 px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-      />
+      >
       <select
         class="px-2 py-1 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
       >
@@ -49,7 +49,7 @@
         src="https://placehold.co/96x96?text=NFT"
         alt="NFT"
         class="w-24 h-24 rounded-lg shadow mb-4"
-      />
+      >
       <div class="text-xl font-bold mb-2">No items found</div>
       <div class="text-gray-400 mb-4">Discover new collections on OS2</div>
       <button class="px-4 py-2 rounded bg-primary-600 text-white font-semibold">
@@ -110,7 +110,7 @@
                   :src="nft.image"
                   alt="NFT"
                   class="w-12 h-12 rounded-lg border border-gray-300 dark:border-gray-700 flex-shrink-0"
-                />
+                >
                 <div class="flex flex-col">
                   <span class="font-semibold text-gray-900 dark:text-white">{{
                     nft.name
@@ -236,7 +236,7 @@
               type="text"
               placeholder="Search chains..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-3"
-            />
+            >
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="chain in chains"
@@ -259,7 +259,7 @@
               type="text"
               placeholder="Search collections..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-            />
+            >
           </div>
 
           <!-- Search and Sort -->
@@ -272,7 +272,7 @@
                 type="text"
                 placeholder="Search for items"
                 class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-3"
-              />
+              >
               <select
                 class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
               >

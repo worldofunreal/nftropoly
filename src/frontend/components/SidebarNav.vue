@@ -13,7 +13,7 @@
         :src="colorMode.value === 'light' ? '/logo-dark.svg' : '/logo.svg'"
         alt="Nftropoly Logo"
         class="h-7 w-7 transition-all duration-100"
-      />
+      >
       <img
         v-show="!collapsed"
         :src="
@@ -21,7 +21,7 @@
         "
         alt="Nftropoly Text Logo"
         class="h-6 w-auto transition-all duration-100"
-      />
+      >
     </div>
     <nav class="flex-1 flex flex-col gap-1 py-2 px-1">
       <SidebarItem

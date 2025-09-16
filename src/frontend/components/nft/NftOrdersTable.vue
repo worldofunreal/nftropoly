@@ -76,7 +76,7 @@
                   src="https://placehold.co/16x16"
                   alt="WETH"
                   class="w-4 h-4 rounded-full"
-                />
+                >
                 <span class="font-mono text-sm">{{ offer.price }}</span>
               </div>
             </td>
@@ -93,7 +93,7 @@
                   :src="offer.from.avatar"
                   :alt="offer.from.name"
                   class="w-6 h-6 rounded-full"
-                />
+                >
                 <span class="text-sm font-medium">{{ offer.from.name }}</span>
                 <UIcon
                   v-if="offer.from.verified"

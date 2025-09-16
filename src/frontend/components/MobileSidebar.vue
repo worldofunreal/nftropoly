@@ -15,7 +15,7 @@
           :src="colorMode.value === 'light' ? '/logo-dark.svg' : '/logo.svg'"
           alt="Nftropoly Logo"
           class="h-8 w-8"
-        />
+        >
         <img
           :src="
             colorMode.value === 'light'
@@ -24,7 +24,7 @@
           "
           alt="Nftropoly Text Logo"
           class="h-6 w-auto"
-        />
+        >
       </div>
       <button
         class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

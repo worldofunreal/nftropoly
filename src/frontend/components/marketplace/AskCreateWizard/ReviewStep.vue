@@ -26,7 +26,7 @@
                 :src="(nft.metadata as any)?.image || '/placeholder-nft.png'"
                 :alt="(nft.metadata as any)?.name || `NFT #${nft.tokenId}`"
                 class="w-full h-32 object-cover rounded-t-lg"
-              />
+              >
             </div>
             <div class="nft-info p-3">
               <h5 class="font-semibold text-gray-900 dark:text-white truncate">

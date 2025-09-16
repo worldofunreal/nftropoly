@@ -8,7 +8,7 @@
         src="https://placehold.co/96x96?text=NFT"
         alt="NFT"
         class="w-24 h-24 rounded-lg shadow mb-4"
-      />
+      >
       <div class="text-xl font-bold mb-2">No favorites found</div>
       <div class="text-gray-400 mb-4">Discover new items on OS2</div>
       <button class="px-4 py-2 rounded bg-primary-600 text-white font-semibold">
@@ -69,7 +69,7 @@
                   :src="nft.image"
                   alt="NFT"
                   class="w-12 h-12 rounded-lg border border-gray-300 dark:border-gray-700 flex-shrink-0"
-                />
+                >
                 <div class="flex flex-col">
                   <span class="font-semibold text-gray-900 dark:text-white">{{
                     nft.name

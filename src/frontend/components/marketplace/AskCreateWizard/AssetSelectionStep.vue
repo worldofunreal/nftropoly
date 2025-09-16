@@ -84,7 +84,7 @@
               :src="nft.metadata?.image || '/placeholder-nft.png'"
               :alt="nft.metadata?.name || `NFT #${nft.tokenId}`"
               class="w-full h-48 object-cover rounded-t-lg"
-            />
+            >
             <div class="nft-overlay">
               <UIcon
                 :name="

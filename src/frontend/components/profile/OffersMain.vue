@@ -32,7 +32,7 @@
         src="https://placehold.co/96x96?text=NFT"
         alt="NFT"
         class="w-24 h-24 rounded-lg shadow mb-4"
-      />
+      >
       <div class="text-xl font-bold mb-2">No offers found</div>
       <div class="text-gray-400 mb-4">
         You currently don't have any active or unfunded offers
@@ -235,7 +235,7 @@
               type="text"
               placeholder="Search chains..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-3"
-            />
+            >
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="chain in chains"
@@ -258,7 +258,7 @@
               type="text"
               placeholder="Search collections..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-            />
+            >
           </div>
 
           <!-- Sort Options -->
@@ -287,12 +287,12 @@
                 type="text"
                 placeholder="Min price"
                 class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-              />
+              >
               <input
                 type="text"
                 placeholder="Max price"
                 class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-              />
+              >
             </div>
           </div>
 
@@ -306,7 +306,7 @@
                 <input
                   type="checkbox"
                   class="rounded border-gray-300 dark:border-gray-600"
-                />
+                >
                 <span class="text-sm text-gray-700 dark:text-gray-300"
                   >Active Offers</span
                 >
@@ -315,7 +315,7 @@
                 <input
                   type="checkbox"
                   class="rounded border-gray-300 dark:border-gray-600"
-                />
+                >
                 <span class="text-sm text-gray-700 dark:text-gray-300"
                   >Unfunded Offers</span
                 >
@@ -324,7 +324,7 @@
                 <input
                   type="checkbox"
                   class="rounded border-gray-300 dark:border-gray-600"
-                />
+                >
                 <span class="text-sm text-gray-700 dark:text-gray-300"
                   >Expired Offers</span
                 >

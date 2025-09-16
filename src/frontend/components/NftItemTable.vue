@@ -6,7 +6,7 @@
         type="text"
         placeholder="Search items..."
         class="px-3 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 text-sm w-48"
-      />
+      >
       <select
         class="px-2 py-2 rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 text-sm"
       >

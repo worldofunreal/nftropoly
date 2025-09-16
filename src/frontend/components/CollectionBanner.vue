@@ -8,7 +8,7 @@
         src="https://placehold.co/80x80"
         alt="Collection Avatar"
         class="w-20 h-20 rounded-xl object-cover border border-gray-200 dark:border-gray-800"
-      />
+      >
       <div class="min-w-0">
         <div class="flex items-center gap-2 text-2xl font-bold truncate">
           X FIGURES

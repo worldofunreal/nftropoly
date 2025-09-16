@@ -45,7 +45,7 @@
                     :src="nft.metadata.image"
                     :alt="nft.metadata.name || `NFT #${nft.tokenId}`"
                     class="w-full h-full object-cover rounded-lg"
-                  />
+                  >
                   <UIcon
                     v-else
                     name="i-heroicons-photo"
@@ -116,7 +116,7 @@
                     :src="nft.metadata.image"
                     :alt="nft.metadata.name || `NFT #${nft.tokenId}`"
                     class="w-full h-full object-cover rounded-lg"
-                  />
+                  >
                   <UIcon
                     v-else
                     name="i-heroicons-photo"
