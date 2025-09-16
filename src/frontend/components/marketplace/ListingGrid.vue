@@ -10,15 +10,15 @@
 </template>
 
 <script setup lang="ts">
-import type { AskStatus } from '../../declarations/marketplace/marketplace.did'
+  import type { AskStatus } from '../../declarations/marketplace/marketplace.did'
 
-interface Props {
-  asks: AskStatus[]
-  loading?: boolean
-}
+  interface Props {
+    asks: AskStatus[]
+    loading?: boolean
+  }
 
-defineProps<Props>()
-defineEmits<{
-  'ask-click': [ask: AskStatus]
-}>()
+  defineProps<Props>()
+  defineEmits<{
+    'ask-click': [ask: AskStatus]
+  }>()
 </script>

@@ -369,7 +369,7 @@
                       type="text"
                       placeholder="My Awesome NFT"
                       class="w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    >
+                    />
                   </div>
                   <div>
                     <label
@@ -408,7 +408,7 @@
                       max="50"
                       placeholder="10"
                       class="w-full border-gray-300 dark:border-gray-600 dark:bg-neutral-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    >
+                    />
                   </div>
                 </div>
               </div>

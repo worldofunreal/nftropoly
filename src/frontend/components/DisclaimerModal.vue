@@ -5,7 +5,7 @@
     class="fixed inset-0 z-[9999] flex items-center justify-center"
   >
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/50" @click="closeModal"/>
+    <div class="absolute inset-0 bg-black/50" @click="closeModal" />
     <!-- Modal Content -->
     <div
       class="relative bg-white dark:bg-neutral-900 rounded-lg shadow-xl max-w-md w-full mx-4"
@@ -13,8 +13,8 @@
       <div class="p-6">
         <!-- Logo Section -->
         <div class="flex flex-col items-center mb-8">
-          <img src="/logo.svg" alt="NFTropoly Logo" class="w-12 h-12 mb-2" >
-          <img src="/logo-text.svg" alt="NFTropoly" class="h-6 light:invert" >
+          <img src="/logo.svg" alt="NFTropoly Logo" class="w-12 h-12 mb-2" />
+          <img src="/logo-text.svg" alt="NFTropoly" class="h-6 light:invert" />
         </div>
 
         <!-- Disclaimer Content -->

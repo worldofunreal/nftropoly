@@ -60,7 +60,7 @@
         </thead>
         <!-- Header Separator -->
         <tr class="border-b border-gray-700">
-          <td colspan="6" class="h-px"/>
+          <td colspan="6" class="h-px" />
         </tr>
 
         <!-- Table Body -->
@@ -88,7 +88,7 @@
                   src="https://placehold.co/16x16"
                   alt="ETH"
                   class="w-4 h-4 rounded-full flex-shrink-0"
-                >
+                />
                 <span class="font-mono text-sm">{{ activity.price }}</span>
               </div>
               <span v-else class="text-sm text-gray-400">-</span>
@@ -101,7 +101,7 @@
                   :src="activity.from.avatar"
                   :alt="activity.from.name"
                   class="w-6 h-6 rounded-full flex-shrink-0"
-                >
+                />
                 <span class="text-sm font-medium">{{
                   activity.from.name
                 }}</span>
@@ -120,7 +120,7 @@
                   :src="activity.to.avatar"
                   :alt="activity.to.name"
                   class="w-6 h-6 rounded-full flex-shrink-0"
-                >
+                />
                 <span class="text-sm font-medium">{{ activity.to.name }}</span>
                 <UIcon
                   v-if="activity.to.verified"

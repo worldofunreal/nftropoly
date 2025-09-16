@@ -1,6 +1,6 @@
 <template>
   <div>
-    <hr v-if="hr" class="my-2 border-gray-200 dark:border-gray-800" >
+    <hr v-if="hr" class="my-2 border-gray-200 dark:border-gray-800" />
     <NuxtLink
       v-else
       :to="to"
@@ -15,10 +15,19 @@
 </template>
 
 <script setup lang="ts">
-  const props = defineProps({
-    icon: String,
-    label: String,
-    to: String,
+  const _props = defineProps({
+    icon: {
+      type: String,
+      default: '',
+    },
+    label: {
+      type: String,
+      default: '',
+    },
+    to: {
+      type: String,
+      default: '',
+    },
     collapsed: Boolean,
     hr: Boolean,
   })

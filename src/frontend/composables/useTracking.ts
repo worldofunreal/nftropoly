@@ -11,7 +11,7 @@ export const useTracking = () => {
   } = useNuxtApp()
 
   // Hackathon-specific tracking functions
-  const trackHackathonEvent = (eventName: string, data?: any) => {
+  const trackHackathonEvent = (eventName: string, data?: unknown) => {
     $trackInteraction(`Hackathon: ${eventName}`, {
       ...data,
       hackathonPhase: 'development',
@@ -19,7 +19,7 @@ export const useTracking = () => {
     })
   }
 
-  const trackUserJourney = (step: string, data?: any) => {
+  const trackUserJourney = (step: string, data?: unknown) => {
     $trackInteraction('User Journey', {
       step,
       ...data,
@@ -27,7 +27,11 @@ export const useTracking = () => {
     })
   }
 
-  const trackFeatureUsage = (feature: string, action: string, data?: any) => {
+  const trackFeatureUsage = (
+    feature: string,
+    action: string,
+    data?: unknown
+  ) => {
     $trackInteraction('Feature Usage', {
       feature,
       action,
@@ -36,7 +40,7 @@ export const useTracking = () => {
     })
   }
 
-  const trackPerformance = (metric: string, value: number, data?: any) => {
+  const trackPerformance = (metric: string, value: number, data?: unknown) => {
     $trackInteraction('Performance', {
       metric,
       value,
@@ -45,7 +49,7 @@ export const useTracking = () => {
     })
   }
 
-  const trackError = (error: string, context?: any) => {
+  const trackError = (error: string, context?: unknown) => {
     $trackError(error, {
       context,
       timestamp: Date.now(),
@@ -55,7 +59,7 @@ export const useTracking = () => {
   const trackWalletAction = (
     action: string,
     walletType: string,
-    data?: any
+    data?: unknown
   ) => {
     $trackWalletConnect(walletType, {
       action,
@@ -78,7 +82,7 @@ export const useTracking = () => {
   const trackButtonClick = (
     buttonName: string,
     location: string,
-    data?: any
+    data?: unknown
   ) => {
     $trackButtonClick(buttonName, {
       location,
@@ -90,7 +94,7 @@ export const useTracking = () => {
   const trackFormAction = (
     formName: string,
     action: 'submit' | 'start' | 'abandon',
-    data?: any
+    data?: unknown
   ) => {
     $trackFormSubmit(formName, {
       action,
@@ -117,7 +121,7 @@ export const useTracking = () => {
   // User engagement tracking
   const trackEngagement = (
     type: 'scroll' | 'click' | 'hover' | 'focus',
-    data?: any
+    data?: unknown
   ) => {
     $trackInteraction('User Engagement', {
       type,
@@ -127,7 +131,7 @@ export const useTracking = () => {
   }
 
   // Conversion tracking
-  const trackConversion = (goal: string, value?: number, data?: any) => {
+  const trackConversion = (goal: string, value?: number, data?: unknown) => {
     $trackInteraction('Conversion', {
       goal,
       value,

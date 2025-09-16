@@ -54,7 +54,7 @@
         <div class="flex justify-between items-center py-2">
           <span class="text-gray-400">Chain</span>
           <div class="flex items-center gap-2">
-            <div class="w-4 h-4 bg-blue-500 rounded-full"/>
+            <div class="w-4 h-4 bg-blue-500 rounded-full" />
             <span class="text-white">Ethereum</span>
           </div>
         </div>

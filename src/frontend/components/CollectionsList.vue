@@ -11,7 +11,7 @@
           :src="col.image"
           :alt="col.name"
           class="w-8 h-8 rounded-md object-cover"
-        >
+        />
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-1 font-semibold truncate">
             <span class="truncate">{{ col.name }}</span>

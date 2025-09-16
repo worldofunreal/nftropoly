@@ -15,7 +15,9 @@
           </UButton>
           <div>
             <h1 class="text-3xl font-bold text-gray-900">Create Listing</h1>
-            <p class="mt-2 text-gray-600">List your NFT for sale on the marketplace</p>
+            <p class="mt-2 text-gray-600">
+              List your NFT for sale on the marketplace
+            </p>
           </div>
         </div>
       </div>
@@ -106,7 +108,12 @@
           color="red"
           variant="soft"
           :title="error"
-          :close-button="{ icon: 'i-heroicons-x-mark-20-solid', color: 'gray', variant: 'link', padded: false }"
+          :close-button="{
+            icon: 'i-heroicons-x-mark-20-solid',
+            color: 'gray',
+            variant: 'link',
+            padded: false,
+          }"
           @close="error = null"
         />
       </div>
@@ -115,121 +122,123 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAskBuilder } from '~/composables/useAskBuilder'
-import { useMarketplace } from '~/composables/useMarketplace'
-import { useApprovals } from '~/composables/useApprovals'
-import { useAuthStore } from '~/stores/auth'
+  import { ref, computed, onMounted } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { useAskBuilder } from '~/composables/useAskBuilder'
+  import { useMarketplace } from '~/composables/useMarketplace'
+  import { useApprovals } from '~/composables/useApprovals'
+  // import { useAuthStore } from '~/stores/auth'
 
-// Meta
-definePageMeta({
-  title: 'Create Listing',
-  description: 'Create a new NFT listing on the marketplace',
-  middleware: 'auth'
-})
+  // Meta
+  definePageMeta({
+    title: 'Create Listing',
+    description: 'Create a new NFT listing on the marketplace',
+    middleware: 'auth',
+  })
 
-// Composables
-const router = useRouter()
-const askBuilder = useAskBuilder()
-const marketplace = useMarketplace()
-const approvals = useApprovals()
-const authStore = useAuthStore()
+  // Composables
+  const router = useRouter()
+  const askBuilder = useAskBuilder()
+  const marketplace = useMarketplace()
+  const approvals = useApprovals()
+  // const authStore = useAuthStore()
 
-// State
-const currentStep = ref(0)
-const error = ref<string | null>(null)
-const creating = ref(false)
+  // State
+  const currentStep = ref(0)
+  const error = ref<string | null>(null)
+  const creating = ref(false)
 
-const steps = [
-  { id: 'asset', name: 'Select Asset' },
-  { id: 'pricing', name: 'Pricing' },
-  { id: 'options', name: 'Options' },
-  { id: 'review', name: 'Review' }
-]
+  const steps = [
+    { id: 'asset', name: 'Select Asset' },
+    { id: 'pricing', name: 'Pricing' },
+    { id: 'options', name: 'Options' },
+    { id: 'review', name: 'Review' },
+  ]
 
-// Computed
-const isAuthenticated = computed(() => marketplace.isAuthenticated.value)
+  // Computed
+  const isAuthenticated = computed(() => marketplace.isAuthenticated.value)
 
-// Methods
-const getStepClasses = (index: number) => {
-  if (index < currentStep.value) {
-    return 'border-blue-600 bg-blue-600 text-white'
-  } else if (index === currentStep.value) {
-    return 'border-blue-600 text-blue-600'
-  } else {
-    return 'border-gray-300 text-gray-500'
-  }
-}
-
-const getStepTextClasses = (index: number) => {
-  if (index <= currentStep.value) {
-    return 'text-gray-900'
-  } else {
-    return 'text-gray-500'
-  }
-}
-
-const nextStep = () => {
-  if (currentStep.value < steps.length - 1) {
-    currentStep.value++
-  }
-}
-
-const prevStep = () => {
-  if (currentStep.value > 0) {
-    currentStep.value--
-  }
-}
-
-const createListing = async () => {
-  if (!askBuilder.isValid.value) {
-    error.value = 'Please complete all required fields'
-    return
-  }
-
-  try {
-    creating.value = true
-    error.value = null
-
-    // Check if marketplace is approved for the NFT
-    if (askBuilder.state.value.askToken) {
-      const isApproved = approvals.isMarketplaceApprovedForNFT(
-        askBuilder.state.value.askToken.canisterId,
-        askBuilder.state.value.askToken.tokenId!
-      )
-
-      if (!isApproved) {
-        // Show approval modal
-        error.value = 'Please approve the marketplace to transfer your NFT first'
-        return
-      }
-    }
-
-    // Build ask features
-    const features = askBuilder.buildAskFeatures()
-
-    // Create the ask
-    const result = await marketplace.createAsk(features)
-
-    if (result) {
-      // Success - redirect to the created listing
-      router.push('/marketplace/my/asks')
+  // Methods
+  const getStepClasses = (index: number) => {
+    if (index < currentStep.value) {
+      return 'border-blue-600 bg-blue-600 text-white'
+    } else if (index === currentStep.value) {
+      return 'border-blue-600 text-blue-600'
     } else {
-      error.value = 'Failed to create listing. Please try again.'
+      return 'border-gray-300 text-gray-500'
     }
-  } catch (err) {
-    console.error('Failed to create listing:', err)
-    error.value = err instanceof Error ? err.message : 'Failed to create listing'
-  } finally {
-    creating.value = false
   }
-}
 
-// Lifecycle
-onMounted(() => {
-  if (!isAuthenticated.value) {
-    router.push('/marketplace')
+  const getStepTextClasses = (index: number) => {
+    if (index <= currentStep.value) {
+      return 'text-gray-900'
+    } else {
+      return 'text-gray-500'
+    }
   }
-})
+
+  const nextStep = () => {
+    if (currentStep.value < steps.length - 1) {
+      currentStep.value++
+    }
+  }
+
+  const prevStep = () => {
+    if (currentStep.value > 0) {
+      currentStep.value--
+    }
+  }
+
+  const createListing = async () => {
+    if (!askBuilder.isValid.value) {
+      error.value = 'Please complete all required fields'
+      return
+    }
+
+    try {
+      creating.value = true
+      error.value = null
+
+      // Check if marketplace is approved for the NFT
+      if (askBuilder.state.value.askToken) {
+        const isApproved = approvals.isMarketplaceApprovedForNFT(
+          askBuilder.state.value.askToken.canisterId,
+          askBuilder.state.value.askToken.tokenId!
+        )
+
+        if (!isApproved) {
+          // Show approval modal
+          error.value =
+            'Please approve the marketplace to transfer your NFT first'
+          return
+        }
+      }
+
+      // Build ask features
+      const features = askBuilder.buildAskFeatures()
+
+      // Create the ask
+      const result = await marketplace.createAsk(features)
+
+      if (result) {
+        // Success - redirect to the created listing
+        router.push('/marketplace/my/asks')
+      } else {
+        error.value = 'Failed to create listing. Please try again.'
+      }
+    } catch (err) {
+      console.error('Failed to create listing:', err)
+      error.value =
+        err instanceof Error ? err.message : 'Failed to create listing'
+    } finally {
+      creating.value = false
+    }
+  }
+
+  // Lifecycle
+  onMounted(() => {
+    if (!isAuthenticated.value) {
+      router.push('/marketplace')
+    }
+  })
 </script>

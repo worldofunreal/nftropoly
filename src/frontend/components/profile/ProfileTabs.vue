@@ -32,4 +32,7 @@
     'Activity',
   ]
   defineProps<{ modelValue: Tab }>()
+  const _emit = defineEmits<{
+    'update:modelValue': [value: string]
+  }>()
 </script>

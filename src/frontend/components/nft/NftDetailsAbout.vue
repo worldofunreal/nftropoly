@@ -32,7 +32,7 @@
           <div
             class="w-8 h-8 bg-blue-500 rounded flex items-center justify-center"
           >
-            <div class="w-4 h-4 bg-white rounded-sm"/>
+            <div class="w-4 h-4 bg-white rounded-sm" />
           </div>
           <div>
             <div class="text-sm text-gray-400">A collection by</div>

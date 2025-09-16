@@ -21,7 +21,7 @@
         src="https://placehold.co/96x96?text=NFT"
         alt="NFT"
         class="w-24 h-24 rounded-lg shadow mb-4"
-      >
+      />
       <div class="text-xl font-bold mb-2">No collections found</div>
       <div class="text-gray-400 mb-4">Discover new collections on OS2</div>
       <button class="px-4 py-2 rounded bg-primary-600 text-white font-semibold">
@@ -85,7 +85,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="border-b border-gray-200 dark:border-gray-700 h-px"/>
+          <tr class="border-b border-gray-200 dark:border-gray-700 h-px" />
           <tr
             v-for="col in collections"
             :key="col.id"
@@ -97,7 +97,7 @@
                   :src="col.logo"
                   alt="Collection"
                   class="w-12 h-12 rounded-full border border-gray-300 dark:border-gray-700 flex-shrink-0"
-                >
+                />
                 <div class="flex flex-col">
                   <span class="font-semibold text-gray-900 dark:text-white">{{
                     col.name
@@ -171,7 +171,7 @@
       @click="isDrawerOpen = false"
     >
       <!-- Backdrop -->
-      <div class="absolute inset-0 bg-black/50"/>
+      <div class="absolute inset-0 bg-black/50" />
 
       <!-- Drawer Content -->
       <div
@@ -183,7 +183,7 @@
       >
         <!-- Drawer Handle -->
         <div class="flex justify-center pt-3 pb-2 flex-shrink-0">
-          <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full"/>
+          <div class="w-12 h-1 bg-gray-300 dark:bg-gray-600 rounded-full" />
         </div>
 
         <!-- Drawer Header -->
@@ -215,7 +215,7 @@
               type="text"
               placeholder="Search collections..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-            >
+            />
           </div>
 
           <!-- Chains Filter -->
@@ -227,7 +227,7 @@
               type="text"
               placeholder="Search chains..."
               class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950 mb-3"
-            >
+            />
             <div class="flex flex-wrap gap-2">
               <button
                 v-for="chain in chains"
@@ -268,12 +268,12 @@
                 type="text"
                 placeholder="Min value"
                 class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-              >
+              />
               <input
                 type="text"
                 placeholder="Max value"
                 class="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-neutral-950"
-              >
+              />
             </div>
           </div>
 

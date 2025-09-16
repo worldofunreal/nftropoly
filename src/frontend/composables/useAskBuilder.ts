@@ -1,37 +1,37 @@
 import { ref, computed } from 'vue'
-import type { 
-  AskFeature, 
-  TokenSpec, 
+import type {
+  AskFeature,
+  TokenSpec,
   Account,
   AuctionFeature,
   DutchAuctionFeature,
   AMMFeature,
   EndingType,
-  BuyNowReq
+  BuyNowReq,
 } from '../../declarations/marketplace/marketplace.did'
 import { textToPrincipal, parseTokenAmount } from '~/utils/marketplace'
 
 export interface AskBuilderState {
   // Basic ask info
   askType: 'buynow' | 'auction' | 'dutch' | 'amm'
-  
+
   // Token being sold
   askToken: {
     canisterId: string
     tokenId?: bigint
     symbol: string
   } | null
-  
+
   // Payment token
   paymentToken: {
     canisterId: string
     symbol: string
     decimals: number
   } | null
-  
+
   // BuyNow specific
   buyNowPrice: string
-  
+
   // Auction specific
   auction: {
     startPrice: string
@@ -48,7 +48,7 @@ export interface AskBuilderState {
       max: string
     }
   }
-  
+
   // Dutch auction specific
   dutch: {
     startPrice: string
@@ -58,7 +58,7 @@ export interface AskBuilderState {
     decayType: 'flat' | 'percent'
     decayValue: string
   }
-  
+
   // AMM specific
   amm: {
     token1: TokenSpec | null
@@ -67,7 +67,7 @@ export interface AskBuilderState {
     min: string
     decimals: number
   }
-  
+
   // Common options
   options: {
     ending: EndingType | null
@@ -92,7 +92,7 @@ export const useAskBuilder = () => {
       reservePrice: '',
       minIncrease: { type: 'amount', value: '' },
       endDate: undefined,
-      waitForQuiet: undefined
+      waitForQuiet: undefined,
     },
     dutch: {
       startPrice: '',
@@ -100,14 +100,14 @@ export const useAskBuilder = () => {
       timeUnit: 'hour',
       timeValue: '24',
       decayType: 'flat',
-      decayValue: ''
+      decayValue: '',
     },
     amm: {
       token1: null,
       token2: null,
       max: '',
       min: '',
-      decimals: 8
+      decimals: 8,
     },
     options: {
       ending: null,
@@ -117,32 +117,42 @@ export const useAskBuilder = () => {
       allowList: [],
       memo: undefined,
       feeAccounts: [],
-      bidPaysFees: []
-    }
+      bidPaysFees: [],
+    },
   })
 
   // Computed properties
   const isValid = computed(() => {
     if (!state.value.askToken || !state.value.paymentToken) return false
-    
+
     switch (state.value.askType) {
       case 'buynow':
-        return state.value.buyNowPrice !== '' && parseFloat(state.value.buyNowPrice) > 0
+        return (
+          state.value.buyNowPrice !== '' &&
+          parseFloat(state.value.buyNowPrice) > 0
+        )
       case 'auction':
-        return state.value.auction.startPrice !== '' && 
-               state.value.auction.reservePrice !== '' &&
-               parseFloat(state.value.auction.startPrice) > 0 &&
-               parseFloat(state.value.auction.reservePrice) > 0
+        return (
+          state.value.auction.startPrice !== '' &&
+          state.value.auction.reservePrice !== '' &&
+          parseFloat(state.value.auction.startPrice) > 0 &&
+          parseFloat(state.value.auction.reservePrice) > 0
+        )
       case 'dutch':
-        return state.value.dutch.startPrice !== '' && 
-               state.value.dutch.endPrice !== '' &&
-               state.value.dutch.timeValue !== '' &&
-               parseFloat(state.value.dutch.startPrice) > parseFloat(state.value.dutch.endPrice)
+        return (
+          state.value.dutch.startPrice !== '' &&
+          state.value.dutch.endPrice !== '' &&
+          state.value.dutch.timeValue !== '' &&
+          parseFloat(state.value.dutch.startPrice) >
+            parseFloat(state.value.dutch.endPrice)
+        )
       case 'amm':
-        return state.value.amm.token1 !== null && 
-               state.value.amm.token2 !== null &&
-               state.value.amm.max !== '' &&
-               state.value.amm.min !== ''
+        return (
+          state.value.amm.token1 !== null &&
+          state.value.amm.token2 !== null &&
+          state.value.amm.max !== '' &&
+          state.value.amm.min !== ''
+        )
       default:
         return false
     }
@@ -153,7 +163,7 @@ export const useAskBuilder = () => {
     return {
       marketplace: '0.025', // 2.5%
       network: '0.001', // 0.1%
-      total: '0.026' // 2.6%
+      total: '0.026', // 2.6%
     }
   })
 
@@ -191,18 +201,24 @@ export const useAskBuilder = () => {
   }
 
   const addAllowListMember = (account: Account) => {
-    if (!state.value.options.allowList.find(a => 
-      a.owner.toString() === account.owner.toString() &&
-      JSON.stringify(a.subaccount) === JSON.stringify(account.subaccount)
-    )) {
+    if (
+      !state.value.options.allowList.find(
+        a =>
+          a.owner.toString() === account.owner.toString() &&
+          JSON.stringify(a.subaccount) === JSON.stringify(account.subaccount)
+      )
+    ) {
       state.value.options.allowList.push(account)
     }
   }
 
   const removeAllowListMember = (account: Account) => {
-    state.value.options.allowList = state.value.options.allowList.filter(a => 
-      !(a.owner.toString() === account.owner.toString() &&
-        JSON.stringify(a.subaccount) === JSON.stringify(account.subaccount))
+    state.value.options.allowList = state.value.options.allowList.filter(
+      a =>
+        !(
+          a.owner.toString() === account.owner.toString() &&
+          JSON.stringify(a.subaccount) === JSON.stringify(account.subaccount)
+        )
     )
   }
 
@@ -226,79 +242,135 @@ export const useAskBuilder = () => {
     const askTokenSpec: TokenSpec = {
       canister: textToPrincipal(state.value.askToken.canisterId),
       symbol: state.value.askToken.symbol,
-      standards: [{
-        ICRC37: [{
-          token_id: state.value.askToken.tokenId ? [state.value.askToken.tokenId] : [],
-          approval_fee: [],
-          transfer_from_fee: []
-        }]
-      }]
+      standards: [
+        {
+          ICRC37: [
+            {
+              token_id: state.value.askToken.tokenId
+                ? [state.value.askToken.tokenId]
+                : [],
+              approval_fee: [],
+              transfer_from_fee: [],
+            },
+          ],
+        },
+      ],
     }
 
     features.push({
-      AskToken: [[askTokenSpec]]
+      AskToken: [[askTokenSpec]],
     })
 
     // Payment token spec
     const paymentTokenSpec: TokenSpec = {
       canister: textToPrincipal(state.value.paymentToken.canisterId),
       symbol: state.value.paymentToken.symbol,
-      standards: [{
-        ICRC1: [{
-          amount: parseTokenAmount(state.value.buyNowPrice, state.value.paymentToken.decimals),
-          fee: [],
-          decimals: BigInt(state.value.paymentToken.decimals)
-        }]
-      }]
+      standards: [
+        {
+          ICRC1: [
+            {
+              amount: parseTokenAmount(
+                state.value.buyNowPrice,
+                state.value.paymentToken.decimals
+              ),
+              fee: [],
+              decimals: BigInt(state.value.paymentToken.decimals),
+            },
+          ],
+        },
+      ],
     }
 
     // Ask type specific features
     switch (state.value.askType) {
-      case 'buynow':
+      case 'buynow': {
         const buyNowReq: BuyNowReq = {
           token: paymentTokenSpec,
-          amount: parseTokenAmount(state.value.buyNowPrice, state.value.paymentToken.decimals)
+          amount: parseTokenAmount(
+            state.value.buyNowPrice,
+            state.value.paymentToken.decimals
+          ),
         }
         features.push({
-          BuyNow: [[buyNowReq]]
+          BuyNow: [[buyNowReq]],
         })
         break
+      }
 
-      case 'auction':
+      case 'auction': {
         const auctionFeature: AuctionFeature = {
-          start_price: parseTokenAmount(state.value.auction.startPrice, state.value.paymentToken.decimals),
-          reserve: parseTokenAmount(state.value.auction.reservePrice, state.value.paymentToken.decimals),
-          min_increase: state.value.auction.minIncrease.type === 'amount' 
-            ? { amount: parseTokenAmount(state.value.auction.minIncrease.value, state.value.paymentToken.decimals) }
-            : { percentage: parseFloat(state.value.auction.minIncrease.value) },
+          start_price: parseTokenAmount(
+            state.value.auction.startPrice,
+            state.value.paymentToken.decimals
+          ),
+          reserve: parseTokenAmount(
+            state.value.auction.reservePrice,
+            state.value.paymentToken.decimals
+          ),
+          min_increase:
+            state.value.auction.minIncrease.type === 'amount'
+              ? {
+                  amount: parseTokenAmount(
+                    state.value.auction.minIncrease.value,
+                    state.value.paymentToken.decimals
+                  ),
+                }
+              : {
+                  percentage: parseFloat(state.value.auction.minIncrease.value),
+                },
           auction_token: paymentTokenSpec,
-          wait_for_quiet: state.value.auction.waitForQuiet ? [{
-            window: BigInt(parseInt(state.value.auction.waitForQuiet.window) * 1000000000), // Convert to nanoseconds
-            extension: BigInt(parseInt(state.value.auction.waitForQuiet.extension) * 1000000000),
-            fade: parseFloat(state.value.auction.waitForQuiet.fade),
-            max: parseTokenAmount(state.value.auction.waitForQuiet.max, state.value.paymentToken.decimals)
-          }] : []
+          wait_for_quiet: state.value.auction.waitForQuiet
+            ? [
+                {
+                  window: BigInt(
+                    parseInt(state.value.auction.waitForQuiet.window) *
+                      1000000000
+                  ), // Convert to nanoseconds
+                  extension: BigInt(
+                    parseInt(state.value.auction.waitForQuiet.extension) *
+                      1000000000
+                  ),
+                  fade: parseFloat(state.value.auction.waitForQuiet.fade),
+                  max: parseTokenAmount(
+                    state.value.auction.waitForQuiet.max,
+                    state.value.paymentToken.decimals
+                  ),
+                },
+              ]
+            : [],
         }
         features.push({
-          Auction: auctionFeature
+          Auction: auctionFeature,
         })
         break
+      }
 
-      case 'dutch':
+      case 'dutch': {
         const dutchFeature: DutchAuctionFeature = {
           dutch: {
-            time_unit: { [state.value.dutch.timeUnit]: BigInt(parseInt(state.value.dutch.timeValue)) },
-            decay_type: state.value.dutch.decayType === 'flat' 
-              ? { flat: parseTokenAmount(state.value.dutch.decayValue, state.value.paymentToken.decimals) }
-              : { percent: parseFloat(state.value.dutch.decayValue) }
-          }
+            time_unit: {
+              [state.value.dutch.timeUnit]: BigInt(
+                parseInt(state.value.dutch.timeValue)
+              ),
+            },
+            decay_type:
+              state.value.dutch.decayType === 'flat'
+                ? {
+                    flat: parseTokenAmount(
+                      state.value.dutch.decayValue,
+                      state.value.paymentToken.decimals
+                    ),
+                  }
+                : { percent: parseFloat(state.value.dutch.decayValue) },
+          },
         }
         features.push({
-          Dutch: dutchFeature
+          Dutch: dutchFeature,
         })
         break
+      }
 
-      case 'amm':
+      case 'amm': {
         if (!state.value.amm.token1 || !state.value.amm.token2) {
           throw new Error('Both tokens are required for AMM')
         }
@@ -306,63 +378,70 @@ export const useAskBuilder = () => {
           amm: {
             token_1: state.value.amm.token1,
             token_2: state.value.amm.token2,
-            max: parseTokenAmount(state.value.amm.max, state.value.amm.decimals),
-            min: parseTokenAmount(state.value.amm.min, state.value.amm.decimals),
-            decimals: state.value.amm.decimals
-          }
+            max: parseTokenAmount(
+              state.value.amm.max,
+              state.value.amm.decimals
+            ),
+            min: parseTokenAmount(
+              state.value.amm.min,
+              state.value.amm.decimals
+            ),
+            decimals: state.value.amm.decimals,
+          },
         }
         features.push({
-          AMM: ammFeature
+          AMM: ammFeature,
         })
         break
+      }
     }
 
     // Common options
     if (state.value.options.ending) {
       features.push({
-        Ending: state.value.options.ending
+        Ending: state.value.options.ending,
       })
     }
 
     if (state.value.options.startDate) {
       features.push({
-        StartDate: BigInt(state.value.options.startDate.getTime() * 1000000) // Convert to nanoseconds
+        StartDate: BigInt(state.value.options.startDate.getTime() * 1000000), // Convert to nanoseconds
       })
     }
 
     if (state.value.options.allowPartial) {
       features.push({
-        AllowPartial: null
+        AllowPartial: null,
       })
     }
 
     if (state.value.options.broker) {
       features.push({
-        Broker: state.value.options.broker
+        Broker: state.value.options.broker,
       })
     }
 
     if (state.value.options.allowList.length > 0) {
       features.push({
-        AllowList: state.value.options.allowList
+        AllowList: state.value.options.allowList,
       })
     }
 
     if (state.value.options.memo) {
       features.push({
-        Memo: state.value.options.memo
+        Memo: state.value.options.memo,
       })
     }
 
     if (state.value.options.feeAccounts.length > 0) {
       features.push({
-        FeeAccounts: state.value.options.feeAccounts
+        FeeAccounts: state.value.options.feeAccounts,
       })
     }
 
     if (state.value.options.bidPaysFees.length > 0) {
       features.push({
-        BidPaysFees: [state.value.options.bidPaysFees]
+        BidPaysFees: [state.value.options.bidPaysFees],
       })
     }
 
@@ -381,7 +460,7 @@ export const useAskBuilder = () => {
         reservePrice: '',
         minIncrease: { type: 'amount', value: '' },
         endDate: undefined,
-        waitForQuiet: undefined
+        waitForQuiet: undefined,
       },
       dutch: {
         startPrice: '',
@@ -389,14 +468,14 @@ export const useAskBuilder = () => {
         timeUnit: 'hour',
         timeValue: '24',
         decayType: 'flat',
-        decayValue: ''
+        decayValue: '',
       },
       amm: {
         token1: null,
         token2: null,
         max: '',
         min: '',
-        decimals: 8
+        decimals: 8,
       },
       options: {
         ending: null,
@@ -406,8 +485,8 @@ export const useAskBuilder = () => {
         allowList: [],
         memo: undefined,
         feeAccounts: [],
-        bidPaysFees: []
-      }
+        bidPaysFees: [],
+      },
     }
   }
 
@@ -431,6 +510,6 @@ export const useAskBuilder = () => {
     addFeeAccount,
     removeFeeAccount,
     buildAskFeatures,
-    reset
+    reset,
   }
 }

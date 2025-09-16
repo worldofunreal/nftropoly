@@ -10,7 +10,7 @@
         <div class="text-lg font-semibold text-gray-900">{{ currentBid }}</div>
       </div>
     </div>
-    
+
     <!-- Progress Bar -->
     <div class="mt-4">
       <div class="flex justify-between text-xs text-gray-500 mb-1">
@@ -29,60 +29,63 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import type { AuctionInfo } from '../../declarations/marketplace/marketplace.did'
-import { formatTokenAmount, getTimeRemaining } from '~/utils/marketplace'
+  import { computed, onMounted, onUnmounted, ref } from 'vue'
+  import type { AuctionInfo } from '../../declarations/marketplace/marketplace.did'
+  import { formatTokenAmount, getTimeRemaining } from '~/utils/marketplace'
 
-interface Props {
-  auctionInfo: AuctionInfo
-}
-
-const props = defineProps<Props>()
-
-const now = ref(BigInt(Date.now() * 1000000))
-let interval: NodeJS.Timeout
-
-const timeRemaining = computed(() => {
-  if (props.auctionInfo.end_date?.[0]) {
-    return getTimeRemaining(props.auctionInfo.end_date[0])
+  interface Props {
+    auctionInfo: AuctionInfo
   }
-  return 'N/A'
-})
 
-const currentBid = computed(() => {
-  if (props.auctionInfo.current_bid_amount?.[0]) {
-    return formatTokenAmount(props.auctionInfo.current_bid_amount[0], 8)
-  }
-  return 'No bids'
-})
+  const props = defineProps<Props>()
 
-const progressPercentage = computed(() => {
-  if (!props.auctionInfo.start_date?.[0] || !props.auctionInfo.end_date?.[0]) {
-    return 0
-  }
-  
-  const start = props.auctionInfo.start_date[0]
-  const end = props.auctionInfo.end_date[0]
-  const current = now.value
-  
-  if (current <= start) return 0
-  if (current >= end) return 100
-  
-  const total = end - start
-  const elapsed = current - start
-  
-  return Math.min(100, Math.max(0, Number((elapsed * BigInt(100)) / total)))
-})
+  const now = ref(BigInt(Date.now() * 1000000))
+  let interval: NodeJS.Timeout
 
-onMounted(() => {
-  interval = setInterval(() => {
-    now.value = BigInt(Date.now() * 1000000)
-  }, 1000)
-})
+  const timeRemaining = computed(() => {
+    if (props.auctionInfo.end_date?.[0]) {
+      return getTimeRemaining(props.auctionInfo.end_date[0])
+    }
+    return 'N/A'
+  })
 
-onUnmounted(() => {
-  if (interval) {
-    clearInterval(interval)
-  }
-})
+  const currentBid = computed(() => {
+    if (props.auctionInfo.current_bid_amount?.[0]) {
+      return formatTokenAmount(props.auctionInfo.current_bid_amount[0], 8)
+    }
+    return 'No bids'
+  })
+
+  const progressPercentage = computed(() => {
+    if (
+      !props.auctionInfo.start_date?.[0] ||
+      !props.auctionInfo.end_date?.[0]
+    ) {
+      return 0
+    }
+
+    const start = props.auctionInfo.start_date[0]
+    const end = props.auctionInfo.end_date[0]
+    const current = now.value
+
+    if (current <= start) return 0
+    if (current >= end) return 100
+
+    const total = end - start
+    const elapsed = current - start
+
+    return Math.min(100, Math.max(0, Number((elapsed * BigInt(100)) / total)))
+  })
+
+  onMounted(() => {
+    interval = setInterval(() => {
+      now.value = BigInt(Date.now() * 1000000)
+    }, 1000)
+  })
+
+  onUnmounted(() => {
+    if (interval) {
+      clearInterval(interval)
+    }
+  })
 </script>

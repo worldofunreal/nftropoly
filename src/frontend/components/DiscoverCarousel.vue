@@ -38,7 +38,7 @@
               :src="col.image"
               :alt="col.name"
               class="object-cover w-full h-full"
-            >
+            />
             <!-- Gradient overlay -->
             <div
               class="absolute inset-0"

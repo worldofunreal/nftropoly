@@ -3,7 +3,7 @@ import { CrossChainSeedService } from '../../CrossChainSeedService'
 
 declare global {
   interface Window {
-    ethereum?: any
+    ethereum?: { request: (args: { method: string }) => Promise<string[]> }
   }
 }
 
@@ -52,11 +52,11 @@ export class MetaMaskAdapter implements WalletAdapter {
       const signature = await this.signMessage(message, evmAddress)
       console.log('Signed message with MetaMask')
       const seed = await CrossChainSeedService.fromSignature(signature)
-      
+
       const [principal, solAddress, btcAddress] = await Promise.all([
         CrossChainSeedService.toIcpPrincipal(seed),
         CrossChainSeedService.toSolAddress(seed),
-        CrossChainSeedService.toBtcAddress(seed)
+        CrossChainSeedService.toBtcAddress(seed),
       ])
 
       return {
@@ -65,9 +65,9 @@ export class MetaMaskAdapter implements WalletAdapter {
         solAddress,
         btcAddress,
         nativeWallet: 'metamask',
-        signature
+        signature,
       }
-    } catch (error) {
+    } catch {
       throw new Error(`MetaMask authentication canceled`)
     }
   }

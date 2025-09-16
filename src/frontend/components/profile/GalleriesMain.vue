@@ -11,7 +11,7 @@
           src="https://undraw.co/api/illustrations/undraw_add_to_cart_re_wrdo.svg"
           alt="Create Gallery"
           class="w-32 h-32"
-        >
+        />
       </div>
       <div class="text-2xl font-bold mb-2">No Galleries Yet</div>
       <div class="text-gray-400 mb-4 text-center max-w-md">
@@ -42,7 +42,7 @@
             :src="gallery.cover"
             alt="Gallery Cover"
             class="w-full h-40 object-cover rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm"
-          >
+          />
           <span
             class="absolute top-2 right-2 bg-white/80 dark:bg-neutral-900/80 text-xs px-2 py-1 rounded shadow group-hover:bg-primary-600 group-hover:text-white transition"
           >

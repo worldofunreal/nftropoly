@@ -8,7 +8,7 @@
         src="https://placehold.co/96x96?text=NFT"
         alt="NFT"
         class="w-24 h-24 rounded-lg shadow mb-4"
-      >
+      />
       <div class="text-xl font-bold mb-2">No results found</div>
       <div class="text-gray-400 mb-4">
         No watchlist collections found. Add some to your watchlist.
@@ -64,7 +64,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr class="border-b border-gray-200 dark:border-gray-700 h-px"/>
+          <tr class="border-b border-gray-200 dark:border-gray-700 h-px" />
           <tr
             v-for="col in collections"
             :key="col.id"
@@ -76,7 +76,7 @@
                   :src="col.logo"
                   alt="Collection"
                   class="w-12 h-12 rounded-full border border-gray-300 dark:border-gray-700 flex-shrink-0"
-                >
+                />
                 <div class="flex flex-col">
                   <span class="font-semibold text-gray-900 dark:text-white">{{
                     col.name

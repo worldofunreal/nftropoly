@@ -36,7 +36,7 @@
               :src="drop.image"
               :alt="drop.name"
               class="object-cover w-full h-full"
-            >
+            />
             <span
               class="absolute top-2 left-2 bg-emerald-600 text-white text-xs font-bold px-2 py-1 rounded shadow"
               >MINTING NOW</span

@@ -53,7 +53,7 @@
   import { ref, provide, onMounted, nextTick } from 'vue'
   import { useNuxtApp } from '#imports'
   import { useAuthStore } from '@/stores/auth'
-  import { useTheme } from '@/composables/useTheme'
+  // import { useTheme } from '@/composables/useTheme'
   import SidebarNav from './components/SidebarNav.vue'
   import MobileSidebar from './components/MobileSidebar.vue'
   import Header from './components/Header.vue'
@@ -61,10 +61,13 @@
   import LoginPanel from './components/LoginPanel.vue'
   // Temporarily disabled for performance optimization
   // import DisclaimerModal from './components/DisclaimerModal.vue'
-  import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
-  import OnboardingTrigger from './components/onBoardingTour/OnboardingTrigger.vue'
+  // import OnboardingTour from './components/onBoardingTour/OnboardingTour.vue'
+  // import OnboardingTrigger from './components/onBoardingTour/OnboardingTrigger.vue'
 
-  const loginPanelRef = ref<{ open: () => void; showRegistrationModal: () => void } | null>(null)
+  const loginPanelRef = ref<{
+    open: () => void
+    showRegistrationModal: () => void
+  } | null>(null)
   // Temporarily disabled for performance optimization
   // const disclaimerModalRef = ref<{
   //   open: () => void
@@ -100,15 +103,15 @@
   onMounted(async () => {
     // Theme is now handled automatically by Nuxt color mode
     // No need to manually initialize
-    
+
     // Temporarily disabled onboarding tour until issues are resolved
     // // Initialize onboarding
     // const { shouldShowOnboarding, startTour } = useOnboarding()
-    
+
     // Restore session if available
     const auth = useAuthStore()
     const toast = useToast()
-    
+
     if (auth.hasValidSession) {
       console.log('Valid session found, attempting to restore...')
       const restored = await auth.restoreSession()

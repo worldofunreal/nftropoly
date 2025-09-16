@@ -91,7 +91,7 @@ export default defineNuxtPlugin(nuxtApp => {
   })
 
   // Track user interactions globally
-  const trackInteraction = (event: string, data?: any) => {
+  const trackInteraction = (event: string, data?: unknown) => {
     if (!hasConsent()) return
     try {
       // Use setTag for custom events since Clarity doesn't have a direct event method
@@ -113,22 +113,22 @@ export default defineNuxtPlugin(nuxtApp => {
     provide: {
       clarity: Clarity,
       trackInteraction,
-      trackPageView: (pageName: string, data?: any) => {
+      trackPageView: (pageName: string, data?: unknown) => {
         trackInteraction('Page View', { pageName, ...data })
       },
-      trackButtonClick: (buttonName: string, data?: any) => {
+      trackButtonClick: (buttonName: string, data?: unknown) => {
         trackInteraction('Button Click', { buttonName, ...data })
       },
-      trackFormSubmit: (formName: string, data?: any) => {
+      trackFormSubmit: (formName: string, data?: unknown) => {
         trackInteraction('Form Submit', { formName, ...data })
       },
-      trackWalletConnect: (walletType: string, data?: any) => {
+      trackWalletConnect: (walletType: string, data?: unknown) => {
         trackInteraction('Wallet Connect', { walletType, ...data })
       },
-      trackNavigation: (from: string, to: string, data?: any) => {
+      trackNavigation: (from: string, to: string, data?: unknown) => {
         trackInteraction('Navigation', { from, to, ...data })
       },
-      trackError: (error: string, data?: any) => {
+      trackError: (error: string, data?: unknown) => {
         trackInteraction('Error', { error, ...data })
       },
     },

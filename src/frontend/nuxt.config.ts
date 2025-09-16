@@ -19,7 +19,7 @@ export default defineNuxtConfig({
   colorMode: {
     preference: 'system',
     fallback: 'dark',
-    storageKey: 'nftropoly-theme'
+    storageKey: 'nftropoly-theme',
   },
 
   fonts: {
@@ -90,25 +90,29 @@ export default defineNuxtConfig({
         crypto: 'crypto-browserify',
         stream: 'stream-browserify',
         // Backend declarations (currently using client-side only)
-        'declarations/backend': require('path').resolve(__dirname, '../../declarations/backend'),
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        'declarations/backend': require('path').resolve(
+          __dirname,
+          '../../declarations/backend'
+        ),
       },
     },
     optimizeDeps: {
       include: [
-        'buffer', 
-        'process', 
-        'util', 
-        'bitcoinjs-lib', 
-        'ecpair', 
-        'tiny-secp256k1', 
-        'crypto-browserify', 
+        'buffer',
+        'process',
+        'util',
+        'bitcoinjs-lib',
+        'ecpair',
+        'tiny-secp256k1',
+        'crypto-browserify',
         'stream-browserify',
         '@dfinity/principal',
         '@dfinity/agent',
         '@dfinity/candid',
-        '@solana/web3.js'
+        '@solana/web3.js',
       ],
-      exclude: ['@microsoft/clarity']
+      exclude: ['@microsoft/clarity'],
     },
     build: {
       chunkSizeWarningLimit: 1000,
@@ -116,15 +120,22 @@ export default defineNuxtConfig({
         output: {
           manualChunks: {
             // Split vendor chunks for better caching
-            'bitcoin': ['bitcoinjs-lib', 'ecpair', 'tiny-secp256k1'],
-            'crypto': ['crypto-browserify', 'stream-browserify', 'buffer', 'process', 'util'],
-            'chart': ['chart.js', 'vue-chartjs'],
-            'ethers': ['ethers']
+            bitcoin: ['bitcoinjs-lib', 'ecpair', 'tiny-secp256k1'],
+            crypto: [
+              'crypto-browserify',
+              'stream-browserify',
+              'buffer',
+              'process',
+              'util',
+            ],
+            chart: ['chart.js', 'vue-chartjs'],
+            ethers: ['ethers'],
           },
         },
       },
     },
     plugins: [
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       require('vite-plugin-wasm')(),
     ],
     // Ensure WASM files are properly handled
@@ -139,10 +150,10 @@ export default defineNuxtConfig({
         '@dfinity/agent',
         '@dfinity/principal',
         '@dfinity/candid',
-        '@dfinity/identity', 
+        '@dfinity/identity',
         '@dfinity/auth-client',
         '@solana/web3.js',
-        '@microsoft/clarity'
+        '@microsoft/clarity',
       ],
     },
     nodeModulesDirs: ['../../node_modules'],
@@ -151,7 +162,11 @@ export default defineNuxtConfig({
       process: 'process',
       util: 'util',
       // Backend declarations (currently using client-side only)
-      'declarations/backend': require('path').resolve(__dirname, '../../declarations/backend'),
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      'declarations/backend': require('path').resolve(
+        __dirname,
+        '../../declarations/backend'
+      ),
     },
     // Add @dfinity packages to server dependencies
     externals: {
@@ -176,8 +191,8 @@ export default defineNuxtConfig({
       '@dfinity/principal',
       '@dfinity/candid',
       '@dfinity/identity',
-      '@dfinity/auth-client'
-    ]
+      '@dfinity/auth-client',
+    ],
   },
   // Disable source maps in production for better performance
   sourcemap: process.env.NODE_ENV === 'development',

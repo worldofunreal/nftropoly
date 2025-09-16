@@ -6,7 +6,9 @@
         <div class="flex justify-between items-center py-6">
           <div>
             <h1 class="text-3xl font-bold text-gray-900">Marketplace</h1>
-            <p class="mt-2 text-gray-600">Discover and trade NFTs on the NFTropoly marketplace</p>
+            <p class="mt-2 text-gray-600">
+              Discover and trade NFTs on the NFTropoly marketplace
+            </p>
           </div>
           <div class="flex space-x-4">
             <UButton
@@ -19,10 +21,10 @@
             </UButton>
             <UButton
               v-else
-              @click="login"
               icon="i-heroicons-user"
               variant="outline"
               size="lg"
+              @click="login"
             >
               Connect Wallet
             </UButton>
@@ -66,15 +68,15 @@
               class="bg-white rounded-lg shadow-sm border p-6 animate-pulse"
             >
               <div class="flex space-x-4">
-                <div class="w-24 h-24 bg-gray-200 rounded-lg"></div>
+                <div class="w-24 h-24 bg-gray-200 rounded-lg" />
                 <div class="flex-1 space-y-2">
-                  <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div class="h-3 bg-gray-200 rounded w-1/2"></div>
-                  <div class="h-3 bg-gray-200 rounded w-1/4"></div>
+                  <div class="h-4 bg-gray-200 rounded w-3/4" />
+                  <div class="h-3 bg-gray-200 rounded w-1/2" />
+                  <div class="h-3 bg-gray-200 rounded w-1/4" />
                 </div>
                 <div class="w-32 space-y-2">
-                  <div class="h-4 bg-gray-200 rounded"></div>
-                  <div class="h-8 bg-gray-200 rounded"></div>
+                  <div class="h-4 bg-gray-200 rounded" />
+                  <div class="h-8 bg-gray-200 rounded" />
                 </div>
               </div>
             </div>
@@ -83,11 +85,16 @@
           <!-- Error State -->
           <div v-else-if="activeAsksError" class="text-center py-12">
             <div class="text-red-600 mb-4">
-              <UIcon name="i-heroicons-exclamation-triangle" class="w-12 h-12 mx-auto" />
+              <UIcon
+                name="i-heroicons-exclamation-triangle"
+                class="w-12 h-12 mx-auto"
+              />
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Failed to load listings</h3>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+              Failed to load listings
+            </h3>
             <p class="text-gray-600 mb-4">{{ activeAsksError }}</p>
-            <UButton @click="loadActiveAsks" variant="outline">
+            <UButton variant="outline" @click="loadActiveAsks">
               Try Again
             </UButton>
           </div>
@@ -97,7 +104,9 @@
             <div class="text-gray-400 mb-4">
               <UIcon name="i-heroicons-cube" class="w-12 h-12 mx-auto" />
             </div>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">No listings found</h3>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+              No listings found
+            </h3>
             <p class="text-gray-600 mb-4">
               Try adjusting your filters or check back later for new listings.
             </p>
@@ -130,9 +139,9 @@
                   default: {
                     size: 'sm',
                     activeButton: {
-                      variant: 'outline'
-                    }
-                  }
+                      variant: 'outline',
+                    },
+                  },
                 }"
                 @update:model-value="handlePageChange"
               />
@@ -145,91 +154,92 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import { useMarketplace } from '~/composables/useMarketplace'
-import { useAskPagination } from '~/composables/usePagination'
-import { useAuthStore } from '~/stores/auth'
-import type { AskStatus } from '../../declarations/marketplace/marketplace.did'
+  import { ref, computed, onMounted, watch } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { useMarketplace } from '~/composables/useMarketplace'
+  import { useAskPagination } from '~/composables/usePagination'
+  // import { useAuthStore } from '~/stores/auth'
+  import type { AskStatus } from '../../declarations/marketplace/marketplace.did'
 
-// Meta
-definePageMeta({
-  title: 'Marketplace',
-  description: 'Discover and trade NFTs on the NFTropoly marketplace'
-})
+  // Meta
+  definePageMeta({
+    title: 'Marketplace',
+    description: 'Discover and trade NFTs on the NFTropoly marketplace',
+  })
 
-// Composables
-const router = useRouter()
-const marketplace = useMarketplace()
-const pagination = useAskPagination({ pageSize: 20 })
-const authStore = useAuthStore()
+  // Composables
+  const router = useRouter()
+  const marketplace = useMarketplace()
+  const pagination = useAskPagination({ pageSize: 20 })
+  // const authStore = useAuthStore()
 
-// State
-const filters = ref({
-  status: ['Open'],
-  priceRange: { min: '', max: '' },
-  tokenTypes: [],
-  sortBy: 'date' as 'price' | 'date' | 'popularity',
-  sortOrder: 'desc' as 'asc' | 'desc'
-})
+  // State
+  const filters = ref({
+    status: ['Open'],
+    priceRange: { min: '', max: '' },
+    tokenTypes: [],
+    sortBy: 'date' as 'price' | 'date' | 'popularity',
+    sortOrder: 'desc' as 'asc' | 'desc',
+  })
 
-// Computed
-const isAuthenticated = computed(() => marketplace.isAuthenticated.value)
-const activeAsks = computed(() => marketplace.activeAsks.value)
-const activeAsksLoading = computed(() => marketplace.activeAsksLoading.value)
-const activeAsksError = computed(() => marketplace.activeAsksError.value)
+  // Computed
+  const isAuthenticated = computed(() => marketplace.isAuthenticated.value)
+  const activeAsks = computed(() => marketplace.activeAsks.value)
+  const activeAsksLoading = computed(() => marketplace.activeAsksLoading.value)
+  const activeAsksError = computed(() => marketplace.activeAsksError.value)
 
-const paginatedAsks = computed(() => {
-  const start = (pagination.state.value.page - 1) * pagination.state.value.pageSize
-  const end = start + pagination.state.value.pageSize
-  return activeAsks.value.slice(start, end)
-})
+  const paginatedAsks = computed(() => {
+    const start =
+      (pagination.state.value.page - 1) * pagination.state.value.pageSize
+    const end = start + pagination.state.value.pageSize
+    return activeAsks.value.slice(start, end)
+  })
 
-// Methods
-const loadActiveAsks = async () => {
-  try {
-    await marketplace.loadActiveAsks()
-  } catch (error) {
-    console.error('Failed to load active asks:', error)
+  // Methods
+  const loadActiveAsks = async () => {
+    try {
+      await marketplace.loadActiveAsks()
+    } catch (error) {
+      console.error('Failed to load active asks:', error)
+    }
   }
-}
 
-const handleFiltersUpdate = (newFilters: any) => {
-  filters.value = { ...filters.value, ...newFilters }
-  marketplace.updateFilters(filters.value)
-  pagination.firstPage()
-}
-
-const handleSortUpdate = () => {
-  marketplace.updateFilters(filters.value)
-}
-
-const handlePageChange = (page: number) => {
-  pagination.setPage(page)
-  // Scroll to top
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
-const handleAskClick = (ask: AskStatus) => {
-  router.push(`/marketplace/${ask.ask_id.toString()}`)
-}
-
-const login = () => {
-  // This would trigger wallet connection
-  console.log('Login requested')
-}
-
-// Lifecycle
-onMounted(async () => {
-  if (isAuthenticated.value) {
-    await loadActiveAsks()
+  const handleFiltersUpdate = (newFilters: unknown) => {
+    filters.value = { ...filters.value, ...newFilters }
+    marketplace.updateFilters(filters.value)
+    pagination.firstPage()
   }
-})
 
-// Watch for authentication changes
-watch(isAuthenticated, (authenticated) => {
-  if (authenticated) {
-    loadActiveAsks()
+  const handleSortUpdate = () => {
+    marketplace.updateFilters(filters.value)
   }
-})
+
+  const handlePageChange = (page: number) => {
+    pagination.setPage(page)
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleAskClick = (ask: AskStatus) => {
+    router.push(`/marketplace/${ask.ask_id.toString()}`)
+  }
+
+  const login = () => {
+    // This would trigger wallet connection
+    console.log('Login requested')
+  }
+
+  // Lifecycle
+  onMounted(async () => {
+    if (isAuthenticated.value) {
+      await loadActiveAsks()
+    }
+  })
+
+  // Watch for authentication changes
+  watch(isAuthenticated, authenticated => {
+    if (authenticated) {
+      loadActiveAsks()
+    }
+  })
 </script>

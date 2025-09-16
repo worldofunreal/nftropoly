@@ -1,9 +1,9 @@
-import { ref, watch } from 'vue'
+// import { ref } from 'vue'
 import { useColorMode } from '#imports'
 
 export const useTheme = () => {
   const colorMode = useColorMode()
-  
+
   // Initialize theme from localStorage (Nuxt will handle this automatically now)
   const initTheme = () => {
     // Nuxt color mode will automatically read from localStorage['nftropoly-theme']
@@ -24,6 +24,6 @@ export const useTheme = () => {
     theme: colorMode,
     initTheme,
     toggleTheme,
-    setTheme
+    setTheme,
   }
 }

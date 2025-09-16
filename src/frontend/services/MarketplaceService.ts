@@ -19,18 +19,8 @@ import type {
   SettlementRetryInfo,
 } from '../../declarations/marketplace/marketplace.did'
 
-// Get marketplace canister ID from server endpoint
-const getMarketplaceCanisterId = async (): Promise<string> => {
-  try {
-    const response = await fetch('/api/canister-ids')
-    const data = await response.json()
-    return data.marketplace
-  } catch (error) {
-    console.warn('Failed to fetch canister IDs from server, using fallback')
-    // Fallback for development
-    return 'u6s2n-gx777-77774-qaaba-cai'
-  }
-}
+import { getCanisterId, getEnvironmentConfig } from '~/utils/canister-config'
+import { walletService } from './WalletService'
 
 class MarketplaceService {
   private agent: HttpAgent | null = null
@@ -40,20 +30,26 @@ class MarketplaceService {
 
   async initialize(identity?: Identity): Promise<void> {
     try {
-      this.identity = identity
-      this.canisterId = await getMarketplaceCanisterId()
+      // Use provided identity or get from wallet service
+      this.identity = identity || walletService.getCurrentConnection()?.identity
+
+      if (!this.identity) {
+        throw new Error('No identity available. Please connect a wallet first.')
+      }
+
+      this.canisterId = await getCanisterId('marketplace')
+
+      // Get environment configuration
+      const envConfig = getEnvironmentConfig()
 
       // Create HttpAgent with identity
       this.agent = new HttpAgent({
-        host:
-          process.env.NODE_ENV === 'development'
-            ? 'http://localhost:4943'
-            : 'https://ic0.app',
+        host: envConfig.host,
         identity: this.identity,
       })
 
       // Fetch root key for local development
-      if (process.env.NODE_ENV === 'development') {
+      if (envConfig.isLocal) {
         await this.agent.fetchRootKey()
       }
 
@@ -63,7 +59,12 @@ class MarketplaceService {
         canisterId: this.canisterId,
       })
 
-      console.log('MarketplaceService initialized successfully')
+      console.log('MarketplaceService initialized successfully', {
+        canisterId: this.canisterId,
+        host: envConfig.host,
+        environment: envConfig.isLocal ? 'local' : 'production',
+        principal: this.identity.getPrincipal().toText(),
+      })
     } catch (error) {
       console.error('Failed to initialize MarketplaceService:', error)
       throw error
@@ -112,7 +113,9 @@ class MarketplaceService {
   }
 
   // Get settlement retry info
-  async getSettlementRetryInfo(askId: bigint): Promise<SettlementRetryInfo | null> {
+  async getSettlementRetryInfo(
+    askId: bigint
+  ): Promise<SettlementRetryInfo | null> {
     if (!this.marketplaceActor) {
       throw new Error('Marketplace actor not initialized')
     }
@@ -128,7 +131,9 @@ class MarketplaceService {
   }
 
   // Retry settlement
-  async retrySettlement(askId: bigint): Promise<{ Ok: any } | { Err: any }> {
+  async retrySettlement(
+    askId: bigint
+  ): Promise<{ Ok: unknown } | { Err: unknown }> {
     if (!this.marketplaceActor) {
       throw new Error('Marketplace actor not initialized')
     }
@@ -251,7 +256,9 @@ class MarketplaceService {
   }
 
   // Helper method to withdraw escrow
-  async withdrawEscrow(escrowRecord: any): Promise<ManageAskResponse | null> {
+  async withdrawEscrow(
+    escrowRecord: unknown
+  ): Promise<ManageAskResponse | null> {
     const withdrawRequest: ManageAskRequest = { WithdrawEscrow: escrowRecord }
     const result = await this.manageAsk([withdrawRequest])
 
@@ -263,8 +270,12 @@ class MarketplaceService {
   }
 
   // Helper method to withdraw settlement
-  async withdrawSettlement(escrowRecord: any): Promise<ManageAskResponse | null> {
-    const withdrawRequest: ManageAskRequest = { WithdrawSettlement: escrowRecord }
+  async withdrawSettlement(
+    escrowRecord: unknown
+  ): Promise<ManageAskResponse | null> {
+    const withdrawRequest: ManageAskRequest = {
+      WithdrawSettlement: escrowRecord,
+    }
     const result = await this.manageAsk([withdrawRequest])
 
     if (result[0] && result[0][1] && result[0][1][0]) {
@@ -288,7 +299,9 @@ class MarketplaceService {
 
   // Helper method to refresh offers
   async refreshOffers(account?: Account): Promise<ManageAskResponse | null> {
-    const refreshRequest: ManageAskRequest = { RefreshOffers: account ? [account] : [] }
+    const refreshRequest: ManageAskRequest = {
+      RefreshOffers: account ? [account] : [],
+    }
     const result = await this.manageAsk([refreshRequest])
 
     if (result[0] && result[0][1] && result[0][1][0]) {

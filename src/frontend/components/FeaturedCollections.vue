@@ -35,7 +35,7 @@
               :src="col.image"
               :alt="col.name"
               class="object-cover w-full h-full"
-            >
+            />
           </div>
           <div class="flex items-center gap-1 font-semibold">
             <span>{{ col.name }}</span>

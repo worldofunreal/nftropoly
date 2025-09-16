@@ -1,31 +1,36 @@
 import type { Principal } from '@dfinity/principal'
-import type { 
-  Account, 
-  AskStatus, 
-  AskStatusType, 
-  EscrowRecord, 
-  TokenSpec, 
+import type {
+  Account,
+  AskStatus,
+  AskStatusType,
+  EscrowRecord,
+  TokenSpec,
   AskFeature,
-  BidFeature,
   BalanceResult,
-  AskInfoResponse,
-  ManageAskResponse,
-  ManageBidResponse
 } from '../../declarations/marketplace/marketplace.did'
 
 // BigInt serialization helpers
-export const serializeBigInt = (obj: any): any => {
-  return JSON.parse(JSON.stringify(obj, (key, value) => 
-    typeof value === 'bigint' ? value.toString() : value
-  ))
+export const serializeBigInt = (obj: unknown): unknown => {
+  return JSON.parse(
+    JSON.stringify(obj, (key, value) =>
+      typeof value === 'bigint' ? value.toString() : value
+    )
+  )
 }
 
-export const deserializeBigInt = (obj: any): any => {
+export const deserializeBigInt = (obj: unknown): unknown => {
   return JSON.parse(JSON.stringify(obj), (key, value) => {
     // Convert string numbers back to BigInt for specific fields
-    if (typeof value === 'string' && /^\d+$/.test(value) && 
-        (key.includes('id') || key.includes('amount') || key.includes('fee') || 
-         key.includes('decimals') || key.includes('count') || key.includes('timestamp'))) {
+    if (
+      typeof value === 'string' &&
+      /^\d+$/.test(value) &&
+      (key.includes('id') ||
+        key.includes('amount') ||
+        key.includes('fee') ||
+        key.includes('decimals') ||
+        key.includes('count') ||
+        key.includes('timestamp'))
+    ) {
       return BigInt(value)
     }
     return value
@@ -42,10 +47,13 @@ export const textToPrincipal = (text: string): Principal => {
 }
 
 // Account helpers
-export const createAccount = (owner: string, subaccount?: Uint8Array): Account => {
+export const createAccount = (
+  owner: string,
+  subaccount?: Uint8Array
+): Account => {
   return {
     owner: textToPrincipal(owner),
-    subaccount: subaccount ? [subaccount] : []
+    subaccount: subaccount ? [subaccount] : [],
   }
 }
 
@@ -73,22 +81,28 @@ export const getAskStatusColor = (status: AskStatusType): string => {
 }
 
 // Token spec helpers
-export const formatTokenAmount = (amount: bigint, decimals: number = 8): string => {
+export const formatTokenAmount = (
+  amount: bigint,
+  decimals: number = 8
+): string => {
   const divisor = BigInt(10 ** decimals)
   const whole = amount / divisor
   const remainder = amount % divisor
-  
+
   if (remainder === BigInt(0)) {
     return whole.toString()
   }
-  
+
   const remainderStr = remainder.toString().padStart(decimals, '0')
   const trimmed = remainderStr.replace(/0+$/, '')
-  
+
   return trimmed ? `${whole}.${trimmed}` : whole.toString()
 }
 
-export const parseTokenAmount = (amount: string, decimals: number = 8): bigint => {
+export const parseTokenAmount = (
+  amount: string,
+  decimals: number = 8
+): bigint => {
   const [whole, fractional = ''] = amount.split('.')
   const paddedFractional = fractional.padEnd(decimals, '0').slice(0, decimals)
   return BigInt(whole) * BigInt(10 ** decimals) + BigInt(paddedFractional)
@@ -151,11 +165,17 @@ export const getBalanceType = (balance: BalanceResult): string => {
 }
 
 // Response helpers
-export const isSuccessResponse = (response: ManageAskResponse | ManageBidResponse): boolean => {
-  return Object.values(response).some(v => v && typeof v === 'object' && 'Ok' in v)
+export const isSuccessResponse = (
+  response: ManageAskResponse | ManageBidResponse
+): boolean => {
+  return Object.values(response).some(
+    v => v && typeof v === 'object' && 'Ok' in v
+  )
 }
 
-export const getResponseError = (response: ManageAskResponse | ManageBidResponse): string | null => {
+export const getResponseError = (
+  response: ManageAskResponse | ManageBidResponse
+): string | null => {
   for (const [key, value] of Object.entries(response)) {
     if (value && typeof value === 'object' && 'Err' in value) {
       return value.Err.message || `Error in ${key}`
@@ -168,7 +188,7 @@ export const getResponseError = (response: ManageAskResponse | ManageBidResponse
 export const createPagination = (prev?: bigint, take?: bigint) => {
   return {
     prev: prev ? [prev] : [],
-    take: take ? [take] : []
+    take: take ? [take] : [],
   }
 }
 
@@ -181,16 +201,16 @@ export const formatTimestamp = (timestamp: bigint): string => {
 export const getTimeRemaining = (endTime: bigint): string => {
   const now = BigInt(Date.now() * 1000000)
   const remaining = endTime - now
-  
+
   if (remaining <= BigInt(0)) {
     return 'Expired'
   }
-  
+
   const seconds = Number(remaining) / 1000000000
   const minutes = Math.floor(seconds / 60)
   const hours = Math.floor(minutes / 60)
   const days = Math.floor(hours / 24)
-  
+
   if (days > 0) return `${days}d ${hours % 24}h`
   if (hours > 0) return `${hours}h ${minutes % 60}m`
   if (minutes > 0) return `${minutes}m ${Math.floor(seconds % 60)}s`
@@ -208,23 +228,33 @@ export const validateAccount = (account: Account): boolean => {
 
 export const validateTokenSpec = (tokenSpec: TokenSpec): boolean => {
   try {
-    return tokenSpec.canister.toString().length > 0 && 
-           tokenSpec.symbol.length > 0 && 
-           tokenSpec.standards.length > 0
+    return (
+      tokenSpec.canister.toString().length > 0 &&
+      tokenSpec.symbol.length > 0 &&
+      tokenSpec.standards.length > 0
+    )
   } catch {
     return false
   }
 }
 
 // Type guards
-export const isAskStatus = (obj: any): obj is AskStatus => {
+export const isAskStatus = (obj: unknown): obj is AskStatus => {
   return obj && typeof obj === 'object' && 'ask_id' in obj && 'status' in obj
 }
 
-export const isEscrowRecord = (obj: any): obj is EscrowRecord => {
-  return obj && typeof obj === 'object' && 'escrow_type' in obj && 'seller' in obj
+export const isEscrowRecord = (obj: unknown): obj is EscrowRecord => {
+  return (
+    obj && typeof obj === 'object' && 'escrow_type' in obj && 'seller' in obj
+  )
 }
 
-export const isTokenSpec = (obj: any): obj is TokenSpec => {
-  return obj && typeof obj === 'object' && 'canister' in obj && 'symbol' in obj && 'standards' in obj
+export const isTokenSpec = (obj: unknown): obj is TokenSpec => {
+  return (
+    obj &&
+    typeof obj === 'object' &&
+    'canister' in obj &&
+    'symbol' in obj &&
+    'standards' in obj
+  )
 }

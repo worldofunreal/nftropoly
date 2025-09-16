@@ -22,7 +22,7 @@ export const usePagination = (config: PaginationConfig = { pageSize: 20 }) => {
     total: 0,
     hasMore: false,
     loading: false,
-    error: null
+    error: null,
   })
 
   // Computed properties
@@ -52,7 +52,7 @@ export const usePagination = (config: PaginationConfig = { pageSize: 20 }) => {
       end: endIndex.value,
       total: state.value.total,
       page: state.value.page,
-      totalPages: totalPages.value
+      totalPages: totalPages.value,
     }
   })
 
@@ -95,7 +95,7 @@ export const usePagination = (config: PaginationConfig = { pageSize: 20 }) => {
   const setTotal = (total: number) => {
     state.value.total = total
     state.value.error = null
-    
+
     // Adjust current page if it's beyond the total pages
     if (state.value.page > totalPages.value && totalPages.value > 0) {
       state.value.page = totalPages.value
@@ -125,7 +125,7 @@ export const usePagination = (config: PaginationConfig = { pageSize: 20 }) => {
       total: 0,
       hasMore: false,
       loading: false,
-      error: null
+      error: null,
     }
   }
 
@@ -141,7 +141,7 @@ export const usePagination = (config: PaginationConfig = { pageSize: 20 }) => {
     const pages: number[] = []
     const current = state.value.page
     const total = totalPages.value
-    
+
     if (total <= maxVisible) {
       // Show all pages if total is less than max visible
       for (let i = 1; i <= total; i++) {
@@ -150,40 +150,42 @@ export const usePagination = (config: PaginationConfig = { pageSize: 20 }) => {
     } else {
       // Calculate start and end pages
       let start = Math.max(1, current - Math.floor(maxVisible / 2))
-      let end = Math.min(total, start + maxVisible - 1)
-      
+      const end = Math.min(total, start + maxVisible - 1)
+
       // Adjust start if we're near the end
       if (end - start + 1 < maxVisible) {
         start = Math.max(1, end - maxVisible + 1)
       }
-      
+
       // Add pages
       for (let i = start; i <= end; i++) {
         pages.push(i)
       }
     }
-    
+
     return pages
   }
 
   // Create pagination object for API calls
-  const createPaginationParams = (direction: 'next' | 'prev' | 'current' = 'current') => {
+  const createPaginationParams = (
+    direction: 'next' | 'prev' | 'current' = 'current'
+  ) => {
     switch (direction) {
       case 'next':
         return {
           prev: state.value.page > 1 ? BigInt(state.value.page - 1) : undefined,
-          take: BigInt(state.value.pageSize)
+          take: BigInt(state.value.pageSize),
         }
       case 'prev':
         return {
           prev: state.value.page > 2 ? BigInt(state.value.page - 2) : undefined,
-          take: BigInt(state.value.pageSize)
+          take: BigInt(state.value.pageSize),
         }
       case 'current':
       default:
         return {
           prev: state.value.page > 1 ? BigInt(state.value.page - 1) : undefined,
-          take: BigInt(state.value.pageSize)
+          take: BigInt(state.value.pageSize),
         }
     }
   }
@@ -197,7 +199,7 @@ export const usePagination = (config: PaginationConfig = { pageSize: 20 }) => {
     startIndex,
     endIndex,
     pageInfo,
-    
+
     // Actions
     setPage,
     nextPage,
@@ -212,23 +214,28 @@ export const usePagination = (config: PaginationConfig = { pageSize: 20 }) => {
     reset,
     loadMore,
     getPageNumbers,
-    createPaginationParams
+    createPaginationParams,
   }
 }
 
 // Specialized pagination for marketplace asks
-export const useAskPagination = (config: PaginationConfig = { pageSize: 20 }) => {
+export const useAskPagination = (
+  config: PaginationConfig = { pageSize: 20 }
+) => {
   const pagination = usePagination(config)
-  
+
   // Marketplace-specific pagination logic
-  const loadPage = async (page: number, loadFn: (pagination: any) => Promise<any>) => {
+  const loadPage = async (
+    page: number,
+    loadFn: (pagination: unknown) => Promise<unknown>
+  ) => {
     try {
       pagination.setLoading(true)
       pagination.setPage(page)
-      
+
       const params = pagination.createPaginationParams()
       const result = await loadFn(params)
-      
+
       // Update pagination state based on result
       if (result && typeof result === 'object') {
         if ('eof' in result) {
@@ -238,35 +245,40 @@ export const useAskPagination = (config: PaginationConfig = { pageSize: 20 }) =>
           pagination.setTotal(Number(result.count))
         }
       }
-      
+
       return result
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load page'
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to load page'
       pagination.setError(errorMessage)
       throw error
     } finally {
       pagination.setLoading(false)
     }
   }
-  
+
   return {
     ...pagination,
-    loadPage
+    loadPage,
   }
 }
 
 // Specialized pagination for balances
-export const useBalancePagination = (config: PaginationConfig = { pageSize: 50 }) => {
+export const useBalancePagination = (
+  config: PaginationConfig = { pageSize: 50 }
+) => {
   const pagination = usePagination(config)
-  
+
   // Balance-specific pagination logic
-  const loadBalances = async (loadFn: (pagination: any) => Promise<any>) => {
+  const loadBalances = async (
+    loadFn: (pagination: unknown) => Promise<unknown>
+  ) => {
     try {
       pagination.setLoading(true)
-      
+
       const params = pagination.createPaginationParams()
       const result = await loadFn(params)
-      
+
       // Update pagination state based on result
       if (result && typeof result === 'object') {
         if ('eof' in result) {
@@ -276,19 +288,20 @@ export const useBalancePagination = (config: PaginationConfig = { pageSize: 50 }
           pagination.setTotal(Number(result.count))
         }
       }
-      
+
       return result
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to load balances'
+      const errorMessage =
+        error instanceof Error ? error.message : 'Failed to load balances'
       pagination.setError(errorMessage)
       throw error
     } finally {
       pagination.setLoading(false)
     }
   }
-  
+
   return {
     ...pagination,
-    loadBalances
+    loadBalances,
   }
 }
