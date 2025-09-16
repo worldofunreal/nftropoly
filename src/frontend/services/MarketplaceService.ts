@@ -14,25 +14,34 @@ import type {
   ManageBidResponse,
   AskFeature,
   BidFeature,
+  ICRC8Metadata,
+  SupportedStandard,
+  SettlementRetryInfo,
 } from '../../declarations/marketplace/marketplace.did'
-// Get marketplace canister ID
-const getMarketplaceCanisterId = () => {
-  // In development, use local canister ID
-  if (process.env.NODE_ENV === 'development') {
-    return 'uzt4z-lp777-77774-qaabq-cai' // From your .dfx/local/canister_ids.json
+
+// Get marketplace canister ID from server endpoint
+const getMarketplaceCanisterId = async (): Promise<string> => {
+  try {
+    const response = await fetch('/api/canister-ids')
+    const data = await response.json()
+    return data.marketplace
+  } catch (error) {
+    console.warn('Failed to fetch canister IDs from server, using fallback')
+    // Fallback for development
+    return 'u6s2n-gx777-77774-qaaba-cai'
   }
-  // In production, use mainnet canister ID
-  return 'your-mainnet-marketplace-id'
 }
 
 class MarketplaceService {
   private agent: HttpAgent | null = null
   private marketplaceActor: _SERVICE | null = null
   private identity: Identity | undefined = undefined
+  private canisterId: string | null = null
 
   async initialize(identity?: Identity): Promise<void> {
     try {
       this.identity = identity
+      this.canisterId = await getMarketplaceCanisterId()
 
       // Create HttpAgent with identity
       this.agent = new HttpAgent({
@@ -51,7 +60,7 @@ class MarketplaceService {
       // Create Actor using generated IDL factory
       this.marketplaceActor = Actor.createActor(idlFactory, {
         agent: this.agent,
-        canisterId: getMarketplaceCanisterId(),
+        canisterId: this.canisterId,
       })
 
       console.log('MarketplaceService initialized successfully')
@@ -69,12 +78,28 @@ class MarketplaceService {
     return await this.marketplaceActor.health_check()
   }
 
-  // Get metadata - returns array of [string, string] tuples
-  async getMetadata(): Promise<[string, string][]> {
+  // Get metadata - returns array of ICRC8Metadata
+  async getMetadata(): Promise<ICRC8Metadata[]> {
     if (!this.marketplaceActor) {
       throw new Error('Marketplace canister is not deployed or not initialized')
     }
     return await this.marketplaceActor.get_metadata()
+  }
+
+  // Get ICRC-8 metadata
+  async getICRC8Metadata(): Promise<ICRC8Metadata[]> {
+    if (!this.marketplaceActor) {
+      throw new Error('Marketplace actor not initialized')
+    }
+    return await this.marketplaceActor.icrc8_metadata()
+  }
+
+  // Get supported standards
+  async getSupportedStandards(): Promise<SupportedStandard[]> {
+    if (!this.marketplaceActor) {
+      throw new Error('Marketplace actor not initialized')
+    }
+    return await this.marketplaceActor.icrc10_supported_standards()
   }
 
   // Get approved tokens - returns Principal array or null
@@ -86,15 +111,36 @@ class MarketplaceService {
     return result[0] ? result[0].map(principal => principal.toString()) : null
   }
 
-  // Set metadata - returns Ok/Err result
-  async setMetadata(
-    key: string,
-    value: string
-  ): Promise<{ Ok: null } | { Err: string }> {
+  // Get settlement retry info
+  async getSettlementRetryInfo(askId: bigint): Promise<SettlementRetryInfo | null> {
     if (!this.marketplaceActor) {
       throw new Error('Marketplace actor not initialized')
     }
-    return await this.marketplaceActor.set_metadata(key, value)
+    return await this.marketplaceActor.get_settlement_retry_info(askId)
+  }
+
+  // Get asks needing retry
+  async getAsksNeedingRetry(): Promise<bigint[]> {
+    if (!this.marketplaceActor) {
+      throw new Error('Marketplace actor not initialized')
+    }
+    return await this.marketplaceActor.get_asks_needing_retry()
+  }
+
+  // Retry settlement
+  async retrySettlement(askId: bigint): Promise<{ Ok: any } | { Err: any }> {
+    if (!this.marketplaceActor) {
+      throw new Error('Marketplace actor not initialized')
+    }
+    return await this.marketplaceActor.retry_settlement(askId)
+  }
+
+  // Get debug state
+  async getDebugState(): Promise<string> {
+    if (!this.marketplaceActor) {
+      throw new Error('Marketplace actor not initialized')
+    }
+    return await this.marketplaceActor.get_debug_state()
   }
 
   // ICRC-8 Ask operations
@@ -161,7 +207,7 @@ class MarketplaceService {
     features: AskFeature[]
   ): Promise<ManageAskResponse | null> {
     const newAskRequest: ManageAskRequest = {
-      NewAsk: features.map(f => [f] as [AskFeature]),
+      NewAsk: { feature: features.map(f => [f] as [AskFeature]) },
     }
     const result = await this.manageAsk([newAskRequest])
 
@@ -196,6 +242,54 @@ class MarketplaceService {
       },
     }
     const result = await this.manageBid([newBidRequest])
+
+    if (result[0] && result[0][1] && result[0][1][0]) {
+      return result[0][1][0]
+    }
+
+    return null
+  }
+
+  // Helper method to withdraw escrow
+  async withdrawEscrow(escrowRecord: any): Promise<ManageAskResponse | null> {
+    const withdrawRequest: ManageAskRequest = { WithdrawEscrow: escrowRecord }
+    const result = await this.manageAsk([withdrawRequest])
+
+    if (result[0] && result[0][1] && result[0][1][0]) {
+      return result[0][1][0]
+    }
+
+    return null
+  }
+
+  // Helper method to withdraw settlement
+  async withdrawSettlement(escrowRecord: any): Promise<ManageAskResponse | null> {
+    const withdrawRequest: ManageAskRequest = { WithdrawSettlement: escrowRecord }
+    const result = await this.manageAsk([withdrawRequest])
+
+    if (result[0] && result[0][1] && result[0][1][0]) {
+      return result[0][1][0]
+    }
+
+    return null
+  }
+
+  // Helper method to distribute ask
+  async distributeAsk(askId: bigint): Promise<ManageAskResponse | null> {
+    const distributeRequest: ManageAskRequest = { DistributeAsk: askId }
+    const result = await this.manageAsk([distributeRequest])
+
+    if (result[0] && result[0][1] && result[0][1][0]) {
+      return result[0][1][0]
+    }
+
+    return null
+  }
+
+  // Helper method to refresh offers
+  async refreshOffers(account?: Account): Promise<ManageAskResponse | null> {
+    const refreshRequest: ManageAskRequest = { RefreshOffers: account ? [account] : [] }
+    const result = await this.manageAsk([refreshRequest])
 
     if (result[0] && result[0][1] && result[0][1][0]) {
       return result[0][1][0]

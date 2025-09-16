@@ -95,6 +95,73 @@ type AskFeature = variant {
   BidPaysFees : opt vec text;
   CreatedAt : nat64;
   Memo : blob;
+  // ICRC-61: Standard Auctions
+  Auction : AuctionFeature;
+  // ICRC-62: AMMs
+  AMM : AMMFeature;
+  // ICRC-63: Dutch Auctions
+  Dutch : DutchAuctionFeature;
+  // ICRC-64: KYC
+  KYC : KYCFeature;
+  // ICRC-71: Notifications
+  Notify : NotifyFeature;
+};
+
+// ICRC-61: Standard Auctions
+type AuctionFeature = record {
+  auction_token : TokenSpec;
+  wait_for_quiet : opt WaitQuietParams;
+  reserve : nat;
+  start_price : nat;
+  min_increase : MinIncrease;
+};
+
+type WaitQuietParams = record {
+  window : nat64;
+  extension : nat64;
+  fade : float64;
+  max : nat;
+};
+
+type MinIncrease = variant {
+  percentage : float64;
+  amount : nat;
+};
+
+// ICRC-62: AMMs
+type AMMFeature = record {
+  amm : AMMParams;
+};
+
+// ICRC-63: Dutch Auctions
+type DutchAuctionFeature = record {
+  dutch : DutchParams;
+};
+
+type DutchParams = record {
+  time_unit : TimeUnit;
+  decay_type : DecayType;
+};
+
+type TimeUnit = variant {
+  hour : nat;
+  minute : nat;
+  day : nat;
+};
+
+type DecayType = variant {
+  flat : nat;
+  percent : float64;
+};
+
+// ICRC-64: KYC
+type KYCFeature = record {
+  icrc17_kyc : principal;
+};
+
+// ICRC-71: Notifications
+type NotifyFeature = record {
+  notify : vec principal;
 };
 
 type BuyNowReq = record {
@@ -138,9 +205,21 @@ type SettlementInfo = record {
   royalties : vec record { Account; nat; text };
 };
 
+type SettlementRetryInfo = record {
+  ask_id : nat64;
+  buyer : principal;
+  amount : nat64;
+  nft_transferred : bool;
+  token_transfer_failed : bool;
+  last_attempt : nat64;
+  retry_count : nat32;
+  max_retries : nat32;
+};
+
 type AskStatusType = variant {
   Open;
   Closed;
+  PartiallySettled;
   Encumbered : vec EncumbranceDetail;
   NotStarted;
 };
@@ -344,10 +423,21 @@ service : {
   // ICRC-8 Metadata (Marketplace-Specific Configuration)
   icrc8_metadata : () -> (vec ICRC8Metadata) query;
   
-  // Legacy Metadata Methods (for backward compatibility)
-  get_metadata : () -> (vec record { text; text });
-  set_metadata : (text, text) -> (variant { Ok; Err : text });
+  // General Metadata
+  get_metadata : () -> (vec ICRC8Metadata) query;
   
   // Health Check
   health_check : () -> (text);
+  
+  // Admin Methods (Admin Only)
+  admin_withdraw_escrow : (nat64) -> (variant { Ok : EscrowRecord; Err : GenericError });
+  admin_get_all_escrows : () -> (variant { Ok : vec record { nat64; EscrowRecord }; Err : GenericError });
+  
+  // Debug Methods
+  get_debug_state : () -> (text) query;
+  
+  // Retry settlement methods
+  retry_settlement : (nat64) -> (variant { Ok : SettlementInfo; Err : GenericError });
+  get_asks_needing_retry : () -> (vec nat64) query;
+  get_settlement_retry_info : (nat64) -> (opt SettlementRetryInfo) query;
 };

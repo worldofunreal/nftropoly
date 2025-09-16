@@ -1,6 +1,9 @@
 export const idlFactory = ({ IDL }) => {
   const TokenSpec = IDL.Rec();
-  const SupportedStandard = IDL.Record({ 'url' : IDL.Text, 'name' : IDL.Text });
+  const Account = IDL.Record({
+    'owner' : IDL.Principal,
+    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+  });
   const ICRC1TokenSpecDetail = IDL.Record({
     'fee' : IDL.Opt(IDL.Nat64),
     'decimals' : IDL.Nat64,
@@ -39,15 +42,6 @@ export const idlFactory = ({ IDL }) => {
       'symbol' : IDL.Text,
     })
   );
-  const LockAsk = IDL.Record({
-    'fee' : TokenSpec,
-    'ask_id' : IDL.Nat64,
-    'lock_duration' : IDL.Nat64,
-  });
-  const Account = IDL.Record({
-    'owner' : IDL.Principal,
-    'subaccount' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-  });
   const EscrowType = IDL.Variant({
     'Ask' : IDL.Vec(IDL.Opt(TokenSpec)),
     'Bid' : IDL.Vec(IDL.Opt(TokenSpec)),
@@ -60,6 +54,24 @@ export const idlFactory = ({ IDL }) => {
     'buyer' : IDL.Opt(Account),
     'escrow_type' : EscrowType,
   });
+  const GenericError = IDL.Record({ 'code' : IDL.Nat64, 'message' : IDL.Text });
+  const ICRC8Metadata = IDL.Record({ 'key' : IDL.Text, 'value' : IDL.Text });
+  const SettlementRetryInfo = IDL.Record({
+    'nft_transferred' : IDL.Bool,
+    'retry_count' : IDL.Nat32,
+    'ask_id' : IDL.Nat64,
+    'buyer' : IDL.Principal,
+    'max_retries' : IDL.Nat32,
+    'amount' : IDL.Nat64,
+    'token_transfer_failed' : IDL.Bool,
+    'last_attempt' : IDL.Nat64,
+  });
+  const SupportedStandard = IDL.Record({ 'url' : IDL.Text, 'name' : IDL.Text });
+  const LockAsk = IDL.Record({
+    'fee' : TokenSpec,
+    'ask_id' : IDL.Nat64,
+    'lock_duration' : IDL.Nat64,
+  });
   const AMMParams = IDL.Record({
     'max' : IDL.Nat,
     'min' : IDL.Nat,
@@ -68,13 +80,46 @@ export const idlFactory = ({ IDL }) => {
     'token_2' : TokenSpec,
   });
   const AMMUpdate = IDL.Record({ 'ask_id' : IDL.Nat64, 'params' : AMMParams });
+  const AMMFeature = IDL.Record({ 'amm' : AMMParams });
+  const KYCFeature = IDL.Record({ 'icrc17_kyc' : IDL.Principal });
   const BuyNowReq = IDL.Record({ 'token' : TokenSpec, 'amount' : IDL.Nat64 });
   const EndingType = IDL.Variant({
     'Date' : IDL.Nat64,
     'Perpetual' : IDL.Null,
     'Timeout' : IDL.Nat64,
   });
+  const NotifyFeature = IDL.Record({ 'notify' : IDL.Vec(IDL.Principal) });
+  const TimeUnit = IDL.Variant({
+    'day' : IDL.Nat,
+    'hour' : IDL.Nat,
+    'minute' : IDL.Nat,
+  });
+  const DecayType = IDL.Variant({ 'flat' : IDL.Nat, 'percent' : IDL.Float64 });
+  const DutchParams = IDL.Record({
+    'time_unit' : TimeUnit,
+    'decay_type' : DecayType,
+  });
+  const DutchAuctionFeature = IDL.Record({ 'dutch' : DutchParams });
+  const WaitQuietParams = IDL.Record({
+    'max' : IDL.Nat,
+    'fade' : IDL.Float64,
+    'window' : IDL.Nat64,
+    'extension' : IDL.Nat64,
+  });
+  const MinIncrease = IDL.Variant({
+    'amount' : IDL.Nat,
+    'percentage' : IDL.Float64,
+  });
+  const AuctionFeature = IDL.Record({
+    'start_price' : IDL.Nat,
+    'wait_for_quiet' : IDL.Opt(WaitQuietParams),
+    'reserve' : IDL.Nat,
+    'min_increase' : MinIncrease,
+    'auction_token' : TokenSpec,
+  });
   const AskFeature = IDL.Variant({
+    'AMM' : AMMFeature,
+    'KYC' : KYCFeature,
     'BuyNow' : IDL.Vec(IDL.Vec(BuyNowReq)),
     'FeeSchema' : IDL.Text,
     'Ending' : EndingType,
@@ -82,8 +127,11 @@ export const idlFactory = ({ IDL }) => {
     'Broker' : Account,
     'AllowList' : IDL.Vec(Account),
     'UnsolicitedOffer' : Account,
+    'Notify' : NotifyFeature,
+    'Dutch' : DutchAuctionFeature,
     'StartDate' : IDL.Nat64,
     'AskToken' : IDL.Vec(IDL.Opt(TokenSpec)),
+    'Auction' : AuctionFeature,
     'FeeAccounts' : IDL.Vec(IDL.Tuple(IDL.Text, TokenSpec, Account)),
     'BidPaysFees' : IDL.Opt(IDL.Vec(IDL.Text)),
     'CreatedAt' : IDL.Nat64,
@@ -113,7 +161,6 @@ export const idlFactory = ({ IDL }) => {
     'canister' : IDL.Principal,
     'symbol' : IDL.Text,
   });
-  const GenericError = IDL.Record({ 'code' : IDL.Nat64, 'message' : IDL.Text });
   const TokenResult = IDL.Record({
     'result' : IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : GenericError }),
     'token' : TokenSpec,
@@ -139,6 +186,7 @@ export const idlFactory = ({ IDL }) => {
     'Open' : IDL.Null,
     'Closed' : IDL.Null,
     'Encumbered' : IDL.Vec(EncumbranceDetail),
+    'PartiallySettled' : IDL.Null,
     'NotStarted' : IDL.Null,
   });
   const AuctionInfo = IDL.Record({
@@ -280,9 +328,30 @@ export const idlFactory = ({ IDL }) => {
     }),
     'NewBid' : IDL.Variant({ 'Ok' : NewBidResult, 'Err' : GenericError }),
   });
-  const ICRC8Metadata = IDL.Record({ 'key' : IDL.Text, 'value' : IDL.Text });
   return IDL.Service({
-    'get_metadata' : IDL.Func([], [IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))], []),
+    'admin_get_all_escrows' : IDL.Func(
+        [],
+        [
+          IDL.Variant({
+            'Ok' : IDL.Vec(IDL.Tuple(IDL.Nat64, EscrowRecord)),
+            'Err' : GenericError,
+          }),
+        ],
+        [],
+      ),
+    'admin_withdraw_escrow' : IDL.Func(
+        [IDL.Nat64],
+        [IDL.Variant({ 'Ok' : EscrowRecord, 'Err' : GenericError })],
+        [],
+      ),
+    'get_asks_needing_retry' : IDL.Func([], [IDL.Vec(IDL.Nat64)], ['query']),
+    'get_debug_state' : IDL.Func([], [IDL.Text], ['query']),
+    'get_metadata' : IDL.Func([], [IDL.Vec(ICRC8Metadata)], ['query']),
+    'get_settlement_retry_info' : IDL.Func(
+        [IDL.Nat64],
+        [IDL.Opt(SettlementRetryInfo)],
+        ['query'],
+      ),
     'health_check' : IDL.Func([], [IDL.Text], []),
     'icrc10_supported_standards' : IDL.Func(
         [],
@@ -323,9 +392,9 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'icrc8_metadata' : IDL.Func([], [IDL.Vec(ICRC8Metadata)], ['query']),
-    'set_metadata' : IDL.Func(
-        [IDL.Text, IDL.Text],
-        [IDL.Variant({ 'Ok' : IDL.Null, 'Err' : IDL.Text })],
+    'retry_settlement' : IDL.Func(
+        [IDL.Nat64],
+        [IDL.Variant({ 'Ok' : SettlementInfo, 'Err' : GenericError })],
         [],
       ),
   });
