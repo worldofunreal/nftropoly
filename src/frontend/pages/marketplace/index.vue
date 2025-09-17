@@ -160,6 +160,9 @@
   import { useAskPagination } from '~/composables/usePagination'
   // import { useAuthStore } from '~/stores/auth'
   import type { AskStatus } from '../../declarations/marketplace/marketplace.did'
+  import ListingFilters from '~/components/marketplace/ListingFilters.vue'
+  import ListingSort from '~/components/marketplace/ListingSort.vue'
+  import ListingGrid from '~/components/marketplace/ListingGrid.vue'
 
   // Meta
   definePageMeta({

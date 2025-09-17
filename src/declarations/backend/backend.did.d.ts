@@ -80,46 +80,117 @@ export interface UserUpdate {
   'location' : [] | [string],
 }
 export interface _SERVICE {
+  /**
+   * Delete account (requires signed call, owner only)
+   */
   'delete_account' : ActorMethod<[], { 'Ok' : null } | { 'Err' : Error }>,
+  /**
+   * token_name, token_description, token_image_url, token_attributes, mint_price
+   */
+  'faucet_tokens' : ActorMethod<[bigint], { 'Ok' : null } | { 'Err' : Error }>,
+  /**
+   * chunk_id, chunk_data, file_path
+   */
   'finalize_upload' : ActorMethod<
     [string],
     { 'Ok' : string } |
       { 'Err' : Error }
   >,
+  /**
+   * Follow/Unfollow functionality
+   */
   'follow_user' : ActorMethod<[Principal], UserResult>,
+  /**
+   * Get all usernames for sitemap generation
+   */
   'get_all_usernames' : ActorMethod<[], Array<string>>,
   'get_followers' : ActorMethod<[Principal], Array<CompactProfile>>,
+  /**
+   * Get following and followers lists
+   */
   'get_following' : ActorMethod<[Principal], Array<CompactProfile>>,
+  /**
+   * username, evm_address, bitcoin_address, solana_address
+   * Get user by principal
+   */
   'get_user' : ActorMethod<[Principal], UserResult>,
+  /**
+   * Get user by username
+   */
   'get_user_by_username' : ActorMethod<[string], UserResult>,
+  /**
+   * Get total user count
+   */
   'get_user_count' : ActorMethod<[], bigint>,
+  /**
+   * Personal user lookup with follow state
+   */
   'get_user_personal' : ActorMethod<
     [Principal, Principal],
     { 'Ok' : PersonalUser } |
       { 'Err' : Error }
   >,
+  /**
+   * file_path -> url
+   * HTTP request handler for serving assets
+   */
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
+  /**
+   * Asset upload functions (requires signed call, registered users only)
+   */
   'init_upload' : ActorMethod<
     [string, bigint, [] | [bigint], string],
     { 'Ok' : null } |
       { 'Err' : Error }
   >,
+  /**
+   * Check if user is following another user
+   */
   'is_following' : ActorMethod<[Principal, Principal], boolean>,
+  /**
+   * Check if username is available
+   */
   'is_username_available' : ActorMethod<[string], boolean>,
+  /**
+   * NFT Minting API (requires signed call, registered users only)
+   */
+  'mint_on_behalf' : ActorMethod<
+    [
+      string,
+      [] | [string],
+      [] | [string],
+      [] | [Array<[string, string]>],
+      bigint,
+    ],
+    { 'Ok' : bigint } |
+      { 'Err' : Error }
+  >,
+  /**
+   * Search users
+   */
   'search_users' : ActorMethod<
     [string, number],
     { 'Ok' : Array<CompactProfile> } |
       { 'Err' : Error }
   >,
+  /**
+   * Personal search with follow state
+   */
   'search_users_personal' : ActorMethod<
     [string, number, Principal],
     { 'Ok' : Array<CompactProfile> } |
       { 'Err' : Error }
   >,
+  /**
+   * User registration (requires signed call)
+   */
   'signup' : ActorMethod<
     [string, [] | [string], [] | [string], [] | [string]],
     UserResult
   >,
+  /**
+   * file_path, file_size, chunk_size, file_hash
+   */
   'store_chunk' : ActorMethod<
     [bigint, Uint8Array | number[], string],
     { 'Ok' : null } |
@@ -130,9 +201,15 @@ export interface _SERVICE {
   'update_banner' : ActorMethod<[string], UserResult>,
   'update_bio' : ActorMethod<[string], UserResult>,
   'update_bitcoin_address' : ActorMethod<[string], UserResult>,
+  /**
+   * Individual field updates (requires signed call, owner only)
+   */
   'update_display_name' : ActorMethod<[string], UserResult>,
   'update_evm_address' : ActorMethod<[string], UserResult>,
   'update_location' : ActorMethod<[string], UserResult>,
+  /**
+   * Update user profile (requires signed call, owner only)
+   */
   'update_profile' : ActorMethod<[UserUpdate], UserResult>,
   'update_solana_address' : ActorMethod<[string], UserResult>,
   'update_website' : ActorMethod<[string], UserResult>,

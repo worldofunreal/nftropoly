@@ -2,10 +2,76 @@ use candid::Principal;
 use ic_asset_certification::{Asset, AssetConfig};
 use ic_http_certification::{HttpRequest, HttpResponse, StatusCode};
 use ic_cdk::api::{data_certificate, certified_data_set};
+use ic_cdk::call;
 
 use crate::errors::Error;
 use crate::storage::Database;
 use crate::types::*;
+use crate::nft_types::*;
+
+// Simple ICRC2 types for token operations
+#[derive(candid::CandidType, candid::Deserialize, Clone, Debug)]
+pub struct Account {
+    pub owner: Principal,
+    pub subaccount: Option<Vec<u8>>,
+}
+
+#[derive(candid::CandidType, candid::Deserialize, Clone, Debug)]
+pub struct TransferFromArgs {
+    pub from: Account,
+    pub to: Account,
+    pub amount: u128,
+    pub fee: Option<u128>,
+    pub memo: Option<Vec<u8>>,
+    pub created_at_time: Option<u64>,
+}
+
+#[derive(candid::CandidType, candid::Deserialize, Clone, Debug)]
+pub enum TransferFromResult {
+    Ok(u128),
+    Err(TransferFromError),
+}
+
+#[derive(candid::CandidType, candid::Deserialize, Clone, Debug)]
+pub enum TransferFromError {
+    BadFee { expected_fee: u128 },
+    BadBurn { min_burn_amount: u128 },
+    InsufficientFunds { balance: u128 },
+    InsufficientAllowance { allowance: u128 },
+    TooOld,
+    CreatedInFuture { ledger_time: u64 },
+    TemporarilyUnavailable,
+    Duplicate { duplicate_of: u128 },
+    GenericError { error_code: u128, message: String },
+}
+
+#[derive(candid::CandidType, candid::Deserialize, Clone, Debug)]
+pub struct TransferArg {
+    pub from_subaccount: Option<Vec<u8>>,
+    pub to: Account,
+    pub amount: u128,
+    pub fee: Option<u128>,
+    pub memo: Option<Vec<u8>>,
+    pub created_at_time: Option<u64>,
+}
+
+#[derive(candid::CandidType, candid::Deserialize, Clone, Debug)]
+pub enum TransferResult {
+    Ok(u128),
+    Err(TransferError),
+}
+
+#[derive(candid::CandidType, candid::Deserialize, Clone, Debug)]
+pub enum TransferError {
+    BadFee { expected_fee: u128 },
+    BadBurn { min_burn_amount: u128 },
+    InsufficientFunds { balance: u128 },
+    TooOld,
+    CreatedInFuture { ledger_time: u64 },
+    TemporarilyUnavailable,
+    Duplicate { duplicate_of: u128 },
+    GenericError { error_code: u128, message: String },
+}
 
 // Validation functions
 fn validate_username(username: &str) -> Result<(), Error> {
@@ -139,6 +205,18 @@ pub async fn signup(
     // Create new user
     let user = User::new(caller, username, evm_address, bitcoin_address, solana_address);
     Database::insert_user(user.clone());
+    
+    // Grant welcome tokens (1000 NTRP)
+    let welcome_amount = 100000000000u64; // 1000 tokens with 8 decimals
+    match faucet_tokens(caller, welcome_amount).await {
+        Ok(_) => {
+            ic_cdk::println!("✅ Welcome tokens granted to new user: {}", caller);
+        }
+        Err(e) => {
+            ic_cdk::println!("⚠️ Failed to grant welcome tokens: {:?}", e);
+            // Don't fail signup if token grant fails
+        }
+    }
     
     Ok(user)
 }
@@ -690,5 +768,153 @@ pub fn http_request(req: HttpRequest) -> HttpResponse {
             .with_body(b"Not found".to_vec())
             .with_headers(vec![("Content-Type".to_string(), "text/plain".to_string())])
             .build()
+    }
+}
+
+// NFT Minting handlers
+
+pub async fn mint_on_behalf(
+    caller: Principal,
+    token_name: String,
+    token_description: Option<String>,
+    token_image_url: Option<String>,
+    token_attributes: Option<Vec<(String, String)>>,
+    mint_price: u64, // Price in smallest token unit (e.g., 100 * 10^8 for 100 tokens)
+) -> Result<u64, Error> {
+    // Check if user exists
+    let _user = Database::get_user(caller)
+        .ok_or(Error::UserNotFound)?;
+
+    // Get canister IDs (these should be configured properly)
+    let token_canister_id = Principal::from_text("umunu-kh777-77774-qaaca-cai").unwrap(); // Token canister ID
+    let nft_collection_id = Principal::from_text("u6s2n-gx777-77774-qaaba-cai").unwrap(); // NFT collection canister ID
+    let canister_principal = ic_cdk::api::id();
+    
+    ic_cdk::println!("🔐 Processing NFT mint (requires prior user approval)...");
+    ic_cdk::println!("   User: {}", caller);
+    ic_cdk::println!("   Token: {}", token_name);
+    ic_cdk::println!("   Price: {} tokens", mint_price);
+
+    // Step 1: Pull tokens from user (user must have pre-approved via icrc2_approve in frontend)
+    let transfer_args = TransferFromArgs {
+        from: Account {
+            owner: caller,
+            subaccount: None,
+        },
+        to: Account {
+            owner: canister_principal,
+            subaccount: None,
+        },
+        amount: mint_price as u128,
+        fee: None,
+        memo: None,
+        created_at_time: None,
+    };
+
+    ic_cdk::println!("💰 Pulling {} tokens from user (must be pre-approved)...", mint_price);
+    
+    // Call token canister to transfer tokens
+    let transfer_result: Result<(TransferFromResult,), _> = call(
+        token_canister_id,
+        "icrc2_transfer_from",
+        (transfer_args,),
+    ).await;
+
+    match transfer_result {
+        Ok((result,)) => match result {
+            TransferFromResult::Ok(_) => {
+                ic_cdk::println!("✅ Tokens transferred successfully");
+
+                // Step 2: Mint NFT and transfer to user
+                let mint_args = MintArgs {
+                    token_name: token_name.clone(),
+                    token_description,
+                    token_image_url,
+                    token_attributes,
+                    token_owner: crate::nft_types::Account {
+                        owner: caller,
+                        subaccount: None,
+                    },
+                    memo: Some(format!("Minted for user: {}", caller)),
+                };
+
+                ic_cdk::println!("🎨 Minting NFT...");
+
+                // Call NFT collection to mint
+                let mint_result: Result<(MintResponse,), _> = call(
+                    nft_collection_id,
+                    "mint",
+                    (mint_args,),
+                ).await;
+
+                match mint_result {
+                    Ok((result,)) => match result {
+                        MintResponse::Ok(token_id) => {
+                            ic_cdk::println!("🎉 NFT minted successfully with ID: {}", token_id);
+                            Ok(token_id)
+                        }
+                        MintResponse::Err(e) => Err(Error::InvalidInput(format!(
+                            "Failed to mint NFT: {:?}",
+                            e
+                        ))),
+                    },
+                    Err(e) => Err(Error::InvalidInput(format!(
+                        "Failed to call mint: {:?}",
+                        e
+                    ))),
+                }
+            }
+            TransferFromResult::Err(e) => Err(Error::InvalidInput(format!(
+                "Failed to transfer tokens: {:?}",
+                e
+            ))),
+        },
+        Err(e) => Err(Error::InvalidInput(format!(
+            "Failed to call transfer_from: {:?}",
+            e
+        ))),
+    }
+}
+
+pub async fn faucet_tokens(caller: Principal, amount: u64) -> Result<(), Error> {
+    // Check if user exists
+    let _user = Database::get_user(caller)
+        .ok_or(Error::UserNotFound)?;
+
+    let token_canister_id = Principal::from_text("umunu-kh777-77774-qaaca-cai").unwrap(); // Token canister ID
+    
+    ic_cdk::println!("🚰 Faucet: Transferring {} tokens to user {}", amount, caller);
+
+    // Transfer tokens from backend to user
+    let transfer_args = TransferArg {
+        from_subaccount: None,
+        to: Account {
+            owner: caller,
+            subaccount: None,
+        },
+        amount: amount as u128,
+        fee: None,
+        memo: None,
+        created_at_time: None,
+    };
+
+    // Call token canister to transfer tokens
+    let transfer_result: Result<(TransferResult,), _> = call(
+        token_canister_id,
+        "icrc1_transfer",
+        (transfer_args,),
+    ).await;
+
+    match transfer_result {
+        Ok((result,)) => {
+            match result {
+                TransferResult::Ok(_) => {
+                    ic_cdk::println!("✅ Faucet transfer successful");
+                    Ok(())
+                },
+                TransferResult::Err(e) => Err(Error::InvalidInput(format!("Failed to transfer tokens: {:?}", e))),
+            }
+        }
+        Err(e) => Err(Error::InvalidInput(format!("Failed to call transfer: {:?}", e))),
     }
 }

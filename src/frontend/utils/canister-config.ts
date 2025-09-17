@@ -21,6 +21,10 @@ let canisterConfigCache: CanisterConfig | null = null
 let cacheTimestamp: number = 0
 const CACHE_DURATION = 5 * 60 * 1000 // 5 minutes
 
+// Clear cache immediately to force refresh
+canisterConfigCache = null
+cacheTimestamp = 0
+
 /**
  * Get canister IDs from the server endpoint with caching
  */
@@ -84,10 +88,10 @@ export async function getCanisterConfig(
  */
 export function getFallbackCanisterConfig(): CanisterConfig {
   return {
-    nftCollection: 'uqqxf-5h777-77774-qaaaa-cai',
-    marketplace: 'u6s2n-gx777-77774-qaaba-cai',
-    nftropolyToken: 'uzt4z-lp777-77774-qaabq-cai',
-    backend: 'bhhab-xyaaa-aaaap-qqchq-cai',
+    nftCollection: 'u6s2n-gx777-77774-qaaba-cai', // From deployment
+    marketplace: 'uzt4z-lp777-77774-qaabq-cai',   // From deployment
+    nftropolyToken: 'umunu-kh777-77774-qaaca-cai', // From deployment
+    backend: 'uqqxf-5h777-77774-qaaaa-cai',        // From deployment
     _meta: {
       source: 'fallback',
       environment: process.env.NODE_ENV || 'development',

@@ -14,6 +14,7 @@ mod errors;
 mod handlers;
 mod storage;
 mod types;
+mod nft_types;
 
 use errors::Error;
 use storage::Database;
@@ -312,3 +313,40 @@ fn get_followers(user: Principal) -> Vec<CompactProfile> {
 fn is_following(follower: Principal, following: Principal) -> bool {
     handlers::is_following(follower, following)
 }
+
+// NFT Minting API
+
+#[update]
+async fn mint_on_behalf(
+    token_name: String,
+    token_description: Option<String>,
+    token_image_url: Option<String>,
+    token_attributes: Option<Vec<(String, String)>>,
+    mint_price: u64,
+) -> Result<u64, Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::mint_on_behalf(
+        caller,
+        token_name,
+        token_description,
+        token_image_url,
+        token_attributes,
+        mint_price,
+    ).await
+}
+
+#[update]
+async fn faucet_tokens(amount: u64) -> Result<(), Error> {
+    let caller = msg_caller();
+    if caller == Principal::anonymous() {
+        return Err(Error::Unauthorized);
+    }
+    
+    handlers::faucet_tokens(caller, amount).await
+}
+
+// Removed approve_and_mint to enforce frontend-driven ICRC2 approval

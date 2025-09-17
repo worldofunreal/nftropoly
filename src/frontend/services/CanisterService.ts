@@ -1,21 +1,46 @@
 import { Actor, HttpAgent } from '@dfinity/agent'
 import type { Identity } from '@dfinity/agent'
 import { Principal } from '@dfinity/principal'
-import { idlFactory } from '../../declarations/backend'
+
+// Import backend canister
+import { idlFactory as backendIdlFactory } from '../../declarations/backend'
+import type { _SERVICE as BackendService } from '../../declarations/backend/backend.did'
+
+// Import token canister
+import { idlFactory as tokenIdlFactory } from '../../declarations/nftropoly_token'
+import type { _SERVICE as TokenService } from '../../declarations/nftropoly_token/nftropoly_token.did'
+
+// Import NFT canister
+import { idlFactory as nftIdlFactory } from '../../declarations/nft_collection'
+import type { _SERVICE as NFTService } from '../../declarations/nft_collection/nft_collection.did'
+
+// Import marketplace canister
+import { idlFactory as marketplaceIdlFactory } from '../../declarations/marketplace'
+import type { _SERVICE as MarketplaceService } from '../../declarations/marketplace/marketplace.did'
+
+// Import modules
+import { BackendModule } from './modules/BackendModule'
+import { TokenModule } from './modules/TokenModule'
+import { NFTModule } from './modules/NFTModule'
+import { MarketplaceModule } from './modules/MarketplaceModule'
+
+// Import utilities
+import { getFallbackCanisterConfig } from '~/utils/canister-config'
+import { appCacheService } from './AppCacheService'
+
+// Re-export types for backward compatibility
 import type {
-  _SERVICE as BackendService,
   User,
   UserResult,
   UserUpdate,
   CompactProfile,
   PersonalUser,
 } from '../../declarations/backend/backend.did'
-import { appCacheService } from './AppCacheService'
 
 // Get canister ID from runtime config
 const getBackendCanisterId = () => {
   // Get canister ID from environment
-  return process.env.CANISTER_ID_BACKEND || 'bhhab-xyaaa-aaaap-qqchq-cai'
+  return process.env.CANISTER_ID_BACKEND || 'uqqxf-5h777-77774-qaaaa-cai'
 }
 
 // Export types from the backend canister
@@ -38,8 +63,19 @@ const handleUserResult = (result: UserResult): User => {
 
 class CanisterService {
   private agent: HttpAgent | null = null
-  private backendActor: BackendService | null = null
   private identity: Identity | null = null
+  
+  // Canister actors
+  private backendActor: BackendService | null = null
+  private tokenActor: TokenService | null = null
+  private nftActor: NFTService | null = null
+  private marketplaceActor: MarketplaceService | null = null
+  
+  // Public modules
+  public backend: BackendModule
+  public token: TokenModule
+  public nft: NFTModule
+  public marketplace: MarketplaceModule
 
   // Initialize the service with an identity
   async initialize(identity?: Identity) {
@@ -48,21 +84,49 @@ class CanisterService {
 
       // Create HTTP agent with proper configuration
       this.agent = new HttpAgent({
-        host: 'https://icp0.io', // Use mainnet
+        host: 'http://localhost:4943', // Use local dfx
         identity: this.identity || undefined,
       })
 
-      // Fetch root key for mainnet
-      console.log('Fetching root key for mainnet...')
+      // Fetch root key for local development
+      console.log('Fetching root key for local development...')
       await this.agent.fetchRootKey()
 
-      // Create backend actor
-      this.backendActor = Actor.createActor(idlFactory, {
+      // Get canister IDs from fallback config
+      const config = getFallbackCanisterConfig()
+
+      // Create all canister actors
+      this.backendActor = Actor.createActor(backendIdlFactory, {
         agent: this.agent,
-        canisterId: getBackendCanisterId(),
+        canisterId: config.backend,
       })
 
-      console.log('CanisterService initialized successfully')
+      this.tokenActor = Actor.createActor(tokenIdlFactory, {
+        agent: this.agent,
+        canisterId: config.nftropolyToken,
+      })
+
+      this.nftActor = Actor.createActor(nftIdlFactory, {
+        agent: this.agent,
+        canisterId: config.nftCollection,
+      })
+
+      this.marketplaceActor = Actor.createActor(marketplaceIdlFactory, {
+        agent: this.agent,
+        canisterId: config.marketplace,
+      })
+
+      // Initialize modules with actors
+      this.backend = new BackendModule(this.backendActor)
+      this.token = new TokenModule(this.tokenActor)
+      this.nft = new NFTModule(this.nftActor)
+      this.marketplace = new MarketplaceModule(this.marketplaceActor)
+
+      console.log('CanisterService initialized successfully with all modules')
+      console.log('- Backend:', config.backend)
+      console.log('- Token:', config.nftropolyToken)
+      console.log('- NFT:', config.nftCollection)
+      console.log('- Marketplace:', config.marketplace)
       return true
     } catch (error) {
       console.error('Failed to initialize CanisterService:', error)
@@ -75,11 +139,11 @@ class CanisterService {
     try {
       // Create HTTP agent without identity for anonymous access
       this.agent = new HttpAgent({
-        host: 'https://icp0.io', // Use mainnet
+        host: 'http://localhost:4943', // Use local dfx
       })
 
-      // Fetch root key for mainnet
-      console.log('Fetching root key for mainnet (anonymous)...')
+      // Fetch root key for local development
+      console.log('Fetching root key for local development (anonymous)...')
       await this.agent.fetchRootKey()
 
       // Create backend actor for anonymous queries
@@ -941,6 +1005,71 @@ class CanisterService {
   getAssetUrl(filePath: string): string {
     const backendCanisterId = getBackendCanisterId()
     return `https://${backendCanisterId}.raw.icp0.io${filePath}`
+  }
+
+  // Get canister ID
+  getCanisterId(): string {
+    return getBackendCanisterId()
+  }
+
+  // NFT Minting methods
+  async mintOnBehalf(
+    tokenName: string,
+    tokenDescription?: string,
+    tokenImageUrl?: string,
+    tokenAttributes?: Array<[string, string]>,
+    mintPrice: bigint = 10000000000n // 100 tokens with 8 decimals
+  ): Promise<{ Ok: bigint } | { Err: string }> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.mint_on_behalf(
+        tokenName,
+        tokenDescription ? [tokenDescription] : [],
+        tokenImageUrl ? [tokenImageUrl] : [],
+        tokenAttributes ? [tokenAttributes] : [],
+        mintPrice
+      )
+      return result
+    } catch (error) {
+      console.error('Failed to mint NFT:', error)
+      return { Err: `Failed to mint NFT: ${error}` }
+    }
+  }
+
+  async faucetTokens(amount: bigint = 100000000000n): Promise<{ Ok: null } | { Err: string }> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const result = await this.backendActor.faucet_tokens(amount)
+      return result
+    } catch (error) {
+      console.error('Failed to get tokens from faucet:', error)
+      return { Err: `Failed to get tokens from faucet: ${error}` }
+    }
+  }
+
+  // Generic backend call method
+  async callBackend(method: string, args: any[] = []): Promise<any> {
+    if (!this.backendActor) {
+      throw new Error('CanisterService not initialized')
+    }
+
+    try {
+      const actor = this.backendActor as any
+      if (typeof actor[method] !== 'function') {
+        throw new Error(`Method ${method} not found on backend actor`)
+      }
+      
+      return await actor[method](...args)
+    } catch (error) {
+      console.error(`Failed to call backend method ${method}:`, error)
+      throw error
+    }
   }
 }
 

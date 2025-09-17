@@ -52,6 +52,8 @@
   const menuItems = computed(() => {
     const items = [
       { label: 'Discover', icon: 'eos-icons:compass', to: '/' },
+      { label: 'Marketplace', icon: 'heroicons:building-storefront', to: '/marketplace' },
+      { label: 'Mint NFT', icon: 'heroicons:sparkles', to: '/mint' },
       { label: 'NFTs', icon: 'icon-park-solid:game-ps', to: '/nfts' },
       { label: 'Tokens', icon: 'subway:coin', to: '/tokens' },
       { label: 'Activity', icon: 'tabler:activity', to: '/activity' },

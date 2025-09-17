@@ -44,8 +44,28 @@ BIZKIT_PRINCIPAL="$CURRENT_PRINCIPAL"
 echo -e "${YELLOW}Alice Principal (for TypeScript):${NC} $ALICE_PRINCIPAL"
 echo -e "${YELLOW}Bizkit Principal (for DFX):${NC} $BIZKIT_PRINCIPAL"
 
-# Step 3: Deploy NFT Collection with Alice as minting authority
-echo -e "${BLUE}📋 Step 3: Deploying NFT Collection${NC}"
+# Step 3: Deploy Backend First
+echo -e "${BLUE}📋 Step 3: Deploying Backend${NC}"
+
+# Create canister if it doesn't exist
+echo "Creating backend canister..."
+dfx canister create backend --no-wallet
+
+# Build the canister
+echo "Building backend..."
+dfx build backend
+
+# Deploy backend
+echo "Deploying backend..."
+dfx deploy backend
+
+# Get backend canister ID
+BACKEND_CANISTER_ID=$(dfx canister id backend)
+echo -e "${GREEN}✅ Backend deployed!${NC}"
+echo -e "${YELLOW}Backend Canister ID:${NC} $BACKEND_CANISTER_ID"
+
+# Step 4: Deploy NFT Collection with Backend as minting authority
+echo -e "${BLUE}📋 Step 4: Deploying NFT Collection${NC}"
 
 # Create canister if it doesn't exist
 echo "Creating NFT collection canister..."
@@ -55,8 +75,8 @@ dfx canister create nft_collection --no-wallet
 echo "Building NFT collection..."
 dfx build nft_collection
 
-# Deploy with Alice as minting authority (for TypeScript tests)
-echo "Deploying NFT collection with Alice as minting authority..."
+# Deploy with Backend as minting authority (for production flow)
+echo "Deploying NFT collection with Backend as minting authority..."
 dfx deploy nft_collection --argument '(
   variant {
     Init = record {
@@ -67,8 +87,8 @@ dfx deploy nft_collection --argument '(
         patch = 0;
       };
       commit_hash = "test-commit-hash";
-      authorized_principals = vec { principal "'$ALICE_PRINCIPAL'"; principal "'$BIZKIT_PRINCIPAL'" };
-      minting_authorities = vec { principal "'$ALICE_PRINCIPAL'"; principal "'$BIZKIT_PRINCIPAL'" };
+      authorized_principals = vec { principal "'$ALICE_PRINCIPAL'"; principal "'$BIZKIT_PRINCIPAL'"; principal "'$BACKEND_CANISTER_ID'" };
+      minting_authorities = vec { principal "'$ALICE_PRINCIPAL'"; principal "'$BIZKIT_PRINCIPAL'"; principal "'$BACKEND_CANISTER_ID'" };
       description = opt "My NFT Collection";
       symbol = "MNFT";
       name = "My NFT Collection";
@@ -98,8 +118,8 @@ NFT_CANISTER_ID=$(dfx canister id nft_collection)
 echo -e "${GREEN}✅ NFT Collection deployed!${NC}"
 echo -e "${YELLOW}NFT Canister ID:${NC} $NFT_CANISTER_ID"
 
-# Step 4: Deploy Marketplace
-echo -e "${BLUE}📋 Step 4: Deploying Marketplace${NC}"
+# Step 5: Deploy Marketplace
+echo -e "${BLUE}📋 Step 5: Deploying Marketplace${NC}"
 
 # Create canister if it doesn't exist
 echo "Creating marketplace canister..."
@@ -118,8 +138,8 @@ MARKETPLACE_CANISTER_ID=$(dfx canister id marketplace)
 echo -e "${GREEN}✅ Marketplace deployed!${NC}"
 echo -e "${YELLOW}Marketplace Canister ID:${NC} $MARKETPLACE_CANISTER_ID"
 
-# Step 5: Deploy NFTropoly Token (ICRC-1)
-echo -e "${BLUE}📋 Step 5: Deploying NFTropoly Token (ICRC-1)${NC}"
+# Step 6: Deploy NFTropoly Token (ICRC-1)
+echo -e "${BLUE}📋 Step 6: Deploying NFTropoly Token (ICRC-1)${NC}"
 
 # Create canister if it doesn't exist
 echo "Creating NFTropoly token canister..."
@@ -155,7 +175,10 @@ record {
      transfer_fee = ${TRANSFER_FEE};
      metadata = vec {};
      feature_flags = opt record{icrc2 = ${FEATURE_FLAGS}};
-     initial_balances = vec { record { record { owner = principal \"${BIZKIT_PRINCIPAL}\"; }; ${PRE_MINTED_TOKENS}; }; };
+     initial_balances = vec { 
+       record { record { owner = principal \"${BIZKIT_PRINCIPAL}\"; }; ${PRE_MINTED_TOKENS}; }; 
+       record { record { owner = principal \"${BACKEND_CANISTER_ID}\"; }; ${PRE_MINTED_TOKENS}; }; 
+     };
      archive_options = record {
          num_blocks_to_archive = ${NUM_OF_BLOCK_TO_ARCHIVE};
          trigger_threshold = ${TRIGGER_THRESHOLD};
@@ -170,8 +193,8 @@ TOKEN_CANISTER_ID=$(dfx canister id nftropoly_token)
 echo -e "${GREEN}✅ NFTropoly Token deployed!${NC}"
 echo -e "${YELLOW}Token Canister ID:${NC} $TOKEN_CANISTER_ID"
 
-# Step 6: Distribute tokens to test users
-echo -e "${BLUE}📋 Step 6: Distributing Tokens to Test Users${NC}"
+# Step 7: Distribute tokens to test users
+echo -e "${BLUE}📋 Step 7: Distributing Tokens to Test Users${NC}"
 
 # Generate the same deterministic principals as TypeScript tests
 echo "Generating test user principals..."
@@ -222,15 +245,16 @@ echo "   Alice: $TOKENS_PER_USER NTRP"
 echo "   Bob: $TOKENS_PER_USER NTRP"
 echo "   Charlie: $TOKENS_PER_USER NTRP"
 
-# Step 7: Generate TypeScript declarations
-echo -e "${BLUE}📋 Step 7: Generating TypeScript Declarations${NC}"
+# Step 8: Generate TypeScript declarations
+echo -e "${BLUE}📋 Step 8: Generating TypeScript Declarations${NC}"
+dfx generate backend
 dfx generate nft_collection
 dfx generate marketplace
 dfx generate nftropoly_token
 echo -e "${GREEN}✅ TypeScript declarations generated!${NC}"
 
-# Step 8: Test basic functionality with DFX
-echo -e "${BLUE}📋 Step 8: Testing Basic Functionality${NC}"
+# Step 9: Test basic functionality with DFX
+echo -e "${BLUE}📋 Step 9: Testing Basic Functionality${NC}"
 
 # Test NFT collection
 echo "Testing NFT collection..."
@@ -251,6 +275,7 @@ echo -e "${GREEN}🎉 Unified Deployment Completed!${NC}"
 echo ""
 echo -e "${YELLOW}📝 Summary:${NC}"
 echo "   - Using ONLY bizkit identity for deployment"
+echo "   - Backend: $BACKEND_CANISTER_ID"
 echo "   - NFT Collection: $NFT_CANISTER_ID"
 echo "   - Marketplace: $MARKETPLACE_CANISTER_ID"
 echo "   - NFTropoly Token: $TOKEN_CANISTER_ID"
@@ -259,6 +284,7 @@ echo "   - Token Distribution: 10M NTRP each to Alice, Bob, Charlie"
 echo "   - TypeScript declarations generated"
 echo ""
 echo -e "${BLUE}🌐 Canister URLs:${NC}"
+echo "   Backend: http://localhost:4943/?canisterId=$BACKEND_CANISTER_ID"
 echo "   NFT Collection: http://localhost:4943/?canisterId=$NFT_CANISTER_ID"
 echo "   Marketplace: http://localhost:4943/?canisterId=$MARKETPLACE_CANISTER_ID"
 echo "   NFTropoly Token: http://localhost:4943/?canisterId=$TOKEN_CANISTER_ID"

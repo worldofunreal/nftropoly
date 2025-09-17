@@ -83,6 +83,11 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error })],
         [],
       ),
+    'faucet_tokens' : IDL.Func(
+        [IDL.Nat64],
+        [IDL.Variant({ 'Ok' : IDL.Null, 'Err' : Error })],
+        [],
+      ),
     'finalize_upload' : IDL.Func(
         [IDL.Text],
         [IDL.Variant({ 'Ok' : IDL.Text, 'Err' : Error })],
@@ -108,6 +113,17 @@ export const idlFactory = ({ IDL }) => {
       ),
     'is_following' : IDL.Func([IDL.Principal, IDL.Principal], [IDL.Bool], []),
     'is_username_available' : IDL.Func([IDL.Text], [IDL.Bool], []),
+    'mint_on_behalf' : IDL.Func(
+        [
+          IDL.Text,
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Text),
+          IDL.Opt(IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text))),
+          IDL.Nat64,
+        ],
+        [IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : Error })],
+        [],
+      ),
     'search_users' : IDL.Func(
         [IDL.Text, IDL.Nat32],
         [IDL.Variant({ 'Ok' : IDL.Vec(CompactProfile), 'Err' : Error })],
