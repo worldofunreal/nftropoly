@@ -3,6 +3,7 @@ use ic_asset_certification::{Asset, AssetConfig};
 use ic_http_certification::{HttpRequest, HttpResponse, StatusCode};
 use ic_cdk::api::{data_certificate, certified_data_set};
 use ic_cdk::call;
+// Remove num_traits import
 
 use crate::errors::Error;
 use crate::storage::Database;
@@ -796,6 +797,8 @@ pub async fn mint_on_behalf(
     ic_cdk::println!("   Price: {} tokens", mint_price);
 
     // Step 1: Pull tokens from user (user must have pre-approved via icrc2_approve in frontend)
+    // Note: The user should approve mint_price + fee, but we only transfer mint_price
+    // The fee is automatically deducted by the token canister during transfer_from
     let transfer_args = TransferFromArgs {
         from: Account {
             owner: caller,
@@ -805,8 +808,8 @@ pub async fn mint_on_behalf(
             owner: canister_principal,
             subaccount: None,
         },
-        amount: mint_price as u128,
-        fee: None,
+        amount: mint_price as u128,  // Only transfer the mint price, fee is handled automatically
+        fee: None,                   // Let token canister use default fee
         memo: None,
         created_at_time: None,
     };
@@ -826,16 +829,17 @@ pub async fn mint_on_behalf(
                 ic_cdk::println!("✅ Tokens transferred successfully");
 
                 // Step 2: Mint NFT and transfer to user
+                // Create metadata URL from provided data
+                let metadata_url = token_image_url.unwrap_or_else(|| "https://example.com/default-nft.json".to_string());
+                
                 let mint_args = MintArgs {
-                    token_name: token_name.clone(),
-                    token_description,
-                    token_image_url,
-                    token_attributes,
+                    token_metadata_url: metadata_url,
+                    memo: Some(format!("Minted for user: {}", caller).into_bytes()),
                     token_owner: crate::nft_types::Account {
                         owner: caller,
                         subaccount: None,
                     },
-                    memo: Some(format!("Minted for user: {}", caller)),
+                    token_name: token_name.clone(),
                 };
 
                 ic_cdk::println!("🎨 Minting NFT...");
@@ -850,8 +854,11 @@ pub async fn mint_on_behalf(
                 match mint_result {
                     Ok((result,)) => match result {
                         MintResponse::Ok(token_id) => {
-                            ic_cdk::println!("🎉 NFT minted successfully with ID: {}", token_id);
-                            Ok(token_id)
+                            // Convert candid::Nat to u64 using string conversion
+                            let token_id_str = token_id.to_string();
+                            let token_id_u64 = token_id_str.parse::<u64>().unwrap_or(0);
+                            ic_cdk::println!("🎉 NFT minted successfully with ID: {}", token_id_u64);
+                            Ok(token_id_u64)
                         }
                         MintResponse::Err(e) => Err(Error::InvalidInput(format!(
                             "Failed to mint NFT: {:?}",
