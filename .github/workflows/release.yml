@@ -18,12 +18,9 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
       - run: npm ci
-      - run: npm run build --workspaces --if-present
-      - run: npm test
+      - run: npm run build
+      # - run: npm test # No tests in minimal frontend anymore
 
   deploy:
     needs: validate
@@ -34,11 +31,8 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          targets: wasm32-unknown-unknown
       - run: npm ci
-      - run: npm run build --workspaces --if-present
+      - run: npm run build
       - uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
