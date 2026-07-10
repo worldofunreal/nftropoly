@@ -1,9 +1,0 @@
-# robots.txt for nftropoly.com
-User-Agent: *
-Disallow:
-
-# Allow all public pages
-Allow: /
-
-# Sitemap
-Sitemap: https://nftropoly.com/api/sitemap.xml

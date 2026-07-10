@@ -1,25 +1,17 @@
 {
-  "engines": {
-    "node": ">=16.0.0",
-    "npm": ">=7.0.0"
-  },
   "name": "nftropoly",
-  "scripts": {
-    "build": "npm run build --workspaces --if-present",
-    "prebuild": "npm run prebuild --workspaces --if-present",
-    "pretest": "npm run prebuild --workspaces --if-present",
-    "start": "npm start --workspaces --if-present",
-    "test": "npm test --workspaces --if-present",
-    "test:marketplace": "npx tsx scripts/test_marketplace.ts",
-    "test:marketplace:stage1": "npx tsx scripts/test_marketplace.ts 1",
-    "test:marketplace:stage2": "npx tsx scripts/test_marketplace.ts 2",
-    "test:marketplace:stage3": "npx tsx scripts/test_marketplace.ts 3",
-    "test:marketplace:stage4": "npx tsx scripts/test_marketplace.ts 4",
-    "test:marketplace:stage5": "npx tsx scripts/test_marketplace.ts 5",
-    "test:marketplace:stage6": "npx tsx scripts/test_marketplace.ts 6"
-  },
   "type": "module",
-  "workspaces": [
-    "src/frontend"
-  ]
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.2",
+    "astro": "^7.0.6",
+    "tailwindcss": "^4.3.2"
+  }
 }
