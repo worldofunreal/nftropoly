@@ -1,0 +1,60 @@
+---
+import genesis from '../data/genesis.json';
+import sow from '../data/sow.json';
+
+interface Props { series: 'genesis' | 'sow'; }
+const { series } = Astro.props;
+const cards = series === 'genesis' ? genesis : sow;
+const meta = series === 'genesis'
+  ? { title: 'COSMICRAFTS', sub: 'Genesis Collection', desc: 'Ships, titans and outlaws of the Dark Rift — 300 tradable collectibles from the Cosmicrafts universe.' }
+  : { title: 'SHADOWS OF WAR', sub: 'Commanders', desc: 'The twelve great commanders of history, forged into collectible cards for the battlefield.' };
+const edition = series === 'genesis' ? 500 : 250;
+const rarities = ['Legendary', 'Epic', 'Rare', 'Common'];
+const rcolor: Record<string, string> = { Common: '#94a3b8', Rare: '#38bdf8', Epic: '#c084fc', Legendary: '#fbbf24' };
+const dist = rarities.map(r => ({ r, n: cards.filter(c => c.rarity === r).length }));
+const cover = [cards[0], cards[Math.floor(cards.length / 2)], cards[cards.length - 1]];
+---
+
+<a href={`/collections/${series}`}
+  class="group block rounded-2xl border border-line bg-surface p-6 md:p-8 transition hover:border-cy/40 hover:shadow-[0_10px_50px_rgba(44,211,255,0.08)]">
+  <div class="flex flex-col sm:flex-row items-center gap-6 md:gap-8">
+
+    <!-- card fan -->
+    <div class="relative h-52 w-56 shrink-0">
+      {cover.map((c, i) => (
+        <img
+          src={c.image}
+          alt=""
+          loading="lazy"
+          class={`rc-${c.rarity} card-frame absolute w-32 aspect-[3/4] object-cover rounded-lg`}
+          style={`left:${i * 38}px; top:${Math.abs(i - 1) * 10}px; transform:rotate(${(i - 1) * 9}deg); z-index:${i};`}
+        />
+      ))}
+    </div>
+
+    <!-- info -->
+    <div class="flex-1 text-center sm:text-left">
+      <div class="font-mono2 text-[10px] tracking-[0.3em] text-mg">{meta.sub.toUpperCase()}</div>
+      <h3 class="text-2xl md:text-3xl font-black text-ink mt-1">{meta.title}</h3>
+      <p class="text-sm text-muted mt-2 max-w-md mx-auto sm:mx-0">{meta.desc}</p>
+
+      <div class="mt-4 flex items-center justify-center sm:justify-start gap-4 font-mono2 text-xs text-muted">
+        <span class="text-ink font-bold">{cards.length}</span> cards
+        <span class="text-ink font-bold">{edition}</span> edition
+        <span class="text-ink font-bold">{dist.filter(d => d.n > 0).length}</span> rarities
+      </div>
+
+      <!-- rarity distribution -->
+      <div class="mt-3 h-1.5 w-full max-w-sm mx-auto sm:mx-0 rounded-full overflow-hidden flex bg-ink/10">
+        {dist.map(d => (
+          <div style={`width:${(d.n / cards.length) * 100}%; background:${rcolor[d.r]}`}></div>
+        ))}
+      </div>
+
+      <div class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-cy">
+        View collection
+        <span class="transition-transform group-hover:translate-x-1">→</span>
+      </div>
+    </div>
+  </div>
+</a>

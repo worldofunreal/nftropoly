@@ -1,0 +1,110 @@
+---
+import Layout from '../layouts/Layout.astro';
+import genesis from '../data/genesis.json';
+import sow from '../data/sow.json';
+
+const all = [...genesis, ...sow];
+---
+
+<Layout title="My Collection — NFTROPOLY">
+  <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+      <div>
+        <div class="font-mono2 text-xs tracking-[0.3em] text-mg">YOUR VAULT</div>
+        <h1 class="text-4xl md:text-5xl font-black text-ink mt-2">My Collection</h1>
+        <p id="id-status" class="text-muted mt-3 text-sm">
+          Browsing as guest. <button id="me-signin" class="text-cy hover:underline">Sign in</button> to keep your collection across devices.
+        </p>
+      </div>
+      <div class="flex gap-3 font-mono2 text-xs">
+        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
+          <div id="stat-total" class="text-xl font-bold text-ink">0</div>
+          <div class="text-muted mt-0.5">OWNED</div>
+        </div>
+        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
+          <div id="stat-genesis" class="text-xl font-bold text-ink">0/300</div>
+          <div class="text-muted mt-0.5">GENESIS</div>
+        </div>
+        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
+          <div id="stat-sow" class="text-xl font-bold text-ink">0/12</div>
+          <div class="text-muted mt-0.5">COMMANDERS</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- set progress -->
+    <div class="grid md:grid-cols-2 gap-4 mb-8">
+      <div class="rounded-lg border border-line bg-surface p-4">
+        <div class="flex justify-between text-sm"><span class="text-ink">Cosmicrafts Genesis</span><span id="bar-genesis-label" class="font-mono2 text-cy">0%</span></div>
+        <div class="mt-2 h-1.5 rounded-full bg-ink/10 overflow-hidden"><div id="bar-genesis" class="h-full bg-gradient-to-r from-cy to-mg transition-all" style="width:0%"></div></div>
+      </div>
+      <div class="rounded-lg border border-line bg-surface p-4">
+        <div class="flex justify-between text-sm"><span class="text-ink">Shadows of War Commanders</span><span id="bar-sow-label" class="font-mono2 text-cy">0%</span></div>
+        <div class="mt-2 h-1.5 rounded-full bg-ink/10 overflow-hidden"><div id="bar-sow" class="h-full bg-gradient-to-r from-cy to-mg transition-all" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- owned grid -->
+    <div id="owned-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4"></div>
+
+    <!-- empty state -->
+    <div id="empty-state" class="text-center py-16">
+      <div class="font-mono2 text-xs tracking-[0.3em] text-muted">EMPTY VAULT</div>
+      <p class="text-muted mt-3 max-w-md mx-auto text-sm">
+        You don't own any collectibles yet. Open a pack from the live drop or browse the collections to start your set.
+      </p>
+      <div class="mt-6 flex justify-center gap-3">
+        <a href="/#drop" class="px-6 py-2.5 rounded-lg bg-cy/15 text-cy border border-cy/40 hover:bg-cy/25 text-sm font-semibold">Open a pack</a>
+        <a href="/#collections" class="px-6 py-2.5 rounded-lg border border-line text-ink hover:bg-ink/5 text-sm">Browse collections</a>
+      </div>
+    </div>
+  </div>
+
+  <script define:vars={{ CARDS: all }}>
+    import { collection } from '../scripts/collection';
+    import { wouAuth } from '../scripts/wou-auth';
+
+    const grid = document.getElementById('owned-grid')!;
+    const empty = document.getElementById('empty-state')!;
+
+    const render = () => {
+      const ids = collection.list();
+      const owned = CARDS.filter(c => ids.includes(c.id));
+      const g = owned.filter(c => c.series === 'genesis').length;
+      const s = owned.filter(c => c.series === 'sow').length;
+
+      document.getElementById('stat-total')!.textContent = String(owned.length);
+      document.getElementById('stat-genesis')!.textContent = `${g}/300`;
+      document.getElementById('stat-sow')!.textContent = `${s}/12`;
+      document.getElementById('bar-genesis')!.style.width = `${(g / 300) * 100}%`;
+      document.getElementById('bar-sow')!.style.width = `${(s / 12) * 100}%`;
+      document.getElementById('bar-genesis-label')!.textContent = `${Math.round((g / 300) * 100)}%`;
+      document.getElementById('bar-sow-label')!.textContent = `${Math.round((s / 12) * 100)}%`;
+
+      empty.style.display = owned.length ? 'none' : '';
+      grid.innerHTML = owned.map(c => `
+        <a href="/card/${c.id}" class="rc-${c.rarity} card-frame block rounded-xl bg-surface overflow-hidden">
+          <div class="relative aspect-[3/4] overflow-hidden bg-black">
+            <img src="${c.image}" alt="${c.name}" loading="lazy" class="w-full h-full object-cover" />
+            <div class="absolute top-2 left-2 chip text-[10px] font-mono2 tracking-widest px-2 py-0.5 rounded">${c.rarity.toUpperCase()}</div>
+            <div class="absolute top-2 right-2 font-mono2 text-[10px] text-zinc-300/80 bg-black/50 px-2 py-0.5 rounded">#${c.serial}/${c.edition}</div>
+          </div>
+          <div class="p-3">
+            <div class="text-[9px] font-mono2 tracking-[0.2em] text-cy/70">${c.series === 'genesis' ? 'COSMICRAFTS' : 'SHADOWS OF WAR'}</div>
+            <div class="text-sm font-bold text-ink mt-0.5 truncate">${c.name}</div>
+          </div>
+        </a>`).join('');
+
+      const u = wouAuth.getUser();
+      document.getElementById('id-status')!.innerHTML = u
+        ? `Signed in as <span class="text-cy font-semibold">${u.display_name}</span>${u.email ? ` · ${u.email}` : ''} — your collection is linked to your WOU-ID.`
+        : `Browsing as guest. <button id="me-signin" class="text-cy hover:underline">Sign in</button> to keep your collection across devices.`;
+      document.getElementById('me-signin')?.addEventListener('click', () => wouAuth.openModal());
+    };
+
+    window.addEventListener('nftropoly:collection-changed', render);
+    window.addEventListener('wou:auth-changed', render);
+    render();
+  </script>
+</Layout>

@@ -1,284 +1,136 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Starfield from '../components/Starfield.astro';
-import Header from '../components/Header.astro';
-import Panel from '../components/Panel.astro';
+import CollectionSummary from '../components/CollectionSummary.astro';
+import genesis from '../data/genesis.json';
+import sow from '../data/sow.json';
+
+const all = [...genesis, ...sow];
+const DROP_END = '2026-08-28T00:00:00Z';
 ---
 
-<Layout title="NFTROPOLY | Cyberpunk Board Game Portal">
-  <!-- Main Viewport-Locked Container -->
-  <div class="fixed inset-0 h-screen w-screen overflow-hidden flex flex-col justify-between p-6 md:p-10 select-none z-10 bg-[#06030c]">
-    <!-- Starfield Animated Background -->
-    <Starfield />
+<Layout title="NFTROPOLY — Digital Collectibles Store">
 
-    <!-- Ambient Grid & Scanline FX for sci-fi atmosphere -->
-    <div class="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.15)_50%),linear-gradient(90deg,rgba(236,72,153,0.02),rgba(0,0,0,0.12),rgba(168,85,247,0.02))] bg-[size:100%_4px,6px_100%] pointer-events-none z-0 opacity-20"></div>
-    
-    <!-- Ambient Nebulous Glows -->
-    <div id="nebula-rose" class="absolute top-1/4 left-1/4 w-[600px] h-[500px] pointer-events-none z-0 transition-transform duration-500 ease-out animate-pulse-slow" style="background: radial-gradient(circle, rgba(236, 72, 153, 0.08) 0%, transparent 70%);"></div>
+  <div class="relative z-10">
 
-    <!-- Header component -->
-    <Header />
+    <!-- live drop -->
+    <section id="drop" class="max-w-7xl mx-auto px-4 md:px-6 pt-10 md:pt-14">
+      <div class="rounded-2xl border border-white/10 bg-gradient-to-br from-[#0b101c] via-[#0a0d14] to-[#140a12] p-6 md:p-10 overflow-hidden relative">
+        <div class="glow-pulse absolute -top-24 -right-24 w-96 h-96 rounded-full pointer-events-none"
+          style="background: radial-gradient(circle, rgba(255,0,123,0.14) 0%, transparent 65%);"></div>
 
-    <!-- Main Dynamic Section -->
-    <main class="w-full max-w-7xl mx-auto flex-1 flex flex-col lg:flex-row items-center justify-center z-10 gap-6 lg:gap-10 overflow-hidden my-4" style="perspective: 1000px;">
-      
-      <!-- Left side: Interactive Board Game & Property Preview -->
-      <div id="board-card" class="w-full lg:w-6/12 flex flex-col justify-center transition-transform duration-300 ease-out" style="transform-style: preserve-3d;">
-        <Panel class="p-6 md:p-8" status="BOARD_MAP" title="CYBER_GRID_PREVIEW">
-          
-          <!-- Virtual 3D Board Preview -->
-          <div class="relative h-44 w-full border border-pink-500/10 rounded-lg bg-black/50 overflow-hidden flex items-center justify-center select-none" style="perspective: 600px;">
-            <div class="w-36 h-36 border-2 border-pink-500/30 bg-pink-950/5 rounded-lg flex items-center justify-center transform rotateX(60deg) rotateZ(45deg) shadow-[0_0_30px_rgba(236,72,153,0.15)] hover:scale-105 transition-transform duration-500 ease-out" style="transform-style: preserve-3d;">
-              <!-- Mini Districts -->
-              <div class="absolute inset-0 border border-pink-500/20 grid grid-cols-4 grid-rows-4">
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-                <div class="border border-pink-500/10 hover:bg-pink-500/25 transition-colors cursor-pointer"></div>
-              </div>
-              <div class="text-[8px] font-mono text-pink-400 uppercase tracking-widest absolute transform translateZ(10px)">NFT_BOARD</div>
-            </div>
-            <div class="absolute bottom-2 left-2 text-[8px] font-mono text-slate-500">TILT MODE ACTIVE — HOVER BOARD TO INSPECT</div>
-          </div>
-
-          <!-- Collectible Card Grid -->
-          <div class="mt-4 grid grid-cols-3 gap-2 font-mono text-[9px]">
-            <!-- Prop 1 -->
-            <div class="p-2 border border-white/5 bg-white/5 rounded-lg text-left relative hover:border-pink-500/20 transition-all duration-300">
-              <div class="text-[7px] text-pink-500">[ DIST_09 ]</div>
-              <div class="text-white font-bold uppercase tracking-tight mt-0.5">SLUM_GRID</div>
-              <div class="text-pink-400 font-bold mt-1">YIELD: 12%</div>
-            </div>
-            <!-- Prop 2 -->
-            <div class="p-2 border border-white/5 bg-white/5 rounded-lg text-left relative hover:border-pink-500/20 transition-all duration-300">
-              <div class="text-[7px] text-pink-500">[ DIST_12 ]</div>
-              <div class="text-white font-bold uppercase tracking-tight mt-0.5">NEON_TOWER</div>
-              <div class="text-pink-400 font-bold mt-1">YIELD: 18%</div>
-            </div>
-            <!-- Prop 3 -->
-            <div class="p-2 border border-white/5 bg-white/5 rounded-lg text-left relative hover:border-pink-500/20 transition-all duration-300">
-              <div class="text-[7px] text-pink-500">[ CORE_01 ]</div>
-              <div class="text-white font-bold uppercase tracking-tight mt-0.5">VAULT_HQ</div>
-              <div class="text-pink-400 font-bold mt-1">YIELD: 25%</div>
-            </div>
-          </div>
-        </Panel>
-      </div>
-
-      <!-- Right side: Matchmaking Lobby Simulator widget -->
-      <div id="lobby-card" class="w-full lg:w-5/12 flex flex-col justify-center transition-transform duration-300 ease-out" style="transform-style: preserve-3d;">
-        <Panel class="p-6 md:p-8" status="LOBBY" title="CYBER_MATCHMAKING">
-          
-          <div class="space-y-3 font-mono text-[9px] text-left">
-            <div class="flex items-center justify-between text-[8px] text-pink-400 font-bold tracking-widest uppercase mb-1">
-              <span>[ ACTIVE_MATCH_ROOMS ]</span>
-              <button id="btn-create-room" class="px-2 py-0.5 bg-pink-500/20 border border-pink-500/30 hover:bg-pink-500/35 hover:border-pink-400 text-pink-300 rounded text-[8px]">
-                + NEW_ROOM
-              </button>
-            </div>
-
-            <div id="rooms-list" class="space-y-2 max-h-48 overflow-y-auto pr-1 scrollbar-thin">
-              <!-- Room 1 -->
-              <div class="p-2.5 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between hover:border-pink-500/20 transition-all duration-300">
-                <div class="flex flex-col">
-                  <span class="text-white font-bold">NEON_STREET_BRAWL</span>
-                  <span class="text-[7px] text-slate-500 uppercase mt-0.5">MODE: CLASSIC_MONOPOLY | ANONS: ENABLED</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <span class="text-slate-400">3/4 PLAYERS</span>
-                  <button class="join-btn px-2.5 py-1 bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/25 text-pink-400 rounded-lg">JOIN</button>
-                </div>
-              </div>
-
-              <!-- Room 2 -->
-              <div class="p-2.5 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between hover:border-pink-500/20 transition-all duration-300">
-                <div class="flex flex-col">
-                  <span class="text-white font-bold">SOW_CROSSOVER_ARENA</span>
-                  <span class="text-[7px] text-slate-500 uppercase mt-0.5">MODE: MEGAPOLY | BOTS: 100% INTENSITY</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <span class="text-slate-400">2/4 PLAYERS</span>
-                  <button class="join-btn px-2.5 py-1 bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/25 text-pink-400 rounded-lg">JOIN</button>
-                </div>
+        <div class="flex flex-col lg:flex-row items-center gap-8">
+          <!-- pack -->
+          <button id="pack-btn" class="relative shrink-0 group" aria-label="Open pack">
+            <div class="relative w-52 h-72 rounded-xl bg-gradient-to-br from-cy/25 via-[#101a2e] to-mg/25 border border-cy/30
+              flex items-center justify-center shadow-[0_0_50px_rgba(44,211,255,0.15)] group-hover:shadow-[0_0_70px_rgba(255,0,123,0.25)]
+              transition-all duration-300 group-hover:-translate-y-1">
+              <div class="absolute inset-2 rounded-lg border border-white/10 bg-[#0a0e18]/60"></div>
+              <img src="/logo.svg" alt="" class="relative w-32 opacity-90 group-hover:opacity-100 transition" />
+              <div class="absolute bottom-4 inset-x-4 text-center font-mono2 text-[10px] tracking-[0.3em] text-cy/80">
+                CLICK TO OPEN
               </div>
             </div>
-          </div>
+          </button>
 
-        </Panel>
-      </div>
-    </main>
-
-    <!-- Room Creation Modal -->
-    <div id="create-modal" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-slate-950/75 backdrop-blur-md font-mono select-none p-4">
-      <Panel class="w-full max-w-sm p-6 text-center" status="CREATION" title="CREATE_MATCH">
-        <h2 class="text-sm font-bold text-white uppercase tracking-widest mb-4">SETUP NEW ROOM</h2>
-        <div class="space-y-4 text-left">
-          <div class="flex flex-col">
-            <span class="text-[8px] text-slate-500 mb-1 uppercase">[ ROOM NAME ]</span>
-            <input id="room-name-input" type="text" value="CYBER_GRID_LOBBY_X" class="p-2 bg-white/5 border border-white/5 rounded-lg text-xs font-bold text-white outline-none focus:border-pink-500/30" />
-          </div>
-          <div class="flex flex-col">
-            <span class="text-[8px] text-slate-500 mb-1 uppercase">[ GAME INTENSITY ]</span>
-            <select class="bg-slate-900 border border-white/10 rounded-lg text-xs p-1.5 font-bold text-white outline-none">
-              <option value="CLASSIC">CLASSIC SYS_RULES</option>
-              <option value="MEGAPOLY">MEGAPOLY X_RULES</option>
-            </select>
+          <div class="flex-1 text-center lg:text-left">
+            <div class="font-mono2 text-xs tracking-[0.3em] text-mg">LIVE DROP</div>
+            <h1 class="text-3xl md:text-5xl font-black text-white mt-2 leading-tight">
+              COSMICRAFTS<br />
+              <span class="bg-gradient-to-r from-cy to-mg bg-clip-text text-transparent">GENESIS COLLECTION</span>
+            </h1>
+            <p class="text-zinc-400 mt-4 max-w-xl mx-auto lg:mx-0">
+              Tradable digital collectibles from the Cosmicrafts universe. Open a pack,
+              grow your set, show your showroom. No wallet, no jargon — your account is your vault.
+            </p>
+            <div class="mt-6 flex items-center justify-center lg:justify-start gap-4">
+              <div class="font-mono2 text-2xl md:text-3xl font-bold text-cy" id="countdown">--:--:--</div>
+              <div class="text-left text-[11px] text-zinc-500 leading-tight">
+                until drop ends
+              </div>
+            </div>
           </div>
         </div>
-
-        <div class="flex space-x-3 mt-6">
-          <button id="btn-cancel-create" class="flex-1 py-2 bg-white/5 border border-white/5 hover:bg-white/10 text-slate-400 text-[9px] tracking-widest uppercase rounded transition-all duration-300">
-            CANCEL
-          </button>
-          <button id="btn-submit-create" class="flex-1 py-2 bg-pink-500/20 border border-pink-500/30 hover:bg-pink-500/30 hover:border-pink-400 text-pink-300 text-[9px] tracking-widest uppercase rounded transition-all duration-300">
-            SPAWN
-          </button>
-        </div>
-      </Panel>
-    </div>
-
-    <!-- Signing Simulation Overlay -->
-    <div id="signing-overlay" class="fixed inset-0 z-[10000] hidden items-center justify-center bg-slate-950/75 backdrop-blur-md font-mono select-none">
-      <Panel class="w-full max-w-sm p-6 text-center" status="GATEWAY" title="CONNECTING">
-        <div class="w-10 h-10 border border-t-2 border-pink-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-        <h2 class="text-sm font-bold text-white uppercase tracking-widest">CONNECTING TO SHIELD</h2>
-        <p class="text-[10px] text-slate-400 leading-relaxed mt-2">
-          Initializing handshake protocol via GCP Gateway. Please standby...
-        </p>
-      </Panel>
-    </div>
-
-    <!-- Footer -->
-    <footer class="w-full max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center z-10 gap-4 border-t border-white/5 pt-4 font-mono text-[9px] md:text-xs text-slate-500">
-      <div>&copy; 2026 WORLD OF UNREAL. ALL RIGHTS RESERVED.</div>
-      <div class="flex items-center space-x-4">
-        <span>BOARD_FEEDS: ACTIVE</span>
-        <span>VERSION: 2.5.0-ASTRO</span>
       </div>
-    </footer>
+    </section>
+
+    <!-- collections -->
+    <section id="collections" class="max-w-7xl mx-auto px-4 md:px-6 py-10 md:py-14">
+      <div class="flex items-end justify-between gap-4 mb-6">
+        <h2 class="text-2xl md:text-3xl font-black text-ink">
+          THE <span class="text-cy">COLLECTIONS</span>
+        </h2>
+        <span class="font-mono2 text-sm text-muted">{all.length} collectibles</span>
+      </div>
+      <div class="grid md:grid-cols-2 gap-6">
+        <CollectionSummary series="genesis" />
+        <CollectionSummary series="sow" />
+      </div>
+    </section>
   </div>
+
+  <!-- pack opening modal -->
+  <div id="pack-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/85 backdrop-blur-sm">
+    <div id="pack-inner" class="flex flex-col items-center gap-6 p-8 max-w-3xl w-full"></div>
+  </div>
+
+  <script define:vars={{ CARDS: all, DROP_END }}>
+    import { collection } from '../scripts/collection';
+    const DROP_END_TS = new Date(DROP_END).getTime();
+
+    // countdown
+    const tick = () => {
+      const d = Math.max(0, DROP_END_TS - Date.now());
+      const h = Math.floor(d / 3.6e6), m = Math.floor(d % 3.6e6 / 6e4), s = Math.floor(d % 6e4 / 1e3);
+      document.getElementById('countdown').textContent =
+        String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+    };
+    tick();
+    setInterval(tick, 1000);
+
+    // pack opening
+    const modal = document.getElementById('pack-modal');
+    const inner = document.getElementById('pack-inner');
+    const openPack = () => {
+      const pool = CARDS.filter(c => c.series === 'genesis');
+      const picks = [...pool].sort(() => Math.random() - 0.5).slice(0, 3);
+      inner.innerHTML = `
+        <div class="font-mono2 text-xs tracking-[0.3em] text-cy">PACK OPENED — COSMICRAFTS GENESIS</div>
+        <div class="flex flex-wrap justify-center gap-6">
+          ${picks.map((c, i) => `
+          <a href="/card/${c.id}" class="pack-card relative w-44 h-64" style="animation-delay:${i * .18}s">
+            <div class="pack-flip w-full h-full" data-flip>
+              <div class="pack-face rounded-xl border border-white/15 bg-gradient-to-br from-[#101a2e] via-[#0a0d14] to-[#140a12]
+                flex items-center justify-center cursor-pointer">
+                <div class="absolute inset-2 rounded-lg border border-white/10"></div>
+                <img src="/logo.svg" alt="" class="w-24 opacity-80" />
+                <div class="absolute bottom-3 inset-x-0 text-center font-mono2 text-[9px] tracking-[0.25em] text-zinc-500">TAP TO REVEAL</div>
+              </div>
+              <div class="pack-face pack-face-front rc-${c.rarity} card-frame rounded-xl bg-[#0a0d14] overflow-hidden">
+                <img src="${c.image}" alt="${c.name}" class="w-full h-full object-cover" />
+                <div class="absolute top-2 left-2 chip text-[9px] font-mono2 px-1.5 py-0.5 rounded">${c.rarity.toUpperCase()}</div>
+              </div>
+            </div>
+          </a>`).join('')}
+        </div>
+        <div class="flex gap-3">
+          <button id="pack-collect" class="px-6 py-2 rounded bg-cy/15 text-cy border border-cy/40 hover:bg-cy/25 text-sm font-semibold">Collect all</button>
+          <button id="pack-close" class="px-6 py-2 rounded border border-white/20 text-sm text-zinc-200 hover:bg-white/5">Close</button>
+        </div>`;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      inner.querySelectorAll('[data-flip]').forEach((el, i) =>
+        setTimeout(() => el.classList.add('flipped'), 700 + i * 500));
+      document.getElementById('pack-close').addEventListener('click', close);
+      document.getElementById('pack-collect').addEventListener('click', (ev) => {
+        collection.addMany(picks.map(c => c.id));
+        const b = ev.target as HTMLButtonElement;
+        b.textContent = 'Added to your collection';
+        b.disabled = true;
+        b.classList.add('opacity-60', 'cursor-default');
+      });
+    };
+    const close = () => { modal.classList.add('hidden'); modal.classList.remove('flex'); };
+    document.getElementById('pack-btn').addEventListener('click', openPack);
+    modal.addEventListener('click', e => { if (e.target === modal) close(); });
+  </script>
 </Layout>
-
-<style>
-  :global(body) {
-    overflow: hidden !important;
-    height: 100vh !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  @keyframes pulse-slow {
-    0%, 100% { opacity: 0.8; transform: scale(1); }
-    50% { opacity: 0.9; transform: scale(1.02); }
-  }
-
-  .animate-pulse-slow {
-    animation: pulse-slow 8s ease-in-out infinite;
-  }
-</style>
-
-<script>
-  // ponytail: ultra-light, hardware-accelerated dual card interactive tilt mouse parallax
-  const boardCard = document.getElementById('board-card');
-  const lobbyCard = document.getElementById('lobby-card');
-  const roseGlow = document.getElementById('nebula-rose');
-
-  window.addEventListener('mousemove', (e) => {
-    const halfW = window.innerWidth / 2;
-    const halfH = window.innerHeight / 2;
-    const rotateX = -((e.clientY - halfH) / halfH) * 5; 
-    const rotateY = ((e.clientX - halfW) / halfW) * 5;
-    
-    if (boardCard) {
-      boardCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    }
-    if (lobbyCard) {
-      lobbyCard.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    }
-    
-    const dx = (e.clientX - halfW) * 0.02;
-    const dy = (e.clientY - halfH) * 0.02;
-    if (roseGlow) roseGlow.style.transform = `translate(${dx}px, ${dy}px)`;
-  }, { passive: true });
-
-  window.addEventListener('mouseleave', () => {
-    if (boardCard) boardCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
-    if (lobbyCard) lobbyCard.style.transform = 'rotateX(0deg) rotateY(0deg)';
-    if (roseGlow) roseGlow.style.transform = 'translate(0px, 0px)';
-  });
-
-  // Create Room Dialog
-  const btnCreateRoom = document.getElementById('btn-create-room');
-  const createModal = document.getElementById('create-modal');
-  const btnCancelCreate = document.getElementById('btn-cancel-create');
-  const btnSubmitCreate = document.getElementById('btn-submit-create');
-  const roomNameInput = document.getElementById('room-name-input') as HTMLInputElement;
-  const roomsList = document.getElementById('rooms-list');
-
-  btnCreateRoom?.addEventListener('click', () => {
-    createModal?.classList.remove('hidden');
-    createModal?.classList.add('flex');
-  });
-
-  btnCancelCreate?.addEventListener('click', () => {
-    createModal?.classList.add('hidden');
-    createModal?.classList.remove('flex');
-  });
-
-  btnSubmitCreate?.addEventListener('click', () => {
-    const name = roomNameInput?.value || "CYBER_LOBBY";
-    createModal?.classList.add('hidden');
-    createModal?.classList.remove('flex');
-
-    // Add to list
-    if (roomsList) {
-      const roomEl = document.createElement('div');
-      roomEl.className = "p-2.5 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between hover:border-pink-500/20 transition-all duration-300 animate-pulse";
-      roomEl.innerHTML = `
-        <div class="flex flex-col text-left">
-          <span class="text-white font-bold">${name.toUpperCase()}</span>
-          <span class="text-[7px] text-slate-500 uppercase mt-0.5">MODE: CLASSIC_MONOPOLY | ANONS: ENABLED</span>
-        </div>
-        <div class="flex items-center space-x-2">
-          <span class="text-slate-400">1/4 PLAYERS</span>
-          <button class="join-btn px-2.5 py-1 bg-pink-500/10 border border-pink-500/20 hover:bg-pink-500/25 text-pink-400 rounded-lg">JOIN</button>
-        </div>
-      `;
-      roomsList.insertBefore(roomEl, roomsList.firstChild);
-      
-      // Wire up click event
-      roomEl.querySelector('.join-btn')?.addEventListener('click', handleJoin);
-    }
-  });
-
-  // Join simulation
-  const signingOverlay = document.getElementById('signing-overlay');
-
-  function handleJoin() {
-    signingOverlay?.classList.remove('hidden');
-    signingOverlay?.classList.add('flex');
-    setTimeout(() => {
-      signingOverlay?.classList.add('hidden');
-      signingOverlay?.classList.remove('flex');
-      sessionStorage.setItem('nft_connected', 'true');
-      window.location.reload();
-    }, 1500);
-  }
-
-  document.querySelectorAll('.join-btn').forEach(btn => {
-    btn.addEventListener('click', handleJoin);
-  });
-</script>

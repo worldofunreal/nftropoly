@@ -1,0 +1,86 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import CardTile from '../../components/CardTile.astro';
+import genesis from '../../data/genesis.json';
+import sow from '../../data/sow.json';
+
+export function getStaticPaths() {
+  return [{ params: { series: 'genesis' } }, { params: { series: 'sow' } }];
+}
+
+const series = Astro.params.series as 'genesis' | 'sow';
+const cards = series === 'genesis' ? genesis : sow;
+const meta = series === 'genesis'
+  ? { title: 'COSMICRAFTS', sub: 'Genesis Collection', desc: 'Ships, titans and outlaws of the Dark Rift — the founding collection of NFTROPOLY.' }
+  : { title: 'SHADOWS OF WAR', sub: 'Commanders', desc: 'The twelve great commanders of history, forged into collectible cards for the battlefield.' };
+const edition = series === 'genesis' ? 500 : 250;
+const rarities = ['Legendary', 'Epic', 'Rare', 'Common'];
+const rcolor: Record<string, string> = { Common: '#94a3b8', Rare: '#38bdf8', Epic: '#c084fc', Legendary: '#fbbf24' };
+const dist = rarities.map(r => ({ r, n: cards.filter(c => c.rarity === r).length }));
+---
+
+<Layout title={`${meta.title} ${meta.sub} — NFTROPOLY`}>
+  <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+
+    <a href="/" class="inline-flex items-center gap-2 text-sm text-muted hover:text-cy transition mb-6">
+      ← Back to the store
+    </a>
+
+    <!-- series header -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+      <div>
+        <div class="font-mono2 text-xs tracking-[0.3em] text-mg">{meta.sub.toUpperCase()}</div>
+        <h1 class="text-4xl md:text-5xl font-black text-ink mt-2">{meta.title}</h1>
+        <p class="text-muted mt-3 max-w-xl">{meta.desc}</p>
+      </div>
+      <div class="flex gap-3 font-mono2 text-xs">
+        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
+          <div class="text-xl font-bold text-ink">{cards.length}</div>
+          <div class="text-muted mt-0.5">CARDS</div>
+        </div>
+        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
+          <div class="text-xl font-bold text-ink">{edition}</div>
+          <div class="text-muted mt-0.5">EDITION</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- rarity distribution + filter -->
+    <div class="flex flex-wrap items-center gap-3 mb-6">
+      <div class="h-1.5 w-full max-w-xs rounded-full overflow-hidden flex bg-ink/10">
+        {dist.map(d => (
+          <div style={`width:${(d.n / cards.length) * 100}%; background:${rcolor[d.r]}`}></div>
+        ))}
+      </div>
+      <div class="flex flex-wrap gap-2" id="rarity-filters">
+        <button data-r="ALL" class="rbtn px-2.5 py-1 rounded text-[11px] font-mono2 border border-ink/30 text-ink">ALL</button>
+        {rarities.map(r => (
+          <button data-r={r} class="rbtn px-2.5 py-1 rounded text-[11px] font-mono2 border"
+            style={`border-color:${rcolor[r]}66; color:${rcolor[r]}`}>
+            {r.toUpperCase()} <span class="opacity-70">{dist.find(d => d.r === r)?.n}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <!-- grid -->
+    <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+      {cards.map(c => <CardTile card={c} />)}
+    </div>
+  </div>
+
+  <script is:inline>
+    let fRarity = 'ALL';
+    document.querySelectorAll('.rbtn').forEach(b => b.addEventListener('click', () => {
+      document.querySelectorAll('.rbtn').forEach(x => x.style.outline = '');
+      b.style.outline = '1px solid currentColor';
+      fRarity = b.dataset.r;
+      let n = 0;
+      document.querySelectorAll('#grid a[data-rarity]').forEach(t => {
+        const ok = fRarity === 'ALL' || t.dataset.rarity === fRarity;
+        t.style.display = ok ? '' : 'none';
+        if (ok) n++;
+      });
+    }));
+  </script>
+</Layout>

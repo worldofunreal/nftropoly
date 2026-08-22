@@ -1,0 +1,45 @@
+---
+interface Props {
+  card: {
+    id: string;
+    series: string;
+    name: string;
+    description: string;
+    image: string;
+    rarity: string;
+    role: string | null;
+    faction: string | null;
+    civ: string | null;
+    num: number;
+    serial: number;
+    edition: number;
+  };
+}
+const { card } = Astro.props;
+const seriesLabel = card.series === 'genesis' ? 'COSMICRAFTS' : 'SHADOWS OF WAR';
+---
+
+<a href={`/card/${card.id}`} data-series={card.series} data-rarity={card.rarity} class="card-frame rc-{card.rarity} block rounded-xl bg-surface overflow-hidden group">
+  <div class="relative aspect-[3/4] overflow-hidden bg-black">
+    <img
+      src={card.image}
+      alt={card.name}
+      loading="lazy"
+      class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+    />
+    <div class="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/85 to-transparent"></div>
+    <div class="absolute top-2 left-2 chip rc-{card.rarity} text-[10px] font-mono2 tracking-widest px-2 py-0.5 rounded">
+      {card.rarity.toUpperCase()}
+    </div>
+    <div class="absolute top-2 right-2 font-mono2 text-[10px] text-zinc-300/80 bg-black/50 px-2 py-0.5 rounded">
+      #{card.serial}/{card.edition}
+    </div>
+  </div>
+  <div class="p-3">
+    <div class="text-[9px] font-mono2 tracking-[0.2em] text-cy/70">{seriesLabel}</div>
+    <div class="text-sm font-bold text-ink mt-0.5 truncate">{card.name}</div>
+    <div class="text-[11px] text-muted mt-0.5 truncate">
+      {card.role || card.faction || card.civ || ''}
+    </div>
+  </div>
+</a>

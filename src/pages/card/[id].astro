@@ -1,0 +1,120 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import genesis from '../../data/genesis.json';
+import sow from '../../data/sow.json';
+
+export function getStaticPaths() {
+  const all = [...genesis, ...sow];
+  return all.map(c => ({ params: { id: c.id }, props: { card: c } }));
+}
+
+const { card } = Astro.props;
+const seriesLabel = card.series === 'genesis' ? 'COSMICRAFTS · GENESIS' : 'SHADOWS OF WAR · COMMANDERS';
+const tagline = card.title || card.role || card.civ || '';
+const attrs = card.series === 'genesis'
+  ? [['Faction', card.faction], ['Role', card.role], ['Type', card.type]]
+  : [['Civilization', card.civ], ['Role', card.role]];
+---
+
+<Layout title={`${card.name} — #${card.serial}/${card.edition} · NFTROPOLY`}>
+  <div class="relative z-10 max-w-6xl mx-auto px-4 md:px-6 py-8">
+
+    <a href="/" class="inline-flex items-center gap-2 text-sm text-muted hover:text-cy transition mb-6">
+      ← Back to the wall
+    </a>
+
+    <div class="flex flex-col lg:flex-row gap-10">
+
+      <!-- art -->
+      <div class="lg:w-1/2 flex justify-center">
+        <div class={`rc-${card.rarity} card-frame w-full max-w-md aspect-[3/4] rounded-2xl bg-surface overflow-hidden relative`}>
+          <img src={card.image} alt={card.name} class="w-full h-full object-cover" />
+          <div class="absolute top-3 left-3 chip rc-{card.rarity} font-mono2 text-[11px] tracking-widest px-2.5 py-1 rounded">
+            {card.rarity.toUpperCase()}
+          </div>
+          <div class="absolute top-3 right-3 font-mono2 text-[11px] text-zinc-200 bg-black/60 px-2.5 py-1 rounded">
+            #{card.serial} / {card.edition}
+          </div>
+        </div>
+      </div>
+
+      <!-- info -->
+      <div class="lg:w-1/2 flex flex-col">
+        <div class="font-mono2 text-xs tracking-[0.3em] text-cy">{seriesLabel}</div>
+        <h1 class="text-4xl md:text-5xl font-black text-ink mt-2">{card.name}</h1>
+        {tagline && <div class="text-lg text-mg mt-1 font-semibold">{tagline}</div>}
+
+        <p class="text-muted mt-5 leading-relaxed">{card.description}</p>
+
+        <!-- attributes -->
+        <div class="mt-6 grid grid-cols-2 gap-3">
+          {attrs.map(([k, v]) => (
+            <div class="rounded-lg border border-line bg-ink/5 px-4 py-3">
+              <div class="text-[10px] font-mono2 tracking-widest text-muted uppercase">{k}</div>
+              <div class="text-sm text-ink mt-0.5">{v || '—'}</div>
+            </div>
+          ))}
+          <div class="rounded-lg border border-line bg-ink/5 px-4 py-3">
+            <div class="text-[10px] font-mono2 tracking-widest text-muted uppercase">Population</div>
+            <div class="text-sm text-ink mt-0.5">{card.pop} minted</div>
+          </div>
+          <div class="rounded-lg border border-line bg-ink/5 px-4 py-3">
+            <div class="text-[10px] font-mono2 tracking-widest text-muted uppercase">Set</div>
+            <div class="text-sm text-ink mt-0.5">{card.series === 'genesis' ? 'Genesis Collection' : 'Commanders'}</div>
+          </div>
+        </div>
+
+        <!-- set progress -->
+        <div class="mt-6 rounded-lg border border-line bg-ink/5 p-4">
+          <div class="flex items-center justify-between text-sm">
+            <span class="text-ink">Set progress</span>
+            <span class="font-mono2 text-cy">0 / {card.series === 'genesis' ? 300 : 12}</span>
+          </div>
+          <div class="mt-2 h-1.5 rounded-full bg-white/10 overflow-hidden">
+            <div class="h-full w-0 bg-gradient-to-r from-cy to-mg"></div>
+          </div>
+          <div class="text-[11px] text-muted mt-2">Connect with WOU-ID to track your collection.</div>
+        </div>
+
+        <!-- actions -->
+        <div class="mt-6 flex flex-wrap gap-3">
+          <button id="collect-btn"
+            class="px-6 py-2.5 rounded-lg bg-cy/15 text-cy border border-cy/40 hover:bg-cy/25 transition font-semibold">
+            Collect
+          </button>
+          <button onclick="window.alert('Gifting arrives with WOU-ID sign-in.')"
+            class="px-6 py-2.5 rounded-lg border border-line text-ink hover:bg-ink/5 transition">
+            Gift
+          </button>
+          <button onclick="window.alert('P2P trades arrive with WOU-ID sign-in.')"
+            class="px-6 py-2.5 rounded-lg border border-line text-ink hover:bg-ink/5 transition">
+            Trade
+          </button>
+        </div>
+
+        <div class="mt-8 font-mono2 text-[10px] tracking-widest text-muted">
+          NFTROPOLY · TRADABLE DIGITAL COLLECTIBLE · {card.id.toUpperCase()}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script define:vars={{ CARD_ID: card.id }}>
+    import { collection } from '../../scripts/collection';
+    const btn = document.getElementById('collect-btn')!;
+    const render = () => {
+      if (collection.has(CARD_ID)) {
+        btn.textContent = 'In your collection';
+        btn.classList.add('opacity-60', 'cursor-default');
+        btn.classList.remove('hover:bg-cy/25');
+      } else {
+        btn.textContent = 'Collect';
+        btn.classList.remove('opacity-60', 'cursor-default');
+        btn.classList.add('hover:bg-cy/25');
+      }
+    };
+    btn.addEventListener('click', () => collection.add(CARD_ID));
+    window.addEventListener('nftropoly:collection-changed', render);
+    render();
+  </script>
+</Layout>
