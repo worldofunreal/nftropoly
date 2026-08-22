@@ -21,13 +21,14 @@ const DROP_END = '2026-08-28T00:00:00Z';
         <div class="flex flex-col lg:flex-row items-center gap-8">
           <!-- pack -->
           <button id="pack-btn" class="relative shrink-0 group" aria-label="Open pack">
-            <div class="relative w-52 h-72 rounded-xl bg-gradient-to-br from-cy/25 via-[#101a2e] to-mg/25 border border-cy/30
-              flex items-center justify-center shadow-[0_0_50px_rgba(44,211,255,0.15)] group-hover:shadow-[0_0_70px_rgba(255,0,123,0.25)]
-              transition-all duration-300 group-hover:-translate-y-1">
-              <div class="absolute inset-2 rounded-lg border border-white/10 bg-[#0a0e18]/60"></div>
+            <div class="pack-art relative w-52 h-72 rounded-xl flex items-center justify-center shadow-[0_0_50px_rgba(44,211,255,0.15)] group-hover:shadow-[0_0_70px_rgba(255,0,123,0.25)]
+              transition-all duration-300 group-hover:-translate-y-1 overflow-hidden">
+              <div class="absolute inset-0 card-back-grid opacity-30"></div>
+              <div class="absolute inset-2 rounded-lg border border-white/10 bg-[#0a0e18]/40"></div>
+              <div class="pack-seal absolute top-6 right-6 opacity-70"></div>
               <img src="/logo.svg" alt="" class="relative w-32 opacity-90 group-hover:opacity-100 transition" />
               <div class="absolute bottom-4 inset-x-4 text-center font-mono2 text-[10px] tracking-[0.3em] text-cy/80">
-                CLICK TO OPEN
+                CLICK TO OPEN • SEALED PACK
               </div>
             </div>
           </button>
@@ -99,13 +100,12 @@ const DROP_END = '2026-08-28T00:00:00Z';
           ${picks.map((c, i) => `
           <a href="/card/${c.id}" class="pack-card relative w-44 h-64" style="animation-delay:${i * .18}s">
             <div class="pack-flip w-full h-full" data-flip>
-              <div class="pack-face rounded-xl border border-white/15 bg-gradient-to-br from-[#101a2e] via-[#0a0d14] to-[#140a12]
-                flex items-center justify-center cursor-pointer">
+              <div class="pack-face card-back card-back-grid rounded-xl border border-white/15 flex items-center justify-center cursor-pointer overflow-hidden">
                 <div class="absolute inset-2 rounded-lg border border-white/10"></div>
                 <img src="/logo.svg" alt="" class="w-24 opacity-80" />
                 <div class="absolute bottom-3 inset-x-0 text-center font-mono2 text-[9px] tracking-[0.25em] text-zinc-500">TAP TO REVEAL</div>
               </div>
-              <div class="pack-face pack-face-front rc-${c.rarity} card-frame rounded-xl bg-[#0a0d14] overflow-hidden">
+              <div class="pack-face pack-face-front rc-${c.rarity} card-frame ${(c.rarity==='Legendary'||c.rarity==='Epic')?'foil':''} rounded-xl bg-[#0a0d14] overflow-hidden">
                 <img src="${c.image}" alt="${c.name}" class="w-full h-full object-cover" />
                 <div class="absolute top-2 left-2 chip text-[9px] font-mono2 px-1.5 py-0.5 rounded">${c.rarity.toUpperCase()}</div>
               </div>

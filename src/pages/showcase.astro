@@ -1,0 +1,99 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Showcase — NFTROPOLY">
+  <div class="relative z-10 max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+    <a href="/" class="inline-flex items-center gap-2 text-sm text-muted hover:text-cy transition mb-6">← Back</a>
+
+    <div class="flex flex-col md:flex-row md:items-end gap-6 mb-8">
+      <div class="flex-1">
+        <div class="font-mono2 text-xs tracking-[0.3em] text-mg">SHOWCASE</div>
+        <h1 id="sc-name" class="text-3xl md:text-4xl font-black text-ink mt-1">Showcase</h1>
+        <p id="sc-sub" class="text-muted text-sm mt-2">Enter an account ID to view a collection.</p>
+        <div class="mt-4 flex gap-2 max-w-md">
+          <input id="sc-input" placeholder="account id (uuid)" class="flex-1 px-3 py-2 rounded border border-line bg-surface text-ink text-sm" />
+          <button id="sc-go" class="px-4 py-2 rounded bg-cy/15 text-cy border border-cy/40 text-sm font-semibold">View</button>
+        </div>
+      </div>
+      <div class="flex gap-3 font-mono2 text-xs">
+        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
+          <div id="sc-count" class="text-xl font-bold text-ink">—</div><div class="text-muted">CARDS</div>
+        </div>
+        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
+          <div id="sc-genesis" class="text-xl font-bold text-ink">—</div><div class="text-muted">GENESIS</div>
+        </div>
+        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
+          <div id="sc-sow" class="text-xl font-bold text-ink">—</div><div class="text-muted">COMMANDERS</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="sc-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4"></div>
+    <div id="sc-empty" class="hidden text-center py-16">
+      <div class="font-mono2 text-xs tracking-[0.3em] text-muted">EMPTY SHOWROOM</div>
+      <p class="text-muted text-sm mt-3">This showcase has no collectibles yet.</p>
+    </div>
+    <div id="sc-error" class="hidden text-center py-8">
+      <p class="text-sm text-red-400" id="sc-error-msg"></p>
+    </div>
+  </div>
+
+  <script>
+    const API = 'https://id.worldofunreal.com';
+    const esc = (s) => s.replace(/[&<>"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    async function load(id) {
+      if (!id) return;
+      document.getElementById('sc-error').classList.add('hidden');
+      document.getElementById('sc-empty').classList.add('hidden');
+      document.getElementById('sc-grid').innerHTML = '';
+      try {
+        const [pRes, iRes] = await Promise.all([
+          fetch(`${API}/api/v1/user/profile/${id}`),
+          fetch(`${API}/api/v1/inventory/${id}`)
+        ]);
+        if (!pRes.ok) throw new Error('Account not found');
+        if (!iRes.ok) throw new Error('Inventory not found');
+        const p = await pRes.json();
+        const inv = await iRes.json();
+        const ids = inv.card_ids || [];
+        document.getElementById('sc-name').textContent = p.display_name || 'Player';
+        document.getElementById('sc-sub').textContent = p.email ? `${p.email} · ${id.slice(0,8)}` : id;
+        document.title = `${p.display_name} — Showcase — NFTROPOLY`;
+        document.getElementById('sc-count').textContent = String(ids.length);
+        document.getElementById('sc-genesis').textContent = `${ids.filter(c=>c.startsWith('genesis-')).length}/300`;
+        document.getElementById('sc-sow').textContent = `${ids.filter(c=>c.startsWith('sow-')).length}/12`;
+        if (!ids.length) { document.getElementById('sc-empty').classList.remove('hidden'); return; }
+        document.getElementById('sc-grid').innerHTML = ids.map(cid => {
+          const isG = cid.startsWith('genesis-');
+          let img = isG ? `/genesis/${cid.replace('genesis-','genesis_')}.webp` : `/sow/${cid.replace('sow-','').replace('-','_')}_desktop.webp`;
+          if (cid==='sow-richard') img='/sow/richard_the_lionheart_desktop.webp';
+          if (cid==='sow-genghis-khan') img='/sow/genghis_khan_desktop.webp';
+          if (cid==='sow-lady-six-sky') img='/sow/lady_six_sky_desktop.webp';
+          if (cid==='sow-sun-tzu') img='/sow/sun_tzu_desktop.webp';
+          if (cid==='sow-vercingetorix') img='/sow/vercingetorix_desktop.webp';
+          return `<a href="/card/${cid}" class="block rounded-xl bg-surface border border-line overflow-hidden hover:border-cy/30">
+            <div class="aspect-[3/4] bg-black overflow-hidden"><img src="${img}" alt="${esc(cid)}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'"/></div>
+            <div class="p-3"><div class="text-xs font-mono2 tracking-widest text-muted">${isG?'COSMICRAFTS':'SHADOWS OF WAR'}</div><div class="text-sm font-bold text-ink truncate">${esc(cid)}</div></div>
+          </a>`;
+        }).join('');
+        history.replaceState(null,'',`?id=${encodeURIComponent(id)}`);
+      } catch (e) {
+        document.getElementById('sc-error').classList.remove('hidden');
+        document.getElementById('sc-error-msg').textContent = e.message || 'Failed to load';
+      }
+    }
+
+    const params = new URLSearchParams(location.search);
+    const initial = params.get('id') || params.get('u') || '';
+    if (initial) { (document.getElementById('sc-input') as HTMLInputElement).value = initial; load(initial); }
+    document.getElementById('sc-go').addEventListener('click', ()=> {
+      const v = (document.getElementById('sc-input') as HTMLInputElement).value.trim();
+      if (v) load(v);
+    });
+    // Also support /@id and /u/id via 404 fallback: if pathname starts with /@ or /u/, extract id
+    const pathId = location.pathname.match(/^\/(?:@|u\/)([^\/]+)/)?.[1];
+    if (pathId && pathId !== 'showcase') { (document.getElementById('sc-input') as HTMLInputElement).value = pathId; load(pathId); }
+  </script>
+</Layout>

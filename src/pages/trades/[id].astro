@@ -1,0 +1,79 @@
+---
+import Layout from '../../layouts/Layout.astro';
+export function getStaticPaths() { return [{ params: { id: 'demo' } }]; }
+---
+
+<Layout title="Trade — NFTROPOLY">
+  <div class="relative z-10 max-w-3xl mx-auto px-4 md:px-6 py-8 md:py-12">
+    <a href="/trades" class="inline-flex items-center gap-2 text-sm text-muted hover:text-cy mb-6">← Back to trades</a>
+    <div id="trade-box" class="rounded-2xl border border-line bg-surface p-6 md:p-8">
+      <div class="font-mono2 text-xs tracking-[0.3em] text-mg" id="trade-id">LOADING…</div>
+      <div id="trade-content" class="mt-4"></div>
+      <div id="trade-actions" class="mt-6 flex gap-3"></div>
+      <div id="trade-msg" class="mt-4 text-sm hidden"></div>
+    </div>
+  </div>
+  <script>
+    const API = 'https://id.worldofunreal.com';
+    import { wouAuth } from '../../scripts/wou-auth';
+    const id = window.location.pathname.split('/').filter(Boolean).pop() || '';
+
+    async function load() {
+      const box = document.getElementById('trade-box');
+      const content = document.getElementById('trade-content');
+      const actions = document.getElementById('trade-actions');
+      const msg = document.getElementById('trade-msg');
+      document.getElementById('trade-id').textContent = id;
+      try {
+        const res = await fetch(`${API}/api/v1/inventory/trade/${id}`);
+        const t = res.ok ? await res.json() : null;
+        if (!t) throw new Error('Trade not found');
+        content.innerHTML = `
+          <div class="grid md:grid-cols-2 gap-6 text-sm">
+            <div><div class="font-mono2 text-xs text-muted">OFFERED by ${t.from_account.slice(0,8)}</div><div class="mt-2 flex flex-wrap gap-1">${t.offered.map(c=>`<span class="px-2 py-1 rounded bg-ink/5 border border-line text-xs">${c}</span>`).join('')}</div></div>
+            <div><div class="font-mono2 text-xs text-muted">REQUESTED ${t.to_account ? `from ${t.to_account.slice(0,8)}` : ''}</div><div class="mt-2 flex flex-wrap gap-1">${t.requested.map(c=>`<span class="px-2 py-1 rounded bg-ink/5 border border-line text-xs">${c}</span>`).join('')}</div></div>
+          </div>
+          <div class="mt-4 text-xs font-mono2 tracking-widest ${t.status==='open'?'text-cy':'text-muted'}">STATUS: ${t.status.toUpperCase()}</div>
+        `;
+        actions.innerHTML = '';
+        if (t.status === 'open') {
+          const acceptBtn = document.createElement('button');
+          acceptBtn.textContent = 'Accept Trade';
+          acceptBtn.className = 'px-5 py-2 rounded bg-cy text-bg font-bold text-sm';
+          acceptBtn.onclick = async () => {
+            const token = wouAuth.getToken();
+            if (!token) { wouAuth.openModal(); return; }
+            try {
+              const r = await fetch(`${API}/api/v1/inventory/trade/${id}/accept`, { method:'POST', headers:{ Authorization:`Bearer ${token}` }});
+              const d = await r.json();
+              if (!r.ok) throw new Error(d.error);
+              msg.textContent = 'Trade accepted — inventories swapped atomically';
+              msg.className = 'mt-4 text-sm text-emerald-400';
+              msg.classList.remove('hidden');
+              setTimeout(()=>location.reload(), 1200);
+            } catch (e:any) { msg.textContent = e.message; msg.className='mt-4 text-sm text-red-400'; msg.classList.remove('hidden'); }
+          };
+          actions.appendChild(acceptBtn);
+
+          const cancelBtn = document.createElement('button');
+          cancelBtn.textContent = 'Cancel';
+          cancelBtn.className = 'px-5 py-2 rounded border border-line text-ink text-sm';
+          cancelBtn.onclick = async () => {
+            const token = wouAuth.getToken();
+            if (!token) return;
+            const r = await fetch(`${API}/api/v1/inventory/trade/${id}/cancel`, { method:'POST', headers:{ Authorization:`Bearer ${token}` }});
+            const d = await r.json();
+            if (!r.ok) { msg.textContent = d.error; msg.className='mt-4 text-sm text-red-400'; msg.classList.remove('hidden'); return; }
+            msg.textContent='Cancelled'; msg.className='mt-4 text-sm text-muted'; msg.classList.remove('hidden');
+            setTimeout(()=>location.href='/trades', 1000);
+          };
+          // Only show cancel to owner via auth check — for now show always, server will enforce
+          actions.appendChild(cancelBtn);
+        }
+      } catch (e:any) {
+        content.innerHTML = `<p class="text-sm text-red-400">${e.message}</p>`;
+      }
+    }
+    load();
+  </script>
+</Layout>

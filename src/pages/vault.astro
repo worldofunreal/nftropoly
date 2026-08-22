@@ -1,0 +1,83 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Vault — NFTROPOLY × Games">
+  <div class="relative z-10 max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12">
+    <div class="font-mono2 text-xs tracking-[0.3em] text-mg">GAME VAULT</div>
+    <h1 class="text-4xl md:text-5xl font-black text-ink mt-2">Your cards, your game</h1>
+    <p class="text-muted mt-4 leading-relaxed">
+      NFTROPOLY cards are not just images — they are game content. The game is the vault.
+      Collect a card on the store, it appears in your loadout. Win a tournament, a commemorative card is minted.
+    </p>
+
+    <!-- How it works -->
+    <div class="mt-10 grid md:grid-cols-3 gap-4">
+      <div class="rounded-xl border border-line bg-surface p-5">
+        <div class="text-cy font-mono2 text-xs tracking-widest">01</div>
+        <h3 class="font-bold text-ink mt-2">Collect</h3>
+        <p class="text-sm text-muted mt-1">Open a pack or buy a single on nftropoly.com — signed in with WOU-ID.</p>
+      </div>
+      <div class="rounded-xl border border-line bg-surface p-5">
+        <div class="text-cy font-mono2 text-xs tracking-widest">02</div>
+        <h3 class="font-bold text-ink mt-2">Vault</h3>
+        <p class="text-sm text-muted mt-1">Ownership is stored authoritatively in WOU-ID Redb (id.worldofunreal.com).</p>
+      </div>
+      <div class="rounded-xl border border-line bg-surface p-5">
+        <div class="text-mg font-mono2 text-xs tracking-widest">03</div>
+        <h3 class="font-bold text-ink mt-2">Play</h3>
+        <p class="text-sm text-muted mt-1">Shadows of War and Cosmicrafts query the vault and unlock the card in-game.</p>
+      </div>
+    </div>
+
+    <!-- API -->
+    <div class="mt-10 rounded-2xl border border-line bg-surface p-6 md:p-8">
+      <h2 class="text-xl font-bold text-ink">Integration API</h2>
+      <p class="text-sm text-muted mt-2">All endpoints are on <code class="px-1.5 py-0.5 rounded bg-ink/5 border border-line">https://id.worldofunreal.com</code> — CORS Any, Bearer JWT from WOU-ID.</p>
+
+      <div class="mt-6 space-y-6 font-mono2 text-xs">
+        <div>
+          <div class="text-ink font-bold">GET /api/v1/inventory/:accountId</div>
+          <div class="text-muted">Public — showcase any vault.</div>
+          <pre class="mt-2 p-3 rounded bg-bg border border-line text-muted overflow-auto">curl https://id.worldofunreal.com/api/v1/inventory/&lt;uuid&gt;</pre>
+        </div>
+        <div>
+          <div class="text-ink font-bold">GET /api/v1/inventory/me</div>
+          <div class="text-muted">Authenticated — your vault.</div>
+          <pre class="mt-2 p-3 rounded bg-bg border border-line text-muted overflow-auto">curl -H "Authorization: Bearer &lt;jwt&gt;" https://id.worldofunreal.com/api/v1/inventory/me</pre>
+        </div>
+        <div>
+          <div class="text-ink font-bold">POST /api/v1/inventory/collect</div>
+          <div class="text-muted">Collect cards — body <code>&#123;"card_ids": ["genesis-042"]&#125;</code></div>
+          <pre class="mt-2 p-3 rounded bg-bg border border-line text-muted overflow-auto">curl -X POST -H "Authorization: Bearer &lt;jwt&gt;" -H "Content-Type: application/json" \
+  -d '&#123;"card_ids":["genesis-042","sow-leonidas"]&#125;' \
+  https://id.worldofunreal.com/api/v1/inventory/collect</pre>
+        </div>
+        <div>
+          <div class="text-ink font-bold">POST /api/v1/inventory/trade</div>
+          <div class="text-muted">Propose card-for-card trade — body <code>&#123;"offered":[],"requested":[],"to_account_id":null&#125;</code></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game example -->
+    <div class="mt-8 rounded-2xl border border-line bg-surface p-6 md:p-8">
+      <h3 class="font-bold text-ink">Game example — Shadows of War (Rust)</h3>
+      <pre class="mt-3 p-4 rounded bg-bg border border-line text-xs text-muted overflow-auto"><code>let inventory = reqwest::get(format!("https://id.worldofunreal.com/api/v1/inventory/&#123;&#125;", account_id))
+    .await?.json::&lt;InventoryResponse&gt;().await?;
+if inventory.card_ids.contains(&amp;"sow-leonidas".to_string()) &#123;
+    unlock_commander(Leader::Leonidas);
+&#125;</code></pre>
+      <h3 class="font-bold text-ink mt-6">Frontend example — Cosmicrafts (JS)</h3>
+      <pre class="mt-3 p-4 rounded bg-bg border border-line text-xs text-muted overflow-auto"><code>const res = await fetch(`https://id.worldofunreal.com/api/v1/inventory/$&#123;accountId&#125;`);
+const &#123; card_ids &#125; = await res.json();
+if (card_ids.includes('genesis-042')) unlockShip('Riftcutter');</code></pre>
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="/me" class="px-6 py-2.5 rounded-lg bg-cy/15 text-cy border border-cy/40 font-semibold text-sm">My Collection</a>
+      <a href="/showcase" class="px-6 py-2.5 rounded-lg border border-line text-ink text-sm">Open Showcase</a>
+      <a href="/trades" class="px-6 py-2.5 rounded-lg border border-line text-ink text-sm">Trades</a>
+    </div>
+  </div>
+</Layout>

@@ -100,6 +100,64 @@ body {
 }
 .pack-face-front { transform: rotateY(180deg); }
 
+/* card backs — CSS pattern, no image asset needed */
+.card-back {
+  background:
+    radial-gradient(120% 60% at 0% 0%, rgba(44,211,255,0.14) 0%, transparent 55%),
+    radial-gradient(100% 70% at 100% 100%, rgba(255,0,123,0.10) 0%, transparent 60%),
+    linear-gradient(135deg, rgba(255,255,255,0.04) 25%, transparent 25%),
+    #0a0d14;
+  background-size: auto, auto, 12px 12px, auto;
+}
+.card-back-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.06) 1px, transparent 1px);
+  background-size: 16px 16px;
+}
+
+/* sealed pack art — foil edge + central seal */
+.pack-art {
+  background:
+    linear-gradient(135deg, rgba(44,211,255,0.18), transparent 45%),
+    linear-gradient(315deg, rgba(255,0,123,0.14), transparent 45%),
+    linear-gradient(180deg, #0f172a, #0a0d14);
+  border: 1px solid color-mix(in srgb, var(--rc, #2CD3FF) 40%, transparent);
+  box-shadow: 0 0 30px rgba(44,211,255,0.12), inset 0 0 20px rgba(255,255,255,0.04);
+}
+.pack-seal {
+  width: 52px; height: 52px; border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, #fff, #e2e8f0 55%, #94a3b8);
+  border: 2px solid rgba(255,255,255,0.6);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+
+/* foil/holo — Legendary gets animated rainbow sheen, Epic gets subtle prism */
+.foil {
+  position: relative; overflow: hidden;
+}
+.foil::after {
+  content: ""; position: absolute; inset: -60% -40%;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.0) 40%, rgba(255,255,255,0.22) 50%, transparent 60%);
+  transform: translateX(-60%) skewX(-12deg);
+  opacity: 0; transition: opacity .3s;
+}
+.foil:hover::after { opacity: 1; animation: foil-sweep 0.9s ease; }
+@keyframes foil-sweep {
+  from { transform: translateX(-60%) skewX(-12deg); }
+  to   { transform: translateX(60%) skewX(-12deg); }
+}
+.rc-Legendary.foil::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(105deg, transparent 20%, rgba(251,191,36,0.18) 35%, rgba(192,132,252,0.16) 50%, rgba(44,211,255,0.16) 65%, transparent 80%);
+  opacity: 0.9; mix-blend-mode: screen;
+}
+.rc-Epic.foil::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(105deg, transparent 30%, rgba(192,132,252,0.12) 50%, transparent 70%);
+  mix-blend-mode: screen;
+}
+
 @keyframes glow-pulse {
   0%, 100% { opacity: .5; }
   50% { opacity: 1; }

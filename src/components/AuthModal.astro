@@ -299,6 +299,23 @@
       }
     });
 
+    digit.addEventListener('paste', (e: ClipboardEvent) => {
+      e.preventDefault();
+      const text = (e.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+      if (!text) return;
+      if (text.length === 6) {
+        text.split('').forEach((ch, i) => (otpDigits[i].value = ch));
+        otpDigits[5].focus();
+      } else {
+        for (let i = 0; i < text.length && idx + i < 6; i++) {
+          otpDigits[idx + i].value = text[i];
+        }
+        otpDigits[Math.min(idx + text.length, 5)].focus();
+      }
+      const full = Array.from(otpDigits).map(d => d.value).join('');
+      if (full.length === 6) verifyCode(full);
+    });
+
     digit.addEventListener('keydown', (e) => {
       if (e.key === 'Backspace' && !digit.value && idx > 0) {
         otpDigits[idx - 1].focus();

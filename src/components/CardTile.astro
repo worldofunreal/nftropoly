@@ -19,7 +19,7 @@ const { card } = Astro.props;
 const seriesLabel = card.series === 'genesis' ? 'COSMICRAFTS' : 'SHADOWS OF WAR';
 ---
 
-<a href={`/card/${card.id}`} data-series={card.series} data-rarity={card.rarity} class="card-frame rc-{card.rarity} block rounded-xl bg-surface overflow-hidden group">
+<a href={`/card/${card.id}`} data-series={card.series} data-rarity={card.rarity} class={`card-frame rc-${card.rarity} block rounded-xl bg-surface overflow-hidden group ${card.rarity === 'Legendary' || card.rarity === 'Epic' ? 'foil' : ''}`}>
   <div class="relative aspect-[3/4] overflow-hidden bg-black">
     <img
       src={card.image}

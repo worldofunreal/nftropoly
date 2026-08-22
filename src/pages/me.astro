@@ -84,7 +84,7 @@ const all = [...genesis, ...sow];
 
       empty.style.display = owned.length ? 'none' : '';
       grid.innerHTML = owned.map(c => `
-        <a href="/card/${c.id}" class="rc-${c.rarity} card-frame block rounded-xl bg-surface overflow-hidden">
+        <a href="/card/${c.id}" class="rc-${c.rarity} card-frame ${(c.rarity==='Legendary'||c.rarity==='Epic')?'foil':''} block rounded-xl bg-surface overflow-hidden">
           <div class="relative aspect-[3/4] overflow-hidden bg-black">
             <img src="${c.image}" alt="${c.name}" loading="lazy" class="w-full h-full object-cover" />
             <div class="absolute top-2 left-2 chip text-[10px] font-mono2 tracking-widest px-2 py-0.5 rounded">${c.rarity.toUpperCase()}</div>
