@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 ---
 
-<Layout title="Authenticating... | World of Unreal">
+<Layout title="Authenticating... | Nftropoly">
   <section class="min-h-[85vh] flex items-center justify-center p-6">
     <div class="max-w-md w-full p-8 rounded-3xl bg-zinc-950/90 border border-white/15 text-center shadow-2xl backdrop-blur-xl relative overflow-hidden">
       <!-- Glow -->
@@ -15,7 +15,7 @@ import Layout from '../../layouts/Layout.astro';
           <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
         <h2 class="text-xl font-bold text-white tracking-tight">Authenticating Identity...</h2>
-        <p class="text-xs text-zinc-400 font-mono">Verifying OAuth token with NFTROPOLY Identity Engine</p>
+        <p class="text-xs text-zinc-400 font-mono">Verifying identity session with World of Unreal Identity Hub</p>
       </div>
 
       <!-- Error State -->
@@ -45,8 +45,9 @@ import Layout from '../../layouts/Layout.astro';
     import { wouAuth } from '../../scripts/wou-auth';
 
     const params = new URLSearchParams(window.location.search);
-    const code = params.get('code') || '';
-    const provider = sessionStorage.getItem('wou_oauth_provider') || 'discord';
+    const sessionToken = params.get('session_token');
+    const code = params.get('code');
+    const provider = sessionStorage.getItem('wou_oauth_provider') || 'google';
 
     const loadingEl = document.getElementById('cb-loading');
     const errorEl = document.getElementById('cb-error');
@@ -54,25 +55,37 @@ import Layout from '../../layouts/Layout.astro';
     const errorMsgEl = document.getElementById('cb-error-msg');
 
     async function processCallback() {
-      if (!code) {
-        loadingEl?.classList.add('hidden');
-        errorEl?.classList.remove('hidden');
-        if (errorMsgEl) errorMsgEl.textContent = 'No authorization code received from provider.';
-        return;
-      }
-
-      try {
-        await wouAuth.handleOAuthCallback(provider, code);
+      // 1. Session token delivered from SSO Hub
+      if (sessionToken || wouAuth.isAuthenticated()) {
         loadingEl?.classList.add('hidden');
         successEl?.classList.remove('hidden');
         setTimeout(() => {
-          window.location.href = '/';
-        }, 1200);
-      } catch (err: any) {
-        loadingEl?.classList.add('hidden');
-        errorEl?.classList.remove('hidden');
-        if (errorMsgEl) errorMsgEl.textContent = err.message || 'Failed to exchange authorization code.';
+          window.location.href = '/me';
+        }, 800);
+        return;
       }
+
+      // 2. Direct code exchange
+      if (code) {
+        try {
+          await wouAuth.handleOAuthCallback(provider, code);
+          loadingEl?.classList.add('hidden');
+          successEl?.classList.remove('hidden');
+          setTimeout(() => {
+            window.location.href = '/me';
+          }, 800);
+        } catch (err: any) {
+          loadingEl?.classList.add('hidden');
+          errorEl?.classList.remove('hidden');
+          if (errorMsgEl) errorMsgEl.textContent = err.message || 'Failed to exchange authorization code.';
+        }
+        return;
+      }
+
+      // 3. Fallback error
+      loadingEl?.classList.add('hidden');
+      errorEl?.classList.remove('hidden');
+      if (errorMsgEl) errorMsgEl.textContent = 'No authorization payload received.';
     }
 
     processCallback();
