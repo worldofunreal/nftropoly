@@ -270,11 +270,11 @@
     if (!currentEmail) return;
 
     try {
-      await wouAuth.requestOtp(currentEmail, inputNewsletter.checked);
+      await wouAuth.sendEmailOtp(currentEmail);
       formRequestOtp.classList.add('hidden');
       formVerifyOtp.classList.remove('hidden');
-      if (modalTitle) modalTitle.textContent = 'Enter Security Code';
-      if (modalSubtitle) modalSubtitle.textContent = `Verification code sent to ${currentEmail}`;
+      if (modalTitle) modalTitle.textContent = 'Enter Verification Code';
+      if (modalSubtitle) modalSubtitle.textContent = `Security code dispatched to ${currentEmail}`;
       otpDigits[0]?.focus();
     } catch (err: any) {
       showError(err.message || 'Failed to send OTP code.');
@@ -284,36 +284,31 @@
   // OTP Digits Handling
   otpDigits.forEach((digit, idx) => {
     digit.addEventListener('input', (e) => {
-      const input = e.target as HTMLInputElement;
-      const val = input.value.slice(-1);
-      input.value = val;
-
-      if (val && idx < 5) {
+      const val = (e.target as HTMLInputElement).value;
+      if (val.length === 1 && idx < 5) {
         otpDigits[idx + 1].focus();
       }
-
-      // Check if all 6 filled
       const fullCode = Array.from(otpDigits).map(d => d.value).join('');
       if (fullCode.length === 6) {
         verifyCode(fullCode);
       }
     });
 
-    digit.addEventListener('paste', (e: ClipboardEvent) => {
+    digit.addEventListener('paste', (e) => {
       e.preventDefault();
-      const text = (e.clipboardData?.getData('text') || '').replace(/\D/g, '').slice(0, 6);
-      if (!text) return;
-      if (text.length === 6) {
+      const text = e.clipboardData?.getData('text').trim() || '';
+      if (/^\d{6}$/.test(text)) {
         text.split('').forEach((ch, i) => (otpDigits[i].value = ch));
         otpDigits[5].focus();
-      } else {
-        for (let i = 0; i < text.length && idx + i < 6; i++) {
+        verifyCode(text);
+      } else if (text.length > 0) {
+        for (let i = 0; i < Math.min(text.length, 6 - idx); i++) {
           otpDigits[idx + i].value = text[i];
         }
         otpDigits[Math.min(idx + text.length, 5)].focus();
+        const full = Array.from(otpDigits).map(d => d.value).join('');
+        if (full.length === 6) verifyCode(full);
       }
-      const full = Array.from(otpDigits).map(d => d.value).join('');
-      if (full.length === 6) verifyCode(full);
     });
 
     digit.addEventListener('keydown', (e) => {
@@ -326,7 +321,7 @@
   async function verifyCode(code: string) {
     hideError();
     try {
-      await wouAuth.verifyOtp(currentEmail, code);
+      await wouAuth.verifyEmailOtp(currentEmail, code);
       modal?.classList.add('hidden');
     } catch (err: any) {
       showError(err.message || 'Invalid or expired code.');
@@ -351,7 +346,7 @@
 
   btnResendOtp?.addEventListener('click', async () => {
     try {
-      await wouAuth.requestOtp(currentEmail, inputNewsletter.checked);
+      await wouAuth.sendEmailOtp(currentEmail);
       showError('New verification code sent!');
     } catch (err: any) {
       showError(err.message || 'Failed to resend code.');
