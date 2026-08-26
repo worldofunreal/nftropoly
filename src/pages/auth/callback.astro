@@ -49,19 +49,39 @@ import Layout from '../../layouts/Layout.astro';
     const code = params.get('code');
     const stateParam = params.get('state');
 
-    let provider = '';
-    if (stateParam) {
+    function decodeState(raw: string | null): { returnTo?: string; accountId?: string; provider?: string } {
+      if (!raw) return {};
       try {
-        let parsed: any = null;
-        try { parsed = JSON.parse(stateParam); } catch { parsed = JSON.parse(decodeURIComponent(stateParam)); }
-        if (parsed && parsed.provider) provider = parsed.provider;
+        let b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
+        while (b64.length % 4 !== 0) b64 += '=';
+        const decodedStr = decodeURIComponent(escape(atob(b64)));
+        const obj = JSON.parse(decodedStr);
+        if (obj && typeof obj === 'object') return obj;
       } catch {}
+      try {
+        const obj = JSON.parse(raw);
+        if (obj && typeof obj === 'object') return obj;
+      } catch {}
+      try {
+        const obj = JSON.parse(decodeURIComponent(raw));
+        if (obj && typeof obj === 'object') return obj;
+      } catch {}
+      try {
+        const obj = JSON.parse(raw.replace(/'/g, '"'));
+        if (obj && typeof obj === 'object') return obj;
+      } catch {}
+      return {};
     }
+
+    let provider = '';
+    const stateObj = decodeState(stateParam);
+    if (stateObj.provider) provider = stateObj.provider;
+
     if (!provider && typeof sessionStorage !== 'undefined') {
       provider = sessionStorage.getItem('wou_oauth_provider') || '';
     }
     if (!provider) {
-      provider = params.get('provider') || 'google';
+      provider = params.get('provider') || '';
     }
 
     const loadingEl = document.getElementById('cb-loading');
