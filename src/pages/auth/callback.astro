@@ -47,7 +47,22 @@ import Layout from '../../layouts/Layout.astro';
     const params = new URLSearchParams(window.location.search);
     const sessionToken = params.get('session_token');
     const code = params.get('code');
-    const provider = sessionStorage.getItem('wou_oauth_provider') || 'google';
+    const stateParam = params.get('state');
+
+    let provider = '';
+    if (stateParam) {
+      try {
+        let parsed: any = null;
+        try { parsed = JSON.parse(stateParam); } catch { parsed = JSON.parse(decodeURIComponent(stateParam)); }
+        if (parsed && parsed.provider) provider = parsed.provider;
+      } catch {}
+    }
+    if (!provider && typeof sessionStorage !== 'undefined') {
+      provider = sessionStorage.getItem('wou_oauth_provider') || '';
+    }
+    if (!provider) {
+      provider = params.get('provider') || 'google';
+    }
 
     const loadingEl = document.getElementById('cb-loading');
     const errorEl = document.getElementById('cb-error');
