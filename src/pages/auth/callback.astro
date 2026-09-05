@@ -45,12 +45,16 @@ import Layout from '../../layouts/Layout.astro';
     import { wouAuth } from '../../scripts/wou-auth';
 
     const params = new URLSearchParams(window.location.search);
-    const sessionToken = params.get('session_token');
-    const code = params.get('code');
+    const code = params.get('code') || '';
     const stateParam = params.get('state');
+
+    let provider = '';
+    let returnTo = '/me';
 
     function decodeState(raw: string | null): { returnTo?: string; accountId?: string; provider?: string } {
       if (!raw) return {};
+
+      // 1. Try URL-safe Base64 decode
       try {
         let b64 = raw.replace(/-/g, '+').replace(/_/g, '/');
         while (b64.length % 4 !== 0) b64 += '=';
@@ -58,28 +62,39 @@ import Layout from '../../layouts/Layout.astro';
         const obj = JSON.parse(decodedStr);
         if (obj && typeof obj === 'object') return obj;
       } catch {}
+
+      // 2. Try direct JSON.parse
       try {
         const obj = JSON.parse(raw);
         if (obj && typeof obj === 'object') return obj;
       } catch {}
+
+      // 3. Try decodeURIComponent + JSON.parse
       try {
         const obj = JSON.parse(decodeURIComponent(raw));
         if (obj && typeof obj === 'object') return obj;
       } catch {}
+
+      // 4. Try replacing single quotes
       try {
         const obj = JSON.parse(raw.replace(/'/g, '"'));
         if (obj && typeof obj === 'object') return obj;
       } catch {}
+
       return {};
     }
 
-    let provider = '';
     const stateObj = decodeState(stateParam);
+    if (stateObj.returnTo) returnTo = stateObj.returnTo;
     if (stateObj.provider) provider = stateObj.provider;
 
+    // Fallback 1: check sessionStorage
     if (!provider && typeof sessionStorage !== 'undefined') {
-      provider = sessionStorage.getItem('wou_oauth_provider') || '';
+      const stored = sessionStorage.getItem('wou_oauth_provider');
+      if (stored) provider = stored;
     }
+
+    // Fallback 2: check URL query param (?provider=...)
     if (!provider) {
       provider = params.get('provider') || '';
     }
@@ -90,37 +105,48 @@ import Layout from '../../layouts/Layout.astro';
     const errorMsgEl = document.getElementById('cb-error-msg');
 
     async function processCallback() {
-      // 1. Session token delivered from SSO Hub
-      if (sessionToken || wouAuth.isAuthenticated()) {
+      if (!code) {
+        loadingEl?.classList.add('hidden');
+        errorEl?.classList.remove('hidden');
+        if (errorMsgEl) errorMsgEl.textContent = 'No authorization code received from provider.';
+        return;
+      }
+
+      if (!provider) {
+        loadingEl?.classList.add('hidden');
+        errorEl?.classList.remove('hidden');
+        if (errorMsgEl) errorMsgEl.textContent = 'Could not determine authentication provider. Please return to the login modal and try again.';
+        return;
+      }
+
+      try {
+        const data = await wouAuth.handleOAuthCallback(provider, code);
         loadingEl?.classList.add('hidden');
         successEl?.classList.remove('hidden');
-        setTimeout(() => {
-          window.location.href = '/me';
-        }, 800);
-        return;
-      }
 
-      // 2. Direct code exchange
-      if (code) {
-        try {
-          await wouAuth.handleOAuthCallback(provider, code);
-          loadingEl?.classList.add('hidden');
-          successEl?.classList.remove('hidden');
-          setTimeout(() => {
-            window.location.href = '/me';
-          }, 800);
-        } catch (err: any) {
-          loadingEl?.classList.add('hidden');
-          errorEl?.classList.remove('hidden');
-          if (errorMsgEl) errorMsgEl.textContent = err.message || 'Failed to exchange authorization code.';
+        // Check if returning cross-domain (cosmicrafts.com, nftropoly.com, etc.)
+        if (returnTo.startsWith('http://') || returnTo.startsWith('https://')) {
+          try {
+            const target = new URL(returnTo);
+            target.searchParams.set('session_token', data.session_token);
+            target.searchParams.set('account', JSON.stringify(data.account));
+            setTimeout(() => {
+              window.location.href = target.toString();
+            }, 600);
+            return;
+          } catch {
+            // fallback to direct location change
+          }
         }
-        return;
-      }
 
-      // 3. Fallback error
-      loadingEl?.classList.add('hidden');
-      errorEl?.classList.remove('hidden');
-      if (errorMsgEl) errorMsgEl.textContent = 'No authorization payload received.';
+        setTimeout(() => {
+          window.location.href = returnTo;
+        }, 600);
+      } catch (err: any) {
+        loadingEl?.classList.add('hidden');
+        errorEl?.classList.remove('hidden');
+        if (errorMsgEl) errorMsgEl.textContent = err.message || 'Failed to exchange authorization code.';
+      }
     }
 
     processCallback();
