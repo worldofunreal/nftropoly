@@ -15,7 +15,7 @@ export function getStaticPaths() { return [{ params: { id: 'demo' } }]; }
   </div>
   <script>
     const API = 'https://id.worldofunreal.com';
-    import { wouAuth } from '@worldofunreal/id-sdk';
+    import { wouAuth } from '@worldofunreal/id';
     wouAuth.setDefaultContext('nftropoly');
     const id = window.location.pathname.split('/').filter(Boolean).pop() || '';
 

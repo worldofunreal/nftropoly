@@ -3,7 +3,7 @@
  * Authenticated: WOU-ID Redb via id.worldofunreal.com (Bearer).
  * Guest: localStorage keyed by guest.
  */
-import { wouAuth } from '@worldofunreal/id-sdk';
+import { wouAuth } from '@worldofunreal/id';
 wouAuth.setDefaultContext('nftropoly');
 
 const API = 'https://id.worldofunreal.com';
