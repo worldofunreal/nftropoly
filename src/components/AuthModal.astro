@@ -10,9 +10,10 @@
     <!-- Modal Header -->
     <div class="flex items-center justify-between mb-6">
       <div class="flex items-center gap-3">
-        <img src="/logo.svg" alt="World of Unreal" class="h-6 w-auto" />
-        <span class="text-xs font-mono text-zinc-400 uppercase tracking-widest border-l border-white/10 pl-3">
-          ID ENGINE
+        <img src="/logo.svg" alt="Nftropoly" class="h-6 w-auto" />
+        <img src="/wouid.svg" alt="WouID" class="h-5 w-auto border-l border-white/10 pl-3" />
+        <span class="text-xs font-mono text-zinc-400 uppercase tracking-widest">
+          WouID
         </span>
       </div>
       <button id="modal-close-btn" type="button" class="text-zinc-400 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors" aria-label="Close">
@@ -209,7 +210,8 @@
 </div>
 
 <script>
-  import { wouAuth } from '../scripts/wou-auth';
+  import { wouAuth } from '@worldofunreal/id-sdk';
+  wouAuth.setDefaultContext('nftropoly');
 
   const modal = document.getElementById('wou-auth-modal');
   const closeBtn = document.getElementById('modal-close-btn');

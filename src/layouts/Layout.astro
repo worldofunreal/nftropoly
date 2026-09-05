@@ -112,7 +112,8 @@ const { title = 'NFTROPOLY — Digital Collectibles' } = Astro.props;
   <AuthModal />
 
   <script>
-    import { wouAuth } from '../scripts/wou-auth';
+    import { wouAuth } from '@worldofunreal/id-sdk';
+    wouAuth.setDefaultContext('nftropoly');
 
     const signinBtn = document.getElementById('wou-signin-btn');
     const userPill = document.getElementById('wou-user-pill');

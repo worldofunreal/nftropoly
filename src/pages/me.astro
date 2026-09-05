@@ -63,7 +63,8 @@ const all = [...genesis, ...sow];
 
   <script define:vars={{ CARDS: all }}>
     import { collection } from '../scripts/collection';
-    import { wouAuth } from '../scripts/wou-auth';
+    import { wouAuth } from '@worldofunreal/id-sdk';
+    wouAuth.setDefaultContext('nftropoly');
 
     const grid = document.getElementById('owned-grid')!;
     const empty = document.getElementById('empty-state')!;

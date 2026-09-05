@@ -42,7 +42,8 @@ import Layout from '../../layouts/Layout.astro';
   </section>
 
   <script>
-    import { wouAuth } from '../../scripts/wou-auth';
+    import { wouAuth } from '@worldofunreal/id-sdk';
+    wouAuth.setDefaultContext('nftropoly');
 
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code') || '';

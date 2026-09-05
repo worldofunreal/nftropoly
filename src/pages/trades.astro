@@ -53,7 +53,8 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     const API = 'https://id.worldofunreal.com';
-    import { wouAuth } from '../scripts/wou-auth';
+    import { wouAuth } from '@worldofunreal/id-sdk';
+    wouAuth.setDefaultContext('nftropoly');
     import { collection } from '../scripts/collection';
 
     const listEl = document.getElementById('trades-list');
