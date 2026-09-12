@@ -13,6 +13,29 @@ import Layout from '../layouts/Layout.astro';
       <button id="new-trade-btn" class="px-5 py-2.5 rounded-lg bg-cy/15 text-cy border border-cy/40 font-semibold text-sm">New Trade</button>
     </div>
 
+    <!-- For sale (fixed price, SPIRAL) -->
+    <div class="flex items-end justify-between gap-4 mb-4">
+      <h2 class="text-xl font-black text-ink">FOR <span class="text-cy">SALE</span></h2>
+      <span id="spiral-balance" class="font-mono2 text-sm text-cy"></span>
+    </div>
+    <div id="sell-form" class="rounded-2xl border border-line bg-surface p-6 mb-6">
+      <h3 class="font-bold text-ink text-sm">Sell a registered copy</h3>
+      <div class="mt-3 flex flex-col md:flex-row gap-3">
+        <input id="sell-asset" placeholder="genesis-001#1" class="flex-1 px-3 py-2 rounded border border-line bg-bg text-ink text-sm" />
+        <input id="sell-price" type="number" min="1" placeholder="price in SPIRAL" class="w-full md:w-48 px-3 py-2 rounded border border-line bg-bg text-ink text-sm" />
+        <button id="sell-submit" class="px-5 py-2 rounded bg-cy text-bg font-bold text-sm">List</button>
+      </div>
+      <div id="sell-msg" class="hidden mt-3 text-sm"></div>
+    </div>
+    <div id="listings-grid" class="grid md:grid-cols-2 gap-4 mb-10"></div>
+    <div id="listings-empty" class="hidden text-center pb-10">
+      <div class="font-mono2 text-xs tracking-[0.3em] text-muted">NOTHING FOR SALE</div>
+    </div>
+
+    <div class="flex items-end justify-between gap-4 mb-4">
+      <h2 class="text-xl font-black text-ink">CARD-FOR-CARD <span class="text-mg">SWAPS</span></h2>
+    </div>
+
     <!-- New trade form (hidden) -->
     <div id="trade-form" class="hidden rounded-2xl border border-line bg-surface p-6 mb-8">
       <h3 class="font-bold text-ink">Create Trade Offer</h3>
@@ -168,5 +191,81 @@ import Layout from '../layouts/Layout.astro';
     window.addEventListener('nftropoly:collection-changed', updateHint);
     loadTrades();
     updateHint();
+
+    // Fixed-price sale (SPIRAL)
+    const listingsGrid = document.getElementById('listings-grid');
+    const listingsEmpty = document.getElementById('listings-empty');
+    const balEl = document.getElementById('spiral-balance');
+
+    async function refreshBalance() {
+      try {
+        const b = await collection.balance();
+        balEl.textContent = `${b} SPIRAL`;
+      } catch { balEl.textContent = ''; }
+    }
+
+    async function loadListings() {
+      try {
+        const all = await collection.openListings();
+        if (!all.length) { listingsEmpty.classList.remove('hidden'); listingsGrid.innerHTML = ''; return; }
+        listingsEmpty.classList.add('hidden');
+        const mine = new Set(collection.ids());
+        listingsGrid.innerHTML = all.map(l => `
+          <div class="rounded-xl border border-line bg-surface p-5">
+            <div class="flex justify-between text-xs font-mono2 tracking-widest text-muted">
+              <span>${l.asset}</span><span class="text-cy font-bold">${l.price} SPIRAL</span>
+            </div>
+            <div class="mt-2 text-xs text-muted">Seller ${l.seller.slice(0, 8)}</div>
+            <div class="mt-3 flex gap-2">
+              ${mine.has(l.asset)
+                ? `<button data-cancel="${l.id}" class="px-4 py-1.5 rounded border border-line text-ink text-xs">Unlist</button>`
+                : `<button data-buy="${l.id}" class="px-4 py-1.5 rounded bg-cy text-bg font-bold text-xs">Buy</button>`}
+            </div>
+            <div id="msg-${l.id}" class="hidden mt-2 text-xs"></div>
+          </div>`).join('');
+        listingsGrid.querySelectorAll('[data-buy]').forEach(b => b.addEventListener('click', async () => {
+          const id = (b as HTMLElement).dataset.buy!;
+          const m = document.getElementById(`msg-${id}`)!;
+          try {
+            await collection.buy(id);
+            m.textContent = 'Bought — it is yours';
+            m.className = 'mt-2 text-xs text-emerald-400';
+            loadListings(); refreshBalance();
+          } catch (e: any) {
+            m.textContent = e.message;
+            m.className = 'mt-2 text-xs text-red-400';
+            m.classList.remove('hidden');
+          }
+        }));
+        listingsGrid.querySelectorAll('[data-cancel]').forEach(b => b.addEventListener('click', async () => {
+          const id = (b as HTMLElement).dataset.cancel!;
+          await collection.cancelListing(id);
+          loadListings();
+        }));
+      } catch { listingsEmpty.classList.remove('hidden'); }
+    }
+
+    document.getElementById('sell-submit').addEventListener('click', async () => {
+      const asset = (document.getElementById('sell-asset') as HTMLInputElement).value.trim();
+      const price = parseInt((document.getElementById('sell-price') as HTMLInputElement).value, 10);
+      const m = document.getElementById('sell-msg')!;
+      m.classList.add('hidden');
+      try {
+        if (!asset || !(price > 0)) throw new Error('Asset + price required');
+        await collection.sell(asset, price);
+        m.textContent = `Listed ${asset} for ${price} SPIRAL`;
+        m.className = 'mt-3 text-sm text-emerald-400';
+        loadListings();
+      } catch (e: any) {
+        m.textContent = e.message;
+        m.className = 'mt-3 text-sm text-red-400';
+      }
+      m.classList.remove('hidden');
+    });
+
+    window.addEventListener('nftropoly:collection-changed', loadListings);
+    window.addEventListener('wou:auth-changed', () => { loadListings(); refreshBalance(); });
+    loadListings();
+    refreshBalance();
   </script>
 </Layout>
