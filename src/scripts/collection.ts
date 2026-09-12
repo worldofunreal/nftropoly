@@ -1,129 +1,103 @@
 /**
- * NFTROPOLY collection ownership layer — hybrid authoritative.
- * Authenticated: WOU-ID Redb via id.worldofunreal.com (Bearer).
- * Guest: localStorage keyed by guest.
+ * NFTROPOLY ownership layer — server-authoritative instances.
+ * Every owned copy is a registered instance (`{token}#{serial}`) with one
+ * owner in WOU-ID Redb. Guests own nothing server-side: sign in to keep.
  */
 import { wouAuth } from '@worldofunreal/id';
 wouAuth.setDefaultContext('nftropoly');
 
 const API = 'https://id.worldofunreal.com';
-const KEY = (uid: string) => `nftropoly_collection_${uid}`;
-const currentKey = () => KEY(wouAuth.getUser()?.id || 'guest');
 
-function read(key: string): string[] {
-  try {
-    return JSON.parse(localStorage.getItem(key) || '[]');
-  } catch {
-    return [];
-  }
+export interface Asset {
+  id: string;
+  token: string;
+  collection: string;
+  serial: number;
+  owner: string;
+  status: 'active' | 'frozen';
+  metadata: { name: string; description: string; image: string; attributes: { trait_type: string; value: string }[]; collection: string };
+  metadata_digest: string;
+  minted_at: number;
 }
-function write(key: string, ids: string[]) {
-  localStorage.setItem(key, JSON.stringify(ids));
-}
+
+let cache: Asset[] | null = null;
+
 function notify() {
   window.dispatchEvent(
-    new CustomEvent('nftropoly:collection-changed', { detail: { ids: collection.list() } })
+    new CustomEvent('nftropoly:collection-changed', { detail: { assets: collection.list() } })
   );
 }
 
-// In-memory authoritative cache (synced from server when signed in)
-let cache: string[] | null = null;
-
 async function syncFromServer(): Promise<void> {
+  const user = wouAuth.getUser();
   const token = wouAuth.getToken();
-  if (!token) {
-    cache = read(currentKey());
+  if (!user || !token) {
+    cache = [];
     notify();
     return;
   }
   try {
-    const res = await fetch(`${API}/api/v1/inventory/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      cache = data.card_ids || [];
-      write(currentKey(), cache);
-    } else {
-      cache = read(currentKey());
-    }
+    const res = await fetch(`${API}/api/v1/assets/owner/${user.id}`);
+    cache = res.ok ? await res.json() : [];
   } catch {
-    cache = read(currentKey());
+    cache = [];
   }
   notify();
 }
 
 export const collection = {
-  list(): string[] {
-    if (cache !== null) return cache;
-    return read(currentKey());
+  list(): Asset[] {
+    return cache ?? [];
   },
-  has(id: string): boolean {
-    return this.list().includes(id);
+  ids(): string[] {
+    return this.list().map((a) => a.id);
   },
-  async add(id: string): Promise<void> {
-    await this.addMany([id]);
+  hasToken(token: string): boolean {
+    return this.list().some((a) => a.token === token);
   },
-  async addMany(ids: string[]): Promise<void> {
-    const token = wouAuth.getToken();
-    if (token) {
-      try {
-        const res = await fetch(`${API}/api/v1/inventory/collect`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ card_ids: ids }),
-        });
-        if (res.ok) {
-          const data = await res.json();
-          cache = data.card_ids;
-          write(currentKey(), cache);
-          notify();
-          return;
-        }
-      } catch {}
+  findByToken(token: string): Asset | undefined {
+    return this.list().find((a) => a.token === token);
+  },
+  /** Mint the next serial of a design to the caller. Throws server message when exhausted. */
+  async claim(token: string): Promise<Asset> {
+    const t = wouAuth.getToken();
+    if (!t) {
+      wouAuth.openModal();
+      throw new Error('Sign in to claim');
     }
-    // Fallback: local guest
-    const cur = new Set(read(currentKey()));
-    let changed = false;
-    for (const id of ids) {
-      if (!cur.has(id)) {
-        cur.add(id);
-        changed = true;
-      }
+    const res = await fetch(`${API}/api/v1/assets/claim`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` },
+      body: JSON.stringify({ token }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Claim failed');
+    await this.refresh();
+    return data as Asset;
+  },
+  async transfer(id: string, to: string): Promise<void> {
+    const t = wouAuth.getToken();
+    if (!t) {
+      wouAuth.openModal();
+      throw new Error('Sign in to transfer');
     }
-    if (changed) {
-      const next = [...cur];
-      cache = next;
-      write(currentKey(), next);
-      notify();
-    }
+    const res = await fetch(`${API}/api/v1/assets/transfer/${encodeURIComponent(id)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` },
+      body: JSON.stringify({ to }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Transfer failed');
+    await this.refresh();
   },
   async refresh() {
     await syncFromServer();
   },
 };
 
-// Initial sync + on auth change (merge guest → server)
 if (typeof window !== 'undefined') {
   syncFromServer();
-  window.addEventListener('wou:auth-changed', async (e: any) => {
-    const uid = e.detail?.user?.id;
-    if (uid) {
-      const guest = read(KEY('guest'));
-      if (guest.length) {
-        try {
-          const token = wouAuth.getToken();
-          if (token) {
-            await fetch(`${API}/api/v1/inventory/collect`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-              body: JSON.stringify({ card_ids: guest }),
-            });
-          }
-        } catch {}
-        write(KEY('guest'), []);
-      }
-    }
+  window.addEventListener('wou:auth-changed', async () => {
     await syncFromServer();
   });
   (window as any).collection = collection;

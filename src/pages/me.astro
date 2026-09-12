@@ -2,8 +2,6 @@
 import Layout from '../layouts/Layout.astro';
 import genesis from '../data/genesis.json';
 import sow from '../data/sow.json';
-
-const all = [...genesis, ...sow];
 ---
 
 <Layout title="My Collection — NFTROPOLY">
@@ -61,7 +59,7 @@ const all = [...genesis, ...sow];
     </div>
   </div>
 
-  <script define:vars={{ CARDS: all }}>
+  <script define:vars={{ GENESIS_TOTAL: genesis.length, SOW_TOTAL: sow.length }}>
     import { collection } from '../scripts/collection';
     import { wouAuth } from '@worldofunreal/id';
     wouAuth.setDefaultContext('nftropoly');
@@ -70,37 +68,37 @@ const all = [...genesis, ...sow];
     const empty = document.getElementById('empty-state')!;
 
     const render = () => {
-      const ids = collection.list();
-      const owned = CARDS.filter(c => ids.includes(c.id));
-      const g = owned.filter(c => c.series === 'genesis').length;
-      const s = owned.filter(c => c.series === 'sow').length;
+      const owned = collection.list();
+      const g = owned.filter(a => a.collection === 'genesis').length;
+      const s = owned.filter(a => a.collection === 'sow').length;
 
       document.getElementById('stat-total')!.textContent = String(owned.length);
-      document.getElementById('stat-genesis')!.textContent = `${g}/300`;
-      document.getElementById('stat-sow')!.textContent = `${s}/12`;
-      document.getElementById('bar-genesis')!.style.width = `${(g / 300) * 100}%`;
-      document.getElementById('bar-sow')!.style.width = `${(s / 12) * 100}%`;
-      document.getElementById('bar-genesis-label')!.textContent = `${Math.round((g / 300) * 100)}%`;
-      document.getElementById('bar-sow-label')!.textContent = `${Math.round((s / 12) * 100)}%`;
+      document.getElementById('stat-genesis')!.textContent = `${g}/${GENESIS_TOTAL}`;
+      document.getElementById('stat-sow')!.textContent = `${s}/${SOW_TOTAL}`;
+      document.getElementById('bar-genesis')!.style.width = `${(g / GENESIS_TOTAL) * 100}%`;
+      document.getElementById('bar-sow')!.style.width = `${(s / SOW_TOTAL) * 100}%`;
+      document.getElementById('bar-genesis-label')!.textContent = `${Math.round((g / GENESIS_TOTAL) * 100)}%`;
+      document.getElementById('bar-sow-label')!.textContent = `${Math.round((s / SOW_TOTAL) * 100)}%`;
 
       empty.style.display = owned.length ? 'none' : '';
-      grid.innerHTML = owned.map(c => `
-        <a href="/card/${c.id}" class="rc-${c.rarity} card-frame ${(c.rarity==='Legendary'||c.rarity==='Epic')?'foil':''} block rounded-xl bg-surface overflow-hidden">
+      grid.innerHTML = owned.map(a => `
+        <a href="/card/${a.token}" class="block rounded-xl bg-surface border border-line overflow-hidden hover:border-cy/30">
           <div class="relative aspect-[3/4] overflow-hidden bg-black">
-            <img src="${c.image}" alt="${c.name}" loading="lazy" class="w-full h-full object-cover" />
-            <div class="absolute top-2 left-2 chip text-[10px] font-mono2 tracking-widest px-2 py-0.5 rounded">${c.rarity.toUpperCase()}</div>
-            <div class="absolute top-2 right-2 font-mono2 text-[10px] text-zinc-300/80 bg-black/50 px-2 py-0.5 rounded">#${c.serial}/${c.edition}</div>
+            <img src="${a.metadata.image}" alt="${a.metadata.name}" loading="lazy" class="w-full h-full object-cover" />
+            <div class="absolute top-2 left-2 font-mono2 text-[10px] text-zinc-300/80 bg-black/50 px-2 py-0.5 rounded">#${a.serial}</div>
+            ${a.status !== 'active' ? `<div class="absolute top-2 right-2 font-mono2 text-[10px] text-amber-300 bg-black/60 px-2 py-0.5 rounded">FROZEN</div>` : ''}
           </div>
           <div class="p-3">
-            <div class="text-[9px] font-mono2 tracking-[0.2em] text-cy/70">${c.series === 'genesis' ? 'COSMICRAFTS' : 'SHADOWS OF WAR'}</div>
-            <div class="text-sm font-bold text-ink mt-0.5 truncate">${c.name}</div>
+            <div class="text-[9px] font-mono2 tracking-[0.2em] text-cy/70">${a.collection === 'genesis' ? 'COSMICRAFTS' : 'SHADOWS OF WAR'}</div>
+            <div class="text-sm font-bold text-ink mt-0.5 truncate">${a.metadata.name}</div>
+            <div class="text-[10px] font-mono2 text-muted mt-0.5">${a.id}</div>
           </div>
         </a>`).join('');
 
       const u = wouAuth.getUser();
       document.getElementById('id-status')!.innerHTML = u
-        ? `Signed in as <span class="text-cy font-semibold">${u.display_name}</span>${u.email ? ` · ${u.email}` : ''} — your collection is linked to your WOU-ID.`
-        : `Browsing as guest. <button id="me-signin" class="text-cy hover:underline">Sign in</button> to keep your collection across devices.`;
+        ? `Signed in as <span class="text-cy font-semibold">${u.display_name}</span>${u.email ? ` · ${u.email}` : ''} — registered copies in WOU-ID.`
+        : `Browsing as guest. <button id="me-signin" class="text-cy hover:underline">Sign in</button> to claim and keep copies.`;
       document.getElementById('me-signin')?.addEventListener('click', () => wouAuth.openModal());
     };
 

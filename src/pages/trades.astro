@@ -19,13 +19,13 @@ import Layout from '../layouts/Layout.astro';
       <p class="text-xs text-muted mt-1">Sign in to trade. You must own offered cards.</p>
       <div class="mt-4 grid md:grid-cols-2 gap-4">
         <div>
-          <label class="text-xs font-mono2 tracking-widest text-muted">OFFERED (comma separated card ids)</label>
-          <input id="trade-offered" placeholder="genesis-042, genesis-101" class="mt-1 w-full px-3 py-2 rounded border border-line bg-bg text-ink text-sm" />
+          <label class="text-xs font-mono2 tracking-widest text-muted">OFFERED (registered copies, e.g. genesis-001#1)</label>
+          <input id="trade-offered" placeholder="genesis-001#1, genesis-002#3" class="mt-1 w-full px-3 py-2 rounded border border-line bg-bg text-ink text-sm" />
           <div id="owned-hint" class="text-xs text-muted mt-1"></div>
         </div>
         <div>
-          <label class="text-xs font-mono2 tracking-widest text-muted">REQUESTED</label>
-          <input id="trade-requested" placeholder="sow-leonidas, genesis-005" class="mt-1 w-full px-3 py-2 rounded border border-line bg-bg text-ink text-sm" />
+          <label class="text-xs font-mono2 tracking-widest text-muted">REQUESTED (registered copies)</label>
+          <input id="trade-requested" placeholder="sow-leonidas#1, genesis-005#2" class="mt-1 w-full px-3 py-2 rounded border border-line bg-bg text-ink text-sm" />
         </div>
       </div>
       <div class="mt-4">
@@ -86,8 +86,8 @@ import Layout from '../layouts/Layout.astro';
     }
 
     function updateHint() {
-      const ids = collection.list();
-      hintEl.textContent = ids.length ? `You own ${ids.length}: ${ids.slice(0,6).join(', ')}${ids.length>6?' …':''}` : 'You own nothing yet — collect first';
+      const ids = collection.ids();
+      hintEl.textContent = ids.length ? `You own ${ids.length}: ${ids.slice(0,6).join(', ')}${ids.length>6?' …':''}` : 'You own no registered copies yet — claim first';
     }
 
     document.getElementById('new-trade-btn').addEventListener('click', ()=> {

@@ -5,7 +5,6 @@ import genesis from '../data/genesis.json';
 import sow from '../data/sow.json';
 
 const all = [...genesis, ...sow];
-const DROP_END = '2026-08-28T00:00:00Z';
 ---
 
 <Layout title="NFTROPOLY — Digital Collectibles Store">
@@ -34,21 +33,15 @@ const DROP_END = '2026-08-28T00:00:00Z';
           </button>
 
           <div class="flex-1 text-center lg:text-left">
-            <div class="font-mono2 text-xs tracking-[0.3em] text-mg">LIVE DROP</div>
+            <div class="font-mono2 text-xs tracking-[0.3em] text-mg">DIGITAL COLLECTIBLES</div>
             <h1 class="text-3xl md:text-5xl font-black text-white mt-2 leading-tight">
               COSMICRAFTS<br />
               <span class="bg-gradient-to-r from-cy to-mg bg-clip-text text-transparent">GENESIS COLLECTION</span>
             </h1>
             <p class="text-zinc-400 mt-4 max-w-xl mx-auto lg:mx-0">
-              Tradable digital collectibles from the Cosmicrafts universe. Open a pack,
-              grow your set, show your showroom. No wallet, no jargon — your account is your vault.
+              Free collectibles from the Cosmicrafts universe. Open a pack,
+              grow your set, trade with other collectors. Your WOU-ID account keeps everything.
             </p>
-            <div class="mt-6 flex items-center justify-center lg:justify-start gap-4">
-              <div class="font-mono2 text-2xl md:text-3xl font-bold text-cy" id="countdown">--:--:--</div>
-              <div class="text-left text-[11px] text-zinc-500 leading-tight">
-                until drop ends
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -74,19 +67,8 @@ const DROP_END = '2026-08-28T00:00:00Z';
     <div id="pack-inner" class="flex flex-col items-center gap-6 p-8 max-w-3xl w-full"></div>
   </div>
 
-  <script define:vars={{ CARDS: all, DROP_END }}>
+  <script define:vars={{ CARDS: all }}>
     import { collection } from '../scripts/collection';
-    const DROP_END_TS = new Date(DROP_END).getTime();
-
-    // countdown
-    const tick = () => {
-      const d = Math.max(0, DROP_END_TS - Date.now());
-      const h = Math.floor(d / 3.6e6), m = Math.floor(d % 3.6e6 / 6e4), s = Math.floor(d % 6e4 / 1e3);
-      document.getElementById('countdown').textContent =
-        String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
-    };
-    tick();
-    setInterval(tick, 1000);
 
     // pack opening
     const modal = document.getElementById('pack-modal');
@@ -113,7 +95,7 @@ const DROP_END = '2026-08-28T00:00:00Z';
           </a>`).join('')}
         </div>
         <div class="flex gap-3">
-          <button id="pack-collect" class="px-6 py-2 rounded bg-cy/15 text-cy border border-cy/40 hover:bg-cy/25 text-sm font-semibold">Collect all</button>
+          <button id="pack-collect" class="px-6 py-2 rounded bg-cy/15 text-cy border border-cy/40 hover:bg-cy/25 text-sm font-semibold">Claim all</button>
           <button id="pack-close" class="px-6 py-2 rounded border border-white/20 text-sm text-zinc-200 hover:bg-white/5">Close</button>
         </div>`;
       modal.classList.remove('hidden');
@@ -121,11 +103,20 @@ const DROP_END = '2026-08-28T00:00:00Z';
       inner.querySelectorAll('[data-flip]').forEach((el, i) =>
         setTimeout(() => el.classList.add('flipped'), 700 + i * 500));
       document.getElementById('pack-close').addEventListener('click', close);
-      document.getElementById('pack-collect').addEventListener('click', (ev) => {
-        collection.addMany(picks.map(c => c.id));
+      document.getElementById('pack-collect').addEventListener('click', async (ev) => {
         const b = ev.target as HTMLButtonElement;
-        b.textContent = 'Added to your collection';
         b.disabled = true;
+        b.textContent = 'Claiming…';
+        const results: string[] = [];
+        for (const c of picks) {
+          try {
+            const asset = await collection.claim(c.id);
+            results.push(`${asset.id}`);
+          } catch (e: any) {
+            results.push(`SOLD OUT — ${c.id}`);
+          }
+        }
+        b.textContent = results.join(' · ');
         b.classList.add('opacity-60', 'cursor-default');
       });
     };

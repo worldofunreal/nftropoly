@@ -51,31 +51,23 @@ import Layout from '../layouts/Layout.astro';
       try {
         const [pRes, iRes] = await Promise.all([
           fetch(`${API}/api/v1/user/profile/${id}`),
-          fetch(`${API}/api/v1/inventory/${id}`)
+          fetch(`${API}/api/v1/assets/owner/${id}`)
         ]);
         if (!pRes.ok) throw new Error('Account not found');
-        if (!iRes.ok) throw new Error('Inventory not found');
+        if (!iRes.ok) throw new Error('Vault not found');
         const p = await pRes.json();
-        const inv = await iRes.json();
-        const ids = inv.card_ids || [];
+        const assets = await iRes.json();
         document.getElementById('sc-name').textContent = p.display_name || 'Player';
         document.getElementById('sc-sub').textContent = p.email ? `${p.email} · ${id.slice(0,8)}` : id;
         document.title = `${p.display_name} — Showcase — NFTROPOLY`;
-        document.getElementById('sc-count').textContent = String(ids.length);
-        document.getElementById('sc-genesis').textContent = `${ids.filter(c=>c.startsWith('genesis-')).length}/300`;
-        document.getElementById('sc-sow').textContent = `${ids.filter(c=>c.startsWith('sow-')).length}/12`;
-        if (!ids.length) { document.getElementById('sc-empty').classList.remove('hidden'); return; }
-        document.getElementById('sc-grid').innerHTML = ids.map(cid => {
-          const isG = cid.startsWith('genesis-');
-          let img = isG ? `/genesis/${cid.replace('genesis-','genesis_')}.webp` : `/sow/${cid.replace('sow-','').replace('-','_')}_desktop.webp`;
-          if (cid==='sow-richard') img='/sow/richard_the_lionheart_desktop.webp';
-          if (cid==='sow-genghis-khan') img='/sow/genghis_khan_desktop.webp';
-          if (cid==='sow-lady-six-sky') img='/sow/lady_six_sky_desktop.webp';
-          if (cid==='sow-sun-tzu') img='/sow/sun_tzu_desktop.webp';
-          if (cid==='sow-vercingetorix') img='/sow/vercingetorix_desktop.webp';
-          return `<a href="/card/${cid}" class="block rounded-xl bg-surface border border-line overflow-hidden hover:border-cy/30">
-            <div class="aspect-[3/4] bg-black overflow-hidden"><img src="${img}" alt="${esc(cid)}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'"/></div>
-            <div class="p-3"><div class="text-xs font-mono2 tracking-widest text-muted">${isG?'COSMICRAFTS':'SHADOWS OF WAR'}</div><div class="text-sm font-bold text-ink truncate">${esc(cid)}</div></div>
+        document.getElementById('sc-count').textContent = String(assets.length);
+        document.getElementById('sc-genesis').textContent = `${assets.filter(a=>a.collection==='genesis').length}`;
+        document.getElementById('sc-sow').textContent = `${assets.filter(a=>a.collection==='sow').length}`;
+        if (!assets.length) { document.getElementById('sc-empty').classList.remove('hidden'); return; }
+        document.getElementById('sc-grid').innerHTML = assets.map(a => {
+          return `<a href="/card/${a.token}" class="block rounded-xl bg-surface border border-line overflow-hidden hover:border-cy/30">
+            <div class="aspect-[3/4] bg-black overflow-hidden"><img src="${a.metadata.image}" alt="${esc(a.metadata.name)}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'"/></div>
+            <div class="p-3"><div class="text-xs font-mono2 tracking-widest text-muted">${a.collection === 'genesis' ? 'COSMICRAFTS' : 'SHADOWS OF WAR'} · #${a.serial}</div><div class="text-sm font-bold text-ink truncate">${esc(a.metadata.name)}</div><div class="text-[10px] font-mono2 text-muted">${esc(a.id)}</div></div>
           </a>`;
         }).join('');
         history.replaceState(null,'',`?id=${encodeURIComponent(id)}`);

@@ -12,12 +12,12 @@ import Layout from '../layouts/Layout.astro';
     </p>
 
     <!-- How it works -->
-    <div class="mt-10 grid md:grid-cols-3 gap-4">
-      <div class="rounded-xl border border-line bg-surface p-5">
-        <div class="text-cy font-mono2 text-xs tracking-widest">01</div>
-        <h3 class="font-bold text-ink mt-2">Collect</h3>
-        <p class="text-sm text-muted mt-1">Open a pack or buy a single on nftropoly.com — signed in with WOU-ID.</p>
-      </div>
+      <div class="mt-10 grid md:grid-cols-3 gap-4">
+        <div class="rounded-xl border border-line bg-surface p-5">
+          <div class="text-cy font-mono2 text-xs tracking-widest">01</div>
+          <h3 class="font-bold text-ink mt-2">Claim</h3>
+          <p class="text-sm text-muted mt-1">Claim a serial from a collection on nftropoly.com — signed in with WOU-ID, capped by supply.</p>
+        </div>
       <div class="rounded-xl border border-line bg-surface p-5">
         <div class="text-cy font-mono2 text-xs tracking-widest">02</div>
         <h3 class="font-bold text-ink mt-2">Vault</h3>
@@ -37,25 +37,29 @@ import Layout from '../layouts/Layout.astro';
 
       <div class="mt-6 space-y-6 font-mono2 text-xs">
         <div>
-          <div class="text-ink font-bold">GET /api/v1/inventory/:accountId</div>
-          <div class="text-muted">Public — showcase any vault.</div>
-          <pre class="mt-2 p-3 rounded bg-bg border border-line text-muted overflow-auto">curl https://id.worldofunreal.com/api/v1/inventory/&lt;uuid&gt;</pre>
+          <div class="text-ink font-bold">GET /api/v1/assets/collections</div>
+          <div class="text-muted">Public — registered collections.</div>
         </div>
         <div>
-          <div class="text-ink font-bold">GET /api/v1/inventory/me</div>
-          <div class="text-muted">Authenticated — your vault.</div>
-          <pre class="mt-2 p-3 rounded bg-bg border border-line text-muted overflow-auto">curl -H "Authorization: Bearer &lt;jwt&gt;" https://id.worldofunreal.com/api/v1/inventory/me</pre>
+          <div class="text-ink font-bold">GET /api/v1/assets/collections/:id/tokens</div>
+          <div class="text-muted">Public — designs with metadata + minted / max_supply.</div>
+          <pre class="mt-2 p-3 rounded bg-bg border border-line text-muted overflow-auto">curl https://id.worldofunreal.com/api/v1/assets/collections/genesis/tokens</pre>
         </div>
         <div>
-          <div class="text-ink font-bold">POST /api/v1/inventory/collect</div>
-          <div class="text-muted">Collect cards — body <code>&#123;"card_ids": ["genesis-042"]&#125;</code></div>
+          <div class="text-ink font-bold">GET /api/v1/assets/owner/:accountId</div>
+          <div class="text-muted">Public — registered copies owned by an account.</div>
+          <pre class="mt-2 p-3 rounded bg-bg border border-line text-muted overflow-auto">curl https://id.worldofunreal.com/api/v1/assets/owner/&lt;uuid&gt;</pre>
+        </div>
+        <div>
+          <div class="text-ink font-bold">POST /api/v1/assets/claim</div>
+          <div class="text-muted">Authenticated — mint next serial: <code>&#123;"token": "genesis-001"&#125;</code>. 409 when exhausted.</div>
           <pre class="mt-2 p-3 rounded bg-bg border border-line text-muted overflow-auto">curl -X POST -H "Authorization: Bearer &lt;jwt&gt;" -H "Content-Type: application/json" \
-  -d '&#123;"card_ids":["genesis-042","sow-leonidas"]&#125;' \
-  https://id.worldofunreal.com/api/v1/inventory/collect</pre>
+  -d '&#123;"token":"genesis-001"&#125;' \
+  https://id.worldofunreal.com/api/v1/assets/claim</pre>
         </div>
         <div>
-          <div class="text-ink font-bold">POST /api/v1/inventory/trade</div>
-          <div class="text-muted">Propose card-for-card trade — body <code>&#123;"offered":[],"requested":[],"to_account_id":null&#125;</code></div>
+          <div class="text-ink font-bold">GET /api/v1/assets/:id/events</div>
+          <div class="text-muted">Public — provenance: mint, transfers, trades, freeze/restore.</div>
         </div>
       </div>
     </div>
@@ -63,15 +67,15 @@ import Layout from '../layouts/Layout.astro';
     <!-- Game example -->
     <div class="mt-8 rounded-2xl border border-line bg-surface p-6 md:p-8">
       <h3 class="font-bold text-ink">Game example — Shadows of War (Rust)</h3>
-      <pre class="mt-3 p-4 rounded bg-bg border border-line text-xs text-muted overflow-auto"><code>let inventory = reqwest::get(format!("https://id.worldofunreal.com/api/v1/inventory/&#123;&#125;", account_id))
-    .await?.json::&lt;InventoryResponse&gt;().await?;
-if inventory.card_ids.contains(&amp;"sow-leonidas".to_string()) &#123;
+      <pre class="mt-3 p-4 rounded bg-bg border border-line text-xs text-muted overflow-auto"><code>let assets: Vec&lt;AssetInstance&gt; = reqwest::get(format!("https://id.worldofunreal.com/api/v1/assets/owner/&#123;&#125;", account_id))
+    .await?.json().await?;
+if assets.iter().any(|a| a.token == "sow-leonidas" &amp;&amp; a.status == "active") &#123;
     unlock_commander(Leader::Leonidas);
 &#125;</code></pre>
       <h3 class="font-bold text-ink mt-6">Frontend example — Cosmicrafts (JS)</h3>
-      <pre class="mt-3 p-4 rounded bg-bg border border-line text-xs text-muted overflow-auto"><code>const res = await fetch(`https://id.worldofunreal.com/api/v1/inventory/$&#123;accountId&#125;`);
-const &#123; card_ids &#125; = await res.json();
-if (card_ids.includes('genesis-042')) unlockShip('Riftcutter');</code></pre>
+      <pre class="mt-3 p-4 rounded bg-bg border border-line text-xs text-muted overflow-auto"><code>const res = await fetch(`https://id.worldofunreal.com/api/v1/assets/owner/$&#123;accountId&#125;`);
+const assets = await res.json();
+if (assets.some(a => a.token === 'genesis-001' &amp;&amp; a.status === 'active')) unlockShip('Riftcutter');</code></pre>
     </div>
 
     <div class="mt-8 flex flex-wrap gap-3">
