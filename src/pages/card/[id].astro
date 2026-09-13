@@ -10,6 +10,11 @@ export function getStaticPaths() {
 
 const { card } = Astro.props;
 const seriesLabel = card.series === 'genesis' ? 'COSMICRAFTS · GENESIS' : 'SHADOWS OF WAR · COMMANDERS';
+const collectionHref = card.series === 'genesis' ? '/collections/genesis/' : '/collections/sow/';
+const collectionAnchor = card.series === 'genesis' ? 'COSMICRAFTS Genesis Collection' : 'Shadows of War Commanders';
+const pool = (card.series === 'genesis' ? genesis : sow).slice().sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
+const idx = Math.max(0, pool.findIndex((c) => c.id === card.id));
+const siblings = [pool[idx + 1], pool[idx + 2], pool[idx - 1]].filter((c) => c && c.id !== card.id).slice(0, 3);
 const tagline = card.title || card.role || card.civ || '';
 const attrs = card.series === 'genesis'
   ? [['Faction', card.faction], ['Role', card.role], ['Type', card.type]]
@@ -95,6 +100,26 @@ const attrs = card.series === 'genesis'
         <div class="mt-8 font-mono2 text-[10px] tracking-widest text-muted">
           NFTROPOLY · TRADABLE DIGITAL COLLECTIBLE · {card.id.toUpperCase()}
         </div>
+
+        <nav aria-label="Collection" class="mt-6 rounded-lg border border-line bg-ink/5 p-4 text-sm">
+          <a href={collectionHref} class="text-cy font-semibold hover:underline">{collectionAnchor}</a>
+          {siblings.length > 0 && (
+            <div class="mt-2 text-muted">
+              More in this set:{' '}
+              {siblings.map((s, i) => (
+                <span>
+                  {i > 0 && ' · '}
+                  <a href={`/card/${s.id}/`} class="text-ink hover:text-cy hover:underline">{s.name}</a>
+                </span>
+              ))}
+            </div>
+          )}
+          {card.series === 'sow' && (
+            <div class="mt-2">
+              <a href="https://shadowsofwar.io/leaders/" class="text-muted hover:text-cy hover:underline">Meet the commanders in Shadows of War</a>
+            </div>
+          )}
+        </nav>
       </div>
     </div>
   </div>
