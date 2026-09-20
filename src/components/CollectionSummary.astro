@@ -1,14 +1,17 @@
 ---
 import genesis from '../data/genesis.json';
 import sow from '../data/sow.json';
+import rush from '../data/rush.json';
 
-interface Props { series: 'genesis' | 'sow'; }
+interface Props { series: 'genesis' | 'sow' | 'rush'; }
 const { series } = Astro.props;
-const cards = series === 'genesis' ? genesis : sow;
+const cards = series === 'genesis' ? genesis : series === 'sow' ? sow : rush;
 const meta = series === 'genesis'
   ? { title: 'COSMICRAFTS', sub: 'Genesis Collection', desc: 'Ships, titans and outlaws of the Dark Rift — 300 tradable collectibles from the Cosmicrafts universe.' }
-  : { title: 'SHADOWS OF WAR', sub: 'Commanders', desc: 'The twelve great commanders of history, forged into collectible cards for the battlefield.' };
-const edition = series === 'genesis' ? 500 : 250;
+  : series === 'sow'
+  ? { title: 'SHADOWS OF WAR', sub: 'Commanders', desc: 'The twelve great commanders of history, forged into collectible cards for the battlefield.' }
+  : { title: 'COSMIC RUSH', sub: 'Achievements', desc: 'Cada logro de Cosmic Rush deja carta: apuestas, victorias, jackpots.' };
+const edition = series === 'genesis' ? 500 : series === 'sow' ? 250 : 100000;
 const rarities = ['Legendary', 'Epic', 'Rare', 'Common'];
 const rcolor: Record<string, string> = { Common: '#94a3b8', Rare: '#38bdf8', Epic: '#c084fc', Legendary: '#fbbf24' };
 const dist = rarities.map(r => ({ r, n: cards.filter(c => c.rarity === r).length }));

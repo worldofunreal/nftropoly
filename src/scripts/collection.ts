@@ -32,7 +32,7 @@ export interface Listing {
 }
 
 async function authed(method: string, path: string, body?: unknown): Promise<any> {
-  const t = wouAuth.getToken();
+  const t = wouAuth.getSessionToken();
   if (!t) {
     wouAuth.openModal();
     throw new Error('Sign in first');
@@ -55,14 +55,14 @@ function notify() {
 
 async function syncFromServer(): Promise<void> {
   const user = wouAuth.getUser();
-  const token = wouAuth.getToken();
+  const token = wouAuth.getSessionToken();
   if (!user || !token) {
     cache = [];
     notify();
     return;
   }
   try {
-    const res = await fetch(`${API}/api/v1/assets/owner/${user.id}`);
+    const res = await fetch(`${API}/api/v1/assets/owner/${user.account_id}`);
     cache = res.ok ? await res.json() : [];
   } catch {
     cache = [];
@@ -85,7 +85,7 @@ export const collection = {
   },
   /** Mint the next serial of a design to the caller. Throws server message when exhausted. */
   async claim(token: string): Promise<Asset> {
-    const t = wouAuth.getToken();
+    const t = wouAuth.getSessionToken();
     if (!t) {
       wouAuth.openModal();
       throw new Error('Sign in to claim');

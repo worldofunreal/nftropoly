@@ -42,7 +42,7 @@ export function getStaticPaths() { return [{ params: { id: 'demo' } }]; }
           acceptBtn.textContent = 'Accept Trade';
           acceptBtn.className = 'px-5 py-2 rounded bg-cy text-bg font-bold text-sm';
           acceptBtn.onclick = async () => {
-            const token = wouAuth.getToken();
+            const token = wouAuth.getSessionToken();
             if (!token) { wouAuth.openModal(); return; }
             try {
               const r = await fetch(`${API}/api/v1/inventory/trade/${id}/accept`, { method:'POST', headers:{ Authorization:`Bearer ${token}` }});
@@ -60,7 +60,7 @@ export function getStaticPaths() { return [{ params: { id: 'demo' } }]; }
           cancelBtn.textContent = 'Cancel';
           cancelBtn.className = 'px-5 py-2 rounded border border-line text-ink text-sm';
           cancelBtn.onclick = async () => {
-            const token = wouAuth.getToken();
+            const token = wouAuth.getSessionToken();
             if (!token) return;
             const r = await fetch(`${API}/api/v1/inventory/trade/${id}/cancel`, { method:'POST', headers:{ Authorization:`Bearer ${token}` }});
             const d = await r.json();

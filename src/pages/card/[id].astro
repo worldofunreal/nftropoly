@@ -2,21 +2,24 @@
 import Layout from '../../layouts/Layout.astro';
 import genesis from '../../data/genesis.json';
 import sow from '../../data/sow.json';
+import rush from '../../data/rush.json';
 
 export function getStaticPaths() {
-  const all = [...genesis, ...sow];
+  const all = [...genesis, ...sow, ...rush];
   return all.map(c => ({ params: { id: c.id }, props: { card: c } }));
 }
 
 const { card } = Astro.props;
-const seriesLabel = card.series === 'genesis' ? 'COSMICRAFTS · GENESIS' : 'SHADOWS OF WAR · COMMANDERS';
-const collectionHref = card.series === 'genesis' ? '/collections/genesis/' : '/collections/sow/';
-const collectionAnchor = card.series === 'genesis' ? 'COSMICRAFTS Genesis Collection' : 'Shadows of War Commanders';
-const pool = (card.series === 'genesis' ? genesis : sow).slice().sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
+const seriesLabel = card.series === 'genesis' ? 'COSMICRAFTS · GENESIS' : card.series === 'sow' ? 'SHADOWS OF WAR · COMMANDERS' : 'COSMIC RUSH · ACHIEVEMENTS';
+const collectionHref = card.series === 'genesis' ? '/collections/genesis/' : card.series === 'sow' ? '/collections/sow/' : '/collections/rush/';
+const collectionAnchor = card.series === 'genesis' ? 'COSMICRAFTS Genesis Collection' : card.series === 'sow' ? 'Shadows of War Commanders' : 'Cosmic Rush Achievements';
+const pool = (card.series === 'genesis' ? genesis : card.series === 'sow' ? sow : rush).slice().sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
 const idx = Math.max(0, pool.findIndex((c) => c.id === card.id));
 const siblings = [pool[idx + 1], pool[idx + 2], pool[idx - 1]].filter((c) => c && c.id !== card.id).slice(0, 3);
 const tagline = card.title || card.role || card.civ || '';
 const attrs = card.series === 'genesis'
+  ? [['Faction', card.faction], ['Role', card.role], ['Type', card.type]]
+  : card.series === 'rush'
   ? [['Faction', card.faction], ['Role', card.role], ['Type', card.type]]
   : [['Civilization', card.civ], ['Role', card.role]];
 ---

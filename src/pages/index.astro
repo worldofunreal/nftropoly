@@ -3,8 +3,9 @@ import Layout from '../layouts/Layout.astro';
 import CollectionSummary from '../components/CollectionSummary.astro';
 import genesis from '../data/genesis.json';
 import sow from '../data/sow.json';
+import rush from '../data/rush.json';
 
-const all = [...genesis, ...sow];
+const all = [...genesis, ...sow, ...rush];
 ---
 
 <Layout title="NFTROPOLY — Digital Collectibles Store">
@@ -58,6 +59,7 @@ const all = [...genesis, ...sow];
       <div class="grid md:grid-cols-2 gap-6">
         <CollectionSummary series="genesis" />
         <CollectionSummary series="sow" />
+        <CollectionSummary series="rush" />
       </div>
     </section>
   </div>
