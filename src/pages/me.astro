@@ -1,7 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import genesis from '../data/genesis.json';
-import sow from '../data/sow.json';
+import { catalog } from '../scripts/catalog';
+
+const { series } = await catalog();
 ---
 
 <Layout title="My Collection — NFTROPOLY">
@@ -20,28 +21,12 @@ import sow from '../data/sow.json';
           <div id="stat-total" class="text-xl font-bold text-ink">0</div>
           <div class="text-muted mt-0.5">OWNED</div>
         </div>
-        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
-          <div id="stat-genesis" class="text-xl font-bold text-ink">0/300</div>
-          <div class="text-muted mt-0.5">GENESIS</div>
-        </div>
-        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
-          <div id="stat-sow" class="text-xl font-bold text-ink">0/12</div>
-          <div class="text-muted mt-0.5">COMMANDERS</div>
-        </div>
+        <div id="stat-cells" class="contents"></div>
       </div>
     </div>
 
     <!-- set progress -->
-    <div class="grid md:grid-cols-2 gap-4 mb-8">
-      <div class="rounded-lg border border-line bg-surface p-4">
-        <div class="flex justify-between text-sm"><span class="text-ink">Cosmicrafts Genesis</span><span id="bar-genesis-label" class="font-mono2 text-cy">0%</span></div>
-        <div class="mt-2 h-1.5 rounded-full bg-ink/10 overflow-hidden"><div id="bar-genesis" class="h-full bg-gradient-to-r from-cy to-mg transition-all" style="width:0%"></div></div>
-      </div>
-      <div class="rounded-lg border border-line bg-surface p-4">
-        <div class="flex justify-between text-sm"><span class="text-ink">Shadows of War Commanders</span><span id="bar-sow-label" class="font-mono2 text-cy">0%</span></div>
-        <div class="mt-2 h-1.5 rounded-full bg-ink/10 overflow-hidden"><div id="bar-sow" class="h-full bg-gradient-to-r from-cy to-mg transition-all" style="width:0%"></div></div>
-      </div>
-    </div>
+    <div id="set-progress" class="grid md:grid-cols-2 gap-4 mb-8"></div>
 
     <!-- owned grid -->
     <div id="owned-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4"></div>
@@ -59,48 +44,76 @@ import sow from '../data/sow.json';
     </div>
   </div>
 
-  <script define:vars={{ GENESIS_TOTAL: genesis.length, SOW_TOTAL: sow.length }}>
+  <script define:vars={{ SERIES: series }}>
     import { collection } from '../scripts/collection';
+    import { catalog } from '../scripts/catalog';
     import { wouAuth } from '@worldofunreal/id';
     wouAuth.setDefaultContext('nftropoly');
 
+    const esc = (s) => (s ?? '').toString().replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const grid = document.getElementById('owned-grid')!;
     const empty = document.getElementById('empty-state')!;
 
+    // Token images and totals come from WOU-ID (instance snapshots can be stale).
+    const TOK_IMG: Record<string, string> = {};
+    const catalogTotals: Record<string, number> = {};
+
     const render = () => {
       const owned = collection.list();
-      const g = owned.filter(a => a.collection === 'genesis').length;
-      const s = owned.filter(a => a.collection === 'sow').length;
+      const labelOf = (id: string) => (SERIES.find(s => s.id === id)?.symbol ?? id).toUpperCase();
 
       document.getElementById('stat-total')!.textContent = String(owned.length);
-      document.getElementById('stat-genesis')!.textContent = `${g}/${GENESIS_TOTAL}`;
-      document.getElementById('stat-sow')!.textContent = `${s}/${SOW_TOTAL}`;
-      document.getElementById('bar-genesis')!.style.width = `${(g / GENESIS_TOTAL) * 100}%`;
-      document.getElementById('bar-sow')!.style.width = `${(s / SOW_TOTAL) * 100}%`;
-      document.getElementById('bar-genesis-label')!.textContent = `${Math.round((g / GENESIS_TOTAL) * 100)}%`;
-      document.getElementById('bar-sow-label')!.textContent = `${Math.round((s / SOW_TOTAL) * 100)}%`;
+      document.getElementById('stat-cells')!.innerHTML = SERIES.map(s => {
+        const total = catalogTotals[s.id] ?? 0;
+        const n = owned.filter(a => a.collection === s.id).length;
+        return `<div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
+          <div class="text-xl font-bold text-ink">${n}/${total}</div><div class="text-muted mt-0.5">${esc(s.symbol)}</div>
+        </div>`;
+      }).join('');
+
+      document.getElementById('set-progress')!.innerHTML = SERIES.map(s => {
+        const total = catalogTotals[s.id] ?? 0;
+        const n = owned.filter(a => a.collection === s.id).length;
+        const pct = total ? Math.round((n / total) * 100) : 0;
+        return `<div class="rounded-lg border border-line bg-surface p-4">
+          <div class="flex justify-between text-sm"><span class="text-ink">${esc(s.name)}</span><span class="font-mono2 text-cy">${pct}%</span></div>
+          <div class="mt-2 h-1.5 rounded-full bg-ink/10 overflow-hidden"><div class="h-full bg-gradient-to-r from-cy to-mg transition-all" style="width:${pct}%"></div></div>
+        </div>`;
+      }).join('');
 
       empty.style.display = owned.length ? 'none' : '';
-      grid.innerHTML = owned.map(a => `
+      grid.innerHTML = owned.map(a => {
+        const img = TOK_IMG[a.token] || a.metadata.image;
+        return `
         <a href="/card/${a.token}" class="block rounded-xl bg-surface border border-line overflow-hidden hover:border-cy/30">
           <div class="relative aspect-[3/4] overflow-hidden bg-black">
-            <img src="${a.metadata.image}" alt="${a.metadata.name}" loading="lazy" class="w-full h-full object-cover" />
+            ${img ? `<img src="${img}" alt="${esc(a.metadata.name)}" loading="lazy" class="w-full h-full object-cover" />` : ''}
             <div class="absolute top-2 left-2 font-mono2 text-[10px] text-zinc-300/80 bg-black/50 px-2 py-0.5 rounded">#${a.serial}</div>
             ${a.status !== 'active' ? `<div class="absolute top-2 right-2 font-mono2 text-[10px] text-amber-300 bg-black/60 px-2 py-0.5 rounded">FROZEN</div>` : ''}
           </div>
           <div class="p-3">
-            <div class="text-[9px] font-mono2 tracking-[0.2em] text-cy/70">${a.collection === 'genesis' ? 'COSMICRAFTS' : 'SHADOWS OF WAR'}</div>
-            <div class="text-sm font-bold text-ink mt-0.5 truncate">${a.metadata.name}</div>
-            <div class="text-[10px] font-mono2 text-muted mt-0.5">${a.id}</div>
+            <div class="text-[9px] font-mono2 tracking-[0.2em] text-cy/70">${esc(labelOf(a.collection))}</div>
+            <div class="text-sm font-bold text-ink mt-0.5 truncate">${esc(a.metadata.name)}</div>
+            <div class="text-[10px] font-mono2 text-muted mt-0.5">${esc(a.id)}</div>
           </div>
-        </a>`).join('');
+        </a>`;
+      }).join('');
 
       const u = wouAuth.getUser();
       document.getElementById('id-status')!.innerHTML = u
-        ? `Signed in as <span class="text-cy font-semibold">${u.display_name}</span>${u.email ? ` · ${u.email}` : ''} — registered copies in WOU-ID.`
+        ? `Signed in as <span class="text-cy font-semibold">${esc(u.display_name)}</span>${u.email ? ` · ${esc(u.email)}` : ''} — registered copies in WOU-ID.`
         : `Browsing as guest. <button id="me-signin" class="text-cy hover:underline">Sign in</button> to claim and keep copies.`;
       document.getElementById('me-signin')?.addEventListener('click', () => wouAuth.openModal());
     };
+
+    (async () => {
+      const { cards } = await catalog();
+      for (const c of cards) {
+        if (c.image) TOK_IMG[c.id] = c.image;
+        catalogTotals[c.series] = (catalogTotals[c.series] ?? 0) + 1;
+      }
+      render();
+    })();
 
     window.addEventListener('nftropoly:collection-changed', render);
     window.addEventListener('wou:auth-changed', render);

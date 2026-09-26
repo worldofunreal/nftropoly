@@ -1,22 +1,19 @@
 ---
 import Layout from '../../layouts/Layout.astro';
 import CardTile from '../../components/CardTile.astro';
-import genesis from '../../data/genesis.json';
-import sow from '../../data/sow.json';
-import rush from '../../data/rush.json';
+import { catalog, type Card, type Series } from '../../scripts/catalog';
 
-export function getStaticPaths() {
-  return [{ params: { series: 'genesis' } }, { params: { series: 'sow' } }, { params: { series: 'rush' } }];
+export async function getStaticPaths() {
+  const { cards, series } = await catalog();
+  return series.map((s: Series) => ({
+    params: { series: s.id },
+    props: { col: s, cards: cards.filter((c: Card) => c.series === s.id) },
+  }));
 }
 
-const series = Astro.params.series as 'genesis' | 'sow' | 'rush';
-const cards = series === 'genesis' ? genesis : series === 'sow' ? sow : rush;
-const meta = series === 'genesis'
-  ? { title: 'COSMICRAFTS', sub: 'Genesis Collection', desc: 'Ships, titans and outlaws of the Dark Rift — the founding collection of NFTROPOLY.' }
-  : series === 'sow'
-  ? { title: 'SHADOWS OF WAR', sub: 'Commanders', desc: 'The twelve great commanders of history, forged into collectible cards for the battlefield.' }
-  : { title: 'COSMIC RUSH', sub: 'Achievements', desc: 'Cada logro de Cosmic Rush deja carta: apuestas, victorias, jackpots.' };
-const edition = series === 'genesis' ? 500 : series === 'sow' ? 250 : 100000;
+const { col, cards } = Astro.props as { col: Series; cards: Card[] };
+const meta = { title: col.name.toUpperCase(), sub: col.symbol.toUpperCase(), desc: col.description };
+const edition = Math.max(0, ...cards.map(c => c.edition));
 const rarities = ['Legendary', 'Epic', 'Rare', 'Common'];
 const rcolor: Record<string, string> = { Common: '#94a3b8', Rare: '#38bdf8', Epic: '#c084fc', Legendary: '#fbbf24' };
 const dist = rarities.map(r => ({ r, n: cards.filter(c => c.rarity === r).length }));
@@ -52,7 +49,7 @@ const dist = rarities.map(r => ({ r, n: cards.filter(c => c.rarity === r).length
     <div class="flex flex-wrap items-center gap-3 mb-6">
       <div class="h-1.5 w-full max-w-xs rounded-full overflow-hidden flex bg-ink/10">
         {dist.map(d => (
-          <div style={`width:${(d.n / cards.length) * 100}%; background:${rcolor[d.r]}`}></div>
+          <div style={`width:${cards.length ? (d.n / cards.length) * 100 : 0}%; background:${rcolor[d.r]}`}></div>
         ))}
       </div>
       <div class="flex flex-wrap gap-2" id="rarity-filters">
@@ -68,7 +65,7 @@ const dist = rarities.map(r => ({ r, n: cards.filter(c => c.rarity === r).length
 
     <!-- grid -->
     <div id="grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-      {cards.map(c => <CardTile card={c} />)}
+      {cards.map(c => <CardTile card={c} label={col.symbol || col.name} />)}
     </div>
   </div>
 

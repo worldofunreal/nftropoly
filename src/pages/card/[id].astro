@@ -1,27 +1,24 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import genesis from '../../data/genesis.json';
-import sow from '../../data/sow.json';
-import rush from '../../data/rush.json';
+import { catalog } from '../../scripts/catalog';
 
-export function getStaticPaths() {
-  const all = [...genesis, ...sow, ...rush];
-  return all.map(c => ({ params: { id: c.id }, props: { card: c } }));
+export async function getStaticPaths() {
+  const { cards, series } = await catalog();
+  const seriesMap = Object.fromEntries(series.map((s) => [s.id, s]));
+  return cards.map(c => ({ params: { id: c.id }, props: { card: c, seriesMap, cards } }));
 }
 
-const { card } = Astro.props;
-const seriesLabel = card.series === 'genesis' ? 'COSMICRAFTS · GENESIS' : card.series === 'sow' ? 'SHADOWS OF WAR · COMMANDERS' : 'COSMIC RUSH · ACHIEVEMENTS';
-const collectionHref = card.series === 'genesis' ? '/collections/genesis/' : card.series === 'sow' ? '/collections/sow/' : '/collections/rush/';
-const collectionAnchor = card.series === 'genesis' ? 'COSMICRAFTS Genesis Collection' : card.series === 'sow' ? 'Shadows of War Commanders' : 'Cosmic Rush Achievements';
-const pool = (card.series === 'genesis' ? genesis : card.series === 'sow' ? sow : rush).slice().sort((a, b) => (a.num ?? 0) - (b.num ?? 0));
-const idx = Math.max(0, pool.findIndex((c) => c.id === card.id));
-const siblings = [pool[idx + 1], pool[idx + 2], pool[idx - 1]].filter((c) => c && c.id !== card.id).slice(0, 3);
+const { card, seriesMap, cards } = Astro.props;
+const col = seriesMap[card.series];
+const seriesLabel = (col ? `${col.name} · ${col.symbol}` : card.series).toUpperCase();
+const collectionHref = `/collections/${card.series}/`;
+const collectionAnchor = col?.name ?? 'Collection';
+const pool = cards.filter((c: any) => c.series === card.series).sort((a: any, b: any) => (a.num ?? 0) - (b.num ?? 0));
+const idx = Math.max(0, pool.findIndex((c: any) => c.id === card.id));
+const siblings = [pool[idx + 1], pool[idx + 2], pool[idx - 1]].filter((c: any) => c && c.id !== card.id).slice(0, 3);
 const tagline = card.title || card.role || card.civ || '';
-const attrs = card.series === 'genesis'
-  ? [['Faction', card.faction], ['Role', card.role], ['Type', card.type]]
-  : card.series === 'rush'
-  ? [['Faction', card.faction], ['Role', card.role], ['Type', card.type]]
-  : [['Civilization', card.civ], ['Role', card.role]];
+const attrs = ([['Civilization', card.civ], ['Faction', card.faction], ['Role', card.role], ['Type', card.type]] as const)
+  .filter(([, v]) => v);
 ---
 
 <Layout title={`${card.name} — #${card.serial}/${card.edition} · NFTROPOLY`}>
@@ -68,7 +65,7 @@ const attrs = card.series === 'genesis'
           </div>
           <div class="rounded-lg border border-line bg-ink/5 px-4 py-3">
             <div class="text-[10px] font-mono2 tracking-widest text-muted uppercase">Set</div>
-            <div class="text-sm text-ink mt-0.5">{card.series === 'genesis' ? 'Genesis Collection' : 'Commanders'}</div>
+            <div class="text-sm text-ink mt-0.5">{col?.name ?? card.series}</div>
           </div>
         </div>
 

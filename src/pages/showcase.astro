@@ -20,12 +20,7 @@ import Layout from '../layouts/Layout.astro';
         <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
           <div id="sc-count" class="text-xl font-bold text-ink">—</div><div class="text-muted">CARDS</div>
         </div>
-        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
-          <div id="sc-genesis" class="text-xl font-bold text-ink">—</div><div class="text-muted">GENESIS</div>
-        </div>
-        <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
-          <div id="sc-sow" class="text-xl font-bold text-ink">—</div><div class="text-muted">COMMANDERS</div>
-        </div>
+        <div id="sc-stats" class="flex gap-3 font-mono2 text-xs"></div>
       </div>
     </div>
 
@@ -41,7 +36,39 @@ import Layout from '../layouts/Layout.astro';
 
   <script>
     const API = 'https://id.worldofunreal.com';
-    const esc = (s) => s.replace(/[&<>"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const esc = (s) => (s ?? '').toString().replace(/[&<>"]/g, c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+    // WOU-ID is the catalog: collections and token images are read live.
+    // Owned instances snapshot metadata at mint time (may be stale/empty),
+    // so tiles resolve the picture through the token record first.
+    let COLS: Record<string, { name: string; symbol: string }> | null = null;
+    const TOK_IMG: Record<string, string> = {};
+    const TOKS_LOADED = new Set<string>();
+
+    async function ensureCatalog(collections: string[]) {
+      if (!COLS) {
+        try {
+          const r = await fetch(`${API}/api/v1/assets/collections`);
+          if (r.ok) {
+            COLS = {};
+            for (const c of await r.json()) COLS[c.id] = { name: c.name, symbol: c.symbol };
+          }
+        } catch { /* tiles still render from instance metadata */ }
+      }
+      for (const col of [...new Set(collections)]) {
+        if (!col || TOKS_LOADED.has(col)) continue;
+        TOKS_LOADED.add(col);
+        try {
+          const r = await fetch(`${API}/api/v1/assets/collections/${encodeURIComponent(col)}/tokens`);
+          if (!r.ok) continue;
+          for (const t of await r.json()) if (t.metadata?.image) TOK_IMG[t.id] = t.metadata.image;
+        } catch { /* keep going */ }
+      }
+    }
+
+    function seriesLabel(col: string) {
+      return (COLS?.[col]?.symbol ?? col).toUpperCase();
+    }
 
     async function load(id) {
       if (!id) return;
@@ -57,17 +84,21 @@ import Layout from '../layouts/Layout.astro';
         if (!iRes.ok) throw new Error('Vault not found');
         const p = await pRes.json();
         const assets = await iRes.json();
+        await ensureCatalog(assets.map((a: any) => a.collection));
         document.getElementById('sc-name').textContent = p.display_name || 'Player';
         document.getElementById('sc-sub').textContent = p.email ? `${p.email} · ${id.slice(0,8)}` : id;
         document.title = `${p.display_name} — Showcase — NFTROPOLY`;
         document.getElementById('sc-count').textContent = String(assets.length);
-        document.getElementById('sc-genesis').textContent = `${assets.filter(a=>a.collection==='genesis').length}`;
-        document.getElementById('sc-sow').textContent = `${assets.filter(a=>a.collection==='sow').length}`;
+        document.getElementById('sc-stats').innerHTML = Object.entries(COLS ?? {})
+          .map(([cid, c]) => `<div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
+            <div class="text-xl font-bold text-ink">${assets.filter((a: any) => a.collection === cid).length}</div><div class="text-muted">${esc(c.symbol)}</div>
+          </div>`).join('');
         if (!assets.length) { document.getElementById('sc-empty').classList.remove('hidden'); return; }
         document.getElementById('sc-grid').innerHTML = assets.map(a => {
+          const img = TOK_IMG[a.token] || a.metadata.image;
           return `<a href="/card/${a.token}" class="block rounded-xl bg-surface border border-line overflow-hidden hover:border-cy/30">
-            <div class="aspect-[3/4] bg-black overflow-hidden"><img src="${a.metadata.image}" alt="${esc(a.metadata.name)}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'"/></div>
-            <div class="p-3"><div class="text-xs font-mono2 tracking-widest text-muted">${a.collection === 'genesis' ? 'COSMICRAFTS' : 'SHADOWS OF WAR'} · #${a.serial}</div><div class="text-sm font-bold text-ink truncate">${esc(a.metadata.name)}</div><div class="text-[10px] font-mono2 text-muted">${esc(a.id)}</div></div>
+            <div class="aspect-[3/4] bg-black overflow-hidden">${img ? `<img src="${img}" alt="${esc(a.metadata.name)}" class="w-full h-full object-cover" loading="lazy" onerror="this.style.display='none'"/>` : ''}</div>
+            <div class="p-3"><div class="text-xs font-mono2 tracking-widest text-muted">${esc(seriesLabel(a.collection))} · #${a.serial}</div><div class="text-sm font-bold text-ink truncate">${esc(a.metadata.name)}</div><div class="text-[10px] font-mono2 text-muted">${esc(a.id)}</div></div>
           </a>`;
         }).join('');
         history.replaceState(null,'',`?id=${encodeURIComponent(id)}`);

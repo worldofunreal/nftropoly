@@ -7,16 +7,18 @@ interface Props {
     description: string;
     image: string;
     rarity: string;
-    role: string | null;
-    faction: string | null;
-    civ: string | null;
+    role?: string | null;
+    faction?: string | null;
+    civ?: string | null;
+    type?: string | null;
     num: number;
     serial: number;
     edition: number;
   };
+  label?: string;
 }
-const { card } = Astro.props;
-const seriesLabel = card.series === 'genesis' ? 'COSMICRAFTS' : 'SHADOWS OF WAR';
+const { card, label } = Astro.props;
+const seriesLabel = (label ?? (card.series === 'genesis' ? 'COSMICRAFTS' : card.series)).toUpperCase();
 ---
 
 <a href={`/card/${card.id}`} data-series={card.series} data-rarity={card.rarity} class={`card-frame rc-${card.rarity} block rounded-xl bg-surface overflow-hidden group ${card.rarity === 'Legendary' || card.rarity === 'Epic' ? 'foil' : ''}`}>
