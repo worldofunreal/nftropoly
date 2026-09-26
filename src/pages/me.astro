@@ -16,7 +16,7 @@ const { series } = await catalog();
           Browsing as guest. <button id="me-signin" class="text-cy hover:underline">Sign in</button> to keep your collection across devices.
         </p>
       </div>
-      <div class="flex gap-3 font-mono2 text-xs">
+      <div id="vault-stats" class="flex gap-3 font-mono2 text-xs">
         <div class="rounded-lg border border-line bg-surface px-4 py-3 text-center">
           <div id="stat-total" class="text-xl font-bold text-ink">0</div>
           <div class="text-muted mt-0.5">OWNED</div>
@@ -26,7 +26,7 @@ const { series } = await catalog();
     </div>
 
     <!-- set progress -->
-    <div id="set-progress" class="grid md:grid-cols-2 gap-4 mb-8"></div>
+    <div id="set-progress" class="grid md:grid-cols-2 gap-4 mb-8 hidden"></div>
 
     <!-- owned grid -->
     <div id="owned-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4"></div>
@@ -61,6 +61,12 @@ const { series } = await catalog();
     const render = () => {
       const owned = collection.list();
       const labelOf = (id: string) => (SERIES.find(s => s.id === id)?.symbol ?? id).toUpperCase();
+      const signedIn = !!wouAuth.getUser();
+
+      // No tableros de ceros para quien no es nadie: solo el aviso de login.
+      document.getElementById('vault-stats')!.style.display = signedIn ? '' : 'none';
+      document.getElementById('set-progress')!.classList.toggle('hidden', !signedIn);
+      if (!signedIn) { empty.style.display = ''; }
 
       document.getElementById('stat-total')!.textContent = String(owned.length);
       document.getElementById('stat-cells')!.innerHTML = SERIES.map(s => {

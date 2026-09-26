@@ -46,18 +46,31 @@ const { title = 'NFTROPOLY — Digital Collectibles' } = Astro.props;
         </span>
       </a>
       <nav class="flex items-center gap-2 text-sm">
-        <a href="/#drop" class="px-3 py-1.5 rounded hover:bg-ink/5">Drop</a>
-        <a href="/#collections" class="px-3 py-1.5 rounded hover:bg-ink/5">Collections</a>
-        <a href="/showcase" class="px-3 py-1.5 rounded hover:bg-ink/5">Showcase</a>
-        <a href="/trades" class="px-3 py-1.5 rounded hover:bg-ink/5">Trades</a>
-        <a href="/vault" class="px-3 py-1.5 rounded hover:bg-ink/5">Vault</a>
-        <a href="/me" class="px-3 py-1.5 rounded hover:bg-ink/5">My Collection</a>
+        <!-- Public browse; personal areas appear only when signed in (auth-only). -->
+        <div class="hidden md:flex items-center gap-2">
+          <a href="/#collections" class="px-3 py-1.5 rounded hover:bg-ink/5">Collections</a>
+          <a href="/trades" class="px-3 py-1.5 rounded hover:bg-ink/5">Trades</a>
+          <a href="/me" class="auth-only hidden px-3 py-1.5 rounded hover:bg-ink/5">My Collection</a>
+        </div>
         <button id="theme-toggle" aria-label="Toggle theme"
           class="p-2 rounded border border-line text-muted hover:text-ink hover:border-ink/30 transition"
           onclick="__setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark')">
           <svg class="icon-sun w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4 1.4-1.4"/></svg>
           <svg class="icon-moon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
         </button>
+
+        <!-- mobile menu -->
+        <div class="relative md:hidden">
+          <button id="nav-menu-btn" type="button" aria-label="Menu"
+            class="p-2 rounded border border-line text-muted hover:text-ink hover:border-ink/30 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div id="nav-menu" class="hidden absolute right-0 mt-2 w-48 p-2 bg-surface border border-line rounded-2xl shadow-2xl z-50">
+            <a href="/#collections" class="block px-3 py-2 rounded-lg hover:bg-ink/5">Collections</a>
+            <a href="/trades" class="block px-3 py-2 rounded-lg hover:bg-ink/5">Trades</a>
+            <a href="/me" class="auth-only hidden block px-3 py-2 rounded-lg hover:bg-ink/5">My Collection</a>
+          </div>
+        </div>
 
         <!-- WOU-ID auth -->
         <div class="relative">
@@ -105,6 +118,13 @@ const { title = 'NFTROPOLY — Digital Collectibles' } = Astro.props;
         <img src="/logo-dark.svg" alt="NFTROPOLY" class="logo-light h-5" />
         <span>World of Unreal — digital collectibles for our games.</span>
       </div>
+      <div class="flex items-center gap-4">
+        <a href="/#collections" class="hover:text-ink">Collections</a>
+        <a href="/trades" class="hover:text-ink">Trades</a>
+        <a href="/vault" class="hover:text-ink">Developers API</a>
+        <a href="/privacy" class="hover:text-ink">Privacy</a>
+        <a href="/terms" class="hover:text-ink">Terms</a>
+      </div>
       <div class="font-mono2 tracking-widest">© 2026 WORLD OF UNREAL</div>
     </div>
   </footer>
@@ -126,7 +146,9 @@ const { title = 'NFTROPOLY — Digital Collectibles' } = Astro.props;
     const logoutBtn = document.getElementById('wou-logout-btn');
 
     function updateAuthUI(detail: any) {
-      if (detail && detail.isAuthenticated && detail.user) {
+      const signedIn = !!(detail && detail.isAuthenticated && detail.user);
+      document.querySelectorAll('.auth-only').forEach((el) => el.classList.toggle('hidden', !signedIn));
+      if (signedIn) {
         signinBtn?.classList.add('hidden');
         userPill?.classList.remove('hidden');
         const name = detail.user.display_name || 'Player';
@@ -140,6 +162,12 @@ const { title = 'NFTROPOLY — Digital Collectibles' } = Astro.props;
         userDropdown?.classList.add('hidden');
       }
     }
+
+    // Mobile menu
+    const menuBtn = document.getElementById('nav-menu-btn');
+    const menu = document.getElementById('nav-menu');
+    menuBtn?.addEventListener('click', (e) => { e.stopPropagation(); menu?.classList.toggle('hidden'); });
+    document.addEventListener('click', () => menu?.classList.add('hidden'));
 
     window.addEventListener('wou:auth-changed', (e: any) => updateAuthUI(e.detail));
     if (wouAuth.isAuthenticated()) updateAuthUI({ isAuthenticated: true, user: wouAuth.getUser() });
