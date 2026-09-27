@@ -366,7 +366,7 @@
     btn.addEventListener('click', () => {
       const provider = btn.getAttribute('data-provider') as any;
       if (provider) {
-        wouAuth.loginWithOAuth(provider);
+        wouAuth.loginWithOAuth(provider, { redirectUri: 'https://nftropoly.com/auth/callback' });
       }
     });
   });

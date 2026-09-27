@@ -121,7 +121,7 @@ import Layout from '../../layouts/Layout.astro';
       }
 
       try {
-        const data = await wouAuth.handleOAuthCallback(provider, code);
+        const data = await wouAuth.handleOAuthCallback(provider, code, {}, stateParam || '');
         loadingEl?.classList.add('hidden');
         successEl?.classList.remove('hidden');
 
