@@ -25,6 +25,9 @@ const { series } = await catalog();
       </div>
     </div>
 
+    <!-- WOU-ID profile card -->
+    <div id="who" class="hidden mb-8"></div>
+
     <!-- set progress -->
     <div id="set-progress" class="grid md:grid-cols-2 gap-4 mb-8 hidden"></div>
 
@@ -53,6 +56,43 @@ const { series } = await catalog();
     const esc = (s) => (s ?? '').toString().replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const grid = document.getElementById('owned-grid')!;
     const empty = document.getElementById('empty-state')!;
+    const who = document.getElementById('who')!;
+    const ID = 'https://id.worldofunreal.com';
+
+    // Perfil real desde WOU-ID (misma data que ve el hub) + bolsillo SPIRAL.
+    async function loadWho() {
+      const u = wouAuth.getUser();
+      const t = wouAuth.getSessionToken();
+      if (!u || !t) { who.classList.add('hidden'); return; }
+      try {
+        const [p, b] = await Promise.all([
+          fetch(`${ID}/api/v1/user/profile/${u.account_id}`).then(r => r.ok ? r.json() : null),
+          fetch(`${ID}/api/v1/assets/balance/me`, { headers: { Authorization: `Bearer ${t}` } }).then(r => r.ok ? r.json() : null),
+        ]);
+        if (!p) { who.classList.add('hidden'); return; }
+        const avatar = p.avatar_url
+          ? `<img src="${p.avatar_url}" alt="" class="w-12 h-12 rounded-full border border-line object-cover" />`
+          : `<div class="w-12 h-12 rounded-full bg-ink/10 border border-line grid place-items-center font-bold text-ink">${esc((p.display_name || p.username || '?')[0].toUpperCase())}</div>`;
+        who.innerHTML = `<div class="rounded-xl border border-line bg-surface p-4 flex items-center gap-4">
+          ${avatar}
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-ink">${esc(p.display_name)}</span>
+              <span class="font-mono2 text-xs text-muted">@${esc(p.username)}</span>
+              ${p.is_verified ? '<span class="text-cy text-xs font-mono2">VERIFIED</span>' : ''}
+            </div>
+            ${p.bio ? `<div class="text-sm text-muted truncate mt-0.5">${esc(p.bio)}</div>` : ''}
+          </div>
+          <div class="text-right shrink-0">
+            ${b ? `<div class="font-mono2 text-sm text-cy">${(Number(b.spiral) || 0).toLocaleString()} <span class="text-muted text-[10px] tracking-[0.2em]">SPIRAL</span></div>` : ''}
+            <a class="text-xs text-cy hover:underline" href="https://worldofunreal.com/profile/${encodeURIComponent(p.username || '')}">View profile &rarr;</a>
+          </div>
+        </div>`;
+        who.classList.remove('hidden');
+      } catch (e) {
+        console.warn('profile load failed', e);
+      }
+    }
 
     // Token images and totals come from WOU-ID (instance snapshots can be stale).
     const TOK_IMG: Record<string, string> = {};
@@ -119,10 +159,11 @@ const { series } = await catalog();
         catalogTotals[c.series] = (catalogTotals[c.series] ?? 0) + 1;
       }
       render();
+      loadWho();
     })();
 
     window.addEventListener('nftropoly:collection-changed', render);
-    window.addEventListener('wou:auth-changed', render);
+    window.addEventListener('wou:auth-changed', () => { render(); loadWho(); });
     render();
   </script>
 </Layout>
