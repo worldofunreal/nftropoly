@@ -13,6 +13,19 @@ import Layout from '../layouts/Layout.astro';
       <button id="new-trade-btn" class="px-5 py-2.5 rounded-lg bg-cy/15 text-cy border border-cy/40 font-semibold text-sm">New Trade</button>
     </div>
 
+    <!-- SPIRAL: Ionic wallet <-> game pocket -->
+    <div id="bridge-panel" class="hidden rounded-2xl border border-line bg-surface p-4 mb-6">
+      <div class="flex flex-col md:flex-row md:items-center gap-3 text-sm">
+        <div class="text-muted">Wallet <span id="wallet-bal" class="text-cy font-mono2">–</span> · Pocket <span id="pocket-bal" class="text-cy font-mono2">–</span></div>
+        <div class="flex gap-2 md:ml-auto items-center">
+          <input id="bridge-amt" type="number" min="1" max="1000" value="100" class="w-24 px-2 py-1.5 rounded border border-line bg-bg text-ink text-sm" />
+          <button id="bridge-dep" class="px-3 py-1.5 rounded bg-cy text-bg font-bold text-xs">Deposit to pocket</button>
+          <button id="bridge-wd" class="px-3 py-1.5 rounded border border-cy/40 text-cy text-xs font-semibold">Withdraw to wallet</button>
+        </div>
+      </div>
+      <div id="bridge-msg" class="text-xs text-muted mt-2"></div>
+    </div>
+
     <!-- For sale (fixed price, SPIRAL) -->
     <div class="flex items-end justify-between gap-4 mb-4">
       <h2 class="text-xl font-black text-ink">FOR <span class="text-cy">SALE</span></h2>
@@ -265,8 +278,52 @@ import Layout from '../layouts/Layout.astro';
     });
 
     window.addEventListener('nftropoly:collection-changed', loadListings);
-    window.addEventListener('wou:auth-changed', () => { loadListings(); refreshBalance(); });
+
+    // SPIRAL bridge: Ionic wallet <-> game pocket (server verified both sides)
+    const ION = 'https://ionicswap.com';
+    const bridgePanel = document.getElementById('bridge-panel')!;
+    const walletEl = document.getElementById('wallet-bal')!;
+    const pocketEl = document.getElementById('pocket-bal')!;
+    const bridgeAmt = document.getElementById('bridge-amt') as HTMLInputElement;
+    const bridgeMsg = document.getElementById('bridge-msg')!;
+
+    async function refreshBridge() {
+      const t = wouAuth.getSessionToken();
+      if (!t) { bridgePanel.classList.add('hidden'); return; }
+      bridgePanel.classList.remove('hidden');
+      try {
+        const [w, p] = await Promise.all([
+          fetch(`${ION}/api/ledger/balance`, { headers: { Authorization: `Bearer ${t}` } }).then((r) => r.json()),
+          collection.balance(),
+        ]);
+        walletEl.textContent = `${w.balance ?? '?'} SPIRAL`;
+        pocketEl.textContent = `${p} SPIRAL`;
+      } catch { walletEl.textContent = 'offline'; }
+    }
+
+    async function bridgeMove(dir: 'deposit' | 'withdraw') {
+      const t = wouAuth.getSessionToken();
+      if (!t) { wouAuth.openModal(); return; }
+      const amt = Math.floor(Number(bridgeAmt.value));
+      if (!(amt >= 1 && amt <= 1000)) { bridgeMsg.textContent = 'Amount must be 1–1000.'; return; }
+      bridgeMsg.textContent = 'Moving…';
+      try {
+        const r = await fetch(`${ION}/api/spiral/${dir}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${t}` },
+          body: JSON.stringify({ amount: amt, key: crypto.randomUUID() }),
+        });
+        const d = await r.json();
+        bridgeMsg.textContent = r.ok ? `Done — wallet ${d.wallet} · pocket ${d.pocket}` : (d.error || 'failed');
+      } catch { bridgeMsg.textContent = 'Ionic-Swap unreachable'; }
+      refreshBridge();
+    }
+
+    document.getElementById('bridge-dep')!.addEventListener('click', () => bridgeMove('deposit'));
+    document.getElementById('bridge-wd')!.addEventListener('click', () => bridgeMove('withdraw'));
+    window.addEventListener('wou:auth-changed', () => { loadListings(); refreshBalance(); refreshBridge(); });
     loadListings();
     refreshBalance();
+    refreshBridge();
   </script>
 </Layout>
