@@ -47,11 +47,14 @@ const { series } = await catalog();
     </div>
   </div>
 
-  <script define:vars={{ SERIES: series }}>
+  <script type="application/json" id="me-series" set:html={JSON.stringify(series).replace(/</g, '\\u003c')} />
+  <script>
     import { collection } from '../scripts/collection';
     import { catalog } from '../scripts/catalog';
     import { wouAuth } from '@worldofunreal/id';
     wouAuth.setDefaultContext('nftropoly');
+
+    const SERIES = JSON.parse(document.getElementById('me-series')!.textContent!);
 
     const esc = (s) => (s ?? '').toString().replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     const grid = document.getElementById('owned-grid')!;

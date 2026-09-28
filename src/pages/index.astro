@@ -66,8 +66,10 @@ const cardsOf = (id: string) => all.filter(c => c.series === id);
     <div id="pack-inner" class="flex flex-col items-center gap-6 p-8 max-w-3xl w-full"></div>
   </div>
 
-  <script define:vars={{ CARDS: all }}>
+  <script type="application/json" id="home-cards" set:html={JSON.stringify(all).replace(/</g, '\\u003c')} />
+  <script>
     import { collection } from '../scripts/collection';
+    const CARDS = JSON.parse(document.getElementById('home-cards')!.textContent!);
 
     // pack opening
     const modal = document.getElementById('pack-modal');

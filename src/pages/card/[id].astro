@@ -124,8 +124,11 @@ const attrs = ([['Civilization', card.civ], ['Faction', card.faction], ['Role', 
     </div>
   </div>
 
-  <script define:vars={{ CARD_ID: card.id, CARD_SERIES: card.series }}>
+  <script type="application/json" id="card-data" set:html={JSON.stringify({ id: card.id, series: card.series }).replace(/</g, '\\u003c')} />
+  <script>
     import { collection } from '../../scripts/collection';
+    const _cd = JSON.parse(document.getElementById('card-data')!.textContent!);
+    const CARD_ID = _cd.id, CARD_SERIES = _cd.series;
     const API = 'https://id.worldofunreal.com';
     const btn = document.getElementById('collect-btn')!;
     const msg = document.getElementById('claim-msg')!;
